@@ -3,101 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 030 — Jobs, primeiro e segundo plano, nohup e disown</title>
+<title>GUIA 030 — Jobs, nohup e disown</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Sessão: terminal → shell → grupos */
+  .sessao { display:flex; align-items:center; gap:8px; }
+  .sessao .cx { border:1.5px solid var(--linha); border-radius:var(--raio); padding:6px 9px; text-align:center; }
+  .sessao .term { border-color:var(--azul); background:var(--azul-claro); flex:none; width:118px; }
+  .sessao .shell { border-color:#5b6b7d; background:#eef1f5; flex:none; width:124px; }
+  .sessao .cx b { display:block; font-family:var(--fonte-mono); font-size:11px; color:var(--navy); }
+  .sessao .cx span { display:block; font-size:9px; color:var(--tinta-suave); line-height:1.25; margin-top:2px; }
+  .sessao .lig { color:var(--linha); font-size:16px; font-weight:700; flex:none; }
+  .grupos { flex:1; display:flex; flex-direction:column; gap:5px; }
+  .gr { border:1.5px solid var(--linha); border-left:4px solid var(--laranja); border-radius:var(--raio-sm);
+        padding:4px 9px; background:var(--laranja-claro); display:flex; align-items:baseline; gap:8px; }
+  .gr.fg { border-left-color:var(--verde); background:var(--verde-claro); }
+  .gr b { font-family:var(--fonte-mono); font-size:10.5px; color:var(--navy); flex:none; }
+  .gr span { font-size:9.5px; color:var(--tinta-suave); line-height:1.25; }
+  .hup { margin-top:6px; border-left:4px solid var(--vermelho); background:var(--vermelho-claro);
+         border-radius:var(--raio-sm); padding:5px 9px; font-size:10px; color:var(--tinta-suave); line-height:1.35; }
+  .hup b { color:var(--vermelho); }
+
+  .lista-j { display:flex; flex-direction:column; gap:4px; }
+  .lista-j div { font-size:10.5px; color:var(--tinta); line-height:1.3; }
+  .lista-j b { color:var(--navy); }
+  table.comparacao td.dest { background:var(--verde-claro) !important; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 030</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Jobs, primeiro e segundo plano, nohup e disown</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Jobs, Planos<br>nohup &amp; disown</h1>
+      <div class="sub">A varredura de seis horas some junto com a conexão SSH — por causa de um sinal só.</div>
     </div>
     <div class="badge"><b>030</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <div class="secao-titulo">A sessão: quem recebe o <code class="inl">Ctrl-C</code> e quem leva o <code class="inl">SIGHUP</code></div>
+  <section>
+    <div class="sessao">
+      <div class="cx term"><b>/dev/pts/0</b><span>terminal de controle</span></div>
+      <span class="lig">→</span>
+      <div class="cx shell"><b>bash</b><span>líder da sessão<br>PID = SID = 1342</span></div>
+      <span class="lig">→</span>
+      <div class="grupos">
+        <div class="gr fg"><b>1º plano · vim</b><span>único que lê o teclado e recebe <b>Ctrl-C</b> / <b>Ctrl-Z</b></span></div>
+        <div class="gr"><b>%1 · tar czf … &amp;</b><span>escreve na tela, mas <i>ler</i> dela o para com <b>SIGTTIN</b></span></div>
+        <div class="gr"><b>%2 · nmap … &amp;</b><span><b>job = pipeline inteiro</b> = um grupo de processos</span></div>
+      </div>
+    </div>
+    <div class="hup"><b>Ao cair a conexão</b>, o kernel manda <b>SIGHUP</b> ao líder da sessão, e o bash repassa a <i>todos</i> os jobs — ação padrão: terminar. Sair digitando <code class="inl">exit</code> no bash <b>não</b> faz isso (opção <code class="inl">huponexit</code> desligada); o <code class="inl">zsh</code> do Kali se comporta diferente — não conte com ele.</div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna verde">
+      <h3>O ciclo do job</h3>
+      <ul>
+        <li><code class="inl">cmd &amp;</code> inicia em 2º plano e devolve o prompt: <code class="inl">[1] 2847</code></li>
+        <li><b>Ctrl-Z</b> envia <code class="inl">SIGTSTP</code>: estado <b>T</b>, memória intacta, zero CPU.</li>
+        <li><code class="inl">bg</code> retoma em 2º plano · <code class="inl">fg</code> traz de volta ao 1º.</li>
+        <li><code class="inl">jobs -l</code> mostra PID; <b>+</b> é o job corrente, <b>-</b> o anterior.</li>
+        <li><i>Stopped (tty input)</i> = o job pediu teclado: <code class="inl">fg</code>, responda, <b>Ctrl-Z</b>, <code class="inl">bg</code>.</li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>Referenciar e sincronizar</h3>
+      <div class="lista-j">
+        <div><b>%1</b> número · <b>%+</b> ou <b>%%</b> corrente · <b>%-</b> anterior</div>
+        <div><b>%vim</b> começa com · <b>%?relato</b> contém</div>
+        <div><code class="inl">kill %3</code> sinaliza o <b>job</b> 3 (o grupo inteiro).</div>
+        <div><code class="inl">$!</code> guarda o PID do último <code class="inl">&amp;</code>; <code class="inl">wait</code> espera e devolve o <code class="inl">$?</code> real.</div>
+        <div><code class="inl">t1 &amp; t2 &amp; t3 &amp; wait</code> — o paralelismo básico do shell.</div>
+        <div><b>jobs não atravessa terminais:</b> entre painéis do tmux, use PID com <code class="inl">pgrep</code>.</div>
+      </div>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Desacoplar do terminal</th><th>Quando se usa</th><th>O que acontece com a saída</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>nohup cmd &gt; log 2&gt;&amp;1 &amp;</code></td><td>Antes de iniciar</td><td>Ignora o SIGHUP; sem redirecionar, despeja em <code>nohup.out</code></td></tr>
+        <tr><td><code>disown -h %1</code></td><td>Depois de iniciar — "esqueci o nohup"</td><td>Tira o job da tabela do shell; a saída no terminal <b>se perde</b></td></tr>
+        <tr><td><code>setsid cmd &lt; /dev/null</code></td><td>Antes — desassociar de vez</td><td>Sessão nova, <code>TTY ?</code>; exige redirecionamento</td></tr>
+        <tr><td><code>systemd-run --user --unit=x</code></td><td>Quando o certo é ser serviço</td><td>Vira unidade: log no <code>journald</code>, controle por <code>systemctl</code></td></tr>
+        <tr><td class="dest"><code>tmux</code> / <code>screen</code></td><td class="dest">Tarefa longa <b>e interativa</b></td><td class="dest"><b>Preservada e reconectável</b> — você volta e vê a tela (ficha 031)</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b><code class="inl">kill %1</code> e <code class="inl">kill 1</code> não são a mesma coisa.</b> Com <code class="inl">%</code> o argumento é número de <i>job</i> do shell; sem <code class="inl">%</code> é um <b>PID</b> — e o PID 1 é o <code class="inl">systemd</code>. Como root, <code class="inl">kill -9 1</code> é o caminho mais curto para um sistema que só volta com reset físico. O <code class="inl">%</code> não é decoração.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Job é o pipeline inteiro</b> = um grupo de processos; por isso o <code class="inl">Ctrl-C</code> derruba todos os estágios.</li>
+        <li><code class="inl">jobs</code>/<code class="inl">fg</code>/<code class="inl">bg</code> são internos do shell e valem só naquele terminal.</li>
+        <li>Terminal fechou → <code class="inl">SIGHUP</code> ao líder da sessão → repassado aos jobs.</li>
+        <li><code class="inl">nohup</code>, <code class="inl">disown</code> e <code class="inl">setsid</code> mantêm vivo; <b>nenhum preserva a interação</b>.</li>
+        <li>Sem tmux, dá para espiar: <code class="inl">tail -f /proc/PID/fd/1</code>; em emergência, <code class="inl">reptyr PID</code> rouba o processo.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Ferramenta longa merece <b>tmux</b>, não <code class="inl">nohup</code>: você quer <i>ver a tela</i> ao reconectar. Inicie o <code class="inl">nmap</code> com <code class="inl">-oA scan</code> — sem arquivo de saída não existe <code class="inl">--resume</code>, e a interrupção obriga a recomeçar. <i>Listener</i> do metasploit ou <code class="inl">nc -lvnp</code> preso ao terminal morre com o SSH e derruba quem estiver conectado. E <code class="inl">nohup.out</code> esquecido no alvo é <b>vestígio</b>: redirecione para a sua área e limpe no encerramento. Para caçar persistência: <code class="inl">ps -eo pid,ppid,tty,comm | awk '$3=="?"'</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 05 · Fase 2 <span class="n">030</span></span>
