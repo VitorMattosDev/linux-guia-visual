@@ -3,101 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 023 — Permissões especiais: SUID, SGID e sticky bit</title>
+<title>GUIA 023 — SUID, SGID e sticky bit</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico desta ficha: o quarto dígito octal e o s no ls -l */
+  .octal { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:nowrap; }
+  .grp { text-align:center; }
+  .grp .rot { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+              letter-spacing:.03em; color:var(--navy); margin-bottom:5px; }
+  .dgs { display:flex; gap:4px; }
+  .dg { width:34px; height:38px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+        font-family:var(--fonte-mono); font-weight:700; font-size:19px; color:#fff; background:#8a94a3; }
+  .dg.esp { background:var(--vermelho); }
+  .pills { display:flex; flex-direction:column; gap:4px; }
+  .pill { font-family:var(--fonte-mono); font-size:11px; font-weight:700; color:#fff;
+          border-radius:5px; padding:3px 9px; white-space:nowrap; }
+  .p4 { background:var(--vermelho); } .p2 { background:var(--roxo); } .p1 { background:var(--laranja); }
+  .flecha { color:var(--azul); font-size:20px; font-weight:700; }
+  .bits { display:flex; gap:3px; }
+  .bit { width:26px; height:38px; border-radius:5px; display:flex; align-items:center; justify-content:center;
+         font-family:var(--fonte-mono); font-weight:700; font-size:16px; color:#fff; background:#c3ccd8; }
+  .bit.on { background:#5b6b7d; } .bit.s { background:var(--vermelho); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 023</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Permissões especiais: SUID, SGID e sticky bit</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>SUID, SGID e<br>Sticky Bit</h1>
+      <div class="sub">Você não lê <code class="inl">/etc/shadow</code> — mas troca sua senha. O <code class="inl">s</code> do <code class="inl">passwd</code> explica tudo.</div>
     </div>
     <div class="badge"><b>023</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- O QUARTO DÍGITO -->
+  <div class="secao-titulo">O quarto dígito octal, o que quase ninguém escreve</div>
+  <section class="octal">
+    <div class="grp">
+      <div class="rot">modo completo</div>
+      <div class="dgs"><span class="dg esp">4</span><span class="dg">7</span><span class="dg">5</span><span class="dg">5</span></div>
+    </div>
+    <span class="flecha">→</span>
+    <div class="grp">
+      <div class="rot">o 1º dígito soma</div>
+      <div class="pills"><span class="pill p4">SUID = 4</span><span class="pill p2">SGID = 2</span><span class="pill p1">sticky = 1</span></div>
+    </div>
+    <span class="flecha">→</span>
+    <div class="grp">
+      <div class="rot">no <code class="inl">ls -l</code> ele ocupa o lugar do x</div>
+      <div class="bits"><span class="bit on">-</span><span class="bit on">r</span><span class="bit on">w</span><span class="bit s">s</span><span class="bit on">r</span><span class="bit">-</span><span class="bit on">x</span><span class="bit on">r</span><span class="bit">-</span><span class="bit on">x</span></div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- OS TRÊS BITS -->
+  <div class="secao-titulo">Os três bits, um a um</div>
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>SUID (4) — em executável</h3><p>O processo ganha o <b>UID efetivo do dono do arquivo</b>. O UID <b>real</b> continua o seu (para log e sinais); é o <b>efetivo</b> que o kernel checa. Por isso <code>passwd</code> (dono root) grava no <code>shadow</code>.</p></div>
+    <div class="card roxo"><h3>SGID (2) — em diretório</h3><p>Todo arquivo criado ali <b>herda o grupo do diretório</b> em vez do grupo primário do autor — e subdiretórios herdam o próprio bit. É a pasta de equipe: <code>chgrp projeto</code> + <code>chmod 2775</code> + <code>umask 002</code>.</p></div>
+    <div class="card laranja"><h3>Sticky (1) — em diretório</h3><p>Com <code>w</code> num diretório qualquer um apaga arquivo alheio. O sticky restringe: <b>só o dono do arquivo</b> (ou do diretório, ou root) remove. É o <code>t</code> de <code>/tmp</code> — <code>1777</code>, <code>drwxrwxrwt</code>.</p></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> find / -xdev -perm -4000 -type f 2>/dev/null   <span class="cmt"># inventario de SUID</span>
+<span class="out">/usr/bin/passwd  /usr/bin/sudo  /usr/bin/su  /usr/bin/mount  /usr/bin/pkexec</span>
+<span class="prompt">$</span> chmod 2775 /srv/projeto  &amp;&amp;  ls -ld /srv/projeto
+<span class="out">drwxrwsr-x 2 root projeto 4096 ago  1 09:14 /srv/projeto</span>
+<span class="prompt">$</span> ls -ld /tmp
+<span class="out">drwxrwxrwt 20 root root 4096 ago  1 09:14 /tmp</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- LETRAS -->
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>No ls -l</th><th>Bit</th><th>Como ler</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>s</code> no dono</td><td>SUID</td><td>Minúscula = o <code>x</code> também está aceso. Roda como o dono.</td></tr>
+        <tr><td><code>S</code> no dono</td><td>SUID</td><td>Maiúscula = bit ligado <b>sem</b> <code>x</code>. Quase sempre um <code>chmod</code> incompleto.</td></tr>
+        <tr><td><code>s</code> no grupo</td><td>SGID</td><td>Executável roda com o grupo do arquivo; diretório impõe o grupo dele.</td></tr>
+        <tr><td><code>t</code> em outros</td><td>sticky</td><td>Só o dono apaga. Em arquivo, hoje o Linux ignora (herança do Unix antigo).</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>SUID é a maior fonte de escalada de privilégio local.</b> Nunca dê <code class="inl">chmod u+s</code> a um binário seu para fugir do <code class="inl">sudo</code>: você passa a garantir que ele é seguro contra <i>qualquer</i> entrada. Em <b>script o SUID é ignorado</b> pelo kernel (janela de corrida no shebang) — para privilégio pontual use regra restrita de <code class="inl">sudo</code> ou <i>capabilities</i>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Quarto dígito: <b>4</b> SUID · <b>2</b> SGID · <b>1</b> sticky.</li>
+        <li>SUID = UID <b>efetivo</b> do dono; o real segue sendo o seu.</li>
+        <li>SGID em diretório = herança de grupo, propagada aos subdiretórios.</li>
+        <li>Sticky (<code class="inl">1777</code>) = só o dono apaga — é o que protege <code class="inl">/tmp</code>.</li>
+        <li><code class="inl">S</code>/<code class="inl">T</code> maiúsculo = especial ligado sem <code class="inl">x</code>: revise o <code class="inl">chmod</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Guarde uma <b>linha de base</b> logo após instalar: <code class="inl">find / -xdev -perm -4000 -type f 2>/dev/null | sort</code>. Um SUID que apareceu sozinho depois é dos sinais mais claros de comprometimento. Do lado ofensivo, essa mesma varredura (LinPEAS, GTFOBins) é o 1º passo da escalada local em alvo <b>autorizado</b> — <code class="inl">pkexec</code> já teve falhas graves, mantenha o <code class="inl">polkit</code> atualizado. Sem escopo escrito, é crime (Lei 12.737/2012).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 04 · Fase 1 <span class="n">023</span></span>
