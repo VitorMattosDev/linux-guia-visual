@@ -31,7 +31,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 016** - Links simbólicos e hard links - `guias/vol03/guia016-links-simbolicos-e-hard-links.html`
 - [x] **guia 017** - Localizando arquivos: find, locate, which e type - `guias/vol03/guia017-localizando-arquivos-find-locate-which-e-type.html`
 - [x] **guia 018** - Compactação e arquivamento: tar, gzip, xz e zip - `guias/vol03/guia018-compactacao-e-arquivamento-tar-gzip-xz-e-zip.html`
-- [ ] **guia 019** - Montagem de dispositivos e o comando mount - `guias/vol03/guia019-montagem-de-dispositivos-e-o-comando-mount.html`
+- [x] **guia 019** - Montagem de dispositivos e o comando mount - `guias/vol03/guia019-montagem-de-dispositivos-e-o-comando-mount.html`
 - [x] **guia 020** - Permissões de arquivo: leitura, escrita e execução - `guias/vol03/guia020-permissoes-de-arquivo-leitura-escrita-e-execucao.html`
 
 ### Volume 4 — Usuários, Grupos e Permissões

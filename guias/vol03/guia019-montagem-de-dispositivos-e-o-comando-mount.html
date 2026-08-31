@@ -3,101 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 019 — Montagem de dispositivos e o comando mount</title>
+<title>GUIA 019 — Montagem de dispositivos e o mount</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: o enxerto de um sistema de arquivos na árvore única */
+  .enxerto { display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; }
+  .quadro { border:1.5px solid var(--linha); border-radius:10px; background:#fff; padding:7px 9px 8px; }
+  .quadro > .rot { font-family:var(--fonte-titulo); font-size:9px; font-weight:800; letter-spacing:.05em;
+                   text-transform:uppercase; color:var(--tinta-suave); text-align:center; margin-bottom:6px; }
+  .no { font-family:var(--fonte-mono); font-size:10px; border:1.5px solid var(--azul); background:var(--azul-claro);
+        color:var(--navy); border-radius:5px; padding:3px 8px; display:inline-block; }
+  .no.alvo { border-color:var(--vermelho); background:var(--vermelho-claro); color:#8a1f1f; font-weight:700; }
+  .no.ext { border-color:var(--verde); background:var(--verde-claro); color:var(--verde); }
+  .arvore { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .ramos { display:flex; gap:5px; justify-content:center; }
+  .liga { width:2px; height:8px; background:var(--linha); }
+  .sub-ramo { display:flex; flex-direction:column; align-items:center; }
+  .setaenxerto { text-align:center; }
+  .setaenxerto .s { color:var(--vermelho); font-size:22px; font-weight:700; line-height:1; }
+  .setaenxerto .l { font-family:var(--fonte-mono); font-size:8.5px; color:var(--vermelho); display:block;
+                    max-width:96px; line-height:1.25; margin-top:3px; }
+  .obs { text-align:center; font-size:9.5px; color:var(--tinta-suave); margin-top:6px; line-height:1.35; }
+  /* linha do fstab */
+  .fstab { display:grid; grid-template-columns:1.25fr 1fr .55fr 1.1fr .35fr .35fr; gap:5px; }
+  .campo { border-radius:7px; padding:5px 6px; text-align:center; border:1.5px solid; }
+  .campo .v { font-family:var(--fonte-mono); font-size:10px; font-weight:700; color:var(--navy); word-break:break-all; }
+  .campo .n { font-family:var(--fonte-titulo); font-size:8px; font-weight:800; letter-spacing:.05em;
+              text-transform:uppercase; margin-bottom:2px; }
+  .f1{border-color:var(--azul);background:var(--azul-claro)}       .f1 .n{color:var(--azul)}
+  .f2{border-color:var(--verde);background:var(--verde-claro)}     .f2 .n{color:var(--verde)}
+  .f3{border-color:#5b6b7d;background:var(--papel-tint)}           .f3 .n{color:#5b6b7d}
+  .f4{border-color:var(--laranja);background:var(--laranja-claro)} .f4 .n{color:var(--laranja)}
+  .f5{border-color:var(--roxo);background:var(--roxo-claro)}       .f5 .n{color:var(--roxo)}
+  .glosa { display:grid; grid-template-columns:1.25fr 1fr .55fr 1.1fr .7fr; gap:5px; margin-top:4px; }
+  .glosa span { font-size:8.5px; color:var(--tinta-suave); text-align:center; line-height:1.25; }
+  /* prática */
+  .pratica { display:grid; grid-template-columns:1.35fr .85fr; gap:10px; align-items:start; }
+  .caixa { border:1.5px solid var(--linha); border-top:3px solid var(--roxo); border-radius:8px;
+           background:var(--papel-tint); padding:6px 8px 7px; margin-bottom:8px; }
+  .caixa h4 { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase; letter-spacing:.03em;
+              color:var(--navy); margin-bottom:4px; }
+  .caixa .l { font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); display:block; margin-top:3px; }
+  .caixa .g { font-size:8.5px; color:var(--tinta-suave); display:block; line-height:1.2; }
+  .caixa.op { border-top-color:var(--laranja); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 019</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Montagem de dispositivos e o comando mount</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Montagem<br>e o mount</h1>
+      <div class="sub">A cópia de 2 GB terminou em três segundos, você puxou o pen drive — e do outro lado ele está vazio.</div>
     </div>
     <div class="badge"><b>019</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- O ENXERTO -->
+  <div class="secao-titulo">Uma árvore só, sem letras de unidade</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="enxerto">
+      <div class="quadro">
+        <div class="rot">Raiz — /dev/sda1</div>
+        <div class="arvore">
+          <span class="no">/</span>
+          <div class="liga"></div>
+          <div class="ramos">
+            <span class="no">etc</span><span class="no">home</span><span class="no">usr</span>
+            <div class="sub-ramo"><span class="no">mnt</span><div class="liga"></div><span class="no alvo">dados</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="setaenxerto">
+        <div class="s">←</div>
+        <span class="l">mount /dev/sdb1<br>/mnt/dados</span>
+      </div>
+      <div class="quadro">
+        <div class="rot">2º sistema de arquivos — /dev/sdb1</div>
+        <div class="arvore">
+          <span class="no ext">(raiz)</span>
+          <div class="liga"></div>
+          <div class="ramos"><span class="no ext">fotos</span><span class="no ext">docs</span><span class="no ext">backup</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="obs">Depois do enxerto, <code class="inl">/mnt/dados/fotos</code> é caminho válido. O que houvesse em <code class="inl">/mnt/dados</code> fica <b>escondido</b> — não apagado: reaparece no <code class="inl">umount</code>. E um único caminho pode atravessar três dispositivos sem avisar — por isso existem o <code class="inl">find -xdev</code> e o <code class="inl">du -x</code>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- FSTAB -->
+  <div class="secao-titulo">Os seis campos do <code class="inl">/etc/fstab</code></div>
+  <section>
+    <div class="fstab">
+      <div class="campo f1"><div class="n">1 · o quê</div><div class="v">UUID=1a2b-3c4d</div></div>
+      <div class="campo f2"><div class="n">2 · onde</div><div class="v">/mnt/dados</div></div>
+      <div class="campo f3"><div class="n">3 · tipo</div><div class="v">ext4</div></div>
+      <div class="campo f4"><div class="n">4 · opções</div><div class="v">defaults,nofail</div></div>
+      <div class="campo f5"><div class="n">5</div><div class="v">0</div></div>
+      <div class="campo f5"><div class="n">6</div><div class="v">2</div></div>
+    </div>
+    <div class="glosa">
+      <span><b>Sempre UUID</b> (<code class="inl">blkid</code>): <code class="inl">/dev/sdb1</code> troca de ordem entre boots</span>
+      <span>o ponto de montagem, que precisa existir</span>
+      <span>ext4, vfat, swap, auto</span>
+      <span>as mesmas do <code class="inl">-o</code>; <b>nofail</b> impede o boot de travar sem o disco</span>
+      <span>dump (0) e ordem do fsck: 1 na raiz, 2 no resto, 0 = não checa</span>
+    </div>
+  </section>
+
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">Ver, montar e desmontar</div>
+  <section class="pratica">
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> lsblk -f <span class="cmt"># o kernel enxergou o dispositivo?</span>
+<span class="out">sdb1  vfat  PENDRIVE  1A2B-3C4D</span>
+<span class="prompt">$</span> sudo mount -o ro,noexec,nosuid,nodev \
+    /dev/sdb1 /mnt/inspecao
+<span class="prompt">$</span> findmnt /mnt/inspecao <span class="cmt"># arvore de montagens</span>
+<span class="prompt">$</span> sudo umount /mnt/inspecao
+<span class="out">umount: /mnt/inspecao: target is busy.</span>
+<span class="prompt">$</span> fuser -vm /mnt/inspecao <span class="cmt"># quem segura?</span>
+<span class="cmt"># quase sempre e o seu proprio cd: volte com "cd /"</span>
+<span class="prompt">$</span> sync &amp;&amp; sudo umount /mnt/inspecao</pre>
+    </div>
+    <div>
+      <div class="caixa op">
+        <h4>Higiene de mídia alheia</h4>
+        <b class="l">-o ro</b><span class="g">protege a evidência de alteração</span>
+        <b class="l">-o noexec,nosuid,nodev</b><span class="g">protege você do conteúdo dela</span>
+        <b class="l">-o uid=,gid=,umask=</b><span class="g">FAT/NTFS não guardam permissão Unix</span>
+      </div>
+      <div class="caixa">
+        <h4>Sem dispositivo nenhum</h4>
+        <b class="l">mount -o loop img /mnt</b><span class="g">arquivo vira disco (<code>losetup -Pf</code> se tiver partições)</span>
+        <b class="l">mount --bind /a /b</b><span class="g">o mesmo diretório em dois lugares, com opções próprias</span>
+        <b class="l">mount -t tmpfs -o size=256M</b><span class="g">vive na RAM; some ao desligar</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Escrita é confirmada no cache, não no disco.</b> Antes de puxar qualquer mídia: <code class="inl">sync</code> e <code class="inl">sudo umount</code> — se o <code class="inl">umount</code> falhar por <i>busy</i>, <u>não</u> puxe: descubra o processo com <code class="inl">fuser -vm</code>. O <code class="inl">umount -l</code> é paliativo e não garante gravação. <b>E linha errada no <code class="inl">fstab</code> trava o boot</b> numa shell de emergência: copie o arquivo antes (<code class="inl">cp /etc/fstab /etc/fstab.bak</code>) e valide com <code class="inl">findmnt --verify</code> e <code class="inl">mount -a</code> — nunca reinicie sem testar.</div>
+
+  <!-- RESUMO + DICA -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Montar é enxertar outro sistema de arquivos num diretório da árvore única.</li>
+        <li><code class="inl">lsblk</code> parte do hardware; <code class="inl">findmnt</code> parte da árvore; <code class="inl">/proc/mounts</code> é a verdade do kernel.</li>
+        <li>"Target is busy" quase sempre é o seu próprio <code class="inl">cd</code> dentro do ponto.</li>
+        <li>No <code class="inl">fstab</code>: UUID e <code class="inl">nofail</code> em toda mídia removível ou de rede.</li>
+        <li><i>Bind mount</i> não é link: funciona em <code class="inl">chroot</code> e aceita opções próprias — é a base dos contêineres.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Mídia de terceiros monta <b>somente-leitura</b>: <code class="inl">mount -o ro,noexec,nosuid,nodev</code> — e em perícia nem isso basta: trabalhe sobre uma <i>cópia</i>, com <code class="inl">losetup -r</code>. O Xfce monta automático em <code class="inl">/media/&lt;usuário&gt;</code> pelo <code class="inl">udisks2</code>, com as opções dele: desfaça com <code class="inl">udisksctl unmount -b</code> e remonte à mão. <code class="inl">lsblk -f</code> <b>antes</b> de qualquer <code class="inl">mount</code>, <code class="inl">dd</code> ou <code class="inl">mkfs</code> — trocar <code class="inl">sda</code> por <code class="inl">sdb</code> é o erro que destrói o disco do próprio analista.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 03 · Fase 1 <span class="n">019</span></span>
