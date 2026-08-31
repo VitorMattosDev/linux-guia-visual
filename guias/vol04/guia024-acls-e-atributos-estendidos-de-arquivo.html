@@ -3,101 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 024 — ACLs e atributos estendidos de arquivo</title>
+<title>GUIA 024 — ACLs e atributos estendidos</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico desta ficha: a saída do getfacl, antes e depois */
+  .acl-comp { display:grid; grid-template-columns:1fr 26px 1fr; gap:10px; align-items:center; }
+  .painel { border:1.5px solid #d7dee8; border-radius:var(--raio); padding:8px 10px; background:#fff; }
+  .painel .tit { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+                 letter-spacing:.04em; color:var(--navy); margin-bottom:6px; }
+  .ent { font-family:var(--fonte-mono); font-size:11.5px; padding:2.5px 7px; border-radius:4px;
+         margin-bottom:3px; background:#eef1f6; color:#41506a; }
+  .ent.novo { background:var(--verde-claro); color:var(--verde); font-weight:700; }
+  .ent.mask { background:#fdeaea; color:var(--vermelho); font-weight:700; }
+  .acl-comp .flecha { color:var(--azul); font-size:22px; font-weight:700; text-align:center; }
+  .rot-lado { font-size:9.5px; color:var(--tinta-suave); margin-top:4px; line-height:1.3; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 024</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>ACLs e atributos estendidos de arquivo</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>ACLs e<br>Atributos</h1>
+      <div class="sub">A auditora precisa ler <b>só este</b> diretório — e não cabe em dono, grupo ou outros.</div>
     </div>
     <div class="badge"><b>024</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- GETFACL ANTES x DEPOIS -->
+  <div class="secao-titulo">O que o <code class="inl">getfacl</code> mostra</div>
+  <section class="acl-comp">
+    <div class="painel">
+      <div class="tit">Modelo clássico — 3 classes</div>
+      <div class="ent">user::rwx</div>
+      <div class="ent">group::r-x</div>
+      <div class="ent">other::---</div>
+      <div class="rot-lado">Os mesmos 9 bits do <code class="inl">ls -l</code>, escritos por extenso. Um usuário, um grupo, o resto do mundo.</div>
+    </div>
+    <div class="flecha">→</div>
+    <div class="painel">
+      <div class="tit">Depois de <code class="inl">setfacl -m u:marcia:rx</code></div>
+      <div class="ent">user::rwx</div>
+      <div class="ent novo">user:marcia:r-x</div>
+      <div class="ent">group::r-x</div>
+      <div class="ent mask">mask::r-x</div>
+      <div class="ent">other::---</div>
+      <div class="rot-lado">Entrada <b>nomeada</b> (verde) + a <b>máscara</b> (vermelho). E o modo no <code class="inl">ls -l</code> ganha um <b>+</b>.</div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- OS TRÊS CONCEITOS -->
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>A máscara é um teto</h3><p>A permissão real é a <b>interseção</b> entre o que a entrada pede e a máscara. <code>getfacl</code> avisa com <code>#effective:r--</code>.</p></div>
+    <div class="card laranja"><h3>chmod mexe na máscara</h3><p>Num arquivo com ACL, <code>chmod g-w</code> não altera o <code>group::</code> — baixa a <b>máscara</b>. Acesso sumiu depois de um <code>chmod</code>? É ela.</p></div>
+    <div class="card roxo"><h3>ACL padrão = herança</h3><p><code>setfacl -d -m u:marcia:rx dir/</code> não muda o diretório: define o que <b>os arquivos novos</b> ali dentro já nascem tendo. Casa com o SGID.</p></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <!-- CHATTR -->
+  <div class="secao-titulo">Uma camada abaixo: atributos com <code class="inl">chattr</code></div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna verde">
+      <h3>+i — imutável</h3>
+      <ul>
+        <li>Não altera, não renomeia, não apaga, não ganha hard link — <b>nem pelo root</b>.</li>
+        <li>Trava contra <b>erro</b> e script cego, não contra um root decidido: ele faz <code class="inl">chattr -i</code> antes.</li>
+        <li>Uso típico: <code class="inl">/etc/resolv.conf</code> que insiste em ser reescrito.</li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>+a — append-only</h3>
+      <ul>
+        <li>Só aceita acréscimo ao fim: <code class="inl">&gt;&gt;</code> passa, <code class="inl">&gt;</code> (trunca) é negado.</li>
+        <li>Atributo natural de log: dá para somar linhas, não para apagar o rastro.</li>
+        <li>Leia com <code class="inl">lsattr</code>; ACL e SELinux são, por baixo, <b>xattrs</b> no inode.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> setfacl -R -m u:marcia:rX relatorios/   <span class="cmt"># X: x so em diretorio</span>
+<span class="prompt">$</span> ls -ld relatorios/
+<span class="out">drwxr-x---+ 2 kali analistas 4096 ago  1 09:14 relatorios/</span>
+<span class="prompt">$</span> getfacl relatorios/ | grep -E 'marcia|mask'
+<span class="out">user:marcia:rwx    #effective:r-x</span>
+<span class="prompt">$</span> setfacl -x u:marcia relatorios/    <span class="cmt"># -b remove TODAS as ACLs</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- CÓPIA -->
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Copiar / arquivar</th><th>Preserva ACL e xattr?</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>cp origem destino</code></td><td>Não — as ACLs somem sem aviso</td></tr>
+        <tr><td><code>cp -a</code> · <code>cp --preserve=all</code></td><td>Sim: ACL, xattr, dono e tempos</td></tr>
+        <tr><td><code>rsync -aAX origem/ destino/</code></td><td>Sim — <code>-A</code> ACL, <code>-X</code> xattr</td></tr>
+        <tr><td><code>tar --acls --xattrs -cf bkp.tar dir/</code></td><td>Sim, e o mesmo par de flags na extração</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>Backup silenciosamente errado:</b> <code class="inl">cp</code> sem <code class="inl">-a</code> restaura permissões que nunca existiram. E antes de um <code class="inl">rm -rf</code> numa árvore com atributos, <code class="inl">sudo chattr -R -i</code> primeiro — um arquivo <code class="inl">+i</code> esquecido faz a remoção falhar pela metade, deixando lixo com permissão travada.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>ACL concede a um usuário/grupo <b>nomeado</b>, sem mexer nas 3 classes.</li>
+        <li><code class="inl">+</code> no <code class="inl">ls -l</code> = há ACL que o <code class="inl">ls</code> não mostra.</li>
+        <li>Máscara = teto; <code class="inl">chmod</code> a altera e pode apagar acessos.</li>
+        <li><code class="inl">-d</code> dá herança; <code class="inl">chattr +i/+a</code> ficam acima das permissões.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Compartilhar coleta com um colega sem alargar o grupo: <code class="inl">setfacl -R -m u:colega:rX evidencias/</code> mais <code class="inl">-d</code> para o que vier depois. <code class="inl">chattr +a</code> no log de atividades do teste protege a cadeia de custódia. E o inverso vale como <b>checklist defensivo</b>: atacante usa <code class="inl">+i</code> para travar backdoor — <code class="inl">lsattr -R /etc /tmp 2>/dev/null | grep -E '^....i'</code> denuncia. Arquive com <code class="inl">tar --acls --xattrs</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 04 · Fase 1 <span class="n">024</span></span>
