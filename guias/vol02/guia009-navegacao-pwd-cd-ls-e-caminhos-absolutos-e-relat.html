@@ -3,101 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 009 — Navegação: pwd, cd, ls e caminhos absolutos e relativos</title>
+<title>GUIA 009 — Navegação: pwd, cd, ls e caminhos</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a árvore com as duas rotas e a dissecação do ls -l */
+  .mapa { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:center; }
+  .arv { font-family:var(--fonte-mono); font-size:11px; line-height:1.6; color:var(--navy);
+         background:var(--papel-tint); border:1.5px solid var(--linha);
+         border-radius:var(--raio); padding:9px 12px; white-space:pre; }
+  .arv .aqui { background:var(--laranja); color:#fff; border-radius:4px; padding:0 5px; font-weight:700; }
+  .arv .alvo { background:var(--verde);   color:#fff; border-radius:4px; padding:0 5px; font-weight:700; }
+  .arv .not  { color:var(--tinta-suave); }
+
+  .rotas { display:flex; flex-direction:column; gap:8px; }
+  .rota { border-left:5px solid var(--vermelho); background:var(--vermelho-claro);
+          border-radius:var(--raio-sm); padding:6px 10px; }
+  .rota.v { border-left-color:var(--verde); background:var(--verde-claro); }
+  .rota > b { display:block; font-family:var(--fonte-titulo); font-size:10.5px;
+              color:var(--vermelho); text-transform:uppercase; letter-spacing:.03em; }
+  .rota.v > b { color:var(--verde); }
+  .rota > .cam { display:block; font-family:var(--fonte-mono); font-size:11.5px; color:var(--navy);
+                 margin:3px 0 2px; word-break:break-all; }
+  .rota > span { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; display:block; }
+
+  .campos { display:flex; gap:5px; justify-content:center; align-items:flex-start; flex-wrap:wrap; }
+  .cpo { text-align:center; max-width:104px; }
+  .cpo > .tk { display:block; font-family:var(--fonte-mono); font-weight:700; font-size:12px; color:#fff;
+               padding:6px 8px; border-radius:var(--raio-sm); }
+  .k-tipo{ background:var(--vermelho);} .k-perm{ background:var(--azul);}
+  .k-meta{ background:#7d8896; }        .k-nome{ background:var(--verde);}
+  .cpo > .rot { font-family:var(--fonte-titulo); font-size:8.5px; color:var(--navy);
+                text-transform:uppercase; letter-spacing:.02em; margin-top:4px; line-height:1.2; }
+  .cpo > .rot small { display:block; font-family:var(--fonte-texto); font-size:8.5px;
+                      color:var(--tinta-suave); text-transform:none; letter-spacing:0; font-weight:400; }
+
+  .duplo { display:grid; grid-template-columns:1fr 1.02fr; gap:12px; align-items:start; }
+  .ops { display:flex; flex-direction:column; gap:5px; }
+  .op { border-left:4px solid var(--azul); background:var(--azul-claro);
+        border-radius:var(--raio-sm); padding:5px 9px; }
+  .op > b { font-family:var(--fonte-mono); font-size:11.5px; color:var(--navy); }
+  .op > span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+  .op.v { border-left-color:var(--verde); background:var(--verde-claro); }
+  .op.l { border-left-color:var(--laranja); background:var(--laranja-claro); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 009</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Navegação: pwd, cd, ls e caminhos absolutos e relativos</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Navegação e<br>Caminhos</h1>
+      <div class="sub">O comando do colega funciona na máquina dele e falha na sua. Não mudou o comando — mudou de onde ele foi executado.</div>
     </div>
     <div class="badge"><b>009</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- MAPA: ABSOLUTO x RELATIVO -->
+  <div class="secao-titulo">Mesmo destino, dois caminhos</div>
+  <section class="mapa">
+    <div class="arv">/
+├─ etc
+│  └─ ssh
+│     └─ <span class="alvo">sshd_config</span>
+├─ home
+│  └─ kali
+│     └─ projetos
+│        └─ <span class="aqui">recon</span>  <span class="not">← pwd</span>
+└─ var
+   └─ log</div>
+    <div class="rotas">
+      <div class="rota">
+        <b>Absoluto — começa em <code class="inl">/</code></b>
+        <span class="cam">/etc/ssh/sshd_config</span>
+        <span>Aponta para o mesmo arquivo <b>de qualquer lugar</b>. É o que se usa em script e em cron.</span>
+      </div>
+      <div class="rota v">
+        <b>Relativo — parte do <code class="inl">pwd</code></b>
+        <span class="cam">../../../etc/ssh/sshd_config</span>
+        <span>Digita menos, mas <b>só vale a partir de <code class="inl">recon</code></b>. Um <code class="inl">cd</code> antes e o mesmo texto aponta para outro lugar — ou para lugar nenhum.</span>
+      </div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <div class="perigo" style="border-left-color:var(--azul);background:var(--azul-claro);color:var(--navy)">
+    <b style="color:var(--azul)">O diretório atual é um campo do <i>processo</i>, não do usuário nem do terminal.</b> Dá para vê-lo por fora em <code class="inl">/proc/&lt;PID&gt;/cwd</code> — útil para achar quem segura um sistema de arquivos que você quer desmontar. Daí saem três consequências: cada aba tem o seu; <b>o filho herda e nunca devolve</b> — um script que faz <code class="inl">cd</code> move a si mesmo e morre, o seu shell fica onde estava (por isso <code class="inl">source</code>); e é por isso que <code class="inl">cd</code> precisa ser <i>builtin</i>. Já <code class="inl">.</code> e <code class="inl">..</code> são <b>entradas reais</b> do sistema de arquivos, não sintaxe — é o que faz <code class="inl">./script.sh</code> rodar sem o diretório atual estar no <code class="inl">PATH</code>.
+  </div>
+
+  <!-- DISSECAÇÃO DO ls -l -->
+  <div class="secao-titulo">A linha do <code class="inl">ls -l</code>, campo a campo</div>
+  <section class="campos">
+    <div class="cpo"><span class="tk k-tipo">-</span><div class="rot">Tipo<small><code>-</code> arquivo · <code>d</code> dir · <code>l</code> link</small></div></div>
+    <div class="cpo"><span class="tk k-perm">rw-r--r--</span><div class="rot">Permissões<small>dono · grupo · outros</small></div></div>
+    <div class="cpo"><span class="tk k-meta">1</span><div class="rot">Links<small>quantos nomes apontam ao inode</small></div></div>
+    <div class="cpo"><span class="tk k-meta">root</span><div class="rot">Dono</div></div>
+    <div class="cpo"><span class="tk k-meta">root</span><div class="rot">Grupo</div></div>
+    <div class="cpo"><span class="tk k-meta">2891</span><div class="rot">Tamanho<small>bytes (<code>-h</code> converte)</small></div></div>
+    <div class="cpo"><span class="tk k-meta">Jul 14 09:22</span><div class="rot">Modificação<small>do conteúdo</small></div></div>
+    <div class="cpo"><span class="tk k-nome">/etc/passwd</span><div class="rot">Nome</div></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- ATALHOS + REFLEXOS -->
+  <div class="secao-titulo">Os atalhos e os comandos que viram reflexo</div>
+  <section class="duplo">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Símbolo</th><th>Significa</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>.</code></td><td>O diretório atual</td></tr>
+        <tr><td><code>..</code></td><td>O diretório pai</td></tr>
+        <tr><td><code>~</code></td><td>Seu diretório pessoal — <b>não expande dentro de aspas</b>; em script use <code>"$HOME"</code></td></tr>
+        <tr><td><code>~kali</code></td><td>O diretório pessoal do usuário <code>kali</code></td></tr>
+        <tr><td><code>-</code></td><td>O diretório anterior (guardado em <code>OLDPWD</code>), só com <code>cd</code></td></tr>
+        <tr><td><code>cd</code></td><td>Sem argumento nenhum: vai para o seu <code>~</code></td></tr>
       </tbody>
     </table>
+    <div class="ops">
+      <div class="op v"><b>cd -</b><span>Alterna entre os dois últimos diretórios. O atalho que mais rende no dia a dia.</span></div>
+      <div class="op v"><b>pushd dir · popd · dirs -v</b><span>Pilha de diretórios, para quando são mais de dois pontos na investigação.</span></div>
+      <div class="op"><b>ls -lah</b><span>O padrão de trabalho: longo, com ocultos, tamanho legível.</span></div>
+      <div class="op"><b>ls -ltr</b><span>Mais recente <b>por último</b>, coladinho no prompt. O reflexo de quem lê log.</span></div>
+      <div class="op"><b>ls -ld /var/log</b><span>A linha <b>do próprio diretório</b>, não o conteúdo — é o que responde "por que não consigo entrar aqui".</span></div>
+      <div class="op l"><b>pwd -P · readlink -f · realpath</b><span>Resolvem links e <code class="inl">..</code> até o caminho físico. <code class="inl">pwd</code> sozinho mostra o caminho <b>lógico</b>, por onde você chegou — e depois de entrar por um link, <code class="inl">cd ..</code> vai para o pai do <i>link</i>, não do alvo.</span></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Absoluto começa em <code class="inl">/</code> e vale sempre; relativo depende do <code class="inl">pwd</code>.</li>
+        <li>Script que faz <code class="inl">cd</code> não move o seu shell — para mover, <code class="inl">source</code>.</li>
+        <li>Oculto é só nome com ponto: sem <code class="inl">-a</code> o seu <code class="inl">~</code> parece vazio.</li>
+        <li><code class="inl">-F</code> marca o tipo (<code class="inl">/</code> dir, <code class="inl">*</code> exec, <code class="inl">@</code> link) e <b>sobrevive ao cano</b>, quando a cor não.</li>
+        <li>Script que lê arquivo ao lado dele: <code class="inl">DIR="$(cd -- "$(dirname -- "$0")" &amp;&amp; pwd -P)"</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O <code class="inl">~</code> do usuário é <code class="inl">/home/kali</code>; o do root é <code class="inl">/root</code> — depois de <code class="inl">sudo -i</code> o que você salvar <b>não está no seu diretório</b>. É a explicação de "salvei o relatório e não acho mais". O Zsh do Kali liga o <b><code class="inl">AUTO_CD</code></b>: digitar só <code class="inl">/var/log</code> já muda de diretório (não funciona em Bash nem em script), e <code class="inl">cd /u/l/b</code> + <kbd>Tab</kbd> expande para <code class="inl">/usr/local/bin</code>. Ferramenta clonada do GitHub vai para <code class="inl">/opt</code>, que <b>não está no <code class="inl">PATH</code></b> — é o caso de uso nº 1 do <code class="inl">pushd</code>/<code class="inl">popd</code>. Wordlists em <code class="inl">/usr/share/wordlists</code> (a <code class="inl">rockyou.txt</code> vem <code class="inl">.gz</code> numa instalação nova). E faça de <code class="inl">ls -la ~/.ssh</code> rotina: chave com permissão frouxa faz o cliente SSH <b>recusar</b> a conexão.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 02 · Fase 1 <span class="n">009</span></span>

@@ -18,7 +18,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 ### Volume 2 — O Terminal e o Shell
 
 - [x] **guia 008** - Emulador de terminal e shell: bash, zsh e o padrão do Kali - `guias/vol02/guia008-emulador-de-terminal-e-shell-bash-zsh-e-o-padrao.html`
-- [ ] **guia 009** - Navegação: pwd, cd, ls e caminhos absolutos e relativos - `guias/vol02/guia009-navegacao-pwd-cd-ls-e-caminhos-absolutos-e-relat.html`
+- [x] **guia 009** - Navegação: pwd, cd, ls e caminhos absolutos e relativos - `guias/vol02/guia009-navegacao-pwd-cd-ls-e-caminhos-absolutos-e-relat.html`
 - [ ] **guia 010** - Manipulando arquivos e diretórios: cp, mv, rm, mkdir - `guias/vol02/guia010-manipulando-arquivos-e-diretorios-cp-mv-rm-mkdir.html`
 - [ ] **guia 011** - Visualizando conteúdo: cat, less, head, tail e more - `guias/vol02/guia011-visualizando-conteudo-cat-less-head-tail-e-more.html`
 - [ ] **guia 012** - Redirecionamento e pipes: stdin, stdout e stderr - `guias/vol02/guia012-redirecionamento-e-pipes-stdin-stdout-e-stderr.html`
