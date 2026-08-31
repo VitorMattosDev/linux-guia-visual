@@ -3,101 +3,133 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 029 — Sinais e controle: kill, killall, nice e prioridades</title>
+<title>GUIA 029 — Sinais e controle</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Grade de sinais */
+  .sinais { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+  .sig { border:1.5px solid var(--linha); border-left:4px solid var(--azul); border-radius:var(--raio-sm);
+         padding:5px 8px; background:var(--papel); }
+  .sig b { font-family:var(--fonte-mono); font-size:11.5px; color:var(--navy); display:block; }
+  .sig i { font-style:normal; font-size:9px; color:var(--tinta-suave); font-family:var(--fonte-mono); }
+  .sig p { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; margin-top:1px; }
+  .sig.v { border-left-color:var(--verde); background:var(--verde-claro); }
+  .sig.l { border-left-color:var(--laranja); background:var(--laranja-claro); }
+  .sig.r { border-left-color:var(--vermelho); background:var(--vermelho-claro); }
+  .sig.x { border-left-color:var(--roxo); background:var(--roxo-claro); }
+
+  /* Escada de encerramento */
+  .escada { display:flex; flex-direction:column; gap:5px; }
+  .deg { display:flex; align-items:center; gap:7px; border:1.5px solid var(--linha); border-radius:var(--raio-sm);
+         padding:4px 8px; }
+  .deg .n { width:18px; height:18px; border-radius:50%; color:#fff; font-family:var(--fonte-titulo);
+            font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none; }
+  .deg p { font-size:10px; color:var(--tinta-suave); line-height:1.3; }
+  .deg p b { color:var(--navy); font-family:var(--fonte-mono); }
+  .deg.d1 { border-color:var(--verde); }   .deg.d1 .n { background:var(--verde); }
+  .deg.d2 { border-color:var(--azul); }    .deg.d2 .n { background:var(--azul); }
+  .deg.d3 { border-color:var(--laranja); } .deg.d3 .n { background:var(--laranja); }
+  .deg.d4 { border-color:var(--vermelho); background:var(--vermelho-claro); } .deg.d4 .n { background:var(--vermelho); }
+  .deg.d1{ margin-right:24px; } .deg.d2{ margin-left:8px; margin-right:16px; }
+  .deg.d3{ margin-left:16px; margin-right:8px; } .deg.d4{ margin-left:24px; }
+
+  /* Escala nice */
+  .nicebar { position:relative; height:26px; border-radius:6px; margin:2px 0 16px;
+             background:linear-gradient(90deg, var(--vermelho) 0%, #c9d3e0 50%, var(--azul) 100%); }
+  .nicebar span { position:absolute; top:4px; font-family:var(--fonte-mono); font-size:11px; font-weight:700; color:#fff; }
+  .nicebar .e { left:10px; } .nicebar .m { left:50%; transform:translateX(-50%); color:var(--navy); } .nicebar .d { right:10px; }
+  .nicebar small { position:absolute; top:29px; font-size:9.5px; color:var(--tinta-suave); }
+  .nicebar .se { left:0; } .nicebar .sm { left:50%; transform:translateX(-50%); } .nicebar .sd { right:0; }
+  .nicegrid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .nicegrid div { font-size:10px; color:var(--tinta-suave); line-height:1.35; border-left:3px solid var(--linha); padding-left:6px; }
+  .nicegrid b { color:var(--navy); }
+  .nicegrid .a { border-left-color:var(--vermelho); } .nicegrid .b2 { border-left-color:var(--azul); }
+  .nicegrid .c { border-left-color:var(--roxo); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 029</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Sinais e controle: kill, killall, nice e prioridades</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Sinais e<br>Controle</h1>
+      <div class="sub">O <code class="inl">kill -9</code> é o primeiro comando que se aprende e o último que se deveria usar.</div>
     </div>
     <div class="badge"><b>029</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <div class="secao-titulo">Os sinais que você realmente usa (<code class="inl">kill -l</code> lista os 60+)</div>
+  <section class="sinais">
+    <div class="sig v"><b>SIGTERM <i>15</i></b><p>Pedido educado. Padrão do <code class="inl">kill</code>: o programa fecha arquivos e limpa.</p></div>
+    <div class="sig r"><b>SIGKILL <i>9</i></b><p><b>Não capturável.</b> O kernel remove o processo — nenhum buffer é gravado.</p></div>
+    <div class="sig l"><b>SIGHUP <i>1</i></b><p>Terminal caiu. Por convenção, daemon <b>relê a configuração</b> sem reiniciar</p></div>
+    <div class="sig"><b>SIGINT <i>2</i></b><p><code class="inl">Ctrl-C</code>: interrupção do usuário — vai ao <b>grupo</b> inteiro</p></div>
+    <div class="sig l"><b>SIGSTOP / TSTP <i>19/20</i></b><p>Congela. O <b>STOP</b> não é capturável; o <b>TSTP</b> é o <code class="inl">Ctrl-Z</code>.</p></div>
+    <div class="sig v"><b>SIGCONT <i>18</i></b><p>Descongela e retoma de onde parou.</p></div>
+    <div class="sig x"><b>SIGUSR1 / USR2 <i>10/12</i></b><p>Livres: <code class="inl">dd</code> imprime progresso, <code class="inl">nginx</code> reabre logs.</p></div>
+    <div class="sig"><b>SIGPIPE <i>13</i></b><p>Escreveu em <i>pipe</i> sem leitor — por isso <code class="inl">| head</code> encerra o produtor.</p></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <div class="secao-titulo">A escada certa &amp; quem casa o quê</div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna verde">
+      <h3>Encerrar é sequência</h3>
+      <div class="escada">
+        <div class="deg d1"><span class="n">1</span><p><b>kill PID</b> — SIGTERM: peça educadamente.</p></div>
+        <div class="deg d2"><span class="n">2</span><p><b>espere</b> 5 a 30 s e teste com <b>kill -0 PID</b>.</p></div>
+        <div class="deg d3"><span class="n">3</span><p>repita o TERM <b>ou</b> confira se está em <b>D</b> (E/S travada).</p></div>
+        <div class="deg d4"><span class="n">4</span><p><b>kill -KILL PID</b> — só agora, sabendo o custo.</p></div>
+      </div>
+    </div>
+    <div class="coluna azul">
+      <h3>Por nome, por grupo</h3>
+      <ul>
+        <li><b>pkill</b> casa <i>parte</i> do nome: <code class="inl">pkill ssh</code> atinge sshd, ssh-agent e sshfs.</li>
+        <li><b>killall</b> exige o nome <b>exato</b> do comando (<code class="inl">-r</code> habilita regex).</li>
+        <li><code class="inl">pkill -f 'python3 srv.py'</code> casa a linha inteira — o único jeito de separar dois scripts do mesmo interpretador.</li>
+        <li><b>PID negativo = grupo:</b> <code class="inl">kill -TERM -2201</code>. É o que o <code class="inl">Ctrl-C</code> faz num pipeline.</li>
+        <li>Em script escreva <code class="inl">-TERM</code>, nunca <code class="inl">-15</code>: os nomes são universais, os números não.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
+  <div class="perigo"><b>Sempre <code class="inl">pgrep</code> antes de <code class="inl">pkill</code>.</b> As opções são as mesmas e o <code class="inl">pgrep</code> apenas lista: <code class="inl">pgrep -af padrao</code> → depois <code class="inl">pkill -f padrao</code>. Um padrão amplo como <code class="inl">pkill -f python</code> derruba serviços do sistema; como root, <code class="inl">pkill -u root</code> encerra a sessão e pode exigir reboot forçado. E serviço do systemd se para com <code class="inl">systemctl stop</code>, nunca com <code class="inl">kill</code> direto.</div>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Prioridade: <code class="inl">nice</code> na CPU, <code class="inl">ionice</code> no disco</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="nicebar">
+      <span class="e">-20</span><span class="m">0</span><span class="d">+19</span>
+      <small class="se">mais prioridade · só root</small>
+      <small class="sm">padrão</small>
+      <small class="sd">mais gentil · qualquer um</small>
+    </div>
+    <div class="nicegrid">
+      <div class="a"><b>Assimetria:</b> subir o <i>nice</i> é livre; <b>descer exige root</b> — nem o próprio dono desfaz o que aumentou.</div>
+      <div class="b2"><b>É peso, não reserva:</b> cada degrau vale ~25% de fatia <i>sob disputa</i>. Máquina ociosa: <code class="inl">nice 19</code> usa 100% da CPU.</div>
+      <div class="c"><b>A receita completa:</b> <code class="inl">nice -n 19 ionice -c 3 tar czf bkp.tgz /dados</code> — cede CPU <b>e</b> disco. Em execução: <code class="inl">renice -n 15 -p PID</code>.</div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Sinal é notificação do kernel: o processo <b>trata</b>, ignora, bloqueia ou sofre a ação padrão.</li>
+        <li><b>KILL (9) e STOP (19) não se capturam</b> — por isso funcionam sempre e por isso não limpam nada.</li>
+        <li>Escada: <code class="inl">TERM</code> → esperar (<code class="inl">kill -0</code>) → <code class="inl">KILL</code>. É o que o systemd faz.</li>
+        <li><code class="inl">SIGHUP</code> recarrega config em daemon e é o sinal de terminal fechado (vide 030).</li>
+        <li><code class="inl">nice</code> vai de -20 a +19; <code class="inl">ionice -c 3</code> cede o disco. Nenhum dos dois limita memória — isso é <i>cgroup</i>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Varredura pesada merece gentileza: <code class="inl">nice -n 15 nmap …</code> ou <code class="inl">gobuster</code> mantém a VM usável e não custa quase nada no tempo total. E <b>nunca encerre ferramenta ofensiva com -9</b>: o <i>metasploit</i> deixa banco inconsistente e handlers órfãos na porta; o <i>hashcat</i> perde o arquivo de restauração e você recomeça horas de trabalho — ambos tratam <code class="inl">Ctrl-C</code> e <code class="inl">TERM</code> direito. Em alvo autorizado, <code class="inl">pkill -f java</code> sem conferir derruba a produção do cliente: dano real, fora do escopo da autorização.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 05 · Fase 2 <span class="n">029</span></span>
