@@ -3,101 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 025 — Gerenciamento de usuários, senhas e o PAM</title>
+<title>GUIA 025 — Usuários, senhas e o PAM</title>
 <link rel="stylesheet" href="../../template/estilo.css">
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 025</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Gerenciamento de usuários, senhas e o PAM</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Contas, Senhas<br>e o PAM</h1>
+      <div class="sub">A senha está certa, a conta existe — e o login é recusado. Quem barrou não foi o <code class="inl">sshd</code>.</div>
     </div>
     <div class="badge"><b>025</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
+  <!-- A PILHA DO PAM -->
+  <div class="secao-titulo">O PAM: os quatro grupos que todo login atravessa</div>
   <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo"><span class="num">1</span><h3>auth</h3><p>Prova <b>quem</b> você é: senha, chave, token. É só esta etapa que olha a senha.</p></div>
     <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo verde"><span class="num">2</span><h3>account</h3><p>A conta <b>pode</b> ser usada agora? Expiração, horário, bloqueio. <b>É aqui que a conta expirada cai.</b></p></div>
     <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo laranja"><span class="num">3</span><h3>password</h3><p>Governa a <b>troca</b> de senha: tamanho mínimo, complexidade, histórico (<code>pam_pwquality</code>).</p></div>
     <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo roxo"><span class="num">4</span><h3>session</h3><p>Prepara e encerra: monta o <code>/home</code>, aplica limites, escreve no log.</p></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <!-- USERADD x ADDUSER -->
+  <div class="secao-titulo">As duas camadas para criar uma conta</div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna azul">
+      <h3>useradd — baixo nível</h3>
+      <ul>
+        <li>Padrão de todo Linux. Sozinho escreve <b>só a linha</b> em <code class="inl">/etc/passwd</code>.</li>
+        <li>Sem <code class="inl">-m</code> não há <code class="inl">/home</code> nem cópia do <code class="inl">/etc/skel</code>; sem senha, não há login — daí o "não funcionou".</li>
+        <li>Previsível: é a forma certa em <b>script</b> de provisionamento.</li>
+      </ul>
+    </div>
+    <div class="coluna verde">
+      <h3>adduser — alto nível</h3>
+      <ul>
+        <li>Script Perl do Debian/Kali que orquestra o <code class="inl">useradd</code> com defaults sensatos.</li>
+        <li>Cria e povoa o <code class="inl">/home</code>, pede a senha, resolve o grupo primário.</li>
+        <li>É o que você quer <b>na mão</b>. Para remover: <code class="inl">deluser --backup --remove-home</code>.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> sudo useradd -m -s /bin/bash -c "Joao Silva" -G sudo joao
+<span class="prompt">$</span> sudo passwd -S joao      <span class="cmt"># P valida | L bloqueada | NP sem senha</span>
+<span class="out">joao P 08/01/2026 7 90 14 -1</span>
+<span class="prompt">$</span> sudo chage -l joao | grep -i expira   <span class="cmt"># o que o passwd -S esconde</span>
+<span class="out">Conta expira: dez 31, 2026</span>
+<span class="prompt">$</span> sudo lastb -n 5          <span class="cmt"># logins FALHOS: enxurrada = forca bruta</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- EXPIRAR SENHA x CONTA -->
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Você quer…</th><th>Comando</th><th>Efeito</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td>Forçar troca no próximo login</td><td><code>chage -d 0 joao</code> · <code>passwd -e joao</code></td><td>Expira a <b>senha</b>; a conta continua utilizável</td></tr>
+        <tr><td>Senha válida por 90 dias, aviso em 14</td><td><code>chage -M 90 -W 14 joao</code></td><td>Política de envelhecimento da senha</td></tr>
+        <tr><td>Desativar o acesso numa data</td><td><code>chage -E 2026-12-31 joao</code></td><td>Expira a <b>conta</b> — barrada em <code>account</code>. <code>-E -1</code> desfaz</td></tr>
+        <tr><td>Suspender agora / liberar</td><td><code>usermod -L joao</code> / <code>-U</code></td><td>Põe e tira o <code>!</code> do hash. <b>Não</b> impede login por chave SSH</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>Dois comandos que trancam o acesso.</b> <code class="inl">usermod -G docker joao</code> <b>sem o <code class="inl">-a</code></b> substitui a lista inteira e tira o <code class="inl">joao</code> do <code class="inl">sudo</code> (para remover de um grupo, <code class="inl">gpasswd -d joao docker</code>). E um erro em <code class="inl">/etc/pam.d/</code> tranca o login de <b>todos, inclusive o root</b>: edite sempre com uma <b>sessão de root aberta em outro terminal</b> e teste numa sessão nova antes de fechá-la.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">useradd -m</code> em script · <code class="inl">adduser</code> na mão; <code class="inl">/etc/skel</code> é o molde do <code class="inl">/home</code>.</li>
+        <li>Expirar <b>senha</b> ≠ expirar <b>conta</b> — só o <code class="inl">chage -l</code> mostra as duas.</li>
+        <li><code class="inl">userdel</code> preserva o <code class="inl">/home</code>; <code class="inl">-r</code> apaga. Sobram órfãos: <code class="inl">find / -xdev -nouser</code>.</li>
+        <li>Quem autentica é o PAM, não o serviço: <code class="inl">pam_pwquality</code> (senha forte) e <code class="inl">pam_faillock</code> (<code class="inl">faillock --reset</code>).</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Na VM, <code class="inl">sudo adduser analista</code> resolve; deixe o <code class="inl">useradd</code> explícito para provisionar. <code class="inl">last</code>, <code class="inl">sudo lastb</code> e <code class="inl">lastlog</code> são a triagem de acesso — e <code class="inl">/var/log/wtmp</code> truncado é, por si só, indício de que alguém limpou rastro. <b>PAM é vetor de persistência</b>: módulo adulterado em <code class="inl">/lib/*/security/</code> aceita senha-mestra — confira data e hash contra o pacote limpo. Auditar o próprio sistema ou alvo autorizado é defesa; mexer em PAM alheio é crime (Lei 12.737/2012).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 04 · Fase 1 <span class="n">025</span></span>

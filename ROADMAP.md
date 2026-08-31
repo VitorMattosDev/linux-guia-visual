@@ -40,7 +40,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 022** - O root, sudo e a elevação de privilégios - `guias/vol04/guia022-o-root-sudo-e-a-elevacao-de-privilegios.html`
 - [x] **guia 023** - Permissões especiais: SUID, SGID e sticky bit - `guias/vol04/guia023-permissoes-especiais-suid-sgid-e-sticky-bit.html`
 - [x] **guia 024** - ACLs e atributos estendidos de arquivo - `guias/vol04/guia024-acls-e-atributos-estendidos-de-arquivo.html`
-- [ ] **guia 025** - Gerenciamento de usuários, senhas e o PAM - `guias/vol04/guia025-gerenciamento-de-usuarios-senhas-e-o-pam.html`
+- [x] **guia 025** - Gerenciamento de usuários, senhas e o PAM - `guias/vol04/guia025-gerenciamento-de-usuarios-senhas-e-o-pam.html`
 - [ ] **guia 026** - Trabalhando como root no Kali com segurança - `guias/vol04/guia026-trabalhando-como-root-no-kali-com-seguranca.html`
 
 ## Fase 2 — Administração do Sistema
