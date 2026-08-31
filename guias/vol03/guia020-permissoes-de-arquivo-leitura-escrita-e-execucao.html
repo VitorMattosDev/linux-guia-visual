@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GUIA 020 — Permissões de arquivo</title>
+<link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico desta ficha: decodificador do rwx do ls -l */
+  .decoder { display:flex; gap:14px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+  .grupo { text-align:center; }
+  .grupo .caixas { display:flex; gap:4px; }
+  .bit { width:34px; height:40px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+         font-family:var(--fonte-mono); font-weight:700; font-size:18px; color:#fff; }
+  .bit.tipo { background:#5b6b7d; } .bit.r{ background:var(--verde);} .bit.w{ background:var(--laranja);} .bit.x{ background:var(--azul);} .bit.off{ background:#c3ccd8; color:#7d8896;}
+  .grupo .rot { font-family:var(--fonte-titulo); font-size:11px; color:var(--navy); text-transform:uppercase; margin-top:5px; letter-spacing:.03em;}
+  .grupo .oct { font-family:var(--fonte-mono); font-weight:700; font-size:15px; color:var(--azul); margin-top:2px;}
+  .legenda { display:flex; gap:14px; justify-content:center; font-size:10.5px; color:var(--tinta-suave); margin-top:4px;}
+  .legenda b{ font-family:var(--fonte-mono); }
+</style>
+</head>
+<body>
+<article class="guia">
+
+  <div class="topo"><span class="selo">Guia Visual 020</span></div>
+
+  <header class="cabecalho">
+    <img class="logo" src="../../assets/icones/logo.svg" alt="">
+    <div class="titulo">
+      <h1>Permissões<br>de Arquivo</h1>
+      <div class="sub">Quem pode ler, escrever e executar — e por que <code class="inl">chmod 777</code> não resolve.</div>
+    </div>
+    <div class="badge"><b>020</b><span>Guias Linux</span></div>
+  </header>
+
+  <!-- DECODIFICADOR ls -l -->
+  <div class="secao-titulo">Anatomia da saída do <code class="inl">ls -l</code></div>
+  <section class="decoder">
+    <div class="grupo">
+      <div class="caixas"><span class="bit tipo">-</span></div>
+      <div class="rot">Tipo</div>
+      <div class="oct">arquivo</div>
+    </div>
+    <div class="grupo">
+      <div class="caixas"><span class="bit r">r</span><span class="bit w">w</span><span class="bit off">-</span></div>
+      <div class="rot">Dono</div>
+      <div class="oct">6</div>
+    </div>
+    <div class="grupo">
+      <div class="caixas"><span class="bit r">r</span><span class="bit off">-</span><span class="bit off">-</span></div>
+      <div class="rot">Grupo</div>
+      <div class="oct">4</div>
+    </div>
+    <div class="grupo">
+      <div class="caixas"><span class="bit r">r</span><span class="bit off">-</span><span class="bit off">-</span></div>
+      <div class="rot">Outros</div>
+      <div class="oct">4</div>
+    </div>
+  </section>
+  <div class="legenda"><span><b style="color:var(--verde)">r</b> = ler (4)</span><span><b style="color:var(--laranja)">w</b> = escrever (2)</span><span><b style="color:var(--azul)">x</b> = executar (1)</span><span>→ <b>-rw-r--r-- = 644</b></span></div>
+
+  <!-- AS TRÊS CLASSES / OS TRÊS BITS -->
+  <div class="secao-titulo">A regra que quase ninguém aprende</div>
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>Só uma classe se aplica</h3><p>O Linux checa na ordem: é o <b>dono</b>? senão, está no <b>grupo</b>? senão, <b>outros</b>. Para na primeira que casa.</p></div>
+    <div class="card verde"><h3>Em arquivo</h3><p><b>r</b> lê o conteúdo · <b>w</b> altera o conteúdo · <b>x</b> executa como programa.</p></div>
+    <div class="card laranja"><h3>Em diretório</h3><p><b>r</b> lista nomes · <b>w</b> cria/remove itens · <b>x</b> <i>atravessa</i> o diretório. Sem <b>x</b>, nada dentro é acessível.</p></div>
+  </section>
+
+  <!-- SIMBÓLICA X OCTAL -->
+  <div class="secao-titulo">As duas notações do <code class="inl">chmod</code></div>
+  <section class="duas-colunas">
+    <div class="coluna verde">
+      <h3>Simbólica</h3>
+      <ul>
+        <li>Alvo: <code class="inl">u</code> dono · <code class="inl">g</code> grupo · <code class="inl">o</code> outros · <code class="inl">a</code> todos</li>
+        <li>Operador: <code class="inl">+</code> adiciona · <code class="inl">-</code> remove · <code class="inl">=</code> define</li>
+        <li>Ex.: <code class="inl">chmod u+x script.sh</code></li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>Octal</h3>
+      <ul>
+        <li>Soma dos bits por classe: <b>r=4, w=2, x=1</b></li>
+        <li>Três dígitos: dono · grupo · outros</li>
+        <li>Ex.: <code class="inl">chmod 755 script.sh</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">Na prática</div>
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> ls -l relatorio.txt
+<span class="out">-rw-r--r-- 1 kali kali 2913 ago  1 09:14 relatorio.txt</span>
+<span class="prompt">$</span> chmod 640 relatorio.txt   <span class="cmt"># dono lê/escreve, grupo lê, outros nada</span>
+<span class="prompt">$</span> chmod u+x deploy.sh       <span class="cmt"># torna executável só para o dono</span>
+<span class="prompt">$</span> stat -c '%a %A %U:%G' deploy.sh
+<span class="out">744 -rwxr--r-- kali:kali</span></pre>
+  </section>
+
+  <!-- TABELA OCTAIS COMUNS -->
+  <section>
+    <table class="comparacao">
+      <thead><tr><th>Octal</th><th>Simbólico</th><th>Uso típico</th></tr></thead>
+      <tbody>
+        <tr><td><code>644</code></td><td><code>-rw-r--r--</code></td><td>Arquivo comum (todos leem, só o dono edita)</td></tr>
+        <tr><td><code>600</code></td><td><code>-rw-------</code></td><td>Arquivo privado — chave SSH, segredo</td></tr>
+        <tr><td><code>755</code></td><td><code>-rwxr-xr-x</code></td><td>Script/binário e diretórios navegáveis</td></tr>
+        <tr><td><code>700</code></td><td><code>-rwx------</code></td><td>Diretório pessoal, script só seu (<code>~/.ssh</code>)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="perigo"><b>chmod 777 não é solução de nada.</b> Abre leitura, escrita e execução para <i>qualquer</i> usuário da máquina. Se o acesso falha, o culpado quase sempre é a falta de <code class="inl">x</code> em um diretório do caminho — não a permissão do arquivo.</div>
+
+  <!-- RESUMO + DICA -->
+  <section class="rodape-blocos">
+    <div class="bloco resumo">
+      <div class="cabeca">⚡ Resumo rápido</div>
+      <div class="corpo"><ul>
+        <li>Três classes (dono/grupo/outros), três bits (rwx = 4/2/1).</li>
+        <li>Só a primeira classe que casa é aplicada.</li>
+        <li>Em diretório, <code class="inl">x</code> é o que deixa atravessar.</li>
+        <li><code class="inl">umask</code> define a permissão dos arquivos novos.</li>
+      </ul></div>
+    </div>
+    <div class="bloco dica">
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O Kali roda muita coisa como <b>root</b>, que ignora os bits de permissão — fácil esquecer que num alvo com usuário normal <code class="inl">644</code> importa. Guarde chaves e wordlists sensíveis em <code class="inl">700</code>/<code class="inl">600</code>.</div>
+    </div>
+  </section>
+
+  <footer class="rodape">
+    <span class="marca">Linux &amp; Shell • Guia Visual</span>
+    <span class="pag">Vol 03 · Fase 1 <span class="n">020</span></span>
+  </footer>
+
+</article>
+</body>
+</html>

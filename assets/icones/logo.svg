@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="62" height="62">
+  <defs>
+    <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f4d94"/><stop offset="1" stop-color="#0f2547"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 3 56 11V31C56 46 45 56 32 61 19 56 8 46 8 31V11Z" fill="url(#lg)" stroke="#16336b" stroke-width="2"/>
+  <!-- nós de rede / terminal estilizado -->
+  <circle cx="22" cy="24" r="3.4" fill="#27c93f"/>
+  <circle cx="42" cy="20" r="3.4" fill="#1f6fd0"/>
+  <circle cx="44" cy="38" r="3.4" fill="#e8720c"/>
+  <circle cx="24" cy="40" r="3.4" fill="#6a3fa0"/>
+  <path d="M22 24 42 20M42 20 44 38M44 38 24 40M24 40 22 24M22 24 44 38" stroke="#9fc0ef" stroke-width="1.6" fill="none" opacity=".8"/>
+  <path d="M20 50l5-4-5-4" stroke="#e6edf6" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M29 51h10" stroke="#e6edf6" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

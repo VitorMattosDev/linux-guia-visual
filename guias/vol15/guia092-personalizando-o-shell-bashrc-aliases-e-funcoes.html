@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- =====================================================================
+     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
+     e preencha. NÃO edite as classes/estrutura à toa: a consistência
+     entre as 103 fichas vem de todas usarem os mesmos blocos.
+     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
+       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
+       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
+     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
+     ===================================================================== -->
+<title>GUIA 092 — Personalizando o shell: .bashrc, aliases e funções</title>
+<link rel="stylesheet" href="../../template/estilo.css">
+</head>
+<body>
+<article class="guia">
+
+  <!-- TOPO -->
+  <div class="topo"><span class="selo">Guia Visual 092</span></div>
+
+  <!-- CABEÇALHO -->
+  <header class="cabecalho">
+    <img class="logo" src="../../assets/icones/logo.svg" alt="">
+    <div class="titulo">
+      <h1>Personalizando o shell: .bashrc, aliases e funções</h1>
+      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+    </div>
+    <div class="badge"><b>092</b><span>Guias Linux</span></div>
+  </header>
+
+  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
+  <section class="fluxo">
+    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <span class="seta">→</span>
+    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <span class="seta">→</span>
+    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <span class="seta">→</span>
+    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  </section>
+
+  <!-- CARDS -->
+  <div class="secao-titulo">Conceitos-chave</div>
+  <section class="cards" style="--col:4">
+    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  </section>
+
+  <!-- DUAS COLUNAS (A x B) -->
+  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <section class="duas-colunas">
+    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+  </section>
+
+  <!-- NA PRÁTICA: terminal + tabela -->
+  <div class="secao-titulo">Na prática</div>
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> comando --opcao alvo
+<span class="out">saída esperada do comando</span>
+<span class="cmt"># comentário explicando o que observar</span></pre>
+  </section>
+
+  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
+  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
+
+  <!-- COMPARAÇÃO -->
+  <section>
+    <table class="comparacao">
+      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <tbody>
+        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
+        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section class="rodape-blocos">
+    <div class="bloco resumo">
+      <div class="cabeca">⚡ Resumo rápido</div>
+      <div class="corpo"><ul>
+        <li>Ponto essencial 1.</li>
+        <li>Ponto essencial 2.</li>
+        <li>Ponto essencial 3.</li>
+      </ul></div>
+    </div>
+    <div class="bloco dica">
+      <div class="cabeca">◆ Dica de ouro</div>
+      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+    </div>
+  </section>
+
+  <!-- RODAPÉ DA PÁGINA -->
+  <footer class="rodape">
+    <span class="marca">Linux &amp; Shell • Guia Visual</span>
+    <span class="pag">Vol 15 · Fase 4 <span class="n">092</span></span>
+  </footer>
+
+</article>
+</body>
+</html>

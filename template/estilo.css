@@ -1,0 +1,304 @@
+/* ==========================================================================
+   GUIA VISUAL LINUX — Sistema de design da ficha visual
+   Reproduz a linguagem do "Guia Visual de Redes, Fibra Óptica e Telecom":
+   ficha A4, paleta navy/verde/laranja/roxo, blocos de consulta rápida.
+   Uma ficha = uma página A4 retrato = um assunto do manual.
+   Todas as cores e medidas vivem AQUI. Nenhum guia redefine cor ou fonte.
+   ========================================================================== */
+
+/* ---- 1. Tokens: cores, tipografia, espaçamento -------------------------- */
+:root {
+  /* Paleta principal (retirada do guia FTTH) */
+  --navy:        #16336b;   /* títulos, banner, rodapé            */
+  --navy-esc:    #0f2547;   /* banner/rodapé mais escuro          */
+  --azul:        #1f6fd0;   /* acento primário, passo/ícone       */
+  --azul-claro:  #eaf2fc;   /* fundo de card azul                 */
+  --verde:       #2e9b4e;   /* resumo, sucesso, "verde"           */
+  --verde-claro: #e9f6ee;
+  --laranja:     #e8720c;   /* alerta suave, destaque             */
+  --laranja-claro:#fdf0e3;
+  --roxo:        #6a3fa0;
+  --roxo-claro:  #f1ecf8;
+  --vermelho:    #d23b3b;   /* comando destrutivo / perigo        */
+  --vermelho-claro:#fbeaea;
+
+  --tinta:       #1f2b3a;   /* texto padrão            */
+  --tinta-suave: #5b6b7d;   /* texto secundário        */
+  --linha:       #d7dee8;   /* bordas e réguas         */
+  --papel:       #ffffff;
+  --papel-tint:  #f6f9fd;   /* leve fundo de seção     */
+
+  /* Tipografia */
+  --fonte-titulo: "Archivo", "Montserrat", "Segoe UI", system-ui, sans-serif;
+  --fonte-texto:  "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --fonte-mono:   "JetBrains Mono", "Cascadia Code", "Consolas", ui-monospace, monospace;
+
+  /* Medidas da página A4 */
+  --pag-larg: 210mm;
+  --pag-alt:  297mm;
+  --margem:   12mm;
+
+  --raio:     10px;
+  --raio-sm:  6px;
+  --sombra:   0 2px 6px rgba(20,40,80,.08);
+}
+
+/* ---- 2. Reset e página -------------------------------------------------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: var(--fonte-texto);
+  color: var(--tinta);
+  background: #e6ebf2;              /* cinza da bancada, só na tela */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* A ficha: uma página A4. Na tela vira "folha" centralizada; no PDF, a página. */
+.guia {
+  position: relative;
+  width: var(--pag-larg);
+  min-height: var(--pag-alt);
+  margin: 16px auto;
+  padding: var(--margem);
+  background: var(--papel);
+  /* textura pontilhada muito sutil, como o guia FTTH */
+  background-image: radial-gradient(rgba(31,111,208,.05) 1px, transparent 1px);
+  background-size: 16px 16px;
+  box-shadow: 0 8px 30px rgba(15,37,71,.18);
+  display: flex;
+  flex-direction: column;
+  gap: 7mm;
+  overflow: hidden;
+}
+
+@page { size: A4 portrait; margin: 0; }
+
+@media print {
+  html, body { background: #fff; }
+  .guia {
+    width: var(--pag-larg);
+    min-height: var(--pag-alt);
+    height: var(--pag-alt);
+    margin: 0;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+}
+
+/* ---- 3. Topo: pílula "GUIA VISUAL NN" ----------------------------------- */
+.topo {
+  display: flex;
+  justify-content: center;
+  margin-top: -2mm;
+}
+.topo .selo {
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  letter-spacing: .12em;
+  font-size: 12px;
+  padding: 6px 22px;
+  border-radius: 0 0 12px 12px;
+  text-transform: uppercase;
+}
+
+/* ---- 4. Cabeçalho: logo + título + badge -------------------------------- */
+.cabecalho {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 2px solid var(--linha);
+  padding-bottom: 6mm;
+}
+.cabecalho .logo {
+  width: 62px; height: 62px;
+  flex: none;
+}
+.cabecalho .titulo h1 {
+  font-family: var(--fonte-titulo);
+  font-weight: 800;
+  color: var(--navy);
+  font-size: 30px;
+  line-height: 1.02;
+  text-transform: uppercase;
+  letter-spacing: -.01em;
+}
+.cabecalho .titulo .sub {
+  color: var(--azul);
+  font-style: italic;
+  font-size: 13px;
+  margin-top: 4px;
+}
+.cabecalho .badge {
+  text-align: center;
+  border: 2px solid var(--navy);
+  border-radius: var(--raio);
+  padding: 6px 10px;
+  min-width: 92px;
+}
+.cabecalho .badge b { color: var(--navy); font-family: var(--fonte-titulo); font-size: 20px; display:block; }
+.cabecalho .badge span { color: var(--azul); font-size: 8px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+/* ---- 5. Título de seção (centralizado, entre réguas) -------------------- */
+.secao-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  color: var(--navy);
+  font-family: var(--fonte-titulo);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin: 1mm 0;
+}
+.secao-titulo::before,
+.secao-titulo::after {
+  content: ""; flex: 1; height: 2px; background: var(--linha);
+}
+
+/* ---- 6. Fluxo numerado (passos 1→N com seta) ---------------------------- */
+.fluxo { display: flex; align-items: stretch; gap: 6px; }
+.fluxo .passo {
+  flex: 1;
+  border: 1.5px solid var(--linha);
+  border-top: 4px solid var(--azul);
+  border-radius: var(--raio);
+  padding: 10px 9px;
+  display: flex; flex-direction: column; gap: 5px;
+  background: #fff;
+}
+.fluxo .passo .num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--azul); color: #fff;
+  font-family: var(--fonte-titulo); font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.fluxo .passo h3 { font-size: 12px; color: var(--navy); font-family: var(--fonte-titulo); text-transform: uppercase; letter-spacing:.02em; }
+.fluxo .passo p  { font-size: 10.5px; color: var(--tinta-suave); line-height: 1.35; }
+.fluxo .seta { align-self: center; color: var(--azul); font-size: 20px; font-weight: 700; flex: none; }
+
+/* variações de cor por passo, se quiser (aplicar no .passo) */
+.passo.verde   { border-top-color: var(--verde);  } .passo.verde   .num { background: var(--verde);  }
+.passo.laranja { border-top-color: var(--laranja);} .passo.laranja .num { background: var(--laranja);}
+.passo.roxo    { border-top-color: var(--roxo);   } .passo.roxo    .num { background: var(--roxo);   }
+.passo.vermelho{ border-top-color: var(--vermelho);}.passo.vermelho .num{ background: var(--vermelho);}
+
+/* ---- 7. Grade de cards -------------------------------------------------- */
+.cards { display: grid; grid-template-columns: repeat(var(--col, 4), 1fr); gap: 8px; }
+.card {
+  border: 1.5px solid var(--linha);
+  border-top: 4px solid var(--azul);
+  border-radius: var(--raio);
+  padding: 10px;
+  background: #fff;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.card .ic { width: 30px; height: 30px; }
+.card h3 { font-size: 12px; color: var(--navy); font-family: var(--fonte-titulo); text-transform: uppercase; letter-spacing:.02em; }
+.card p  { font-size: 10.5px; color: var(--tinta-suave); line-height: 1.35; }
+.card.verde   { border-top-color: var(--verde);   background: var(--verde-claro);  }
+.card.laranja { border-top-color: var(--laranja); background: var(--laranja-claro);}
+.card.roxo    { border-top-color: var(--roxo);    background: var(--roxo-claro);   }
+.card.azul    { border-top-color: var(--azul);    background: var(--azul-claro);   }
+
+/* ---- 8. Duas colunas (conceito A x conceito B) -------------------------- */
+.duas-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.coluna {
+  border: 2px solid var(--linha);
+  border-radius: var(--raio);
+  padding: 12px;
+}
+.coluna.verde { border-color: var(--verde); }
+.coluna.azul  { border-color: var(--azul);  }
+.coluna h3 { font-family: var(--fonte-titulo); font-size: 17px; text-transform: uppercase; margin-bottom: 6px; }
+.coluna.verde h3 { color: var(--verde); }
+.coluna.azul  h3 { color: var(--azul);  }
+.coluna ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.coluna li { font-size: 11px; color: var(--tinta); padding-left: 20px; position: relative; }
+.coluna li::before { content: "✔"; position: absolute; left: 0; color: var(--azul); font-weight: 700; }
+.coluna.verde li::before { color: var(--verde); }
+
+/* ---- 9. Tabela de comparação -------------------------------------------- */
+table.comparacao {
+  width: 100%; border-collapse: collapse;
+  border-radius: var(--raio); overflow: hidden; font-size: 11px;
+  box-shadow: var(--sombra);
+}
+table.comparacao thead th {
+  background: var(--navy); color: #fff;
+  font-family: var(--fonte-titulo); text-transform: uppercase; letter-spacing: .03em;
+  padding: 8px 10px; text-align: left; font-size: 10.5px;
+}
+table.comparacao tbody td { padding: 7px 10px; border-bottom: 1px solid var(--linha); color: var(--tinta); }
+table.comparacao tbody tr:nth-child(odd) td { background: var(--papel-tint); }
+table.comparacao code { font-family: var(--fonte-mono); background: #eef2f8; padding: 1px 5px; border-radius: 4px; color: var(--navy); }
+
+/* ---- 10. Bloco de comando / terminal ------------------------------------ */
+.terminal {
+  background: #0f2038; color: #e6edf6;
+  border-radius: var(--raio); overflow: hidden;
+  font-family: var(--fonte-mono); font-size: 11px;
+  box-shadow: var(--sombra);
+}
+.terminal .barra { background: #1b3358; padding: 5px 10px; display: flex; gap: 6px; align-items: center; }
+.terminal .barra i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.terminal .barra .r { background: #ff5f56; } .terminal .barra .y { background: #ffbd2e; } .terminal .barra .g { background: #27c93f; }
+.terminal .barra span { color: #9fb3d0; font-size: 10px; margin-left: 6px; }
+.terminal pre { padding: 10px 12px; white-space: pre-wrap; line-height: 1.5; }
+.terminal .prompt { color: #56d364; } .terminal .cmt { color: #7d8fa8; } .terminal .out { color: #b7c4d6; }
+
+/* código inline em qualquer texto */
+code.inl { font-family: var(--fonte-mono); background: #eef2f8; color: var(--navy); padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+
+/* ---- 11. Rodapé: Resumo Rápido + Dica de Ouro --------------------------- */
+.rodape-blocos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+.bloco { border-radius: var(--raio); overflow: hidden; box-shadow: var(--sombra); }
+.bloco .cabeca {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; color: #fff;
+  font-family: var(--fonte-titulo); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 13px;
+}
+.bloco .corpo { padding: 10px 12px; font-size: 11px; }
+.bloco.resumo .cabeca { background: var(--verde); }
+.bloco.resumo .corpo  { background: var(--verde-claro); }
+.bloco.resumo ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.bloco.resumo li { padding-left: 20px; position: relative; color: var(--tinta); }
+.bloco.resumo li::before { content: "✔"; position: absolute; left: 0; color: var(--verde); font-weight: 700; }
+.bloco.dica .cabeca { background: var(--azul); }
+.bloco.dica .corpo  { background: var(--azul-claro); color: var(--navy); font-weight: 500; }
+
+/* aviso de comando destrutivo (política editorial: nunca sem sinalizar) */
+.perigo {
+  border-left: 5px solid var(--vermelho);
+  background: var(--vermelho-claro);
+  padding: 8px 12px; border-radius: var(--raio-sm);
+  font-size: 11px; color: #8a1f1f;
+}
+.perigo b { color: var(--vermelho); }
+
+/* selo "No Kali" (o dragão do manual) e "Laboratório" */
+.selo-kali, .selo-lab {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--fonte-titulo); font-size: 12px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px;
+}
+.selo-kali { background: #eef4ff; color: var(--navy); }
+.selo-lab  { background: var(--verde-claro); color: var(--verde); }
+
+/* ---- 12. Rodapé da página ----------------------------------------------- */
+.rodape {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--navy); color: #fff;
+  margin: 6mm calc(-1 * var(--margem)) calc(-1 * var(--margem));
+  padding: 8px var(--margem);
+  font-size: 11px;
+}
+.rodape .marca { font-weight: 600; letter-spacing: .03em; }
+.rodape .pag { display: flex; align-items: center; gap: 10px; }
+.rodape .pag .n { background: #fff; color: var(--navy); font-family: var(--fonte-titulo); font-weight: 800; border-radius: var(--raio-sm); padding: 2px 8px; }
