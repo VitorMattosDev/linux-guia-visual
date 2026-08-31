@@ -3,101 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 001 — O que é Linux: kernel, distribuições e software livre</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a pilha de camadas e a fronteira das chamadas de sistema */
+  .anatomia { display:grid; grid-template-columns: 1.15fr 1fr; gap:12px; align-items:start; }
+  .zona { display:flex; gap:6px; }
+  .zona .camadas { flex:1; }
+  .rail { width:16px; border-radius:4px; color:#fff; writing-mode:vertical-rl; text-orientation:mixed;
+          display:flex; align-items:center; justify-content:center;
+          font-family:var(--fonte-titulo); font-size:8px; letter-spacing:.05em; text-transform:uppercase; }
+  .rail.user { background:var(--azul); }
+  .rail.kern { background:var(--navy); }
+  .solo { margin-left:22px; }
+  .camada { border-radius:var(--raio-sm); padding:6px 10px; color:#fff; margin-bottom:4px; }
+  .camada b { font-family:var(--fonte-titulo); font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; display:block; }
+  .camada span { font-size:9.5px; opacity:.9; }
+  .c-app { background:var(--azul); }
+  .c-util{ background:#4a8fd8; }
+  .c-lib { background:var(--verde); }
+  .c-ker { background:var(--navy); }
+  .c-hw  { background:#5b6b7d; }
+  .fronteira { display:flex; align-items:center; gap:8px; margin:5px 0; }
+  .fronteira::before, .fronteira::after { content:""; flex:1; height:0; border-top:2px dashed var(--vermelho); }
+  .fronteira span { font-family:var(--fonte-mono); font-size:9.5px; color:var(--vermelho); font-weight:700; white-space:nowrap; }
+  .lado { display:flex; flex-direction:column; gap:8px; }
+  .quadro { border:1.5px solid var(--linha); border-left:4px solid var(--azul); border-radius:var(--raio-sm); padding:8px 10px; background:#fff; }
+  .quadro.v { border-left-color:var(--verde); background:var(--verde-claro); }
+  .quadro h4 { font-family:var(--fonte-titulo); font-size:11.5px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
+  .quadro p { font-size:10.5px; color:var(--tinta-suave); line-height:1.4; margin-top:3px; }
+  .quadro p b { color:var(--tinta); }
+  .liberdades { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .lib { background:var(--roxo-claro); border-radius:var(--raio-sm); padding:6px 8px; text-align:center; }
+  .lib > b { display:block; font-family:var(--fonte-mono); color:var(--roxo); font-size:13px; }
+  .lib span { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; display:block; }
+  .lib span b { color:var(--roxo); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 001</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>O que é Linux: kernel, distribuições e software livre</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>O que é<br>Linux</h1>
+      <div class="sub">Servidor desconhecido, 3h20 da manhã: <code class="inl">uname -a</code> e <code class="inl">/etc/os-release</code> respondem perguntas diferentes.</div>
     </div>
     <div class="badge"><b>001</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- AS CAMADAS + KERNEL x DISTRO -->
+  <div class="secao-titulo">Linux é o kernel — o resto é integração</div>
+  <section class="anatomia">
+    <div class="pilha">
+      <div class="zona">
+        <div class="rail user">espaço de usuário</div>
+        <div class="camadas">
+          <div class="camada c-app"><b>Aplicações</b><span>navegador · nmap · Python · o seu script</span></div>
+          <div class="camada c-util"><b>Utilitários e shell</b><span>bash · coreutils · systemd · apt</span></div>
+          <div class="camada c-lib"><b>Bibliotecas</b><span>glibc · OpenSSL · libcurl</span></div>
+        </div>
+      </div>
+      <div class="fronteira"><span>chamadas de sistema</span></div>
+      <div class="zona">
+        <div class="rail kern">espaço de kernel</div>
+        <div class="camadas">
+          <div class="camada c-ker"><b>Kernel Linux</b><span>processos · memória · arquivos · rede · drivers</span></div>
+        </div>
+      </div>
+      <div class="camada c-hw solo"><b>Hardware</b><span>CPU · RAM · disco · placa de rede</span></div>
+    </div>
+    <div class="lado">
+      <div class="quadro">
+        <h4>O kernel define</h4>
+        <p>Drivers e suporte a hardware, escalonamento de CPU, memória, sockets. <b>Nenhum programa toca o hardware</b> — todos pedem ao kernel. Monolítico e <b>modular</b>: <code class="inl">lsmod</code> mostra o que foi carregado sem reiniciar.</p>
+      </div>
+      <div class="quadro v">
+        <h4>A distribuição define</h4>
+        <p>Biblioteca C, init, shell, <b>gerenciador de pacotes</b>, repositório, instalador e a política de atualização. É onde nasce o <code class="inl">apt</code> × <code class="inl">dnf</code> — e a janela de suporte.</p>
+      </div>
+      <div class="quadro" style="border-left-color:var(--laranja)">
+        <h4>Os números não conversam</h4>
+        <p>Kernel <code class="inl">6.12.25</code> e distro <code class="inl">2025.2</code> não têm relação. Ler os dois é o <b>primeiro diagnóstico</b> de qualquer máquina desconhecida.</p>
+      </div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">As duas perguntas do primeiro minuto</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> uname -a                  <span class="cmt"># qual KERNEL está rodando</span>
+<span class="out">Linux kali 6.12.25-amd64 #1 SMP PREEMPT_DYNAMIC Kali 6.12.25-1kali1 x86_64 GNU/Linux</span>
+<span class="prompt">$</span> cat /etc/os-release       <span class="cmt"># qual DISTRIBUIÇÃO foi instalada</span>
+<span class="out">PRETTY_NAME="Kali GNU/Linux Rolling"   ID=kali   ID_LIKE=debian</span>
+<span class="prompt">$</span> dpkg -l | grep -c '^ii'   <span class="cmt"># o tamanho do trabalho de integração</span>
+<span class="out">3184</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- FAMÍLIAS -->
+  <div class="secao-titulo">O tronco define os comandos</div>
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Família</th><th>Pacote · gerente</th><th>Derivadas</th><th>Onde aparece</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><b>Debian</b> (1993)</td><td><code>.deb</code> · <code>apt</code></td><td>Ubuntu, <b>Kali</b>, Mint, Raspberry Pi OS</td><td>Servidor pequeno/médio — a família deste guia</td></tr>
+        <tr><td><b>Red Hat</b> (1994)</td><td><code>.rpm</code> · <code>dnf</code></td><td>Fedora, RHEL, Rocky, Alma</td><td>Datacenter corporativo (firewalld, SELinux)</td></tr>
+        <tr><td><b>Arch</b> (2002)</td><td><code>.pkg</code> · <code>pacman</code></td><td>Manjaro</td><td><i>Rolling</i> minimalista, montado à mão</td></tr>
+        <tr><td><b>Alpine</b></td><td><code>.apk</code> · <code>apk</code></td><td>—</td><td>Contêiner: usa <code>musl</code> no lugar da <code>glibc</code></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- SOFTWARE LIVRE -->
+  <div class="secao-titulo">O que sustenta tudo: as 4 liberdades</div>
+  <section class="liberdades">
+    <div class="lib"><b>0</b><span>Executar para <b>qualquer</b> fim</span></div>
+    <div class="lib"><b>1</b><span>Estudar e adaptar (exige o fonte)</span></div>
+    <div class="lib"><b>2</b><span>Redistribuir cópias</span></div>
+    <div class="lib"><b>3</b><span>Distribuir versões modificadas</span></div>
+  </section>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Linux, no sentido estrito, é <b>só o kernel</b>; a distro é o kernel + integração.</li>
+        <li><code class="inl">uname -a</code> = kernel · <code class="inl">/etc/os-release</code> = distribuição. Números independentes.</li>
+        <li>Conceitos (processo, permissão, socket) valem em toda parte; <b>comandos, não</b>.</li>
+        <li>Kernel sob GPLv2: quem embarca Linux num roteador devolve o fonte modificado.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Debian <b>rolling</b> da OffSec, saído do ramo <code class="inl">testing</code>. O <code class="inl">2025.2</code> é marco de imagem, não versão congelada — o repositório é <code class="inl">kali-rolling</code> e <code class="inl">apt full-upgrade</code> é rotina, não evento. Kernel com sufixo <code class="inl">-kali1</code> (patches de injeção e modo monitor), usuário padrão <code class="inl">kali</code> desde 2020.1, ferramentas em metapacotes. <b>Não é distro de servidor:</b> é a máquina de quem audita, não a auditada.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 01 · Fase 1 <span class="n">001</span></span>

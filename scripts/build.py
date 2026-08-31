@@ -49,8 +49,12 @@ def render(nums=None):
             pg.goto("file://" + str(html.resolve())); pg.wait_for_timeout(300)
             pg.pdf(path=str(SAIDA/"pdf"/f"guia{num:03d}.pdf"), format="A4",
                    print_background=True, margin={"top":"0","bottom":"0","left":"0","right":"0"})
-            pg.set_viewport_size({"width":595,"height":842})
-            pg.screenshot(path=str(SAIDA/"thumbs"/f"guia{num:03d}.png"))
+            # A4 a 96dpi = 794x1123 px. Viewport menor CORTAVA a ficha (não reduzia):
+            # tira a foto do próprio <article class="guia">, que é a página inteira.
+            pg.set_viewport_size({"width":900,"height":1200})
+            pg.wait_for_timeout(150)
+            pg.locator("article.guia").screenshot(
+                path=str(SAIDA/"thumbs"/f"guia{num:03d}.png"))
             print(f"  render guia {num:03d}")
         b.close()
 
