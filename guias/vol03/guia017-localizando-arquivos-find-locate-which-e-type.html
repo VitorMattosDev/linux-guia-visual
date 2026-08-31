@@ -3,101 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 017 — Localizando arquivos: find, locate, which e type</title>
+<title>GUIA 017 — Localizando arquivos</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a linha do find dissecada + a escada de resolução do shell */
+  .findline { display:grid; grid-template-columns:auto auto auto auto; gap:6px; justify-content:center; }
+  .parte { border-radius:8px; padding:6px 9px; text-align:center; border:1.5px solid; }
+  .parte .rot { font-family:var(--fonte-titulo); font-size:9px; font-weight:800; letter-spacing:.06em;
+                text-transform:uppercase; margin-bottom:3px; }
+  .parte .cmd { font-family:var(--fonte-mono); font-size:11px; font-weight:700; color:var(--navy); white-space:nowrap; }
+  .parte .exp { font-size:9px; color:var(--tinta-suave); margin-top:3px; line-height:1.25; }
+  .p-onde  { border-color:var(--azul);    background:var(--azul-claro); }    .p-onde  .rot{ color:var(--azul); }
+  .p-glob  { border-color:#5b6b7d;        background:var(--papel-tint); }    .p-glob  .rot{ color:#5b6b7d; }
+  .p-teste { border-color:var(--laranja); background:var(--laranja-claro); } .p-teste .rot{ color:var(--laranja); }
+  .p-acao  { border-color:var(--verde);   background:var(--verde-claro); }   .p-acao  .rot{ color:var(--verde); }
+  .escolha { text-align:center; font-size:10px; color:var(--tinta-suave); margin-top:6px; line-height:1.4; }
+  /* grade de testes */
+  .testes { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+  .gtest { border:1.5px solid var(--linha); border-top:3px solid var(--azul); border-radius:8px; background:#fff; padding:5px 7px 6px; }
+  .gtest h4 { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase; letter-spacing:.03em;
+              color:var(--navy); margin-bottom:4px; }
+  .gtest .l { font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); display:block; margin-top:4px; word-break:break-all; }
+  .gtest .g { font-size:8.5px; color:var(--tinta-suave); display:block; line-height:1.2; }
+  .gtest.b2 { border-top-color:var(--verde); } .gtest.b3 { border-top-color:var(--laranja); }
+  .gtest.b4 { border-top-color:var(--roxo); }
+  .sinal { margin-top:6px; background:var(--laranja-claro); border-left:4px solid var(--laranja); border-radius:6px;
+           padding:5px 9px; font-size:10px; color:var(--tinta); }
+  .sinal b { color:var(--laranja); }
+  /* escada de resolução + terminal */
+  .pratica { display:grid; grid-template-columns:.82fr 1.35fr; gap:10px; align-items:start; }
+  .escada { border:1.5px solid var(--linha); border-radius:10px; background:var(--papel-tint); padding:7px 8px; }
+  .escada .rot { font-family:var(--fonte-titulo); font-size:9.5px; font-weight:800; letter-spacing:.04em;
+                 text-transform:uppercase; color:var(--tinta-suave); text-align:center; margin-bottom:5px; }
+  .degrau { display:flex; align-items:center; gap:6px; background:var(--azul-claro); border:1.5px solid var(--azul);
+            border-radius:6px; padding:3px 7px; margin-bottom:3px; }
+  .degrau i { font-style:normal; font-family:var(--fonte-titulo); font-weight:800; font-size:9px; color:#fff;
+              background:var(--azul); border-radius:50%; width:14px; height:14px; line-height:14px; text-align:center; flex:none; }
+  .degrau span { font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); }
+  .degrau.fim { background:var(--vermelho-claro); border-color:var(--vermelho); }
+  .degrau.fim i { background:var(--vermelho); }
+  .escada .leg { font-size:8.5px; color:var(--tinta-suave); line-height:1.35; margin-top:5px; }
+  .escada .leg b { color:var(--navy); font-family:var(--fonte-mono); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 017</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Localizando arquivos: find, locate, which e type</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Localizando<br>Arquivos</h1>
+      <div class="sub">"Quais arquivos de 100 MB mudaram no mês?" e "onde está o <code class="inl">nmap</code>?" são perguntas de ferramentas diferentes.</div>
     </div>
     <div class="badge"><b>017</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- ANATOMIA DO FIND -->
+  <div class="secao-titulo">A linha do <code class="inl">find</code>: quatro partes, ordem fixa</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="findline">
+      <div class="parte p-onde"><div class="rot">Onde</div><div class="cmd">/var/log</div><div class="exp">ponto de partida<br>da descida</div></div>
+      <div class="parte p-glob"><div class="rot">Opções globais</div><div class="cmd">-maxdepth 2 -xdev</div><div class="exp">valem para a<br>busca inteira</div></div>
+      <div class="parte p-teste"><div class="rot">Testes</div><div class="cmd">-type f -size +10M</div><div class="exp">um <b>E</b> com curto-circuito:<br>o 1º que falha descarta</div></div>
+      <div class="parte p-acao"><div class="rot">Ação</div><div class="cmd">-exec ls -lh {} +</div><div class="exp">só no que passou<br>em todos os testes</div></div>
+    </div>
+    <div class="escolha">Teste barato primeiro é otimização real. E a regra de escolha entre as famílias:
+      <b>locate</b> para "onde fica um arquivo com esse nome?" · <b>find</b> para tamanho, data, dono, permissão · <b>type</b> para comandos.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- OS TESTES -->
+  <div class="secao-titulo">Os testes que se usa de verdade</div>
+  <section>
+    <div class="testes">
+      <div class="gtest">
+        <h4>Nome e caminho</h4>
+        <b class="l">-name "*.conf"</b><span class="g">só o nome-base, com glob</span>
+        <b class="l">-iname "*.CONF"</b><span class="g">ignora maiúsculas</span>
+        <b class="l">-path "*/etc/*.conf"</b><span class="g">casa o caminho inteiro</span>
+        <b class="l">-regex '.*cap0[12].*'</b><span class="g">regex sobre o caminho</span>
+      </div>
+      <div class="gtest b2">
+        <h4>Tipo e tamanho</h4>
+        <b class="l">-type f · d · l</b><span class="g">arquivo, diretório, link</span>
+        <b class="l">-xtype l</b><span class="g">link <b>quebrado</b></span>
+        <b class="l">-size +100M · -1k</b><span class="g">sem sufixo = blocos de 512 B</span>
+        <b class="l">-empty</b><span class="g">arquivo ou diretório vazio</span>
+      </div>
+      <div class="gtest b3">
+        <h4>Tempo</h4>
+        <b class="l">-mtime -7</b><span class="g">conteúdo mudou em 7 dias</span>
+        <b class="l">-mmin -15</b><span class="g">nos últimos 15 minutos</span>
+        <b class="l">-cmin -60</b><span class="g">o <b>inode</b> mudou na última hora</span>
+        <b class="l">-newer ref.txt</b><span class="g">mais recente que outro</span>
+      </div>
+      <div class="gtest b4">
+        <h4>Dono e permissão</h4>
+        <b class="l">-user kali -group sudo</b><span class="g">dono e grupo</span>
+        <b class="l">-perm 644</b><span class="g">exatamente isso</span>
+        <b class="l">-perm -u+w</b><span class="g">pelo menos esse bit</span>
+        <b class="l">-perm /o+w</b><span class="g">qualquer bit para outros</span>
+      </div>
+    </div>
+    <div class="sinal"><b>O sinal muda tudo:</b> sem sinal é valor <i>exato</i>, <code class="inl">+</code> é "mais que", <code class="inl">-</code> é "menos que" — vale para <code class="inl">-size</code>, <code class="inl">-mtime</code>, <code class="inl">-links</code> e <code class="inl">-perm</code>. E <code class="inl">-exec … +</code> agrupa numa execução; <code class="inl">-exec … \;</code> abre um processo por arquivo.</div>
+  </section>
+
+  <!-- ONDE ESTÁ UM COMANDO -->
+  <div class="secao-titulo">Onde está um comando — e na prática</div>
+  <section class="pratica">
+    <div class="escada">
+      <div class="rot">Ordem de resolução do shell</div>
+      <div class="degrau"><i>1</i><span>alias</span></div>
+      <div class="degrau"><i>2</i><span>função do shell</span></div>
+      <div class="degrau"><i>3</i><span>builtin</span></div>
+      <div class="degrau"><i>4</i><span>tabela hash</span></div>
+      <div class="degrau"><i>5</i><span>varredura do PATH</span></div>
+      <div class="degrau fim"><i>✖</i><span>command not found</span></div>
+      <div class="leg"><b>type -a</b> vê as cinco · <b>command -v</b> idem, forma POSIX para script · <b>which</b> é programa externo e só enxerga o <b>PATH</b>: ignora alias, função e builtin — os três lugares onde um comando pode ter sido sequestrado.</div>
+    </div>
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> find /var/log -xdev -type f -size +10M \
+    -mtime -7 -printf '%s\t%p\n' | sort -rn | head
+<span class="prompt">$</span> find . -name node_modules -prune -o -type f -print
+<span class="cmt"># -prune so funciona no idioma "-o ... -print"</span>
+<span class="prompt">$</span> find . -type f -print0 | xargs -0 grep -l ERRO
+<span class="cmt"># -print0/-0 sempre: nome pode ter espaco</span>
+<span class="prompt">$</span> locate -b '\rockyou.txt'
+<span class="out">/usr/share/wordlists/rockyou.txt.gz</span>
+<span class="prompt">$</span> type -a ls
+<span class="out">ls is aliased to `ls --color=auto'</span>
+<span class="out">ls is /usr/bin/ls</span></pre>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Busca destrutiva ensaia antes.</b> Rode a expressão com <code class="inl">-print</code>, confira a lista e só então troque pela ação. O <code class="inl">-delete</code> implica <code class="inl">-depth</code> e muda a ordem de avaliação — combinado com <code class="inl">-prune</code> já produziu remoção fora do alvo. Sem parênteses, <code class="inl">find . -name a -o -name b -delete</code> apaga só os <code class="inl">b</code>. Em expressão complexa, prefira <code class="inl">-print0 | xargs -0 rm --</code> depois de ler a lista.</div>
+
+  <!-- RESUMO + DICA -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">find</code> varre a árvore; <code class="inl">locate</code> consulta um índice que envelhece (<code class="inl">sudo updatedb</code>).</li>
+        <li><code class="inl">-name</code> vê o nome-base; <code class="inl">-path</code> vê o caminho inteiro.</li>
+        <li><code class="inl">-xdev</code> é reflexo em busca a partir de <code class="inl">/</code>: evita <code class="inl">/proc</code>, <code class="inl">/sys</code> e discos montados.</li>
+        <li><code class="inl">type</code> no terminal, <code class="inl">command -v</code> em script — <code class="inl">which</code> não vê alias nem função.</li>
+        <li>Binário recém-instalado "não existe"? <code class="inl">hash -r</code> limpa a memória de caminhos do shell.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O <code class="inl">locate</code> não vem instalado: <code class="inl">sudo apt install plocate &amp;&amp; sudo updatedb</code> — e achar wordlist é caso dele, não de <code class="inl">find /</code>. Inspeção do <b>próprio</b> sistema em uma linha: <code class="inl">find / -xdev -perm -4000 -type f 2>/dev/null</code> (SUID) e <code class="inl">-perm /o+w</code> (gravável por qualquer um); em máquina de terceiros, só com autorização escrita. E <code class="inl">type -a ls</code> denuncia o alias malicioso que o <code class="inl">which</code> jamais mostraria.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 03 · Fase 1 <span class="n">017</span></span>
