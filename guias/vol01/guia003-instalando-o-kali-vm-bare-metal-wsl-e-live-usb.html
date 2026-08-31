@@ -3,101 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 003 — Instalando o Kali: VM, bare metal, WSL e live USB</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: esquema de rede dentro de cada card de modo */
+  .esquema { display:flex; align-items:center; justify-content:center; gap:4px; margin:3px 0 5px;
+             font-family:var(--fonte-mono); font-size:9px; }
+  .esquema i { font-style:normal; padding:2px 5px; border-radius:4px; color:#fff; white-space:nowrap; }
+  .e-vm { background:var(--vermelho); } .e-host { background:var(--navy); } .e-net { background:var(--verde); }
+  .e-x { background:#c3ccd8; color:var(--tinta-suave); }
+  .esquema b { color:var(--tinta-suave); font-weight:700; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 003</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Instalando o Kali: VM, bare metal, WSL e live USB</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Instalando<br>o Kali</h1>
+      <div class="sub">VM, bare metal, live USB, WSL ou contêiner — os cinco caminhos servem a problemas diferentes.</div>
     </div>
     <div class="badge"><b>003</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
+  <!-- VERIFICAÇÃO DA IMAGEM -->
+  <div class="secao-titulo">Antes de tudo: a imagem é mesmo do Kali?</div>
   <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo verde"><span class="num">1</span><h3>Importe a chave</h3><p><code class="inl">wget -qO- archive.kali.org/archive-keyring.gpg | gpg --import</code></p></div>
     <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo"><span class="num">2</span><h3>Baixe as somas</h3><p><code class="inl">SHA256SUMS</code> <b>e</b> <code class="inl">SHA256SUMS.gpg</code>, ao lado da imagem.</p></div>
     <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo laranja"><span class="num">3</span><h3>Confira a assinatura</h3><p><code class="inl">gpg --verify SHA256SUMS.gpg SHA256SUMS</code> → tem de dizer <b>Good signature</b>.</p></div>
     <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo roxo"><span class="num">4</span><h3>Confira a soma</h3><p><code class="inl">sha256sum -c SHA256SUMS --ignore-missing</code> → <b>OK</b>. Só então grave.</p></div>
   </section>
+  <div class="perigo" style="border-left-color:var(--laranja);background:var(--laranja-claro);color:#7a3f04">
+    <b style="color:var(--laranja)">Conferir só a soma não prova nada</b> — se o espelho foi adulterado, a soma veio adulterada junto. A assinatura GPG é o elo que fecha a cadeia. O aviso <code class="inl">key is not certified</code> é normal; <code class="inl">BAD signature</code> não é: descarte e baixe de novo.
+  </div>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- OS CINCO CAMINHOS -->
+  <div class="secao-titulo">Os cinco caminhos</div>
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Método</th><th>Entrega</th><th>Cobra</th><th>Use quando</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><b>Máquina virtual</b><br><span style="color:var(--verde);font-weight:700">← o padrão</span></td><td>Isolamento, <b>snapshot</b>, uma VM por cliente</td><td>Wi-Fi só por USB externo repassado; perde desempenho</td><td>Estudo e quase todo trabalho profissional. 4 GB RAM · 2 vCPU · <b>60–80 GB</b></td></tr>
+        <tr><td><b>Bare metal</b></td><td>Desempenho total, GPU para <code>hashcat</code>, Wi-Fi interno</td><td>Sem snapshot; particionar apaga o resto</td><td>Máquina dedicada à função — nunca o notebook de uso geral</td></tr>
+        <tr><td><b>Live USB</b> + persistência</td><td>Não escreve no disco da máquina; persistência com LUKS</td><td>Lento; gravar a mídia é a operação mais perigosa</td><td>Forense, recuperação, trabalho em máquina de terceiros</td></tr>
+        <tr><td><b>WSL2</b> (Windows)</td><td>Rápido, integra com o Windows; <code>kali-win-kex</code> dá tela</td><td><b>Kernel é o do WSL</b>: sem patches, USB irregular, sem modo monitor</td><td>Linha de comando, scripts, análise de arquivo. Bom complemento, mau substituto</td></tr>
+        <tr><td><b>Contêiner</b></td><td>Sobe em segundos, descartável, ideal em pipeline</td><td>Usa o kernel do hospedeiro; péssimo como ambiente interativo</td><td>Rodar <i>uma</i> ferramenta pontual sem instalar nada</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- MODOS DE REDE -->
+  <div class="secao-titulo">Na VM, o modo de rede é decisão de segurança</div>
+  <section class="cards" style="--col:3">
+    <div class="card azul">
+      <h3>NAT · o padrão</h3>
+      <div class="esquema"><i class="e-vm">VM</i><b>→</b><i class="e-host">host</i><b>→</b><i class="e-net">LAN</i></div>
+      <p>Sai para a internet escondida atrás do hospedeiro; <b>ninguém de fora inicia conexão</b>. Serve para atualizar e navegar.</p>
+    </div>
+    <div class="card laranja">
+      <h3>Bridge · cuidado</h3>
+      <div class="esquema"><i class="e-vm">VM</i><b>→</b><i class="e-net">LAN real</i></div>
+      <p>IP próprio no roteador, visível como outra máquina. Necessário quando a VM precisa ser alcançada — e é exatamente o que a política de TI proíbe numa rede corporativa.</p>
+    </div>
+    <div class="card verde">
+      <h3>Host-only · o laboratório</h3>
+      <div class="esquema"><i class="e-vm">VM</i><b>↔</b><i class="e-vm">alvo</i><b>↔</b><i class="e-x">sem saída</i></div>
+      <p>Rede fechada entre as VMs. <b>Máquina-alvo vulnerável nunca em NAT nem em bridge</b> — senão seu laboratório vira porta de entrada.</p>
+    </div>
+  </section>
+
+  <div class="perigo">
+    <b>Gravar no dispositivo errado destrói o disco.</b> O <code class="inl">dd</code> escreve byte a byte, sem confirmação e sem desfazer: <code class="inl">of=/dev/sda</code> no lugar de <code class="inl">/dev/sdb</code> apaga o sistema. Identifique com <code class="inl">lsblk -o NAME,SIZE,TYPE,MOUNTPOINT,MODEL</code> e confira o tamanho. <b>Ensaie sem risco</b> escrevendo num arquivo-imagem: <code class="inl">truncate -s 4G /tmp/ensaio.img</code> e <code class="inl">dd if=...iso of=/tmp/ensaio.img bs=4M status=progress</code>. Quem está começando deve preferir o Etcher, que só lista removíveis. O mesmo vale para o instalador: <b>"usar o disco inteiro" destrói todas as partições</b>, o outro sistema incluído.
+  </div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Verificar tem <b>duas</b> etapas: soma prova integridade, assinatura GPG prova procedência.</li>
+        <li>VM é o padrão: isolamento, snapshot e um ambiente por cliente.</li>
+        <li>Modo monitor exige <b>adaptador USB externo</b> repassado — o rádio interno não chega ao convidado.</li>
+        <li>A instalação só termina com <code class="inl">full-upgrade</code>, ferramentas de convidado e <b>snapshot testado</b>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">A imagem <b>pré-construída de VM</b> é o caminho mais curto: já vem com as guest tools. Ela e a live usam <code class="inl">kali</code>/<code class="inl">kali</code> — troque com <code class="inl">passwd</code> no primeiro login. Na tela de software do instalador dá para trocar <code class="inl">kali-linux-default</code> por <code class="inl">kali-linux-headless</code> e poupar dezenas de GB. Depois: <code class="inl">apt full-upgrade</code>, <code class="inl">open-vm-tools-desktop</code> (ou <code class="inl">virtualbox-guest-x11</code>), <code class="inl">dpkg-reconfigure keyboard-configuration</code> para ABNT2, reboot e snapshot. Cuidado com a <b>senha de destruição do LUKS</b>: ela apaga os cabeçalhos de chave e <b>não existe recuperação</b>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 01 · Fase 1 <span class="n">003</span></span>
