@@ -3,101 +3,133 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 011 — Visualizando conteúdo: cat, less, head, tail e more</title>
+<title>GUIA 011 — Visualizando conteúdo: cat, less, head, tail</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a tira de escolha da ferramenta e as faixas de head/tail */
+  .escolha { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
+  .esc { border:1.5px solid var(--linha); border-top:4px solid var(--azul);
+         border-radius:var(--raio-sm); padding:7px 6px; background:#fff; text-align:center; }
+  .esc > i { display:block; font-style:normal; font-family:var(--fonte-titulo); font-size:8.5px;
+             color:var(--tinta-suave); text-transform:uppercase; letter-spacing:.03em; }
+  .esc > b { display:block; font-family:var(--fonte-mono); font-size:12px; color:var(--navy);
+             margin:4px 0 3px; line-height:1.25; }
+  .esc > span { display:block; font-size:9px; color:var(--tinta-suave); line-height:1.25; }
+  .esc.v { border-top-color:var(--verde);    background:var(--verde-claro); }
+  .esc.l { border-top-color:var(--laranja);  background:var(--laranja-claro); }
+  .esc.x { border-top-color:var(--vermelho); background:var(--vermelho-claro); }
+  .esc.x > b { color:#8a1f1f; }
+
+  .faixas { display:flex; flex-direction:column; gap:4px; }
+  .linhas, .barras { display:grid; grid-template-columns:repeat(10,1fr); gap:3px; }
+  .ln { background:var(--papel-tint); border:1px solid var(--linha); border-radius:4px;
+        text-align:center; font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); padding:4px 0; }
+  .bar { border-radius:4px; padding:3px 7px; font-family:var(--fonte-mono); font-size:9.5px;
+         color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .b-az { background:var(--azul); } .b-la { background:var(--laranja); }
+  .b-ve { background:var(--verde); } .b-vm { background:var(--vermelho); }
+
+  .duplo { display:grid; grid-template-columns:1fr 1.05fr; gap:12px; align-items:start; }
+  .ops { display:flex; flex-direction:column; gap:5px; }
+  .op { border-left:4px solid var(--azul); background:var(--azul-claro);
+        border-radius:var(--raio-sm); padding:5px 9px; }
+  .op > b { font-family:var(--fonte-mono); font-size:11px; color:var(--navy); }
+  .op > span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+  .op.v { border-left-color:var(--verde);    background:var(--verde-claro); }
+  .op.l { border-left-color:var(--laranja);  background:var(--laranja-claro); }
+  .op.x { border-left-color:var(--vermelho); background:var(--vermelho-claro); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 011</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Visualizando conteúdo: cat, less, head, tail e more</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Ler o<br>Conteúdo</h1>
+      <div class="sub"><code class="inl">cat</code> num log gigante arrasa a rolagem; <code class="inl">cat</code> num binário embaralha o terminal. Nenhum dos dois é acidente — o <code class="inl">cat</code> não serve para ver arquivo.</div>
     </div>
     <div class="badge"><b>011</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- ESCOLHA DA FERRAMENTA -->
+  <div class="secao-titulo">Rode <code class="inl">file</code> antes de abrir — e escolha a ferramenta</div>
+  <section class="escolha">
+    <div class="esc"><i>Texto curto</i><b>cat</b><span>Cabe numa tela. Só aí.</span></div>
+    <div class="esc v"><i>Texto grande</i><b>less</b><span>Carrega sob demanda: 10 GB abrem na hora.</span></div>
+    <div class="esc"><i>Só as pontas</i><b>head<br>tail</b><span>Primeiras ou últimas linhas.</span></div>
+    <div class="esc l"><i>Crescendo</i><b>tail -F<br>less +F</b><span>Acompanha o arquivo em tempo real.</span></div>
+    <div class="esc v"><i>Comprimido</i><b>zcat zless<br>zgrep</b><span>Lê o <code class="inl">.gz</code> sem descomprimir.</span></div>
+    <div class="esc x"><i>Binário</i><b>strings<br>xxd</b><span><b>Nunca <code class="inl">cat</code></b> — conserto: <code class="inl">reset</code>.</span></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <div class="perigo" style="border-left-color:var(--azul);background:var(--azul-claro);color:var(--navy)">
+    <b style="color:var(--azul)">O <code class="inl">cat</code> <i>concatena</i> — exibir é só o que sobra quando você dá um arquivo e não redireciona.</b> O <code class="inl">file</code> não confia na extensão: lê os primeiros bytes e compara com um banco de assinaturas. Num binário, os bytes que por acaso formam sequências de escape VT100 são <b>obedecidos</b> — o terminal não travou, ele mudou de fonte e de mapa de caracteres; digite <code class="inl">reset</code> às cegas e Enter. E o <code class="inl">cat -A</code> é diagnóstico de verdade: revela <code class="inl">^M</code> (fim de linha do Windows — a causa do <code class="inl">bad interpreter: /bin/bash^M</code>), <code class="inl">^I</code> (tabulação onde você achava que havia espaços) e <code class="inl">$</code> (espaço sobrando no fim da linha).
+  </div>
+
+  <!-- FAIXAS DE HEAD E TAIL -->
+  <div class="secao-titulo">O sinal de mais muda tudo: as faixas de <code class="inl">head</code> e <code class="inl">tail</code></div>
+  <section class="faixas">
+    <div class="linhas">
+      <span class="ln">1</span><span class="ln">2</span><span class="ln">3</span><span class="ln">4</span><span class="ln">5</span>
+      <span class="ln">6</span><span class="ln">7</span><span class="ln">8</span><span class="ln">9</span><span class="ln">10</span>
+    </div>
+    <div class="barras">
+      <span class="bar b-az" style="grid-column:1/4">head -n 3</span>
+      <span class="bar b-vm" style="grid-column:8/11">tail -n 3</span>
+    </div>
+    <div class="barras">
+      <span class="bar b-la" style="grid-column:4/7">head -n 6 | tail -n 3</span>
+    </div>
+    <div class="barras">
+      <span class="bar b-ve" style="grid-column:6/11">tail -n +6 &nbsp;— da linha 6 até o fim</span>
+    </div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- LESS + REFLEXOS -->
+  <div class="secao-titulo">Dez teclas do <code class="inl">less</code> e os reflexos que sobram</div>
+  <section class="duplo">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Tecla</th><th>Faz</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>Espaço</code> / <code>b</code></td><td>Avança / volta uma tela</td></tr>
+        <tr><td><code>g</code> / <code>G</code></td><td>Início / fim do arquivo</td></tr>
+        <tr><td><code>/texto</code> · <code>n</code> <code>N</code></td><td>Busca; próxima e anterior ocorrência</td></tr>
+        <tr><td><code>&amp;texto</code></td><td><b>Mostra só as linhas que casam</b> — um grep interativo sem sair do arquivo (<code>&amp;</code> + Enter volta ao todo)</td></tr>
+        <tr><td><code>F</code></td><td>Acompanha o crescimento; <code>Ctrl+C</code> sai do modo <b>sem perder o histórico</b></td></tr>
+        <tr><td><code>m</code>+letra · <code>'</code>+letra</td><td>Marca a posição e volta a ela</td></tr>
+        <tr><td><code>v</code> · <code>h</code> · <code>q</code></td><td>Abre no <code>$EDITOR</code> · ajuda · sai</td></tr>
       </tbody>
     </table>
+    <div class="ops">
+      <div class="op x"><b>tail -f  ×  tail -F</b><span>O <code class="inl">-f</code> segue o <b>inode</b>: depois que o <code class="inl">logrotate</code> renomeia o arquivo, ele fica olhando o antigo para sempre. O <code class="inl">-F</code> segue o <b>nome</b> e reabre. Em servidor é sempre <code class="inl">-F</code>.</span></div>
+      <div class="op l"><b>tail -F auth.log | grep --line-buffered "Failed"</b><span>Sem <code class="inl">--line-buffered</code> o grep segura kilobytes e você fica minutos achando que travou.</span></div>
+      <div class="op v"><b>less -R · export LESS='-R -i -M'</b><span><code class="inl">-R</code> interpreta as cores do <code class="inl">nmap</code>; sem ele você lê <code class="inl">ESC[1;32m</code> em cada linha. É o mesmo paginador do <code class="inl">man</code>.</span></div>
+      <div class="op"><b>grep erro arquivo</b><span>Não <code class="inl">cat arquivo | grep</code>: todo comando que aceita nome de arquivo dispensa o <code class="inl">cat</code> — é um processo e uma cópia de dados a menos.</span></div>
+      <div class="op"><b>tac · batcat · jq . | less -R</b><span><code class="inl">tac</code> lê do fim para o começo. <code class="inl">batcat</code> (o <code class="inl">bat</code> do Debian) colore por sintaxe — ótimo para código, dispensável para dados que seguem num cano.</span></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">file</code> antes de abrir: ele lê os bytes, não a extensão.</li>
+        <li><code class="inl">head -n 3</code> as três primeiras · <code class="inl">tail -n 3</code> as três últimas · <code class="inl">tail -n +3</code> da terceira em diante.</li>
+        <li>Encadear <code class="inl">head | tail</code> recorta qualquer faixa do meio.</li>
+        <li><code class="inl">cat > nota.txt</code> grava até o <b><code class="inl">Ctrl+D</code></b> (fim de arquivo). <code class="inl">Ctrl+C</code> ali trunca o arquivo.</li>
+        <li><code class="inl">more</code> não volta e não busca para trás — use só onde não houver <code class="inl">less</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">A <code class="inl">rockyou.txt</code> tem <b>mais de 14 milhões de linhas</b>: <code class="inl">cat</code> nela é perder o terminal na certa — <code class="inl">zcat rockyou.txt.gz | head</code>, <code class="inl">wc -l</code>, <code class="inl">zgrep</code>. Log moderno é <b>binário</b>: <code class="inl">cat</code> em <code class="inl">/var/log/journal</code> não serve para nada, use <code class="inl">journalctl -u ssh</code>, <code class="inl">-f</code>, <code class="inl">-p err</code> (Vol 7). Deixe <code class="inl">tail -F /var/log/auth.log</code> numa segunda aba enquanto trabalha: <b>todo <code class="inl">sudo</code> seu aparece ali</b> — ensina rápido o que o sistema registra a seu respeito. Relatório de <code class="inl">nmap -oN</code> numa <code class="inl">/16</code> é enorme: abra no <code class="inl">less</code> e filtre com <code class="inl">&amp;</code>. <code class="inl">strings</code> num binário suspeito é o <b>primeiro</b> passo — em VM isolada, sem executar, e só com material que você tem autorização para analisar.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 02 · Fase 1 <span class="n">011</span></span>
