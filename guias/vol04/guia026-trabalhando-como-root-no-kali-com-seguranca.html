@@ -3,101 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 026 — Trabalhando como root no Kali com segurança</title>
+<title>GUIA 026 — Trabalhar como root no Kali com segurança</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico desta ficha: o fluxo de menor privilégio */
+  .mp { display:grid; grid-template-columns:180px 24px 1fr; gap:8px; align-items:center; }
+  .mp .base { border:2px solid var(--azul); background:var(--azul-claro); border-radius:var(--raio);
+              padding:10px; text-align:center; }
+  .mp .base b { display:block; font-family:var(--fonte-titulo); font-size:14px; color:var(--navy);
+                text-transform:uppercase; letter-spacing:.02em; }
+  .mp .base span { font-size:10px; color:var(--tinta-suave); }
+  .mp .setas { display:flex; flex-direction:column; gap:14px; align-items:center; color:var(--azul);
+               font-size:17px; font-weight:700; }
+  .ramos { display:flex; flex-direction:column; gap:6px; }
+  .ramo { border-radius:var(--raio-sm); padding:6px 10px; font-size:10.5px; line-height:1.35;
+          border-left:4px solid; }
+  .ramo b { font-family:var(--fonte-titulo); font-size:11.5px; text-transform:uppercase; letter-spacing:.02em; }
+  .ramo.ok  { border-color:var(--verde);    background:var(--verde-claro);   color:#2c4a34; }
+  .ramo.ok b { color:var(--verde); }
+  .ramo.ele { border-color:var(--laranja);  background:var(--laranja-claro); color:#5b4326; }
+  .ramo.ele b { color:var(--laranja); }
+  .ramo.no  { border-color:var(--vermelho); background:#fdeaea;              color:#6d3232; }
+  .ramo.no b { color:var(--vermelho); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 026</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Trabalhando como root no Kali com segurança</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Root no Kali,<br>com Juízo</h1>
+      <div class="sub">Até 2019 o Kali abria o terminal como root. Desde a 2020.1, não — e isso muda o seu método.</div>
     </div>
     <div class="badge"><b>026</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- FLUXO DE MENOR PRIVILÉGIO -->
+  <div class="secao-titulo">O fluxo de menor privilégio</div>
+  <section class="mp">
+    <div class="base"><b>Usuário kali</b><span>UID 1000, no grupo <code class="inl">sudo</code>.<br>A conta root fica bloqueada (<code class="inl">!</code> no shadow): <code class="inl">su -</code> nem funciona.</span></div>
+    <div class="setas"><span>→</span><span>→</span><span>→</span></div>
+    <div class="ramos">
+      <div class="ramo ok"><b>Sem privilégio — o dia inteiro</b><br>Navegar, ler PDF de relatório, editar, <code class="inl">git</code>, escrever scripts. Uma falha no navegador alcança só o que o <code class="inl">kali</code> alcança.</div>
+      <div class="ramo ele"><b>Elevar UM comando</b><br><code class="inl">sudo nmap -sS</code>, <code class="inl">sudo tcpdump</code>. Cada uso vira linha de log com <code class="inl">TTY</code>, <code class="inl">PWD</code> e <code class="inl">COMMAND</code>.</div>
+      <div class="ramo no"><b>Elevar a sessão inteira — evite</b><br><code class="inl">sudo -i</code> devolve os 3 defeitos do modelo antigo: erro fatal, tudo com poder máximo, nada auditável. Se precisar, use e feche <b>cedo</b>.</div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- PRINCÍPIOS -->
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>Capability &gt; sudo</h3><p>A ferramenta não quer root: quer <code>CAP_NET_RAW</code>. O <code>dumpcap</code> já vem com a capability e o grupo <code>wireshark</code> — captura <b>sem</b> <code>sudo</code>. Imite esse modelo.</p></div>
+    <div class="card laranja"><h3>Nunca <code>curl | sudo bash</code></h3><p>Executa como root um código que você não leu, de uma origem que pode ter caído. Baixe → <code>less instala.sh</code> → só então <code>sudo bash</code>.</p></div>
+    <div class="card roxo"><h3>Trave e isole</h3><p><code>sudo -k</code> ao se afastar (o cache de 15 min é root para quem sentar ali). Ferramenta duvidosa em contêiner; alvo e malware em <b>VM com snapshot</b>.</p></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- POR QUE PEDE ROOT -->
+  <div class="secao-titulo">Por que a ferramenta pede privilégio</div>
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Ferramenta</th><th>Recurso que o kernel reserva</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>nmap -sS</code>, <code>-sU</code>, <code>masscan</code></td><td><i>Raw socket</i> para forjar pacotes SYN/UDP (<code>CAP_NET_RAW</code>)</td></tr>
+        <tr><td><code>tcpdump</code>, <code>wireshark</code></td><td>Modo promíscuo e captura na interface</td></tr>
+        <tr><td><code>airmon-ng</code>, <code>aircrack-ng</code></td><td>Modo monitor no adaptador Wi-Fi</td></tr>
+        <tr><td><code>ettercap</code>, <code>responder</code>, <code>arpspoof</code></td><td>Injeção na camada de enlace (<code>CAP_NET_ADMIN</code>)</td></tr>
+        <tr><td><code>losetup</code>, montar imagem</td><td>Manipular dispositivos de bloco</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- HIGIENE DA VM NOVA -->
+  <div class="secao-titulo">Os primeiros cinco minutos de uma VM Kali</div>
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> passwd                       <span class="cmt"># kali:kali e publico. Passo zero.</span>
+<span class="prompt">$</span> sudo apt update &amp;&amp; sudo apt full-upgrade -y
+<span class="prompt">$</span> sudo passwd -S root          <span class="cmt"># tem de dizer L (locked) — deixe assim</span>
+<span class="prompt">$</span> awk -F: '$3==0 {print $1}' /etc/passwd    <span class="cmt"># so pode sair "root"</span>
+<span class="prompt">$</span> find / -xdev -perm -4000 -type f 2>/dev/null | sort > ~/suid-baseline.txt</pre>
+  </section>
+
+  <div class="perigo"><b>Antes de <code class="inl">dd</code>, <code class="inl">mkfs</code>, <code class="inl">wipefs</code> ou <code class="inl">cryptsetup luksFormat</code>:</b> como root não há confirmação — um <code class="inl">of=</code> ou <code class="inl">/dev/sdX</code> trocado destrói o disco. Ensaie num arquivo-imagem: <code class="inl">truncate -s 1G /tmp/teste.img</code> → <code class="inl">sudo losetup -fP /tmp/teste.img</code> → pratique em <code class="inl">/dev/loopN</code> → <code class="inl">sudo losetup -d</code>. E confirme o alvo com <code class="inl">lsblk</code> <b>imediatamente antes</b> do comando.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Base sem privilégio; eleve <b>o comando</b>, nunca a sessão.</li>
+        <li>Root bloqueado é o padrão do Kali — mantenha (<code class="inl">sudo passwd -l root</code>).</li>
+        <li>Privilégio mínimo (<i>capability</i>, grupo) em vez de root inteiro.</li>
+        <li>Destrutivo só depois de ensaio em <code class="inl">losetup</code> e conferência com <code class="inl">lsblk</code>.</li>
+        <li>Baixe, <b>leia</b>, depois execute — nunca canalize script remoto para um shell privilegiado.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Capturar tráfego sem <code class="inl">sudo</code>: <code class="inl">sudo usermod -aG wireshark kali</code> + <b>novo login</b> (grupo suplementar entra no login). Cuidado: entrar no grupo <code class="inl">docker</code> é <b>equivalente a root</b> no hospedeiro — o contêiner isola a ferramenta, não quem fala com o daemon. No <b>WSL</b> o <code class="inl">sudo</code> pode vir <code class="inl">NOPASSWD</code>: cheque com <code class="inl">sudo -l</code>. E <code class="inl">sudo -l</code> numa conta de alvo <b>autorizado</b> é o 1º passo da escalada — sem escopo escrito, é crime (Lei 12.737/2012).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 04 · Fase 1 <span class="n">026</span></span>
