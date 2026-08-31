@@ -3,101 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 004 — Primeiro contato: sessão, ambiente Xfce e organização</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a cadeia do boot e o decodificador do prompt */
+  .cadeia { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:5px; }
+  .elo { border:1.5px solid var(--linha); border-top:3px solid var(--azul); border-radius:var(--raio-sm);
+         padding:5px 9px; text-align:center; background:#fff; min-width:74px; }
+  .elo b { display:block; font-family:var(--fonte-titulo); font-size:10.5px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
+  .elo span { font-size:9px; color:var(--tinta-suave); }
+  .elo.nucleo { border-top-color:var(--vermelho); background:var(--vermelho-claro); }
+  .elo.fim { border-top-color:var(--verde); background:var(--verde-claro); }
+  .cadeia .seta { color:var(--azul); font-weight:700; font-size:15px; }
+
+  .prompt-dec { background:#0f2038; border-radius:var(--raio); padding:12px 14px; box-shadow:var(--sombra);
+                font-family:var(--fonte-mono); font-size:15px; color:#e6edf6; line-height:1.5; }
+  .prompt-dec .u { color:#56d364; font-weight:700; }
+  .prompt-dec .m { color:#6cb6ff; font-weight:700; }
+  .prompt-dec .d { color:#ffa657; font-weight:700; }
+  .prompt-dec .s { color:#d2a8ff; font-weight:700; }
+  .prompt-dec .r { color:#ff7b72; font-weight:700; }
+  .prompt-dec small { display:block; font-family:var(--fonte-texto); font-size:10px; color:#9fb3d0; margin-top:6px; }
+  .legenda-p { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:6px; }
+  .legenda-p div { font-size:10px; color:var(--tinta-suave); border-left:3px solid var(--linha); padding-left:7px; line-height:1.3; }
+  .legenda-p b { display:block; font-family:var(--fonte-mono); font-size:11px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 004</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Primeiro contato: sessão, ambiente Xfce e organização</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Primeiro<br>Contato</h1>
+      <div class="sub">Não há "Meu Computador" nem letra de unidade. Não é falta — é outro modelo, e ele começa no firmware.</div>
     </div>
     <div class="badge"><b>004</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- CADEIA DO BOOT -->
+  <div class="secao-titulo">Do boot ao prompt: quem entrega a tela</div>
+  <section class="cadeia">
+    <div class="elo"><b>Firmware</b><span>UEFI / BIOS</span></div><span class="seta">→</span>
+    <div class="elo"><b>GRUB</b><span>escolhe o kernel</span></div><span class="seta">→</span>
+    <div class="elo nucleo"><b>Kernel</b><span>monta a raiz</span></div><span class="seta">→</span>
+    <div class="elo nucleo"><b>systemd</b><span>PID 1, sobe tudo</span></div><span class="seta">→</span>
+    <div class="elo"><b>graphical<br>.target</b><span>o alvo do systemd</span></div><span class="seta">→</span>
+    <div class="elo"><b>LightDM</b><span>tela de login</span></div><span class="seta">→</span>
+    <div class="elo"><b>PAM</b><span>autentica</span></div><span class="seta">→</span>
+    <div class="elo fim"><b>Sessão Xfce</b><span>painel, janelas</span></div><span class="seta">→</span>
+    <div class="elo fim"><b>Terminal</b><span>o seu prompt</span></div>
+  </section>
+  <div class="perigo" style="border-left-color:var(--azul);background:var(--azul-claro);color:var(--navy)">
+    <b style="color:var(--azul)">A camada gráfica é a única dispensável.</b> <code class="inl">systemctl get-default</code> mostra o alvo; <code class="inl">set-default multi-user.target</code> entrega um sistema completo sem tela — é o que se faz em servidor. E a saída de emergência quando o Xfce trava é <b>Ctrl+Alt+F3</b>: um console virtual ligado direto ao kernel. <b>Ctrl+Alt+F7</b> (ou F2) volta — a sessão gráfica continuou rodando o tempo todo.
+  </div>
+
+  <!-- O PROMPT -->
+  <div class="secao-titulo">Lendo o prompt caractere a caractere</div>
+  <section>
+    <div class="prompt-dec">
+      ┌──(<span class="u">kali</span>㉿<span class="m">kali</span>)-[<span class="d">~</span>]<br>
+      └─<span class="s">$</span>
+      <small>Vermelho depois de um comando? Ele falhou — o Zsh do Kali colore o prompt pelo código de saída, poupando um <b>echo $?</b> a cada passo.</small>
+    </div>
+    <div class="legenda-p">
+      <div style="border-left-color:var(--verde)"><b style="color:var(--verde)">kali</b>usuário logado</div>
+      <div style="border-left-color:var(--azul)"><b style="color:var(--azul)">kali</b>nome da máquina</div>
+      <div style="border-left-color:var(--laranja)"><b style="color:var(--laranja)">~</b>diretório atual = <code class="inl">/home/kali</code></div>
+      <div style="border-left-color:var(--vermelho)"><b style="color:var(--roxo)">$</b> comum · <b style="color:var(--vermelho);display:inline">#</b> = <b style="display:inline;color:var(--vermelho)">root</b>, cada comando pode destruir o sistema</div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- PEÇAS DO XFCE -->
+  <div class="secao-titulo">Xfce não é um programa — são peças que se reiniciam sozinhas</div>
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Processo</th><th>O que desenha</th><th>Sintoma de que caiu</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>xfwm4</code></td><td>Bordas, botões, qual janela fica na frente</td><td>Janelas sem barra de título → <code>xfwm4 --replace &amp;</code></td></tr>
+        <tr><td><code>xfce4-panel</code></td><td>A barra: menu, lista de janelas, relógio, bandeja</td><td>Sumiu o painel e o ícone de rede</td></tr>
+        <tr><td><code>xfdesktop</code></td><td>Papel de parede e ícones da área de trabalho</td><td>Fundo preto, sem ícones</td></tr>
+        <tr><td><code>xfsettingsd</code></td><td>Tema, fontes, cursor, teclado e mouse</td><td>Volta ao tema cinza padrão</td></tr>
+        <tr><td><code>xfce4-session</code></td><td>Coordena tudo e restaura o estado ao relogar</td><td>Nada restaura entre logins</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- AJUSTES DO PRIMEIRO DIA -->
+  <div class="secao-titulo">Os quatro ajustes do primeiro dia</div>
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> setxkbmap -model abnt2 -layout br    <span class="cmt"># teclado ABNT2 já nesta sessão</span>
+<span class="prompt">$</span> sudo dpkg-reconfigure keyboard-configuration   <span class="cmt"># torna permanente</span>
+<span class="prompt">$</span> sudo timedatectl set-timezone America/Sao_Paulo <span class="cmt"># log com hora errada não correlaciona</span>
+<span class="prompt">$</span> timedatectl set-ntp true
+<span class="prompt">$</span> mkdir -p ~/lab/{alvos,capturas,notas} ~/clientes <span class="cmt"># cliente nunca no lab</span>
+<span class="cmt"># Sistema em INGLÊS + teclado em português: erro em português quase não se pesquisa.</span></pre>
+  </section>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Uma árvore só, começando em <code class="inl">/</code>: sem letra de unidade. <code class="inl">~</code> é onde você escreve sem <code class="inl">sudo</code>.</li>
+        <li>Nome começando com ponto é <b>oculto</b> — <code class="inl">ls -a</code> mostra. É onde vivem as configurações.</li>
+        <li>Maiúscula ≠ minúscula: <code class="inl">Documentos</code> e <code class="inl">documentos</code> são dois diretórios.</li>
+        <li><code class="inl">~/.config/xfce4</code> é o seu ambiente inteiro — copiável para outra máquina.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O <b>menu de treze categorias numeradas é uma metodologia disfarçada</b>: elas seguem as fases de uma auditoria — 01 coleta → 02/03/04 análise → 05/08 exploração → 09/10 pós-exploração → 11/12 forense e relatório. Categoria vazia = ferramenta não instalada, não menu quebrado: instale o metapacote da área. Xfce é padrão desde 2019.4 e <b>Zsh desde 2020.4</b> (<code class="inl">chsh -s /bin/bash</code> troca). Serviços de rede vêm desabilitados: ferramenta que "não conecta no banco" é quase sempre o PostgreSQL parado.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 01 · Fase 1 <span class="n">004</span></span>
