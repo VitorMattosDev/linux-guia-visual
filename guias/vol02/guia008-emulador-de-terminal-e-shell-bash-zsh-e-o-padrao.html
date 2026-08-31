@@ -3,101 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 008 — Emulador de terminal e shell: bash, zsh e o padrão do Kali</title>
+<title>GUIA 008 — Emulador de terminal e shell</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico desta ficha: a pilha da tecla ao programa */
+  .pilha { display:flex; flex-direction:column; gap:3px; }
+  .cam { display:grid; grid-template-columns:126px 1fr 150px; align-items:center; gap:10px;
+         border:1.5px solid var(--linha); border-left:5px solid var(--linha);
+         border-radius:var(--raio-sm); padding:6px 10px; background:#fff; }
+  .cam > b { font-family:var(--fonte-titulo); font-size:11px; text-transform:uppercase; letter-spacing:.02em; line-height:1.15; }
+  .cam > p { font-size:10px; color:var(--tinta-suave); line-height:1.3; }
+  .cam > .dono { font-size:9.5px; color:var(--navy); background:#eef2f8; border-radius:4px;
+                 padding:3px 7px; line-height:1.25; text-align:center; }
+  .cam.u { border-left-color:#8a93a0; } .cam.u > b { color:#5b6b7d; }
+  .cam.e { border-left-color:var(--azul);     background:var(--azul-claro);   } .cam.e > b { color:var(--azul); }
+  .cam.k { border-left-color:var(--vermelho); background:var(--vermelho-claro);} .cam.k > b { color:var(--vermelho); }
+  .cam.s { border-left-color:var(--verde);    background:var(--verde-claro);  } .cam.s > b { color:var(--verde); }
+  .cam.p { border-left-color:var(--roxo);     background:var(--roxo-claro);   } .cam.p > b { color:var(--roxo); }
+  .desce { text-align:center; color:var(--azul); font-size:11px; line-height:1; margin:-1px 0; }
+
+  .duplo { display:grid; grid-template-columns:1.02fr 1fr; gap:12px; align-items:start; }
+  .arv { display:flex; flex-direction:column; gap:5px; }
+  .ramo { border-left:4px solid var(--azul); background:var(--azul-claro);
+          border-radius:var(--raio-sm); padding:5px 9px; }
+  .ramo b { font-family:var(--fonte-titulo); font-size:10.5px; color:var(--navy);
+            text-transform:uppercase; letter-spacing:.02em; }
+  .ramo span { display:block; font-size:10px; color:var(--tinta-suave); line-height:1.3; }
+  .ramo.v { border-left-color:var(--verde);   background:var(--verde-claro); }
+  .ramo.c { border-left-color:#8a93a0;        background:#f2f4f7; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 008</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Emulador de terminal e shell: bash, zsh e o padrão do Kali</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Terminal<br>e Shell</h1>
+      <div class="sub">Você configurou o prompt a tarde toda, abriu um SSH e tudo sumiu. Nada quebrou: o que você configurou não era o terminal.</div>
     </div>
     <div class="badge"><b>008</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- A PILHA -->
+  <div class="secao-titulo">Da tecla ao programa: quatro camadas</div>
+  <section class="pilha">
+    <div class="cam u"><b>Teclado e tela</b><p>Hardware, ou a janela do ambiente gráfico.</p><span class="dono">o que você aperta</span></div>
+    <div class="desce">▼</div>
+    <div class="cam e"><b>Emulador de terminal</b><p><code class="inl">qterminal</code>, <code class="inl">xterm</code>, <code class="inl">tmux</code>, PuTTY. Desenha glifos, traduz teclas, guarda a rolagem. <b>Não sabe o que é um comando.</b></p><span class="dono">fonte · cores · abas · <code class="inl">TERM</code></span></div>
+    <div class="desce">▼</div>
+    <div class="cam k"><b>Pseudoterminal do kernel</b><p>Aparece como <code class="inl">/dev/pts/N</code>. Faz o eco das teclas, junta a linha até o Enter e converte <code class="inl">Ctrl+C</code> em <code class="inl">SIGINT</code>.</p><span class="dono">é o kernel — por isso o <code class="inl">Ctrl+C</code> funciona com o programa travado</span></div>
+    <div class="desce">▼</div>
+    <div class="cam s"><b>Shell</b><p><code class="inl">zsh</code>, <code class="inl">bash</code>, <code class="inl">dash</code>. Imprime o prompt, lê a linha, expande, resolve o nome e cria o processo.</p><span class="dono">prompt · histórico · alias · autocompletar</span></div>
+    <div class="desce">▼</div>
+    <div class="cam p"><b>Programa</b><p><code class="inl">ls</code>, <code class="inl">nmap</code>, <code class="inl">vim</code>. Nasce com três descritores já abertos apontando para o PTY.</p><span class="dono">stdin · stdout · stderr prontos</span></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
+  <div class="perigo" style="border-left-color:var(--azul);background:var(--azul-claro);color:var(--navy)">
+    <b style="color:var(--azul)">Cada problema de terminal pertence a exatamente uma camada.</b> No SSH o <b>emulador continua sendo o seu</b>, na sua máquina — o que mudou foi o shell, que agora roda no servidor e não tem a sua configuração. Lixo na tela ou <code class="inl">Error opening terminal</code> é a variável <code class="inl">TERM</code> errada (chave do banco <b>terminfo</b>): <code class="inl">export TERM=xterm</code> é a saída de emergência. E <code class="inl">ls --color=auto | cat</code> sai <b>sem cor</b> de propósito — o programa perguntou se a saída era um terminal e a resposta foi não.
+  </div>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- ARQUIVOS DE INIT + BASH x ZSH -->
+  <div class="secao-titulo">Qual arquivo o shell lê — e o que muda do Bash pro Zsh</div>
+  <section class="duplo">
+    <div class="arv">
+      <div class="ramo"><b>1. É shell de login?</b><span>SSH, terminal virtual de texto, <code class="inl">su -</code>, <code class="inl">sudo -i</code> → lê <code class="inl">/etc/profile</code> e <code class="inl">~/.zprofile</code>. <b>Aqui vai variável de ambiente</b> (<code class="inl">PATH</code>, <code class="inl">EDITOR</code>): filho nenhum precisa relê-la.</span></div>
+      <div class="ramo v"><b>2. É interativo?</b><span>Tem prompt e teclado — a aba nova do qterminal <b>é interativa e não é login</b>. Lê <code class="inl">~/.zshrc</code> / <code class="inl">~/.bashrc</code>. <b>Aqui vai alias, função e prompt.</b></span></div>
+      <div class="ramo c"><b>3. Nenhum dos dois?</b><span>Um script. <b>Não lê nada</b> — e é por isso que ele nunca enxerga os seus aliases. Errar entre 1 e 2 é a causa nº 1 de configuração que "não pega".</span></div>
+      <div class="ramo"><b>Aplicar sem fechar o terminal</b><span><code class="inl">source ~/.zshrc</code> executa <b>no shell atual</b>. Executar o arquivo criaria um filho, aplicaria nele e o jogaria fora.</span></div>
+    </div>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Situação</th><th>Bash</th><th>Zsh</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td>Config interativa</td><td><code>~/.bashrc</code></td><td><code>~/.zshrc</code></td></tr>
+        <tr><td>Curinga sem par</td><td>fica literal</td><td>erro <code>no matches</code></td></tr>
+        <tr><td>Índice de array</td><td><code>0</code></td><td><code>1</code></td></tr>
+        <tr><td>Limpar cache</td><td><code>hash -r</code></td><td><code>rehash</code></td></tr>
+        <tr><td>Uso indicado</td><td>scripts</td><td>dia a dia</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">Identifique cada camada em cinco linhas</div>
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> tty                      <span class="cmt"># a qual pseudoterminal este shell está ligado</span>
+<span class="out">/dev/pts/0</span>
+<span class="prompt">$</span> ps -p $$ -o comm=        <span class="cmt"># o shell que roda DE VERDADE ($SHELL só diz o cadastrado)</span>
+<span class="out">zsh</span>
+<span class="prompt">$</span> ps -p $PPID -o comm=     <span class="cmt"># quem criou o shell: o emulador</span>
+<span class="out">qterminal</span>
+<span class="prompt">$</span> echo "$TERM"; tput colors
+<span class="out">xterm-256color</span>
+<span class="out">256</span></pre>
+  </section>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Emulador desenha e traduz teclas; <b>shell</b> interpreta comandos. Prompt, histórico e alias são do shell.</li>
+        <li>Entre os dois há o PTY do kernel (<code class="inl">/dev/pts/N</code>) — dono do eco e do <code class="inl">Ctrl+C</code>.</li>
+        <li>Ambiente no arquivo de <b>login</b>; alias e prompt no arquivo <b>interativo</b>.</li>
+        <li><b>Zsh no dia a dia, script para Bash</b> com <code class="inl">#!/usr/bin/env bash</code> — as duas escolhas são independentes.</li>
+        <li>Trocar de shell: <code class="inl">chsh -s /usr/bin/bash</code>, só na próxima sessão. Testar: digite <code class="inl">bash</code> e saia com <code class="inl">exit</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Zsh é o padrão desde a 2020.4</b>, com tema próprio que muda de cor quando você é root — e o <code class="inl">kali-tweaks</code> alterna o prompt entre duas linhas, uma linha e enxuto sem editar nada à mão. O emulador é o <code class="inl">qterminal</code>: <code class="inl">Ctrl+Shift+T</code> nova aba, <code class="inl">Ctrl+Shift+C</code>/<code class="inl">V</code> copiar e colar — o <b>Shift</b> é obrigatório porque <code class="inl">Ctrl+C</code> já tem dono. <b>Colar comando de artigo é o ataque mais barato que existe</b>: uma página esconde texto no que você acha que selecionou. Cole num editor antes. O <code class="inl">~/.zshrc</code> já vem povoado: <b>acrescente ao fim</b>, não reescreva. E se um alias "sumiu" depois do <code class="inl">sudo -i</code>, é outro usuário, outro <code class="inl">~</code>, outra config.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 02 · Fase 1 <span class="n">008</span></span>
