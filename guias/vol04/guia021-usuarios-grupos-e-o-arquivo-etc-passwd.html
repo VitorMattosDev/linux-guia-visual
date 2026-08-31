@@ -3,101 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 021 — Usuários, grupos e o arquivo /etc/passwd</title>
+<title>GUIA 021 — Usuários, grupos e /etc/passwd</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico desta ficha: os sete campos de /etc/passwd */
+  .linha-passwd { display:flex; align-items:flex-end; justify-content:center; gap:2px; flex-wrap:nowrap; }
+  .campo { text-align:center; }
+  .campo .cx { border-radius:6px; padding:7px 6px; font-family:var(--fonte-mono); font-weight:700;
+               font-size:12px; color:#fff; white-space:nowrap; }
+  .campo .rot { font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+                letter-spacing:.03em; color:var(--navy); margin-bottom:4px; }
+  .campo .nota { font-size:9px; color:var(--tinta-suave); margin-top:4px; line-height:1.25; }
+  .sep { font-family:var(--fonte-mono); font-weight:700; font-size:16px; color:var(--navy);
+         padding-bottom:9px; }
+  .c-nome { background:var(--azul); } .c-x { background:#5b6b7d; }
+  .c-num  { background:var(--verde); } .c-gec { background:#8a94a3; }
+  .c-cam  { background:var(--laranja); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 021</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Usuários, grupos e o arquivo /etc/passwd</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Usuários,<br>Grupos e UID</h1>
+      <div class="sub">Para o kernel, usuário é um <b>número</b> — o nome é só tradução feita em arquivo de texto.</div>
     </div>
     <div class="badge"><b>021</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- OS SETE CAMPOS -->
+  <div class="secao-titulo">Uma linha de <code class="inl">/etc/passwd</code>, campo a campo</div>
+  <section class="linha-passwd">
+    <div class="campo"><div class="rot">1 · nome</div><div class="cx c-nome">kali</div><div class="nota">tradução</div></div>
+    <span class="sep">:</span>
+    <div class="campo"><div class="rot">2 · senha</div><div class="cx c-x">x</div><div class="nota">está no shadow</div></div>
+    <span class="sep">:</span>
+    <div class="campo"><div class="rot">3 · UID</div><div class="cx c-num">1000</div><div class="nota">o kernel usa</div></div>
+    <span class="sep">:</span>
+    <div class="campo"><div class="rot">4 · GID</div><div class="cx c-num">1000</div><div class="nota">grupo primário</div></div>
+    <span class="sep">:</span>
+    <div class="campo"><div class="rot">5 · GECOS</div><div class="cx c-gec">Kali Live User</div><div class="nota">nome real (chfn)</div></div>
+    <span class="sep">:</span>
+    <div class="campo"><div class="rot">6 · home</div><div class="cx c-cam">/home/kali</div><div class="nota">diretório pessoal</div></div>
+    <span class="sep">:</span>
+    <div class="campo"><div class="rot">7 · shell</div><div class="cx c-cam">/usr/bin/zsh</div><div class="nota">nologin = sem login</div></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- OS TRÊS ARQUIVOS -->
+  <div class="secao-titulo">As três bases de contas</div>
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>/etc/passwd · 644</h3><p>Catálogo público de contas, 7 campos. <b>Legível por todos</b> por necessidade — sem ele nada traduz UID em nome. Não guarda senha desde os anos 90.</p></div>
+    <div class="card laranja"><h3>/etc/shadow · 640</h3><p>O hash, no formato <b>$id$sal$hash</b> (<code>$y$</code> yescrypt no Kali, <code>$6$</code> SHA-512), mais a política de expiração. <b>!</b> = conta bloqueada · campo vazio = <b>sem senha</b>.</p></div>
+    <div class="card verde"><h3>/etc/group · 4 campos</h3><p><code>sudo:x:27:kali</code> — nome, senha obsoleta, GID e a lista dos membros <b>suplementares</b>. Quem tem o grupo como primário <b>não</b> aparece aqui.</p></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <!-- PRIMÁRIO x SUPLEMENTAR -->
+  <div class="secao-titulo">Grupo primário × grupos suplementares</div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna verde">
+      <h3>Primário — só um</h3>
+      <ul>
+        <li>Vem do <b>campo 4</b> de <code class="inl">/etc/passwd</code>.</li>
+        <li>É o dono de <b>tudo que você cria</b>: aparece no <code class="inl">ls -l</code> de cada arquivo novo.</li>
+        <li>Trocar na hora: <code class="inl">newgrp outro</code>.</li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>Suplementares — vários</h3>
+      <ul>
+        <li>Vêm das linhas de <code class="inl">/etc/group</code>; só <b>concedem</b> acesso.</li>
+        <li>São lidos no <b>login</b> — grupo novo não vale na sessão aberta.</li>
+        <li>Adicionar: <code class="inl">usermod -aG docker kali</code> e refazer o login.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> id
+<span class="out">uid=1000(kali) gid=1000(kali) grupos=1000(kali),4(adm),27(sudo)</span>
+<span class="prompt">$</span> getent passwd kali   <span class="cmt"># getent pergunta ao NSS; grep so le o arquivo</span>
+<span class="out">kali:x:1000:1000:Kali Live User:/home/kali:/usr/bin/zsh</span>
+<span class="prompt">$</span> id -Gn               <span class="cmt"># grupos DESTE processo</span>
+<span class="prompt">$</span> groups kali          <span class="cmt"># o que os arquivos dizem — se diferir, refaca o login</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- FAIXAS DE UID -->
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Faixa de UID</th><th>Tipo de conta</th><th>Exemplos e para que serve</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>0</code></td><td>Superusuário</td><td><code>root</code> — o kernel testa o número, não o nome</td></tr>
+        <tr><td><code>1–999</code></td><td>Sistema</td><td><code>daemon</code>, <code>_apt</code>, <code>www-data</code> — limitam o estrago de uma falha no serviço</td></tr>
+        <tr><td><code>1000–59999</code></td><td>Humanos</td><td><code>kali</code> e quem você criar (limites em <code>/etc/login.defs</code>)</td></tr>
+        <tr><td><code>65534</code></td><td><code>nobody</code></td><td>Sem privilégio nenhum: NFS, sandboxes</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>Dois achados de auditoria:</b> <code class="inl">awk -F: '$3==0' /etc/passwd</code> tem de devolver <b>uma só linha</b> — segunda conta com UID 0 é porta dos fundos clássica; e <code class="inl">sudo awk -F: '$2==""' /etc/shadow</code> não pode devolver nada. <b>Cuidado com <code class="inl">usermod -G</code> sem o <code class="inl">-a</code>:</b> ele <b>substitui</b> a lista de grupos e tira você do <code class="inl">sudo</code>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>UID e GID decidem o acesso; nome e shell são conveniência.</li>
+        <li>Restaurou backup e o dono mudou? Os números não bateram.</li>
+        <li>Suplementares entram no <b>login</b> — daí o <i>permission denied</i> do <code class="inl">docker</code>.</li>
+        <li>Edite com <code class="inl">vipw</code>/<code class="inl">vigr</code> e confira com <code class="inl">pwck -r</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Desde 2020 o Kali <b>não usa root por padrão</b>: cria o usuário <code class="inl">kali</code> (UID 1000, senha <code class="inl">kali</code>, grupo <code class="inl">sudo</code>) — trocar a senha é o 1º comando na VM nova. Grupo <code class="inl">docker</code> <b>equivale a root</b>: quem fala com o daemon monta a raiz num contêiner. Ler <code class="inl">/etc/passwd</code> num alvo é reconhecimento (revela <code class="inl">postgres</code>, <code class="inl">www-data</code>) — só com autorização escrita (Lei 12.737/2012).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 04 · Fase 1 <span class="n">021</span></span>
