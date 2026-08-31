@@ -3,101 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 034 — Instalando, removendo e atualizando pacotes com apt</title>
+<title>GUIA 034 — Instalar, remover e atualizar com apt</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Máquina de estados do pacote */
+  .ciclo { display:grid; grid-template-columns:1fr 108px 1fr 108px 1fr; align-items:center; gap:0; }
+  .est { border-radius:var(--raio-sm); border:2px solid; padding:8px 6px; text-align:center; }
+  .est b { display:block; font-family:var(--fonte-titulo); font-size:12px; text-transform:uppercase;
+           letter-spacing:.03em; }
+  .est code { font-family:var(--fonte-mono); font-size:11px; font-weight:700; }
+  .est small { display:block; font-size:9.5px; color:var(--tinta-suave); margin-top:3px; line-height:1.25; }
+  .est.ni { border-color:#9fb0c4; background:#f2f5f9; }        .est.ni b { color:#5b6b7d; }
+  .est.ok { border-color:var(--verde); background:var(--verde-claro); } .est.ok b { color:var(--verde); }
+  .est.rc { border-color:var(--laranja); background:var(--laranja-claro); } .est.rc b { color:var(--laranja); }
+  .tr { display:flex; flex-direction:column; gap:5px; padding:0 4px; }
+  .tr span { font-family:var(--fonte-mono); font-size:9.5px; font-weight:700; text-align:center;
+             border-radius:12px; padding:3px 4px; line-height:1.1; }
+  .tr .ida  { background:var(--verde-claro); color:var(--verde); border:1px solid var(--verde); }
+  .tr .volta{ background:var(--laranja-claro); color:var(--laranja); border:1px solid var(--laranja); }
+  .tr .rm   { background:var(--vermelho-claro); color:var(--vermelho); border:1px solid var(--vermelho); }
+  .purga { margin-top:6px; border:1.5px dashed var(--vermelho); border-radius:var(--raio-sm);
+           padding:5px 9px; font-size:9.5px; color:var(--tinta-suave); text-align:center; }
+  .purga b { color:var(--vermelho); font-family:var(--fonte-mono); }
+  .nota-ciclo { margin-top:6px; font-size:10px; color:var(--tinta-suave); line-height:1.4;
+                background:var(--papel-tint); border-left:3px solid var(--azul); padding:6px 9px;
+                border-radius:0 var(--raio-sm) var(--raio-sm) 0; }
+  .nota-ciclo b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 034</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Instalando, removendo e atualizando pacotes com apt</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Instalar, Remover<br>e Atualizar</h1>
+      <div class="sub">“Os pacotes a seguir foram mantidos” não é ruído — é meio sistema ficando para trás.</div>
     </div>
     <div class="badge"><b>034</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Remover não é uma coisa só: os três estados de um pacote</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="ciclo">
+      <div class="est ni"><b>não instalado</b><small>nada em disco</small></div>
+      <div class="tr">
+        <span class="ida">apt install →</span>
+        <span class="rm">← apt purge</span>
+      </div>
+      <div class="est ok"><b>instalado</b><code>ii</code><small>binários + configuração</small></div>
+      <div class="tr">
+        <span class="volta">apt remove →</span>
+        <span class="ida">← apt install</span>
+      </div>
+      <div class="est rc"><b>residual</b><code>rc</code><small>só a config em <code>/etc</code></small></div>
+    </div>
+    <div class="purga"><b>apt purge</b> também vai de <b>rc</b> direto a <b>não instalado</b> — é o único caminho que apaga a configuração.</div>
+    <div class="nota-ciclo">O estado <b>rc</b> é o que faz o <code class="inl">apt remove</code> <b>parecer</b> que não funcionou: o binário some, mas o <code class="inl">dpkg -l</code> segue listando o pacote. É proposital — reinstalar recupera seus ajustes. Ache os resíduos com <code class="inl">dpkg -l | grep '^rc'</code>. <b>Nenhuma dessas transições toca em <code class="inl">/home</code></b>: o gerenciador de pacotes nunca apaga dado de usuário.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo"><code class="inl">upgrade</code> × <code class="inl">full-upgrade</code>: o que cada um pode fazer</div>
+  <section class="duas-colunas">
+    <div class="coluna azul">
+      <h3>apt upgrade — proibido remover</h3>
+      <ul>
+        <li><b>Pode</b> instalar pacote novo e subir versão. <b>Não pode</b> remover nada.</li>
+        <li>Quando atualizar A exige remover B, ele <b>desiste de A</b> e imprime “foram mantidos”.</li>
+        <li>Serve no <b>Debian stable</b>, onde remoção é exceção e a mensagem é rara.</li>
+        <li><b>Num rolling é armadilha:</b> cada execução acumula pendência, o sistema fica meio antigo/meio novo — e o <code class="inl">full-upgrade</code> adiado vira uma migração gigante de uma vez.</li>
+      </ul>
+    </div>
+    <div class="coluna verde">
+      <h3>apt full-upgrade — conclui a migração</h3>
+      <ul>
+        <li><b>Pode</b> instalar, atualizar <b>e remover</b> o que estiver no caminho. Nada fica pendente.</li>
+        <li><b>Exige</b> que você leia a lista de remoções antes de confirmar.</li>
+        <li>É o <code class="inl">apt-get dist-upgrade</code> de antigamente — mesmo comportamento, nome menos enganoso.</li>
+        <li>Sequência certa: <code class="inl">sudo apt update &amp;&amp; sudo apt full-upgrade &amp;&amp; sudo apt autoremove</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="secao-titulo">Antes de confirmar</div>
+  <section class="cards" style="--col:3">
+    <div class="card laranja"><h3>Por que vieram 30 pacotes</h3><p><code class="inl">Depends</code> é obrigatório; <code class="inl">Recommends</code> <b>é instalado por padrão</b> (a origem do volume); <code class="inl">Suggests</code> não é. Corte caso a caso com <code class="inl">--no-install-recommends</code> — desligar global deixa faltando o firmware e o plugin que tornam a ferramenta útil.</p></div>
+    <div class="card roxo"><h3>Manual × automático</h3><p><code class="inl">autoremove</code> age sobre a <b>marcação</b>, não sobre sua intenção: o que entrou como dependência vai embora quando fica órfão. <code class="inl">apt-mark manual &lt;pkg&gt;</code> protege o que você passou a usar direto; <code class="inl">showmanual</code> e <code class="inl">showauto</code> mostram os dois lados.</p></div>
+    <div class="card azul"><h3>Simule — e depois conserte</h3><p><code class="inl">apt install -s</code> imprime o plano inteiro <b>sem sudo e sem tocar em nada</b>. Deu ruim: <code class="inl">apt --fix-broken install</code> resolve dependência quebrada e <code class="inl">dpkg --configure -a</code> conclui instalação interrompida. <code class="inl">apt-mark hold</code> congela — e <code class="inl">showhold</code> evita esquecê-lo.</p></div>
+  </section>
+
+  <div class="perigo"><b>Três cuidados.</b> <b>(1)</b> <code class="inl">apt autoremove</code> depois de remover um metapacote propõe apagar <b>dezenas de ferramentas</b> — leia a lista inteira antes do <code class="inl">-y</code>. <b>(2)</b> <code class="inl">apt purge</code> apaga sua configuração em <code class="inl">/etc</code> sem volta; se houver ajuste que interessa, copie antes. <b>(3)</b> No erro <code class="inl">Could not get lock /var/lib/dpkg/lock-frontend</code>, <b>nunca apague o lock por reflexo</b>: é quase sempre o <code class="inl">unattended-upgrades</code> rodando. Confirme com <code class="inl">sudo lsof /var/lib/dpkg/lock-frontend</code> — apagar com um <code class="inl">dpkg</code> ativo corrompe o banco de pacotes, e o conserto é pior que a espera.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Descobrir: <code class="inl">apt search --names-only</code>, <code class="inl">apt show</code>, <code class="inl">apt rdepends --installed</code> antes de remover biblioteca.</li>
+        <li><code class="inl">apt install ./arquivo.deb</code> (com o <code class="inl">./</code>) instala o local <b>resolvendo dependências</b> — melhor que <code class="inl">dpkg -i</code> + conserto.</li>
+        <li>Em script use <code class="inl">apt-get</code>: <code class="inl">DEBIAN_FRONTEND=noninteractive</code> + <code class="inl">-o Dpkg::Options::=--force-confold</code>.</li>
+        <li><b>O APT não tem <i>undo</i>.</b> <code class="inl">/var/log/apt/history.log</code> conta o que houve; desfazer é reinstalar versão a versão — se ainda existir no espelho.</li>
+        <li>No RHEL: <code class="inl">dnf</code> já remove para concluir (não há o par upgrade/full) e tem <code class="inl">dnf history undo</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b><code class="inl">apt upgrade</code> sozinho é o comando errado aqui.</b> Num rolling, pacote é renomeado e biblioteca troca de <i>soname</i>: remoção é rotina, e “foram mantidos” é alerta, não ruído. Atualize <b>semanalmente e por inteiro</b> — saltos pequenos e previsíveis; um Kali parado seis meses tenta migrar centenas de pacotes de uma vez, e reinstalar da imagem atual costuma sair mais barato que consertar. <b>Tire snapshot da VM antes de todo <code class="inl">full-upgrade</code> grande</b>: é a única rede de segurança real. E rode <code class="inl">apt install -s</code> antes de metapacote — o <code class="inl">kali-linux-everything</code> passa de <b>100 GB</b> instalado. Um <code class="inl">.deb</code> de terceiro roda script como root na instalação; por isso o <code class="inl">/var/log/dpkg.log</code> entra em toda verificação forense.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 06 · Fase 2 <span class="n">034</span></span>

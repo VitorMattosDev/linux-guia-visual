@@ -57,7 +57,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 ### Volume 6 — Gerenciamento de Pacotes
 
 - [x] **guia 033** - APT e o modelo Debian: repositórios e o Kali rolling - `guias/vol06/guia033-apt-e-o-modelo-debian-repositorios-e-o-kali-roll.html`
-- [ ] **guia 034** - Instalando, removendo e atualizando pacotes com apt - `guias/vol06/guia034-instalando-removendo-e-atualizando-pacotes-com-a.html`
+- [x] **guia 034** - Instalando, removendo e atualizando pacotes com apt - `guias/vol06/guia034-instalando-removendo-e-atualizando-pacotes-com-a.html`
 - [ ] **guia 035** - dpkg, arquivos .deb e resolução de dependências - `guias/vol06/guia035-dpkg-arquivos-deb-e-resolucao-de-dependencias.html`
 - [ ] **guia 036** - Repositórios do Kali, metapacotes e kali-tweaks - `guias/vol06/guia036-repositorios-do-kali-metapacotes-e-kali-tweaks.html`
 - [ ] **guia 037** - Compilando a partir do código-fonte - `guias/vol06/guia037-compilando-a-partir-do-codigo-fonte.html`
