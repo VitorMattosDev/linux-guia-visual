@@ -3,101 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 022 — O root, sudo e a elevação de privilégios</title>
+<title>GUIA 022 — root, sudo e elevação de privilégios</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico desta ficha: a regra do /etc/sudoers campo a campo */
+  .regra { display:flex; align-items:flex-end; justify-content:center; gap:6px; }
+  .cpo { text-align:center; }
+  .cpo .rot { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+              letter-spacing:.03em; color:var(--navy); margin-bottom:4px; }
+  .cpo .cx { border-radius:6px; padding:8px 10px; font-family:var(--fonte-mono); font-weight:700;
+             font-size:15px; color:#fff; white-space:nowrap; }
+  .cpo .nota { font-size:9.5px; color:var(--tinta-suave); margin-top:5px; line-height:1.3; max-width:150px; }
+  .r-quem { background:var(--azul); } .r-onde { background:#5b6b7d; }
+  .r-como { background:var(--verde); } .r-oque { background:var(--vermelho); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 022</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>O root, sudo e a elevação de privilégios</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Root, sudo e<br>Elevação</h1>
+      <div class="sub">Colar <code class="inl">sudo</code> na frente resolve o <i>Permission denied</i> — e tira a rede de proteção.</div>
     </div>
     <div class="badge"><b>022</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- O QUE É ROOT -->
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>Root é o UID 0</h3><p>O kernel <b>pula quase toda</b> verificação de permissão: lê e escreve qualquer arquivo, mata qualquer processo, abre porta &lt; 1024.</p></div>
+    <div class="card laranja"><h3>Só 3 limites — removíveis</h3><p>Precisa de <b>algum</b> bit <code>x</code> para executar · <code>chattr +i</code> trava o arquivo · SELinux/AppArmor impõem política acima. O root desfaz os três.</p></div>
+    <div class="card verde"><h3>Menor privilégio</h3><p>Rode como usuário comum e eleve <b>só o comando</b>. Como root, um <code>rm</code> com um caractere a mais não pergunta nada.</p></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- ANATOMIA DA REGRA -->
+  <div class="secao-titulo">Anatomia de uma regra do <code class="inl">/etc/sudoers</code></div>
+  <section class="regra">
+    <div class="cpo"><div class="rot">quem</div><div class="cx r-quem">%sudo</div><div class="nota">O <b>%</b> marca grupo. No Kali, <code>kali</code> já é membro.</div></div>
+    <div class="cpo"><div class="rot">em quais máquinas</div><div class="cx r-onde">ALL</div><div class="nota">Vale em qualquer host que receba este arquivo.</div></div>
+    <div class="cpo"><div class="rot">como quem</div><div class="cx r-como">(ALL:ALL)</div><div class="nota">Pode virar qualquer usuário e qualquer grupo.</div></div>
+    <div class="cpo"><div class="rot">quais comandos</div><div class="cx r-oque">ALL</div><div class="nota">Trocar por uma lista de binários é o coração do menor privilégio.</div></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <!-- SU x SUDO -->
+  <div class="secao-titulo">Os dois caminhos para elevar</div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna azul">
+      <h3>su — o interruptor</h3>
+      <ul>
+        <li>Pede a <b>senha do root</b> e abre um shell <b>persistente</b>: tudo é root até o <code class="inl">exit</code>.</li>
+        <li>Todo admin precisa saber a mesma senha, que nunca muda.</li>
+        <li>O log diz só "alguém virou root". No Debian/Kali a senha de root vem <b>bloqueada</b> — <code class="inl">su -</code> nem funciona.</li>
+      </ul>
+    </div>
+    <div class="coluna verde">
+      <h3>sudo — a concessão</h3>
+      <ul>
+        <li>Pede a <b>sua</b> senha, consulta a política e eleva <b>um comando</b>.</li>
+        <li>Cache de <b>15 min</b> por terminal — <code class="inl">sudo -k</code> invalida na hora.</li>
+        <li><code class="inl">-i</code> = ambiente limpo de root (<code class="inl">/root</code>) · <code class="inl">-s</code> = poder de root com o <b>seu</b> ambiente.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> sudo -l                    <span class="cmt"># o que EU posso rodar, sem executar nada</span>
+<span class="prompt">$</span> sudo -u postgres psql      <span class="cmt"># sudo nao e so "virar root"</span>
+<span class="prompt">$</span> sudo visudo -f /etc/sudoers.d/local   <span class="cmt"># valida antes de salvar</span>
+<span class="prompt">$</span> sudo journalctl _COMM=sudo --no-pager | tail -1
+<span class="out">sudo: kali : TTY=pts/1 ; PWD=/home/kali ; USER=root ; COMMAND=/usr/bin/apt update</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- ESCAPES -->
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Restringir o sudo a…</th><th>…não restringe nada, porque</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>vim</code>, <code>less</code>, <code>man</code></td><td><code>:!bash</code> / <code>!bash</code> abre um shell de root de dentro do programa</td></tr>
+        <tr><td><code>find</code></td><td><code>find . -exec bash \;</code> executa o que quiser</td></tr>
+        <tr><td><code>awk</code>, <code>perl</code>, <code>python</code></td><td>rodam código arbitrário por definição</td></tr>
+        <tr><td><code>cp</code>, <code>tee</code>, <code>dd</code>, <code>tar</code></td><td>sobrescrevem <code>/etc/sudoers</code> ou <code>/etc/passwd</code></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>Nunca edite <code class="inl">/etc/sudoers</code> com editor comum</b> — uma vírgula fora do lugar tranca o acesso administrativo da máquina inteira. Só <code class="inl">visudo</code>, que valida a sintaxe antes de salvar. E <code class="inl">NOPASSWD:</code> para um comando que escapa (tabela acima) é <b>root completo sem senha</b>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Root é o número <b>0</b>, não o nome — e ignora os bits <code class="inl">rwx</code>.</li>
+        <li><code class="inl">su</code> abre shell persistente; <code class="inl">sudo</code> eleva um comando e <b>registra</b> quem foi.</li>
+        <li>Política em <code class="inl">/etc/sudoers.d/</code>, sempre via <code class="inl">visudo</code>.</li>
+        <li>Regra restrita só vale se nenhum comando dela rodar outro programa.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Root vem <b>bloqueado</b> — mantenha assim; onde um manual antigo pede <code class="inl">su -</code>, use <code class="inl">sudo -i</code>. <code class="inl">nmap -sS</code>, <code class="inl">tcpdump</code> e <code class="inl">aircrack-ng</code> pedem root porque precisam de socket <i>raw</i>: eleve <b>por comando</b>, não abra a sessão inteira como root. Em teste autorizado, <code class="inl">sudo -l</code> é o 1º reconhecimento — a maioria das escaladas nasce de um <code class="inl">NOPASSWD</code> mal escrito (ver GTFOBins). Fora de escopo escrito, é crime (Lei 12.737/2012).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 04 · Fase 1 <span class="n">022</span></span>

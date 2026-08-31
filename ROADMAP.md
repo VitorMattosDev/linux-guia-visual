@@ -37,7 +37,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 ### Volume 4 — Usuários, Grupos e Permissões
 
 - [x] **guia 021** - Usuários, grupos e o arquivo /etc/passwd - `guias/vol04/guia021-usuarios-grupos-e-o-arquivo-etc-passwd.html`
-- [ ] **guia 022** - O root, sudo e a elevação de privilégios - `guias/vol04/guia022-o-root-sudo-e-a-elevacao-de-privilegios.html`
+- [x] **guia 022** - O root, sudo e a elevação de privilégios - `guias/vol04/guia022-o-root-sudo-e-a-elevacao-de-privilegios.html`
 - [ ] **guia 023** - Permissões especiais: SUID, SGID e sticky bit - `guias/vol04/guia023-permissoes-especiais-suid-sgid-e-sticky-bit.html`
 - [ ] **guia 024** - ACLs e atributos estendidos de arquivo - `guias/vol04/guia024-acls-e-atributos-estendidos-de-arquivo.html`
 - [ ] **guia 025** - Gerenciamento de usuários, senhas e o PAM - `guias/vol04/guia025-gerenciamento-de-usuarios-senhas-e-o-pam.html`
