@@ -3,101 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 013 — Curingas, globbing e expansão de chaves</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a tira das oito expansões e a matriz de casamento */
+  .exp { display:grid; grid-template-columns:repeat(8,1fr); gap:5px; }
+  .et { border:1.5px solid var(--linha); border-top:4px solid #8a93a0; border-radius:var(--raio-sm);
+        padding:6px 4px; background:#fff; text-align:center; }
+  .et > i { display:block; font-style:normal; width:16px; height:16px; line-height:16px; margin:0 auto 3px;
+            border-radius:50%; background:#8a93a0; color:#fff; font-family:var(--fonte-titulo); font-size:9.5px; }
+  .et > b { display:block; font-family:var(--fonte-titulo); font-size:8.5px; color:var(--navy);
+            text-transform:uppercase; letter-spacing:.02em; line-height:1.2; }
+  .et > code { display:block; font-family:var(--fonte-mono); font-size:9.5px; color:var(--tinta-suave);
+               margin-top:2px; word-break:break-all; }
+  .et.ger { border-top-color:var(--laranja); background:var(--laranja-claro); }
+  .et.ger > i { background:var(--laranja); }
+  .et.dis { border-top-color:var(--verde); background:var(--verde-claro); }
+  .et.dis > i { background:var(--verde); }
+
+  td .sim { color:var(--verde); font-weight:700; }
+  td .nao { color:#c3ccd8; font-weight:700; }
+  table.comparacao td.arq { font-family:var(--fonte-mono); color:var(--navy); }
+
+  .duplo { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start; }
+  .ops { display:flex; flex-direction:column; gap:5px; }
+  .op { border-left:4px solid var(--azul); background:var(--azul-claro);
+        border-radius:var(--raio-sm); padding:5px 9px; }
+  .op > b { font-family:var(--fonte-mono); font-size:11px; color:var(--navy); }
+  .op > span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+  .op.l { border-left-color:var(--laranja);  background:var(--laranja-claro); }
+  .op.x { border-left-color:var(--vermelho); background:var(--vermelho-claro); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 013</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Curingas, globbing e expansão de chaves</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Curingas e<br>Expansões</h1>
+      <div class="sub">O programa <b>nunca viu o asterisco</b>. Quem procurou os arquivos, montou a lista e escolheu a ordem foi o shell — antes de o comando existir.</div>
     </div>
     <div class="badge"><b>013</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- A ORDEM DAS EXPANSÕES -->
+  <div class="secao-titulo">Oito etapas, sempre nesta ordem, na mesma linha</div>
+  <section class="exp">
+    <div class="et ger"><i>1</i><b>Chaves</b><code>{a,b}</code></div>
+    <div class="et"><i>2</i><b>Til</b><code>~</code></div>
+    <div class="et"><i>3</i><b>Variáveis</b><code>$VAR</code></div>
+    <div class="et"><i>4</i><b>Comandos</b><code>$(cmd)</code></div>
+    <div class="et"><i>5</i><b>Aritmética</b><code>$((1+2))</code></div>
+    <div class="et"><i>6</i><b>Divisão em palavras</b><code>IFS</code></div>
+    <div class="et dis"><i>7</i><b>Globbing</b><code>* ? [ ]</code></div>
+    <div class="et"><i>8</i><b>Remoção de aspas</b><code>" '</code></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
+  <div class="perigo" style="border-left-color:var(--azul);background:var(--azul-claro);color:var(--navy)">
+    <b style="color:var(--laranja)">A etapa 1 gera texto do nada</b> — não consulta o disco, e por isso <code class="inl">mkdir {a,b,c}</code> funciona com nada existindo. <b style="color:var(--verde)">A etapa 7 olha o disco</b> e só produz o que existe de fato. E como o globbing vem <b>depois</b> das variáveis, um padrão guardado numa variável é expandido ao ser usado <i>sem aspas</i>: <code class="inl">PADRAO="*.txt"</code> → <code class="inl">echo $PADRAO</code> lista os arquivos, <code class="inl">echo "$PADRAO"</code> imprime o texto. O programa só roda <b>depois das oito etapas</b>, com a lista final de palavras — e a conferência custa dois segundos: <code class="inl">echo mv *.txt arquivo/</code>.
+  </div>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- MATRIZ DE CASAMENTO -->
+  <div class="secao-titulo">Quem casa com quê</div>
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Arquivo no diretório</th><th>*.txt</th><th>log?.txt</th><th>log[12].txt</th><th>*</th><th>.*</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td class="arq">log1.txt</td><td><span class="sim">✔</span></td><td><span class="sim">✔</span></td><td><span class="sim">✔</span></td><td><span class="sim">✔</span></td><td><span class="nao">✕</span></td></tr>
+        <tr><td class="arq">log2.txt</td><td><span class="sim">✔</span></td><td><span class="sim">✔</span></td><td><span class="sim">✔</span></td><td><span class="sim">✔</span></td><td><span class="nao">✕</span></td></tr>
+        <tr><td class="arq">log10.txt</td><td><span class="sim">✔</span></td><td><span class="nao">✕</span> <small>? é <b>um</b> caractere</small></td><td><span class="nao">✕</span></td><td><span class="sim">✔</span></td><td><span class="nao">✕</span></td></tr>
+        <tr><td class="arq">nota.md</td><td><span class="nao">✕</span></td><td><span class="nao">✕</span></td><td><span class="nao">✕</span></td><td><span class="sim">✔</span></td><td><span class="nao">✕</span></td></tr>
+        <tr><td class="arq">.oculto</td><td><span class="nao">✕</span></td><td><span class="nao">✕</span></td><td><span class="nao">✕</span></td><td><span class="nao">✕</span> <small><b>o <code>*</code> não pega oculto</b></small></td><td><span class="sim">✔</span></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- CHAVES x ARMADILHAS -->
+  <div class="secao-titulo">Chaves geram · curingas encontram · e onde isso machuca</div>
+  <section class="duplo">
+    <div class="ops">
+      <div class="op l"><b>cp app.conf&#123;,.bak&#125;</b><span>Vira <code class="inl">cp app.conf app.conf.bak</code>. O elemento vazio produz o nome original e o com sufixo — <b>o backup mais curto que existe</b>.</span></div>
+      <div class="op l"><b>mkdir -p proj/&#123;doc,src&#125;/&#123;in,out&#125;</b><span>Produto cartesiano: quatro diretórios numa linha. Chaves não consultam o disco, então criam o que ainda não existe.</span></div>
+      <div class="op l"><b>touch teste-&#123;01..10&#125;.txt · echo &#123;0..20..5&#125;</b><span>Faixas com zero à esquerda preservado e com passo. <code class="inl">&#123;10..1&#125;</code> conta ao contrário.</span></div>
+      <div class="op l"><b>diff arquivo.&#123;antigo,novo&#125;</b><span>Digite o nome uma vez só. E <code class="inl">ls *.&#123;txt,md&#125;</code> vira <code class="inl">ls *.txt *.md</code> — cada padrão passa pelo globbing depois.</span></div>
+      <div class="op"><b>ls *(.om[1,3]) · ls **/*(.Lm+50)</b><span>Qualificadores de glob do <b>Zsh</b>: os 3 mais recentes, os maiores que 50 MB. É <code class="inl">find</code> embutido na sintaxe — e não existe no Bash.</span></div>
+    </div>
+    <div class="ops">
+      <div class="op x"><b>Sem correspondência: Bash ≠ Zsh</b><span>Bash entrega o <b>texto literal</b> ao comando; Zsh aborta com <code class="inl">no matches found</code>. Em laço Bash, <code class="inl">shopt -s nullglob</code> é obrigatório — sem ele, <code class="inl">for f in *.log</code> roda <b>uma vez</b> com <code class="inl">$f</code> valendo <code class="inl">*.log</code>.</span></div>
+      <div class="op x"><b>cp "$f" /tmp/ — nunca cp $f /tmp/</b><span>O glob entrega o nome certo; quem quebra <code class="inl">meu arquivo.txt</code> em dois é a <b>etapa 6</b>, na variável sem aspas.</span></div>
+      <div class="op x"><b>rm -- * · rm ./*</b><span>Um arquivo chamado <code class="inl">-rf</code> no diretório transforma <code class="inl">rm *</code> em <code class="inl">rm -rf resto</code>. O <code class="inl">--</code> marca o fim das opções.</span></div>
+      <div class="op"><b>* não cruza a barra e ordena como texto</b><span><code class="inl">**</code> desce a árvore (<code class="inl">shopt -s globstar</code> no Bash — sem ele vira um <code class="inl">*</code> comum, <b>em silêncio</b>). E a ordem é <code class="inl">log1 log10 log2</code>: quem ordena é o shell, alfabeticamente.</span></div>
+      <div class="op"><b>find . -name '*.log' -print0 | xargs -0 rm</b><span>Para <code class="inl">Argument list too long</code> e para nomes com espaço, aspas ou quebra de linha: o byte zero é o único caractere <b>proibido</b> num nome, logo o único separador seguro. Nunca <code class="inl">ls | xargs</code>.</span></div>
+    </div>
+  </section>
+
+  <div class="perigo">
+    <b>Ensaie todo curinga antes de um comando destrutivo.</b> <b>1.</b> <code class="inl">ls *.bak</code> — o que casa? <b>2.</b> <code class="inl">echo rm *.bak</code> — a linha final, já expandida, sem executar. <b>3.</b> só então <code class="inl">rm *.bak</code>. O passo 2 é o que vale: um espaço a mais, um arquivo inesperado ou um padrão que casou demais aparecem ali — e depois de expandido <b>não existe desfazer pelo padrão original</b>, porque o <code class="inl">rm</code> nunca soube que havia um asterisco.
+  </div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Aspas <b>simples</b> desligam tudo; aspas <b>duplas</b> mantêm variável e <code class="inl">$(cmd)</code>, mas desligam glob e chaves.</li>
+        <li><code class="inl">[!abc]</code> nega a lista; <code class="inl">[[:digit:]]</code> respeita a localidade e não deixa acento de fora.</li>
+        <li>Ocultos: <code class="inl">shopt -s dotglob</code> / <code class="inl">setopt dotglob</code>, ou o portável <code class="inl">.[!.]*</code>.</li>
+        <li>Árvore muito grande: <code class="inl">find</code>, não <code class="inl">**</code> — o shell monta a lista inteira em memória antes de executar.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Zsh abortar em padrão sem correspondência protege você:</b> <code class="inl">rm *.pcap</code> num diretório sem captura nenhuma não faz nada aqui, enquanto no Bash o <code class="inl">rm</code> receberia o texto literal — atenção ao rodar script de tutorial escrito para Bash. Os <b>qualificadores de glob</b> resolvem triagem de coleta: <code class="inl">ls -lh *.pcap(.om[1,3])</code> mostra as três capturas mais recentes; <code class="inl">ls **/*(.Lm+50)</code> acha tudo acima de 50 MB na árvore de evidências. <code class="inl">nmap -oA base</code> gera os três formatos — inspecione com <code class="inl">ls -l base.&#123;nmap,gnmap,xml&#125;</code>. Antes de editar config de ferramenta: <code class="inl">sudo cp /etc/proxychains4.conf&#123;,.bak&#125;</code>. E <b>nome vindo de fuzzing ou download automático contém qualquer coisa</b> — espaço, aspas, quebra de linha: em lote é sempre <code class="inl">-print0</code> com <code class="inl">xargs -0</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 02 · Fase 1 <span class="n">013</span></span>
