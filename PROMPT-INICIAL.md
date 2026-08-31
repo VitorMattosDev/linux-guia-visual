@@ -6,7 +6,8 @@ com esta pasta (`GUIA VISUAL LINUX`) como diretório de trabalho e a pasta irmã
 deixe rodar até o fim, dê `/clear` e cole o do próximo volume.
 
 Antes de começar (uma vez): `/model opus`. E, se ainda não instalou o ambiente,
-`pip install playwright pypdf --break-system-packages && playwright install chromium`.
+no Windows, `python -m pip install playwright pypdf && python -m playwright install chromium`
+(o `--break-system-packages` é só para Linux).
 
 ---
 

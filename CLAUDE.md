@@ -35,18 +35,22 @@ o volume até o fim; não pare no meio a não ser por erro de bloqueio.
   do volume, dê `/compact` e continue — o `ROADMAP.md` marca o que já ficou pronto, então
   dá para retomar sem perder o fio. Faça **commit por ficha** (não acumule): assim um
   `/compact` ou uma interrupção nunca perde trabalho.
-- **Não renderize a cada ficha.** Renderize UMA vez, no fim do volume, com
-  `python scripts/build.py --vol NN` (mais rápido e evita encher o contexto com imagens).
-  Exceção: a **primeira** ficha do volume — renderize-a sozinha para o smoke test.
+- **Renderize ficha a ficha** (`python scripts/build.py NNN`) e confira a miniatura antes do
+  commit. Revisto depois do Volume 1: quase toda ficha precisou de um ajuste de layout que
+  só aparece no render, e consertar sete no fim sai mais caro. Cada miniatura custa ~1,5k
+  tokens — se o contexto apertar, dê `/compact` (o ROADMAP guarda o progresso) em vez de
+  parar de conferir. O `python scripts/build.py --vol NN` no fim do volume continua
+  obrigatório: é ele que remonta o livro e a galeria.
 
 ## Fluxo de um volume (siga nesta ordem)
 
 1. **Abra a fila do volume:** `python scripts/estrutura.py --vol NN`. Ela lista, na ordem,
    cada ficha do volume com o **destino HTML** e o **capítulo-fonte** a ler. Esse é o mapa
    da sessão. Confira também no `ROADMAP.md` o que já está `[x]` (pule essas).
-2. **Smoke test (só na 1ª ficha do volume):** faça a primeira ficha inteira, renderize com
+2. **Smoke test (1ª ficha do volume):** faça a primeira ficha inteira, renderize com
    `python scripts/build.py <num>` e confira a miniatura antes de seguir. Garante que o
-   estilo/paths estão certos para o volume todo.
+   estilo/paths estão certos para o volume todo. Depois dela, siga rendendo e conferindo
+   ficha a ficha (ver "Modo de execução").
 3. **Para cada ficha restante do volume, na ordem** — repita o ciclo abaixo:
 
    a. **Leia o capítulo-fonte** (`../manual-linux-master/volNN/capNNN-*.qmd`). Extraia: o
@@ -57,7 +61,10 @@ o volume até o fim; não pare no meio a não ser por erro de bloqueio.
    c. O stub HTML da ficha já existe (`guias/volNN/...`). Se faltar, `python scripts/novo-guia.py NNN`.
    d. **Preencha os blocos** (ver `DESIGN.md`). Ordem típica: topo → cabeçalho → fluxo →
       cards → duas colunas → na prática (terminal + comparação) → **Resumo + Dica** → rodapé.
-   e. **Gere as imagens** que o assunto pedir (ver "Imagens").
+   e. **Gere as imagens** que o assunto pedir (ver "Imagens"). O visual central costuma ser
+      a figura TikZ do próprio capítulo, traduzida para CSS.
+   e2. **Renderize e confira a miniatura** (`python scripts/build.py NNN` →
+      `_saida/thumbs/guiaNNN.png`): cabe em uma página? nada cortado na direita?
    f. Marque a ficha como `[x]` no `ROADMAP.md` e **commit**: `guia NNN: <título>`.
 
 4. **Ao fim do volume:** `python scripts/build.py --vol NN` — renderiza todas as fichas do
@@ -149,6 +156,89 @@ Só então o commit final do volume: `git commit -m "vol NN: fecha volume"`.
 - **Commits:** apenas `-m "..."` simples.
 - **Um assunto por ficha.** Se um capítulo é dois assuntos grandes, ainda assim é UMA
   ficha — priorize o núcleo e deixe o resto para o Resumo. Não crie ficha fora dos 103.
+
+## Aprendizados de produção (Volume 1) — leia antes de começar
+
+Tudo aqui já custou tempo uma vez. Não redescubra.
+
+### Ambiente (Windows + Git Bash)
+
+- **Instalação:** `python -m pip install playwright pypdf` e `python -m playwright install chromium`.
+  O `--break-system-packages` do PROMPT-INICIAL é de Linux e **não** se usa aqui.
+- **Escreva o HTML da ficha com a ferramenta Write, nunca com heredoc no Bash.** Heredoc com
+  ficha inteira quebra o parser (`unexpected EOF while looking for matching '`).
+- **Mensagens de commit em ASCII** (sem acento): o console mangla acentuação.
+- **Editar o ROADMAP** por script Python com `io.open(..., encoding="utf-8", newline="\n")`;
+  o `print` no console sai truncado, mas o arquivo fica correto — confira com `git diff`, não
+  com o print. Padrão que funciona:
+  `s.replace("- [ ] **guia 0NN**", "- [x] **guia 0NN**")`.
+
+### O orçamento de altura da A4 (o erro mais caro)
+
+Área útil = **273 mm** (297 − 2×12 de margem) e **703 px de largura** (186 mm @96dpi).
+O `.guia` aplica `gap: 7mm` entre **todos** os filhos diretos — 12 filhos já consomem 77 mm
+só de respiro. Uma ficha confortável tem **10 a 12 filhos diretos**. Custo aproximado
+medido no Volume 1:
+
+| Bloco | Altura |
+|---|---|
+| `.topo` + `.cabecalho` | ~38 mm |
+| `.secao-titulo` | ~8 mm (cada) |
+| `.cards` (uma linha) · `.fluxo` | ~30 mm |
+| `.duas-colunas` (5 itens) | ~38 mm |
+| `table.comparacao` | ~7 mm por linha + 8 de cabeçalho |
+| `.terminal` (6 linhas) | ~35 mm |
+| `.perigo` (3–4 linhas) | ~16 mm |
+| `.rodape-blocos` + `.rodape` | ~60 mm |
+
+Se a conta passar de ~250 mm, corte **antes** de renderizar: junte dois blocos pequenos
+num grid de duas colunas (economiza um `.secao-titulo` e um gap de 7 mm) — foi o que
+resolveu 005 (matriz + tabela lado a lado) e 006 (códigos de saída + operadores).
+
+### Armadilhas de CSS que já morderam
+
+- **`white-space:nowrap` em token largo estoura os 703 px** e o conteúdo some no corte à
+  direita (ficha 006, o `192.168.56.0/24`). Em token longo use `white-space:normal;
+  word-break:break-all` e baixe a fonte para ~12.5px.
+- **Não use `code.inl` dentro de `<th>`**: o fundo claro sobre o navy vira um borrão.
+  Escreva o cabeçalho em texto puro.
+- **Seletor de tag dentro de componente vaza para o texto**: `.lib b { display:block }`
+  pegou também os `<b>` do corpo. Escopo com filho direto (`.lib > b`).
+- **Linha de fundo posicionada em `px` precisa conferir com o conteúdo**: o `::before` da
+  linha do tempo (002) nasceu riscando os anos; a posição correta é o centro da bolinha.
+- **Réguas verticais com altura fixa em `px` são frágeis** (001): prefira dividir em zonas
+  flex, cada uma com sua régua, em vez de calcular `calc(100% - 96px)`.
+- `code.inl` tem padding lateral: **evite terminar frase com `<code>` seguido de ponto** —
+  fica um espaço feio antes do `.`.
+
+### Renderização e validação
+
+- **`scripts/build.py` já foi corrigido**: as miniaturas saíam de um viewport de 595 px
+  contra uma A4 de 794 px, ou seja, **cortavam** a ficha em vez de reduzi-la (o thumb do
+  guia-demo 020 estava assim). Hoje fotografa o próprio `article.guia`. Não volte a usar
+  `set_viewport_size({"width":595...})` + `page.screenshot()`.
+- **Vale renderizar ficha a ficha** (`python scripts/build.py NNN`) e olhar a miniatura antes
+  do commit, não só a 1ª do volume: quase toda ficha do Volume 1 precisou de um ajuste de
+  layout que só aparece no render (estouro de largura, linha fora de lugar). É mais barato
+  que consertar sete fichas no fim. O `build --vol NN` no fechamento continua obrigatório.
+- **Prova objetiva de "cabe em uma A4"**: cada PDF tem de ter **1 página**.
+  ```bash
+  python -c "from pypdf import PdfReader;import glob,os;[print(os.path.basename(f),len(PdfReader(f).pages)) for f in sorted(glob.glob('_saida/pdf/*.pdf'))]"
+  ```
+- **Checagem dos obrigatórios do volume**, de uma vez (o `grep` do Git Bash não casa o 🐉;
+  use Python):
+  ```bash
+  python -c "import io,glob,re,os;[print(os.path.basename(f)[:7], s.count('🐉'), 'resumo' in s and 'dica' in s) for f in sorted(glob.glob('guias/volNN/*.html')) for s in [io.open(f,encoding='utf-8').read()]]"
+  ```
+
+### Densidade que funcionou
+
+Sete fichas, sete visuais distintos, mesma família: pilha de camadas (001), linha do tempo
+(002), fluxo numerado (003), cadeia de pílulas (004), árvore em duas colunas colorida por
+classe (005), dissecação token a token (006), grade numerada (007). **O visual central da
+ficha é sempre a figura que o capítulo já tem em TikZ** — traduza-a para CSS em vez de
+inventar outra. Tudo saiu em SVG/CSS: o Volume 1 não pediu nenhuma imagem realista nem
+captura de tela, e `assets/img/` segue vazio.
 
 ## Estratégia de produção
 
