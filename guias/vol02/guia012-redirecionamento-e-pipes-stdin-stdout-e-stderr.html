@@ -3,101 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 012 — Redirecionamento e pipes: stdin, stdout e stderr</title>
+<title>GUIA 012 — Redirecionamento e pipes</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: os três descritores e a ordem do 2>&1 */
+  .fds { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .fdp { border:1.5px solid var(--linha); border-radius:var(--raio); padding:9px 10px; background:#fff; }
+  .fdp > b { display:block; text-align:center; font-family:var(--fonte-mono); font-size:11.5px;
+             color:var(--navy); margin-bottom:7px; }
+  .fio { display:grid; grid-template-columns:88px 16px 1fr; align-items:center; gap:7px; margin-bottom:5px; }
+  .fio > i { font-style:normal; text-align:center; color:var(--tinta-suave); font-size:12px; }
+  .chip { font-family:var(--fonte-mono); font-size:10px; text-align:center; border-radius:4px;
+          padding:4px 3px; border:1.5px solid; }
+  .c-in  { background:#f2f4f7; border-color:#c3ccd8; color:#5b6b7d; }
+  .c-out { background:var(--azul-claro);     border-color:var(--azul);     color:var(--navy); }
+  .c-err { background:var(--vermelho-claro); border-color:var(--vermelho); color:#8a1f1f; }
+  .c-arq { background:var(--verde-claro);    border-color:var(--verde);    color:#1c6b34; }
+  .fdp > p { font-size:9.5px; color:var(--tinta-suave); line-height:1.35; margin-top:4px; text-align:center; }
+
+  .ordem { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ord { border:1.5px solid var(--verde); border-radius:var(--raio); padding:8px 10px; }
+  .ord.mau { border-color:var(--vermelho); }
+  .ord > b { display:block; text-align:center; font-family:var(--fonte-mono); font-size:12px;
+             color:var(--verde); margin-bottom:6px; }
+  .ord.mau > b { color:var(--vermelho); }
+  .pass { background:var(--papel-tint); border-left:3px solid var(--linha); border-radius:4px;
+          padding:4px 8px; margin-bottom:4px; font-size:10px; color:var(--tinta-suave); line-height:1.3; }
+  .pass em { font-style:normal; font-family:var(--fonte-mono); color:var(--navy); font-weight:700; }
+  .fim { border-radius:4px; padding:5px 8px; font-size:10.5px; text-align:center;
+         background:var(--verde-claro); color:#1c6b34; }
+  .ord.mau .fim { background:var(--vermelho-claro); color:#8a1f1f; }
+
+  .duplo { display:grid; grid-template-columns:1fr 1.05fr; gap:12px; align-items:start; }
+  .ops { display:flex; flex-direction:column; gap:5px; }
+  .op { border-left:4px solid var(--azul); background:var(--azul-claro);
+        border-radius:var(--raio-sm); padding:5px 9px; }
+  .op > b { font-family:var(--fonte-mono); font-size:11px; color:var(--navy); }
+  .op > span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+  .op.v { border-left-color:var(--verde);    background:var(--verde-claro); }
+  .op.l { border-left-color:var(--laranja);  background:var(--laranja-claro); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 012</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Redirecionamento e pipes: stdin, stdout e stderr</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Redirecionamento<br>e Pipes</h1>
+      <div class="sub">Você guardou a varredura com <code class="inl">&gt;</code> e os erros sumiram com o buffer da tela. Trocar para <code class="inl">2&gt;&amp;1 &gt; arq</code> <b>não</b> conserta.</div>
     </div>
     <div class="badge"><b>012</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- OS TRÊS DESCRITORES -->
+  <div class="secao-titulo">Todo processo nasce com três canais abertos</div>
+  <section class="fds">
+    <div class="fdp">
+      <b>comando</b>
+      <div class="fio"><span class="chip c-in">0 · stdin</span><i>←</i><span class="chip c-in">teclado</span></div>
+      <div class="fio"><span class="chip c-out">1 · stdout</span><i>→</i><span class="chip c-out">tela</span></div>
+      <div class="fio"><span class="chip c-err">2 · stderr</span><i>→</i><span class="chip c-err">tela</span></div>
+      <p>Resultado e erro <b>misturados</b> na mesma tela — e é só a numeração que os separa.</p>
+    </div>
+    <div class="fdp">
+      <b>comando &gt; saida.txt</b>
+      <div class="fio"><span class="chip c-in">0 · stdin</span><i>←</i><span class="chip c-in">teclado</span></div>
+      <div class="fio"><span class="chip c-out">1 · stdout</span><i>→</i><span class="chip c-arq">saida.txt</span></div>
+      <div class="fio"><span class="chip c-err">2 · stderr</span><i>→</i><span class="chip c-err">tela</span></div>
+      <p><b>Só o descritor 1 mudou de destino.</b> Redirecionar é reapontar um canal <i>antes</i> de o programa começar — e o programa nunca percebe.</p>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- A ORDEM DO 2>&1 -->
+  <div class="secao-titulo">A mesma dupla, duas ordens, resultados opostos</div>
+  <section class="ordem">
+    <div class="ord">
+      <b>comando &gt; log.txt 2&gt;&amp;1</b>
+      <div class="pass"><em>1.</em> <em>&gt; log.txt</em> — o descritor <b>1</b> passa a apontar para o arquivo.</div>
+      <div class="pass"><em>2.</em> <em>2&gt;&amp;1</em> — o <b>2</b> copia o destino <i>atual</i> do 1: o arquivo.</div>
+      <div class="fim">✔ resultado <b>e</b> erro no arquivo</div>
+    </div>
+    <div class="ord mau">
+      <b>comando 2&gt;&amp;1 &gt; log.txt</b>
+      <div class="pass"><em>1.</em> <em>2&gt;&amp;1</em> — o <b>2</b> copia o destino atual do 1: a <b>tela</b>.</div>
+      <div class="pass"><em>2.</em> <em>&gt; log.txt</em> — só o <b>1</b> muda para o arquivo.</div>
+      <div class="fim">✕ resultado no arquivo, erro <b>na tela</b></div>
+    </div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
+  <div class="perigo" style="border-left-color:var(--azul);background:var(--azul-claro);color:var(--navy)">
+    <b style="color:var(--azul)"><code class="inl">2&gt;&amp;1</code> copia o destino <i>daquele instante</i> — não é vínculo.</b> O shell lê os redirecionamentos da esquerda para a direita, então a regra é: <b>o <code class="inl">2&gt;&amp;1</code> vem por último</b>, ou use <code class="inl">&amp;&gt;</code>. A ordem "errada" tem um uso legítimo e elegante: <code class="inl">comando 2&gt;&amp;1 &gt; /dev/null | grep falha</code> manda <b>só os erros</b> para o cano, porque o <code class="inl">stderr</code> foi copiado para o cano antes de o <code class="inl">stdout</code> ser descartado.
+  </div>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- FORMAS + REFLEXOS -->
+  <div class="secao-titulo">As formas que se usam todo dia</div>
+  <section class="duplo">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Forma</th><th>O que faz</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>&gt;</code> / <code>&gt;&gt;</code></td><td>stdout sobrescrevendo / acrescentando</td></tr>
+        <tr><td><code>2&gt;</code> / <code>2&gt;&gt;</code></td><td>Só o stderr</td></tr>
+        <tr><td><code>&amp;&gt;</code> / <code>&amp;&gt;&gt;</code></td><td>Os dois no mesmo arquivo (Bash e Zsh; em <code>sh</code> use <code>&gt; a 2&gt;&amp;1</code>)</td></tr>
+        <tr><td><code>&lt;</code></td><td>Lê do arquivo. <code>wc -l &lt; f</code> imprime só o número, sem o nome</td></tr>
+        <tr><td><code>&lt;&lt; FIM</code></td><td><i>Here-doc</i>: texto até o marcador. Entre aspas (<code>&lt;&lt; 'FIM'</code>) não expande variável</td></tr>
+        <tr><td><code>&lt;&lt;&lt;</code></td><td><i>Here-string</i>: uma linha, sem <code>echo</code> e sem cano</td></tr>
+        <tr><td><code>|</code> / <code>|&amp;</code></td><td>Cano só do stdout / com o stderr junto</td></tr>
       </tbody>
     </table>
+    <div class="ops">
+      <div class="op v"><b>a | b | c</b><span>Os três rodam <b>ao mesmo tempo</b>, não em sequência: o kernel põe um buffer entre cada par. É o que permite processar 100 GB com poucos MB de RAM.</span></div>
+      <div class="op l"><b>set -o pipefail · $&#123;PIPESTATUS[@]&#125;</b><span>Por padrão o status do pipeline é o do <b>último</b> comando: <code class="inl">falso | tee f</code> devolve <b>0</b>. Esse detalhe já mascarou backup quebrado por meses.</span></div>
+      <div class="op"><b>echo linha | sudo tee -a /etc/hosts &gt; /dev/null</b><span>A resposta certa para <code class="inl">sudo ... &gt; arquivo</code>, que falha porque <b>quem redireciona é o seu shell</b>, não o sudo. O <code class="inl">tee</code> grava e repassa.</span></div>
+      <div class="op"><b>diff &lt;(ls /etc) &lt;(ls /etc/apt)</b><span>Substituição de processo: entrega um caminho como <code class="inl">/dev/fd/63</code> onde o comando exige <b>nome de arquivo</b>. Bash e Zsh, não <code class="inl">sh</code>.</span></div>
+      <div class="op"><b>grep --line-buffered · stdbuf -oL · unbuffer</b><span>Filtro ao vivo que "trava" é <i>buffering</i>: a libc usa buffer por linha na tela e <b>por bloco</b> no cano. Não é bug — é otimização atrapalhando.</span></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo">
+    <b>O <code class="inl">&gt;</code> trunca o arquivo <i>antes</i> de o comando rodar</b> — e trunca mesmo que o comando não exista: <code class="inl">comando-errado &gt; importante.txt</code> deixa o arquivo com zero bytes. Proteção barata no <code class="inl">~/.zshrc</code>: <code class="inl">set -o noclobber</code> (e <code class="inl">&gt;|</code> quando você realmente quiser forçar) — sabendo que ela não existe em servidor nem em script. <b>E <code class="inl">2&gt; /dev/null</code> não conserta nada: esconde.</b> Use só quando você sabe <i>qual</i> erro está descartando (o <code class="inl">find</code> reclamando de diretório sem permissão, por exemplo), nunca para deixar a saída bonita.
+  </div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">0</code> entrada · <code class="inl">1</code> resultado · <code class="inl">2</code> erro. O cano leva <b>só o 1</b>.</li>
+        <li><code class="inl">2&gt;&amp;1</code> por último, ou <code class="inl">&amp;&gt;</code>.</li>
+        <li><code class="inl">/dev/null</code> descarta · <code class="inl">/dev/zero</code> e <code class="inl">/dev/urandom</code> geram · <code class="inl">/dev/full</code> falha de propósito, para testar tratamento de erro.</li>
+        <li><code class="inl">head -c 32 /dev/urandom | base64</code> — senha aleatória em uma linha.</li>
+        <li><code class="inl">exec 3&gt; log</code> abre o arquivo <b>uma vez</b>; <code class="inl">echo x &gt;&amp;3</code> escreve; <code class="inl">exec 3&gt;&amp;-</code> fecha.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Ferramenta de varredura escreve muito no <code class="inl">stderr</code></b>: <code class="inl">nmap</code>, <code class="inl">gobuster</code> e <code class="inl">ffuf</code> mandam progresso e avisos para o 2 e resultado para o 1 — guardar só com <code class="inl">&gt;</code> perde metade. Use <code class="inl">&amp;&gt; saida.txt</code> ou <code class="inl">2&gt;&amp;1 | tee saida.txt</code>. Melhor ainda: <b>prefira a opção nativa</b> (<code class="inl">nmap -oA base</code> grava nos três formatos; <code class="inl">gobuster -o</code>, <code class="inl">ffuf -o</code>) — redirecionamento é para o que a ferramenta não formata. <b><code class="inl">| tee</code> durante teste autorizado é hábito profissional</b>: você acompanha na tela e fica com o registro do que rodou e quando — material de evidência e de relatório (combine com <code class="inl">ts</code>, do <code class="inl">moreutils</code>, para carimbar a hora). Wordlist por cano: <code class="inl">zcat rockyou.txt.gz | head -1000 &gt; /tmp/curta.txt</code>, sem descomprimir nem escrever em <code class="inl">/usr/share</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 02 · Fase 1 <span class="n">012</span></span>
