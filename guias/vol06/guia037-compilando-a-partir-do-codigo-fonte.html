@@ -3,101 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 037 — Compilando a partir do código-fonte</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .fluxo .passo code { font-family:var(--fonte-mono); font-size:10.5px; color:var(--navy);
+                       background:#eef2f8; border-radius:4px; padding:1px 5px; align-self:flex-start; }
+  /* Os três sistemas de build */
+  .sist { margin-top:8px; display:grid; grid-template-columns:78px 1fr 1fr 1fr; gap:0 8px;
+          font-size:9.5px; align-items:center; }
+  .sist > div { padding:4px 0; border-bottom:1px solid var(--linha); }
+  .sist .cab { font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+               letter-spacing:.05em; color:var(--tinta-suave); border-bottom:2px solid var(--navy); }
+  .sist .nome { font-family:var(--fonte-titulo); font-size:10px; font-weight:700; color:var(--navy); }
+  .sist code { font-family:var(--fonte-mono); font-size:9px; color:var(--tinta-suave); word-break:normal; overflow-wrap:break-word; }
+  .sist > div:nth-last-child(-n+4) { border-bottom:none; }
+
+  /* Território /usr x /usr/local */
+  .terr { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .terr > div { border-radius:var(--raio); border:2px solid; padding:9px 11px; }
+  .terr h4 { margin:0 0 5px; font-family:var(--fonte-mono); font-size:14px; font-weight:700; }
+  .terr p { margin:0 0 4px; font-size:10px; line-height:1.35; color:var(--tinta-suave); }
+  .terr p:last-child { margin-bottom:0; }
+  .terr .dono { display:block; font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+                letter-spacing:.04em; margin-bottom:4px; }
+  .terr .pkg { border-color:var(--azul); background:var(--azul-claro); }
+  .terr .pkg h4, .terr .pkg .dono { color:var(--azul); }
+  .terr .adm { border-color:var(--verde); background:var(--verde-claro); }
+  .terr .adm h4, .terr .adm .dono { color:var(--verde); }
+  .terr-nota { margin-top:6px; font-size:9.5px; color:var(--tinta-suave); line-height:1.4;
+               border-left:3px solid var(--vermelho); padding-left:7px; }
+  .terr-nota b { color:var(--vermelho); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 037</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Compilando a partir do código-fonte</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Compilando<br>do Código-Fonte</h1>
+      <div class="sub">Seis meses depois, ninguém sabe que aquele binário existe — nem de onde veio, nem como sai.</div>
     </div>
     <div class="badge"><b>037</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="fluxo">
+      <div class="passo"><span class="num">1</span><h3>Fonte</h3><code>tar xzf · git clone</code><p><b>Verifique antes:</b> <code class="inl">sha256sum -c</code> prova <i>integridade</i>; só <code class="inl">gpg --verify</code> (ou tag assinada) prova <i>origem</i>.</p></div>
+      <span class="seta">→</span>
+      <div class="passo"><span class="num">2</span><h3>Configurado</h3><code>./configure</code><p>Não compila nada: <b>descobre o que existe nesta máquina</b> e escreve o Makefile. Falhou aqui = falta um pacote <code class="inl">-dev</code>.</p></div>
+      <span class="seta">→</span>
+      <div class="passo verde"><span class="num">3</span><h3>Compilado</h3><code>make -j"$(nproc)"</code><p>A etapa demorada, ainda dentro do diretório de fonte. Quebrou com <code class="inl">-j</code> e passou sem? Makefile com dependência mal declarada.</p></div>
+      <span class="seta">→</span>
+      <div class="passo laranja"><span class="num">4</span><h3>Instalado</h3><code>sudo make install</code><p>Só <b>copia arquivos</b>. É a única etapa que pede <code class="inl">sudo</code> — e a única que o sistema <b>não registra</b>.</p></div>
+    </div>
+    <div class="sist">
+      <div class="cab">sistema</div><div class="cab">configurar</div><div class="cab">compilar</div><div class="cab">instalar</div>
+      <div class="nome">Autotools</div><div><code>./configure --prefix=/usr/local</code></div><div><code>make -j$(nproc)</code></div><div><code>sudo make install</code></div>
+      <div class="nome">CMake</div><div><code>cmake -B build -DCMAKE_BUILD_TYPE=Release</code></div><div><code>cmake --build build -j$(nproc)</code></div><div><code>sudo cmake --install build</code></div>
+      <div class="nome">Meson</div><div><code>meson setup build --prefix=/usr/local</code></div><div><code>ninja -C build</code></div><div><code>sudo ninja -C build install</code></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">O prefixo não é escolha estética</div>
+  <section>
+    <div class="terr">
+      <div class="pkg"><h4>/usr</h4><span class="dono">território do dpkg</span>
+        <p>Todo arquivo aqui pertence a algum pacote, e o <code class="inl">dpkg -S</code> sabe a qual.</p>
+        <p>O gerenciador pode <b>sobrescrever ou remover</b> qualquer coisa daqui numa atualização.</p></div>
+      <div class="adm"><h4>/usr/local</h4><span class="dono">território do administrador</span>
+        <p>O FHS reserva esta árvore para software instalado localmente. <b>Nenhum pacote Debian escreve aqui.</b></p>
+        <p>É o padrão do <code class="inl">configure</code> justamente por isso — e o <code class="inl">PATH</code> típico já o põe <b>antes</b> de <code class="inl">/usr/bin</code>.</p></div>
+    </div>
+    <div class="terr-nota"><b>Por que <code class="inl">--prefix=/usr</code> morde:</b> seu binário fica no mesmo caminho de um do repositório. Se o pacote oficial for instalado depois, ele <b>sobrescreve o seu sem aviso</b>; se for removido, leva junto arquivos que você achava seus. Terceira opção, sem <code class="inl">sudo</code> algum: <code class="inl">--prefix=$HOME/.local</code>, válida só para o seu usuário. E antes de deixar o <code class="inl">make install</code> agir, veja o que ele faria: <code class="inl">make install DESTDIR=/tmp/preview</code> + <code class="inl">find /tmp/preview -type f</code> é o <i>dry-run</i> que o <code class="inl">make</code> não tem.</div>
+  </section>
+
+  <div class="secao-titulo"><code class="inl">make install</code> cru cria software invisível — três saídas</div>
+  <section class="cards" style="--col:3">
+    <div class="card laranja"><h3>make uninstall — frágil</h3><p>Só funciona <b>do mesmo diretório de fonte</b>, configurado com o mesmo prefixo. Apagou o diretório, perdeu a desinstalação — e nem todo projeto implementa o alvo.</p></div>
+    <div class="card verde"><h3>checkinstall — o atalho bom</h3><p>Intercepta o <code class="inl">make install</code>, observa os arquivos criados e empacota tudo num <code class="inl">.deb</code>. Passa a aparecer no <code class="inl">dpkg -l</code>, tem versão e sai com <code class="inl">apt remove</code>. Adivinha os metadados — aproximado, mas resolve o problema principal.</p></div>
+    <div class="card azul"><h3>stow · dpkg-buildpackage</h3><p><code class="inl">stow</code> instala cada programa sob <code class="inl">/usr/local/stow/</code> e gerencia por links: desinstalar é remover os links. A solução completa continua sendo gerar um <code class="inl">.deb</code> de verdade a partir de <code class="inl">apt source</code> + patch.</p></div>
+  </section>
+
+  <div class="perigo"><b><code class="inl">curl -sSL … | sudo bash</code> é a pior forma de instalar qualquer coisa.</b> Executa com privilégio total um script que você não leu, servido por um host que pode mudar de conteúdo entre a sua visita ao site e a execução — e que pode até servir conteúdo diferente para o <code class="inl">curl</code> e para o navegador. Se for o único caminho: <code class="inl">curl -fsSL … -o /tmp/install.sh</code> → <code class="inl">less /tmp/install.sh</code> (ler de verdade) → <code class="inl">bash /tmp/install.sh</code>, sem <code class="inl">sudo</code> quando possível. Lembre que <b>um <code class="inl">configure</code> é script shell e um <code class="inl">Makefile</code> pode conter qualquer comando</b>: compilar fonte não auditado na máquina que guarda credencial de cliente é escolha ruim — a VM descartável existe para isso.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Compilar é o último recurso:</b> repositório → <code class="inl">pipx</code> → contêiner → recompilar o <code class="inl">.deb</code> com patch → do zero.</li>
+        <li><code class="inl">libfoo3</code> é para <b>executar</b>, <code class="inl">libfoo-dev</code> é para <b>compilar</b>: erro em <code class="inl">foo.h</code> = instale o <code class="inl">-dev</code>. <code class="inl">apt build-dep</code> resolve tudo de uma vez.</li>
+        <li>Biblioteca em lugar fora do padrão: arquivo em <code class="inl">/etc/ld.so.conf.d/</code> + <code class="inl">sudo ldconfig</code> — <b>não</b> <code class="inl">LD_LIBRARY_PATH</code> no <code class="inl">.bashrc</code>, que confunde meses depois.</li>
+        <li>No CMake, <code class="inl">-DCMAKE_BUILD_TYPE=Release</code> é o que liga a otimização; build fora da árvore torna a limpeza um <code class="inl">rm -rf build</code>.</li>
+        <li>Pacote recompilado com patch precisa de <code class="inl">apt-mark hold</code>, ou o próximo <code class="inl">full-upgrade</code> o substitui.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>A maior parte da ferramenta de segurança do GitHub é Python ou Go — e nenhuma das duas pede compilação clássica:</b> <code class="inl">pipx</code> instala isolado e desinstala limpo; <code class="inl">go install</code> deixa um binário estático em <code class="inl">~/go/bin</code>. <code class="inl">make</code> só para C/C++ de fato. Clonar em <code class="inl">/opt</code> é convenção razoável, mas exige disciplina: um README local dizendo <b>de onde veio e em que commit</b>, e <code class="inl">git pull</code> periódico. <b>Adote o <code class="inl">checkinstall</code></b> — cada <code class="inl">make install</code> cru é um ponto cego permanente para <code class="inl">dpkg -V</code> e <code class="inl">dpkg -S</code>. Compilar PoC é rotina de laboratório: código de exploração publicado às vezes traz erro, e ocasionalmente traz <b>malícia dirigida a quem compila sem ler</b> — leia o fonte, use VM descartável e só dentro de escopo autorizado (Lei 12.737/2012). E se o build morrer sem mensagem, olhe <code class="inl">dmesg -T | grep -i oom</code> antes do código: <code class="inl">-j$(nproc)</code> em VM de 4 GB acorda o OOM killer — caia para <code class="inl">-j2</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 06 · Fase 2 <span class="n">037</span></span>
