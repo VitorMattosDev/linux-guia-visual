@@ -3,101 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 015 — Tipos de arquivo, inodes e a árvore de diretórios</title>
+<title>GUIA 015 — Tipos de arquivo, inodes e a árvore</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a cadeia diretório → inode → blocos de dados */
+  .anatomia { display:grid; grid-template-columns:1fr 18px 1.02fr 18px .78fr; align-items:center; gap:6px; }
+  .an-col > .rot { font-family:var(--fonte-titulo); font-size:10px; font-weight:800; letter-spacing:.05em;
+                   text-transform:uppercase; color:var(--tinta-suave); text-align:center; margin-bottom:5px; }
+  .an-col > .nota { font-size:9.5px; color:var(--tinta-suave); text-align:center; margin-top:5px; line-height:1.3; }
+  .an-seta { color:var(--azul); font-size:20px; font-weight:700; text-align:center; }
+  .tabdir { border:1.5px solid var(--linha); border-radius:8px; overflow:hidden; background:#fff; }
+  .tabdir .lin { display:flex; justify-content:space-between; gap:6px; padding:5px 8px; font-family:var(--fonte-mono);
+                 font-size:10.5px; color:var(--tinta); border-bottom:1px solid var(--linha); }
+  .tabdir .lin:last-child { border-bottom:0; }
+  .tabdir .lin.hi { background:var(--laranja-claro); }
+  .tabdir .lin.hi i { color:var(--laranja); font-style:normal; font-weight:700; }
+  .tabdir .cab { background:var(--navy); color:#fff; font-family:var(--fonte-titulo); font-size:9px;
+                 letter-spacing:.06em; text-transform:uppercase; padding:4px 8px; display:flex; justify-content:space-between; }
+  .inodebox { border:1.5px solid var(--azul); border-radius:8px; background:var(--azul-claro); padding:7px 9px; }
+  .inodebox .tit { font-family:var(--fonte-mono); font-weight:700; font-size:11.5px; color:var(--azul); margin-bottom:4px; }
+  .inodebox ul { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:2px 8px; }
+  .inodebox li { font-size:9.5px; color:var(--tinta); }
+  .inodebox li b { font-family:var(--fonte-mono); color:var(--navy); }
+  .inodebox li.full { grid-column:1 / -1; color:var(--laranja); font-weight:700; }
+  .blocos { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+  .blocos span { background:var(--verde-claro); border:1.5px solid var(--verde); color:var(--verde);
+                 font-family:var(--fonte-mono); font-weight:700; font-size:11px; text-align:center;
+                 padding:7px 0; border-radius:6px; }
+  /* os sete tipos */
+  .tipos { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .tipo { border:1.5px solid var(--linha); border-top-width:4px; border-radius:8px; background:#fff;
+          text-align:center; padding:6px 3px 7px; }
+  .tipo .sym { display:block; width:26px; height:26px; margin:0 auto 4px; border-radius:6px; color:#fff;
+               font-family:var(--fonte-mono); font-weight:700; font-size:15px; line-height:26px; }
+  .tipo b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; color:var(--navy);
+            text-transform:uppercase; letter-spacing:.02em; line-height:1.2; }
+  .tipo span.ex { display:block; font-family:var(--fonte-mono); font-size:8.5px; color:var(--tinta-suave); margin-top:3px;
+                  word-break:break-all; }
+  .t-cinza{ border-top-color:#5b6b7d } .t-cinza .sym{ background:#5b6b7d }
+  .t-azul { border-top-color:var(--azul) }   .t-azul  .sym{ background:var(--azul) }
+  .t-roxo { border-top-color:var(--roxo) }   .t-roxo  .sym{ background:var(--roxo) }
+  .t-lar  { border-top-color:var(--laranja) }.t-lar   .sym{ background:var(--laranja) }
+  .t-verde{ border-top-color:var(--verde) }  .t-verde .sym{ background:var(--verde) }
+  .t-navy { border-top-color:var(--navy) }   .t-navy  .sym{ background:var(--navy) }
+  /* prática: terminal + tabela lado a lado */
+  .pratica { display:grid; grid-template-columns:1.3fr .95fr; gap:10px; align-items:start; }
+  .pratica table.comparacao { font-size:10.5px; }
+  .pratica table.comparacao tbody td { padding:5px 8px; }
+  .pratica table.comparacao thead th { padding:6px 8px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 015</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Tipos de arquivo, inodes e a árvore de diretórios</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Tipos, Inodes<br>e a Árvore</h1>
+      <div class="sub">O disco tem 40% livre e o sistema insiste: <code class="inl">No space left on device</code>.</div>
     </div>
     <div class="badge"><b>015</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- ANATOMIA: nome, inode, dados -->
+  <div class="secao-titulo">O nome não faz parte do arquivo</div>
+  <section class="anatomia">
+    <div class="an-col">
+      <div class="rot">Diretório /home/kali</div>
+      <div class="tabdir">
+        <div class="cab"><span>nome</span><span>inode</span></div>
+        <div class="lin hi"><span>relatorio.txt</span><i>917</i></div>
+        <div class="lin"><span>notas.md</span><span>4432</span></div>
+        <div class="lin hi"><span>backup.txt</span><i>917</i></div>
+      </div>
+      <div class="nota">Só nome e número.<br>Nenhum dado do arquivo aqui.</div>
+    </div>
+    <div class="an-seta">→</div>
+    <div class="an-col">
+      <div class="rot">Inode 917 — os metadados</div>
+      <div class="inodebox">
+        <div class="tit">inode 917</div>
+        <ul>
+          <li>tipo: <b>comum</b></li>
+          <li>permissões: <b>rw-r--r--</b></li>
+          <li>dono: <b>kali:kali</b></li>
+          <li>tamanho: <b>2048</b></li>
+          <li>atime · mtime</li>
+          <li>ctime · btime</li>
+          <li class="full">links: 2 &nbsp;→&nbsp; dois nomes, um arquivo</li>
+        </ul>
+      </div>
+      <div class="nota">Tudo sobre o arquivo — menos o nome.</div>
+    </div>
+    <div class="an-seta">→</div>
+    <div class="an-col">
+      <div class="rot">Blocos de dados</div>
+      <div class="blocos"><span>0x1A</span><span>0x1B</span><span>0x2F</span><span>0x30</span></div>
+      <div class="nota">O conteúdo em si,<br>espalhado pelo disco.</div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- OS SETE TIPOS -->
+  <div class="secao-titulo">Os sete tipos — o 1º caractere do <code class="inl">ls -l</code></div>
+  <section class="tipos">
+    <div class="tipo t-cinza"><span class="sym">-</span><b>Comum</b><span class="ex">/etc/passwd</span></div>
+    <div class="tipo t-azul"><span class="sym">d</span><b>Diretório</b><span class="ex">ls -ld /etc</span></div>
+    <div class="tipo t-roxo"><span class="sym">l</span><b>Link simb.</b><span class="ex">/usr/bin/vi</span></div>
+    <div class="tipo t-lar"><span class="sym">c</span><b>Caractere</b><span class="ex">/dev/null</span></div>
+    <div class="tipo t-verde"><span class="sym">b</span><b>Bloco</b><span class="ex">/dev/sda</span></div>
+    <div class="tipo t-navy"><span class="sym">p</span><b>Pipe FIFO</b><span class="ex">mkfifo cano</span></div>
+    <div class="tipo t-cinza"><span class="sym">s</span><b>Socket</b><span class="ex">/run/*.sock</span></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <section class="pratica">
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> cp relatorio.txt copia.txt ; ls -li *.txt
+<span class="out"> 917 -rw-r--r-- 2 kali kali 2048 relatorio.txt</span>
+<span class="out">4501 -rw-r--r-- 1 kali kali 2048 copia.txt</span>
+<span class="cmt"># cp cria inode novo; mv mantem o mesmo</span>
+<span class="prompt">$</span> df -h /   <span class="out">Use% 40%</span>   <span class="cmt"># bytes: sobra</span>
+<span class="prompt">$</span> df -i /   <span class="out">IUse% 100%</span>  <span class="cmt"># inodes: acabaram</span>
+<span class="prompt">$</span> file -b foto.jpg
+<span class="out">ELF 64-bit LSB executable</span> <span class="cmt"># nao e foto</span></pre>
+    </div>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Marca</th><th>Muda quando</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>atime</code></td><td>o conteúdo é <b>lido</b></td></tr>
+        <tr><td><code>mtime</code></td><td>o <b>conteúdo</b> muda</td></tr>
+        <tr><td><code>ctime</code></td><td>o <b>inode</b> muda: chmod, dono, nome</td></tr>
+        <tr><td><code>btime</code></td><td>criação — nunca muda</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>Inodes não se acrescentam depois.</b> A quantidade de um ext4 é fixada em <code class="inl">mkfs.ext4 -N</code> na formatação — reformatar <u>apaga a partição inteira</u>. Só faça com backup pronto e em disco de laboratório (arquivo-imagem via <code class="inl">losetup</code> ou VM descartável). Btrfs e XFS alocam inodes dinamicamente e não sofrem disso.</div>
+
+  <!-- RESUMO + DICA -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>O nome mora no diretório; tipo, dono, tempos e ponteiros moram no <b>inode</b>.</li>
+        <li>Renomear é instantâneo; <code class="inl">cp</code> cria inode novo, <code class="inl">mv</code> reaproveita.</li>
+        <li>Apagar arquivo ainda aberto não devolve espaço — o inode só morre com links = 0.</li>
+        <li><code class="inl">ctime</code> é <i>change</i>, não <i>creation</i>: o <code class="inl">touch</code> não o falsifica.</li>
+        <li>Diretório vazio já tem 2 links (o nome no pai e o <code class="inl">.</code>); +1 por subdiretório.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">A raiz é <b>ext4</b>, de inodes fixos: varredura que grava um arquivo por alvo (<code class="inl">gobuster</code>, <code class="inl">nuclei</code>) esgota inodes muito antes do espaço — se <code class="inl">df -h</code> não bate com o erro, rode <code class="inl">df -i</code>. Em <code class="inl">/usr/share/wordlists</code> quase tudo é link: use <code class="inl">file -L</code>. E <code class="inl">stat</code> é forense — <code class="inl">ctime</code> de agora com <code class="inl">mtime</code> de 2015 denuncia arquivo adulterado. Ferramenta que reclama de <code class="inl">/dev/net/tun</code> ou <code class="inl">/dev/bus/usb</code> quase nunca está quebrada: é grupo do usuário.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 03 · Fase 1 <span class="n">015</span></span>
