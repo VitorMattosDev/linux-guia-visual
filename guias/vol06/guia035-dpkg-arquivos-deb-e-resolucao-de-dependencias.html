@@ -3,101 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 035 — dpkg, arquivos .deb e resolução de dependências</title>
+<title>GUIA 035 — dpkg e arquivos .deb</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Anatomia do .deb */
+  .deb { border:2px solid var(--linha); border-radius:var(--raio); padding:8px; background:var(--papel-tint); }
+  .deb > h4 { margin:0 0 7px; text-align:center; font-family:var(--fonte-mono); font-size:11px;
+              color:var(--navy); font-weight:700; }
+  .deb > h4 em { font-style:normal; font-family:var(--fonte-texto); color:var(--tinta-suave); font-weight:500; }
+  .membros { display:grid; grid-template-columns:0.72fr 1.24fr 1.04fr; gap:7px; align-items:stretch; }
+  .membro { border-radius:var(--raio-sm); border:2px solid; padding:6px 8px; background:var(--papel); }
+  .membro > b { display:block; font-family:var(--fonte-mono); font-size:10.5px; margin-bottom:4px; }
+  .membro p { margin:0; font-size:9.5px; line-height:1.4; color:var(--tinta-suave); }
+  .membro p + p { margin-top:3px; }
+  .membro code { font-family:var(--fonte-mono); font-size:9px; color:var(--navy); }
+  .m1 { border-color:var(--vermelho); } .m1 > b { color:var(--vermelho); }
+  .m2 { border-color:var(--azul); }     .m2 > b { color:var(--azul); }
+  .m3 { border-color:var(--verde); }    .m3 > b { color:var(--verde); }
+  .abrir { margin-top:7px; font-size:9.5px; color:var(--tinta-suave); line-height:1.45;
+           border-left:3px solid var(--roxo); padding-left:7px; }
+  .abrir b { color:var(--roxo); }
+
+  /* Decodificador dos dois caracteres do dpkg -l */
+  .dec-linha { font-family:var(--fonte-mono); font-size:12px; text-align:center; color:var(--tinta-suave);
+               margin-bottom:6px; }
+  .dec-linha u { text-decoration:none; background:var(--navy); color:#fff; padding:2px 5px; border-radius:4px;
+                 font-weight:700; letter-spacing:.12em; }
+  .dec { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .dec > div { border-radius:var(--raio-sm); border:2px solid; padding:6px 9px; }
+  .dec h5 { margin:0 0 4px; font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+            letter-spacing:.04em; }
+  .dec ul { margin:0; padding:0; list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:1px 8px; }
+  .dec li { font-size:9.5px; color:var(--tinta-suave); line-height:1.35; }
+  .dec li b { font-family:var(--fonte-mono); font-weight:700; }
+  .dec .d1 { border-color:var(--azul); background:var(--azul-claro); } .dec .d1 h5, .dec .d1 li b { color:var(--azul); }
+  .dec .d2 { border-color:var(--verde); background:var(--verde-claro); } .dec .d2 h5, .dec .d2 li b { color:var(--verde); }
+  .combos { margin-top:6px; display:flex; flex-direction:column; gap:4px; }
+  .combos div { font-size:9.5px; line-height:1.35; color:var(--tinta-suave); border-radius:var(--raio-sm);
+                padding:5px 9px; border-left:5px solid; }
+  .combos div b { font-family:var(--fonte-mono); font-size:11px; }
+  .combos .c-ok { background:var(--verde-claro); border-color:var(--verde); } .combos .c-ok b { color:var(--verde); }
+  .combos .c-at { background:var(--laranja-claro); border-color:var(--laranja); } .combos .c-at b { color:var(--laranja); }
+  .combos .c-ru { background:var(--vermelho-claro); border-color:var(--vermelho); } .combos .c-ru b { color:var(--vermelho); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 035</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>dpkg, arquivos .deb e resolução de dependências</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>dpkg e os<br>Arquivos .deb</h1>
+      <div class="sub">O <code class="inl">dpkg -i</code> falhou, o pacote ficou esquisito — e agora o APT inteiro se recusa a rodar.</div>
     </div>
     <div class="badge"><b>035</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Um <code class="inl">.deb</code> é um arquivo <code class="inl">ar</code> com três membros</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="deb">
+      <h4>nmap_7.95+dfsg-3_amd64.deb <em>— e nada além destes três</em></h4>
+      <div class="membros">
+        <div class="membro m1"><b>debian-binary</b><p>Uma linha: <code>2.0</code>, a versão do <b>formato</b> do pacote.</p></div>
+        <div class="membro m2"><b>control.tar.xz</b>
+          <p><code>control</code> — nome, versão, arquitetura, <code>Depends</code>, descrição.</p>
+          <p><code>md5sums</code> — hash de cada arquivo · <code>conffiles</code> — o que é configuração.</p>
+          <p><code>preinst · postinst · prerm · postrm</code> — os scripts que <b>rodam como root</b>.</p></div>
+        <div class="membro m3"><b>data.tar.xz</b>
+          <p>A árvore de arquivos <b>como será instalada</b>:</p>
+          <p><code>./usr/bin/nmap</code><br><code>./usr/share/nmap/…</code><br><code>./usr/share/man/…</code></p>
+          <p>Nada além de uma cópia dos caminhos de destino.</p></div>
+      </div>
+    </div>
+    <div class="abrir"><b>Instalar é extrair o <code class="inl">data.tar</code> sobre a raiz e rodar os scripts do <code class="inl">control.tar</code> nos momentos certos</b> — <code class="inl">preinst</code> → desempacota → <code class="inl">postinst</code> na instalação; <code class="inl">prerm</code> → apaga → <code class="inl">postrm</code> na remoção. Todos <b>como root, sem confirmação e sem sandbox</b>: é assim que um pacote cria usuário, gera chave e registra serviço. Auditar qualquer <code class="inl">.deb</code> antes é uma sequência de três comandos: <code class="inl">dpkg-deb -I</code> (metadados) · <code class="inl">dpkg-deb -c</code> (arquivos) · <code class="inl">dpkg-deb -e</code> (extrai os scripts, para ler o <code class="inl">postinst</code> antes de executá-lo).</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">A coluna do <code class="inl">dpkg -l</code>: o que se quer × o que é</div>
+  <section>
+    <div class="dec-linha"><u>ii</u> &nbsp;nmap&nbsp; 7.95+dfsg-3&nbsp; amd64&nbsp; The Network Mapper</div>
+    <div class="dec">
+      <div class="d1"><h5>1º caractere — o que se <i>quer</i></h5>
+        <ul>
+          <li><b>i</b> instalado</li><li><b>h</b> congelado (<i>hold</i>)</li>
+          <li><b>r</b> a remover</li><li><b>u</b> desconhecido</li>
+          <li><b>p</b> a purgar</li><li>&nbsp;</li>
+        </ul></div>
+      <div class="d2"><h5>2º caractere — o que <i>é</i></h5>
+        <ul>
+          <li><b>i</b> instalado e configurado</li><li><b>c</b> só a configuração</li>
+          <li><b>n</b> não instalado</li><li><b>U</b> desempacotado, sem configurar</li>
+          <li><b>F</b> configuração falhou</li><li>&nbsp;</li>
+        </ul></div>
+    </div>
+    <div class="combos">
+      <div class="c-ok"><b>ii</b> — tudo certo: instalado e configurado. É o que se espera de quase toda linha.</div>
+      <div class="c-at"><b>rc</b> — removido, configuração ainda em <code class="inl">/etc</code>. Inofensivo; <code class="inl">apt purge</code> limpa.</div>
+      <div class="c-ru"><b>iU</b> / <b>iF</b> — <b>quebrado</b>: desempacotado mas não configurado. <b>Bloqueia o APT inteiro.</b> Conserto: <code class="inl">sudo dpkg --configure -a</code> e, se faltar dependência, <code class="inl">sudo apt --fix-broken install</code>. O <code class="inl">dpkg --audit</code> lista tudo que está pendente de uma vez.</div>
+    </div>
+  </section>
+
+  <section class="duas-colunas">
+    <div class="coluna roxo">
+      <h3>Relações e versões</h3>
+      <ul>
+        <li>Além de <code class="inl">Depends</code>: <code class="inl">Pre-Depends</code> exige ordem estrita (antes até de desempacotar); <code class="inl">Breaks</code>/<code class="inl">Replaces</code> renomeiam pacote e movem arquivos sem conflito; <code class="inl">Provides</code> cria nome virtual (<code class="inl">mail-transport-agent</code>).</li>
+        <li>Versão é <code class="inl">época:upstream-revisão</code>. A <b>época</b> conserta numeração que regrediu e nunca diminui; a <b>revisão</b> é do empacotador.</li>
+        <li><b>O til ordena antes de tudo</b>, inclusive do vazio: <code class="inl">1.0~rc1</code> &lt; <code class="inl">1.0</code>, mas <code class="inl">1.0rc1</code> &gt; <code class="inl">1.0</code>.</li>
+        <li>Na dúvida, quem decide é <code class="inl">dpkg --compare-versions '1.10' gt '1.9'</code>.</li>
+      </ul>
+    </div>
+    <div class="coluna verde">
+      <h3>Inspeção — e um pacote seu</h3>
+      <ul>
+        <li><code class="inl">dpkg -L pkg</code> lista o que ele instalou; <code class="inl">dpkg -S /usr/bin/nmap</code> responde <b>de qual pacote veio um arquivo</b>.</li>
+        <li><code class="inl">dpkg -V</code> compara os hashes com o disco: saída vazia = nada alterado desde a instalação.</li>
+        <li>Construir um <code class="inl">.deb</code> são <b>dois arquivos e um comando</b>: a árvore de destino + <code class="inl">DEBIAN/control</code>, e então <code class="inl">dpkg-deb --build dir pacote.deb</code>. As linhas extras da <code class="inl">Description</code> começam <b>com um espaço</b> — sem ele o build recusa.</li>
+        <li>Para aplicar patch, recompile o oficial: <code class="inl">apt source</code> + <code class="inl">apt build-dep</code> + <code class="inl">dpkg-buildpackage -us -uc -b</code>, e ponha um <code class="inl">hold</code> ou revisão <code class="inl">-3.1local1</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="perigo"><b>As opções <code class="inl">--force-*</code> do dpkg quebram o sistema em silêncio.</b> <code class="inl">dpkg -i --force-depends</code>, <code class="inl">--force-overwrite</code> e <code class="inl">--force-all</code> não resolvem erro de dependência: instalam um pacote que <b>não pode funcionar</b> e deixam o banco de dados afirmando que está tudo bem. O estrago aparece depois, num contexto sem relação — símbolo indefinido, <code class="inl">apt</code> que se recusa a operar. Diante de erro de dependência a resposta é sempre <code class="inl">sudo apt --fix-broken install</code>. Existem para recuperação por quem sabe exatamente o que está fazendo, e só.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>O <code class="inl">dpkg</code> <b>verifica</b> dependências mas não as satisfaz — quem busca na rede é o APT.</li>
+        <li><b>Prefira sempre <code class="inl">apt install ./pacote.deb</code></b> (com o <code class="inl">./</code>) a <code class="inl">dpkg -i</code>: mesma instalação, com as dependências resolvidas antes.</li>
+        <li>Cada pacote instalado tem seus arquivos de controle em <code class="inl">/var/lib/dpkg/info/</code> (<code class="inl">.list</code>, <code class="inl">.md5sums</code>, scripts).</li>
+        <li><code class="inl">dpkg -l | grep -v '^ii'</code> mostra tudo que não está normal — o primeiro comando de um diagnóstico.</li>
+        <li>No RHEL: <code class="inl">rpm -qa/-ql/-qf/-V</code>; o <code class="inl">.rpm</code> é <code class="inl">cpio</code> (precisa de <code class="inl">rpm2cpio</code>) e não tem o estado residual.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Todo <code class="inl">.deb</code> de terceiro merece auditoria antes de instalar:</b> baixe, <code class="inl">dpkg-deb -e</code> para extrair os scripts, <code class="inl">dpkg-deb -c</code> para ver os arquivos — se o <code class="inl">postinst</code> tem um <code class="inl">curl | bash</code> para um domínio qualquer, você descobre antes e não depois. <b><code class="inl">dpkg -S</code> e <code class="inl">dpkg -V</code> são ferramentas de investigação</b>, não só de administração: “nenhum pacote é dono deste arquivo” para algo em <code class="inl">/usr/bin</code>, ou um binário do sistema com hash diferente, é achado relevante em verificação de integridade — com a ressalva de que um invasor com root pode ter reescrito os próprios hashes, então é indício, não prova. O sufixo <code class="inl">-0kaliN</code> identifica o que foi empacotado pelo Kali em vez de vir do Debian. E resolva um <code class="inl">iU</code> <b>na hora</b>: ele bloqueia o APT inteiro, e descobrir isso no meio de um teste custa tempo.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 06 · Fase 2 <span class="n">035</span></span>
