@@ -3,101 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 032 — Recursos do sistema: memória, CPU, uptime e limites</title>
+<title>GUIA 032 — Recursos do sistema</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Barra da RAM */
+  .ram { display:flex; gap:3px; }
+  .ram div { border-radius:5px; padding:7px 6px; text-align:center; font-family:var(--fonte-mono);
+             font-size:11px; font-weight:700; color:#fff; }
+  .ram .usada { flex:36; background:var(--vermelho); }
+  .ram .cache { flex:52; background:var(--laranja); }
+  .ram .livre { flex:12; background:var(--verde); }
+  .rot { display:flex; gap:3px; margin-top:3px; }
+  .rot div { text-align:center; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+             letter-spacing:.03em; }
+  .rot .a{ flex:36; color:var(--vermelho);} .rot .b{ flex:52; color:var(--laranja);} .rot .c{ flex:12; color:var(--verde);}
+  .disp { margin-top:5px; display:flex; }
+  .disp .vazio { flex:36; }
+  .disp .bar { flex:64; background:var(--azul-claro); border:1.5px solid var(--azul); border-radius:5px;
+               padding:4px 8px; font-size:10px; color:var(--navy); text-align:center; }
+  .disp .bar b { font-family:var(--fonte-mono); }
+  .notas-r { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:7px; }
+  .notas-r div { font-size:9.5px; color:var(--tinta-suave); line-height:1.35; border-left:3px solid var(--linha); padding-left:6px; }
+  .notas-r b { color:var(--navy); }
+  .notas-r .n1{ border-left-color:var(--laranja);} .notas-r .n2{ border-left-color:var(--azul);} .notas-r .n3{ border-left-color:var(--roxo);}
+
+  /* Escala do load */
+  .loadbar { position:relative; height:22px; border-radius:5px; margin:2px 0 15px;
+             background:linear-gradient(90deg, var(--verde) 0%, #e8c00c 50%, var(--vermelho) 100%); }
+  .loadbar span { position:absolute; top:3px; font-family:var(--fonte-mono); font-size:10px; font-weight:700; color:#fff; }
+  .loadbar .e{ left:8px; } .loadbar .m{ left:50%; transform:translateX(-50%); } .loadbar .d{ right:8px; }
+  .loadbar small { position:absolute; top:25px; font-size:9px; color:var(--tinta-suave); }
+  .loadbar .se{ left:0; } .loadbar .sm{ left:50%; transform:translateX(-50%); } .loadbar .sd{ right:0; }
+  .lista-c { display:flex; flex-direction:column; gap:4px; }
+  .lista-c div { font-size:10px; color:var(--tinta-suave); line-height:1.3; }
+  .lista-c b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 032</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Recursos do sistema: memória, CPU, uptime e limites</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Recursos<br>do Sistema</h1>
+      <div class="sub">"O servidor está sem memória" — e o <code class="inl">free -h</code> não confirma nada disso.</div>
     </div>
     <div class="badge"><b>032</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Memória: <code class="inl">livre</code> é a coluna errada</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="ram">
+      <div class="usada">3,6 Gi</div>
+      <div class="cache">11 Gi</div>
+      <div class="livre">180 Mi</div>
+    </div>
+    <div class="rot"><div class="a">usada por processos</div><div class="b">buff/cache</div><div class="c">livre</div></div>
+    <div class="disp">
+      <div class="vazio"></div>
+      <div class="bar"><b>disponível = 11 Gi</b> — o número que responde “quanto ainda posso alocar?”</div>
+    </div>
+    <div class="notas-r">
+      <div class="n1"><b>“O Linux comeu minha RAM” é o correto:</b> RAM ociosa é desperdício, então o kernel cacheia disco nela e <b>devolve na hora</b> que um processo pedir.</div>
+      <div class="n2"><b>Por processo, RSS superestima</b> (conta biblioteca compartilhada em cada um). O número honesto é o <code class="inl">Pss</code> em <code class="inl">/proc/PID/smaps_rollup</code>.</div>
+      <div class="n3"><b>Nem tudo é recuperável:</b> <code class="inl">tmpfs</code> e <code class="inl">/dev/shm</code> ocupam RAM de verdade. <code class="inl">Dirty</code> grande = escrita represada, o mesmo quadro do <code class="inl">wa</code> alto.</div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section class="duas-colunas">
+    <div class="coluna azul">
+      <h3>Load average · CPU</h3>
+      <div class="loadbar">
+        <span class="e">0</span><span class="m">N = nproc</span><span class="d">2N +</span>
+        <small class="se">folga: há núcleo ocioso</small>
+        <small class="sm">saturado</small>
+        <small class="sd">fila de espera</small>
+      </div>
+      <div class="lista-c">
+        <div><b>Sempre divida pelo <code class="inl">nproc</code>:</b> load 4,0 em 8 núcleos é metade da capacidade; em 2 núcleos é o dobro do que ela aguenta.</div>
+        <div><b>A ordem dá a tendência</b> (1, 5 e 15 min): <code class="inl">5,2 2,1 1,0</code> é pico subindo; <code class="inl">1,0 2,1 5,2</code> é pico que passou.</div>
+        <div><b>No Linux o load conta o estado D</b> — load alto com <code class="inl">us</code> baixo e <code class="inl">wa</code> alto é gargalo de <b>disco</b>, não de CPU.</div>
+        <div><code class="inl">lscpu</code> separa soquete × núcleo × thread: 8 CPUs com <i>hyper-threading</i> não são 8 unidades reais.</div>
+      </div>
+    </div>
+    <div class="coluna verde">
+      <h3>Swap &amp; o OOM killer</h3>
+      <ul>
+        <li><code class="inl">swappiness</code> (0–200) regula a <i>preferência</i> entre mover páginas e descartar cache — <b>não liga nem desliga</b> o swap.</li>
+        <li>Sinal confiável de pressão são <b>si/so</b> no <code class="inl">vmstat 2</code>, não o total de swap usado (pode ser resíduo antigo).</li>
+        <li>Sem memória, o kernel escolhe pelo <code class="inl">oom_score</code> e mata — <b>quase sempre o maior, não o culpado</b>.</li>
+        <li><code class="inl">sudo dmesg -T | grep -i oom</code> conta quem morreu e com quanto.</li>
+        <li><code class="inl">oom_score_adj</code> negativo protege o que não pode cair (o <code class="inl">sshd</code>); <code class="inl">-1000</code> é imunidade.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="secao-titulo">Limites: todo teto tem face flexível e rígida</div>
+  <section class="cards" style="--col:3">
+    <div class="card verde"><h3>Flexível × rígido</h3><p>O usuário eleva o <b>soft</b> até o <b>hard</b> e baixa à vontade; <b>só o root eleva o hard</b>. <code class="inl">ulimit -a</code> mostra os de agora, <code class="inl">-Ha</code> os tetos.</p></div>
+    <div class="card laranja"><h3><code class="inl">ulimit -n</code> é o campeão de incidentes</h3><p><i>Too many open files</i> sem outro sintoma: o padrão de <b>1024</b> descritores é baixo para serviço com carga — e para <code class="inl">nmap</code>.</p></div>
+    <div class="card azul"><h3>systemd não passa pelo PAM</h3><p>Mexer no <code class="inl">limits.conf</code> não afeta serviço: use <code class="inl">LimitNOFILE=</code> na unit. A verdade em vigor está em <code class="inl">/proc/PID/limits</code>.</p></div>
+  </section>
+
+  <div class="perigo"><b>Dois cuidados.</b> <code class="inl">mkswap</code> num <i>dispositivo</i> (<code class="inl">/dev/sda2</code>) formata a partição e apaga o que houver, sem perguntar — ensaie sempre com <b>arquivo</b>: <code class="inl">fallocate -l 1G /swapfile</code> → <code class="inl">chmod 600</code> → <code class="inl">mkswap</code> → <code class="inl">swapon</code>, e desfaça com <code class="inl">swapoff</code>. E <b>não digite a <i>fork bomb</i></b> <code class="inl">:(){ :|:&amp; };:</code> para “testar”: sem <code class="inl">nproc</code> configurado em <code class="inl">/etc/security/limits.d/</code>, ela trava a máquina até o reset físico.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>livre</b> perto de zero é saudável; a métrica é <b>disponível</b> (<code class="inl">MemAvailable</code>).</li>
+        <li>Load só faz sentido dividido pelo <code class="inl">nproc</code> — e inclui as tarefas travadas em E/S.</li>
+        <li><code class="inl">vmstat 2</code> (ignore a 1ª linha), <code class="inl">mpstat -P ALL</code>, <code class="inl">iostat -xz</code> e <code class="inl">pidstat</code> detalham a origem da carga.</li>
+        <li>OOM killer registra tudo no <code class="inl">dmesg -T</code>; proteja o essencial com <code class="inl">oom_score_adj</code>.</li>
+        <li><code class="inl">ulimit -u</code> contém <i>fork bomb</i>; <b>cgroups</b> (<code class="inl">MemoryMax=</code>, <code class="inl">systemd-cgtop</code>) contêm grupos inteiros.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">VM apertada + <code class="inl">rockyou</code> = OOM killer: cheque <code class="inl">free -h</code> e <code class="inl">swapon --show</code> <b>antes</b> do cracking. Varredura travando com <i>Too many open files</i> se resolve com <code class="inl">ulimit -n 65535</code> — <code class="inl">nmap</code> e <code class="inl">masscan</code> abrem milhares de conexões. Load alto durante scan é rede e E/S, não CPU: aumente menos a VM e reduza mais as threads da ferramenta. No <b>live USB</b> boa parte do sistema é <code class="inl">tmpfs</code> — o que você baixa em <code class="inl">/tmp</code> come RAM real, sem cache descartável. Em alvo autorizado, <code class="inl">uptime</code> de 400 dias significa kernel sem patch há mais de um ano (Lei 12.737/2012 vale para o resto).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 05 · Fase 2 <span class="n">032</span></span>
