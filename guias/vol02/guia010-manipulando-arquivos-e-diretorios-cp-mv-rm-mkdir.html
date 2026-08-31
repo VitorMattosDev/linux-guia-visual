@@ -3,101 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 010 — Manipulando arquivos e diretórios: cp, mv, rm, mkdir</title>
+<title>GUIA 010 — Manipulando arquivos: cp, mv, rm, mkdir</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: o que cada comando faz no nível do inode + a decisão do mv */
+  .painel { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .pnl { border:1.5px solid var(--linha); border-radius:var(--raio); padding:8px 9px; background:#fff; }
+  .pnl > b { display:block; font-family:var(--fonte-mono); font-size:11.5px; color:var(--navy);
+             text-align:center; margin-bottom:6px; }
+  .lig { display:grid; grid-template-columns:1fr 14px 1fr; align-items:center; gap:4px; margin-bottom:4px; }
+  .lig > i { color:var(--tinta-suave); font-style:normal; font-size:11px; text-align:center; }
+  .cx { font-family:var(--fonte-mono); font-size:10px; text-align:center; border-radius:4px;
+        padding:4px 2px; border:1.5px solid; }
+  .cx.nome { background:var(--azul-claro);     border-color:var(--azul);     color:var(--navy); }
+  .cx.ino  { background:var(--vermelho-claro); border-color:var(--vermelho); color:#8a1f1f; }
+  .cx.novo { background:var(--verde-claro);    border-color:var(--verde);    color:#1c6b34; }
+  .cx.morto{ background:#f2f4f7; border-color:#c3ccd8; color:#8a93a0; text-decoration:line-through; }
+  .cx.vazio{ background:transparent; border-color:transparent; color:var(--tinta-suave); }
+  .pnl > p { font-size:9.5px; color:var(--tinta-suave); line-height:1.35; margin-top:5px; }
+
+  .decisao { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .dec { border:1.5px solid var(--linha); border-top:4px solid var(--verde);
+         border-radius:var(--raio); padding:9px 10px; background:var(--verde-claro); }
+  .dec.mau { border-top-color:var(--vermelho); background:var(--vermelho-claro); }
+  .dec > b { display:block; font-family:var(--fonte-titulo); font-size:11px; color:var(--verde);
+             text-transform:uppercase; letter-spacing:.02em; }
+  .dec.mau > b { color:var(--vermelho); }
+  .dec > .res { display:block; font-family:var(--fonte-mono); font-size:11px; color:var(--navy); margin:4px 0 3px; }
+  .dec > span { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; display:block; }
+
+  .duplo { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start; }
+  .ops { display:flex; flex-direction:column; gap:5px; }
+  .op { border-left:4px solid var(--azul); background:var(--azul-claro);
+        border-radius:var(--raio-sm); padding:5px 9px; }
+  .op > b { font-family:var(--fonte-mono); font-size:11px; color:var(--navy); }
+  .op > span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+  .op.v { border-left-color:var(--verde);   background:var(--verde-claro); }
+  .op.l { border-left-color:var(--laranja); background:var(--laranja-claro); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 010</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Manipulando arquivos e diretórios: cp, mv, rm, mkdir</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Copiar, Mover<br>e Apagar</h1>
+      <div class="sub"><code class="inl">mv relatorio.md backups/</code> — se <code class="inl">backups</code> não existir, você não moveu nada: renomeou o relatório.</div>
     </div>
     <div class="badge"><b>010</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- NÍVEL DO INODE -->
+  <div class="secao-titulo">O nome e o conteúdo são coisas separadas</div>
+  <section class="painel">
+    <div class="pnl">
+      <b>cp a.txt b.txt</b>
+      <div class="lig"><span class="cx nome">a.txt</span><i>→</i><span class="cx ino">inode 42</span></div>
+      <div class="lig"><span class="cx nome">b.txt</span><i>→</i><span class="cx novo">inode 77</span></div>
+      <p>Dois nomes, <b>dois conteúdos</b>. É a operação cara: lê e escreve tudo, ocupa o dobro, demora conforme o tamanho.</p>
+    </div>
+    <div class="pnl">
+      <b>mv a.txt b.txt</b>
+      <div class="lig"><span class="cx nome">b.txt</span><i>→</i><span class="cx ino">inode 42</span></div>
+      <div class="lig"><span class="cx morto">a.txt</span><i></i><span class="cx vazio">nome removido</span></div>
+      <p>Só a <b>entrada de diretório</b> muda. Instantâneo e <b>atômico</b> mesmo com 40 GB — entre discos diferentes, porém, vira cópia + remoção.</p>
+    </div>
+    <div class="pnl">
+      <b>rm a.txt</b>
+      <div class="lig"><span class="cx morto">a.txt</span><i>✕</i><span class="cx ino">inode 42</span></div>
+      <div class="lig"><span class="cx vazio">links 1 → 0</span><i>→</i><span class="cx novo">blocos liberados</span></div>
+      <p>Apaga um <b>nome</b>. O conteúdo só é liberado quando nenhum nome <b>e nenhum processo</b> apontam para ele — por isso apagar log em uso não devolve espaço.</p>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- DECISÃO DO MV -->
+  <div class="secao-titulo"><code class="inl">mv origem destino</code> — o destino existe?</div>
+  <section class="decisao">
+    <div class="dec">
+      <b>Não existe</b>
+      <span class="res">→ renomeia para <b>destino</b></span>
+      <span>É o caso que morde: um diretório digitado errado vira um arquivo com nome de diretório, em silêncio.</span>
+    </div>
+    <div class="dec">
+      <b>Existe e é diretório</b>
+      <span class="res">→ move para <b>destino/origem</b></span>
+      <span>O que você queria. <b>Termine o destino com barra</b> — <code class="inl">mv x backups/</code> — e o caso da esquerda vira erro em vez de surpresa.</span>
+    </div>
+    <div class="dec mau">
+      <b>Existe e é arquivo</b>
+      <span class="res">→ <b>sobrescreve</b> sem aviso</span>
+      <span>Não há confirmação, não há lixeira. Antídotos: <code class="inl">-i</code> pergunta, <code class="inl">-n</code> nunca sobrescreve, <code class="inl">--backup=numbered</code> guarda o antigo.</span>
+    </div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- OPÇÕES + REFLEXOS -->
+  <div class="secao-titulo">As opções que mudam o resultado</div>
+  <section class="duplo">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Opção</th><th>Vale para</th><th>O que faz</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>-i</code> / <code>-I</code></td><td>cp mv rm</td><td>Pergunta a cada arquivo / <b>uma vez</b> pelo lote</td></tr>
+        <tr><td><code>-n</code></td><td>cp mv</td><td>Nunca sobrescreve, e não pergunta</td></tr>
+        <tr><td><code>-r</code></td><td>cp rm</td><td>Recursivo — obrigatório para diretório</td></tr>
+        <tr><td><code>-a</code></td><td>cp</td><td><b>Arquivamento</b>: <code>-r</code> + preserva data, dono, permissão e links</td></tr>
+        <tr><td><code>-u</code></td><td>cp mv</td><td>Só age se a origem for mais nova</td></tr>
+        <tr><td><code>-p</code></td><td>mkdir</td><td>Cria a cadeia toda e <b>não reclama se já existir</b></td></tr>
       </tbody>
     </table>
+    <div class="ops">
+      <div class="op v"><b>cmd &gt; cfg.novo &amp;&amp; mv cfg.novo cfg</b><span>Gere ao lado e mova por cima: ninguém jamais lê um arquivo pela metade.</span></div>
+      <div class="op"><b>rmdir vazio</b><span>Só remove diretório vazio — a recusa <i>é</i> o recurso de segurança.</span></div>
+      <div class="op"><b>rename -n 's/\.jpeg$/\.jpg/' *.jpeg</b><span>Renomeia em lote; o <code class="inl">-n</code> simula. Rode sempre com ele antes.</span></div>
+      <div class="op"><b>rsync -av --dry-run orig/ dest/</b><span>Árvore grande, retomável, só o que mudou. <b>Aqui a barra final muda tudo</b>: com ela copia o conteúdo, sem ela cria <code class="inl">dest/orig</code>.</span></div>
+      <div class="op l"><b>stat arq · touch -d "2020-01-01" arq</b><span><b>mtime</b> conteúdo · <b>atime</b> leitura · <b>ctime</b> metadados. O <code class="inl">ctime</code> não se falsifica pelo <code class="inl">touch</code>: <code class="inl">ctime</code> mais novo que <code class="inl">mtime</code> denuncia carimbo alterado.</span></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo">
+    <b>Não existe lixeira, e o <code class="inl">rm -rf</code> não pede licença.</b> Ritual antes de todo comando destrutivo: <b>1.</b> <code class="inl">pwd</code> — onde estou? <b>2.</b> <code class="inl">ls -la alvo/</code> — é isto mesmo? <b>3.</b> só então o <code class="inl">rm</code>. Ou troque o passo 2 por <code class="inl">echo rm -rf "$DIR"/*</code>: o <code class="inl">echo</code> imprime a linha <b>já expandida</b>, sem executar. Quatro linhas que já destruíram sistemas reais: <code class="inl">rm -rf / caminho/</code> (o espaço apaga a raiz) · <code class="inl">rm -rf "$DIR"/*</code> com <code class="inl">$DIR</code> vazia vira <code class="inl">rm -rf /*</code> · <code class="inl">cd /alvo ; rm -rf *</code> se o <code class="inl">cd</code> falhar (use <code class="inl">&amp;&amp;</code>) · <code class="inl">rm -rf .*</code>. O <code class="inl">--preserve-root</code> é padrão, mas cobre só a raiz literal — <code class="inl">/*</code> passa.
+  </div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">cp</code> duplica conteúdo · <code class="inl">mv</code> mexe só no nome · <code class="inl">rm</code> remove um nome.</li>
+        <li>Destino com <b>barra final</b> transforma o erro silencioso do <code class="inl">mv</code> em mensagem.</li>
+        <li><code class="inl">mkdir -p</code> é idempotente — obrigatório em script com <code class="inl">set -e</code>.</li>
+        <li>Backup ou evidência é sempre <code class="inl">cp -a</code>: sem ele, tudo é carimbado com a data de hoje.</li>
+        <li><code class="inl">rm -I</code> (maiúsculo) pergunta <b>uma vez</b> pelo lote — o meio-termo que se usa de verdade.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Não adote <code class="inl">alias rm='rm -i'</code>.</b> Na VM funciona; num shell de máquina-alvo autorizada o alias não existe e o reflexo falha — e <code class="inl">rm -f</code> ignora o <code class="inl">-i</code> em silêncio. Prefira <code class="inl">trash-cli</code> com um alias <b>novo</b> (<code class="inl">alias lixo='trash-put'</code>), deixando o <code class="inl">rm</code> ser o que ele é. <b>Coleta de evidência é <code class="inl">cp -a</code> ou <code class="inl">rsync -a</code></b>: preservar data, dono e permissão faz parte da integridade do material. Para imagem de disco, nem um nem outro — é <code class="inl">dcfldd</code>, que já vem no Kali e calcula o hash durante a cópia (confira o alvo com <code class="inl">lsblk</code> antes; Vol 8). Wordlist: descompacte em <code class="inl">/tmp</code> ou no seu <code class="inl">~</code> com <code class="inl">gunzip -k</code>, <b>nunca dentro de <code class="inl">/usr/share</code></b>, que é território do gerenciador de pacotes.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 02 · Fase 1 <span class="n">010</span></span>
