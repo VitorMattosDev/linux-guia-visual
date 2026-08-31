@@ -3,101 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 027 — O que é um processo: PID, estados e a árvore</title>
+<title>GUIA 027 — O que é um processo</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Ciclo fork → exec → exit → wait */
+  .ciclo { display:flex; align-items:center; gap:6px; }
+  .ciclo .cx { flex:1; border:1.5px solid var(--linha); border-top:4px solid var(--azul);
+               border-radius:var(--raio); padding:7px 8px; text-align:center; background:var(--papel); }
+  .ciclo .cx b { display:block; font-family:var(--fonte-mono); font-size:12.5px; color:var(--navy); }
+  .ciclo .cx span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.3; margin-top:2px; }
+  .ciclo .cx.v { border-top-color:var(--verde); background:var(--verde-claro); }
+  .ciclo .cx.l { border-top-color:var(--laranja); background:var(--laranja-claro); }
+  .ciclo .cx.r { border-top-color:var(--vermelho); background:var(--vermelho-claro); }
+  .ciclo .sg { color:var(--azul); font-weight:700; font-size:9px; font-family:var(--fonte-mono); flex:none; text-align:center; }
+
+  /* Árvore de processos */
+  .duo { display:grid; grid-template-columns: 1.05fr 1fr; gap:10px; align-items:start; }
+  .arvore { border:1.5px solid var(--linha); border-radius:var(--raio); padding:8px 10px; background:var(--papel-tint); }
+  .arvore .no { font-family:var(--fonte-mono); font-size:10.5px; padding:1.5px 0; white-space:nowrap; }
+  .arvore .no i { color:var(--linha); font-style:normal; }
+  .arvore .no b { border-radius:4px; padding:1px 6px; color:#fff; font-weight:700; }
+  .arvore .b-raiz{ background:var(--vermelho); } .arvore .b-serv{ background:#5b6b7d; }
+  .arvore .b-ses { background:var(--azul); }     .arvore .b-usr { background:var(--verde); }
+  .arvore .pid { color:var(--tinta-suave); }
+  .arvore .leg { font-size:9.5px; color:var(--tinta-suave); margin-top:5px; line-height:1.3; }
+
+  /* Tabela /proc compacta */
+  .proc { border:1.5px solid var(--linha); border-radius:var(--raio); overflow:hidden; }
+  .proc .cab { background:var(--navy); color:#fff; font-family:var(--fonte-titulo); font-size:10px;
+               text-transform:uppercase; letter-spacing:.04em; padding:5px 9px; }
+  .proc .li { display:flex; gap:8px; padding:3.5px 9px; border-bottom:1px solid var(--linha); font-size:10px; }
+  .proc .li:last-child { border-bottom:0; }
+  .proc .li:nth-child(odd) { background:var(--papel-tint); }
+  .proc .li code { font-family:var(--fonte-mono); color:var(--navy); font-weight:700; flex:none; width:64px; font-size:10px; }
+  .proc .li span { color:var(--tinta-suave); line-height:1.3; }
+
+  /* Estados STAT */
+  .estados { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }
+  .est { border:1.5px solid var(--linha); border-radius:var(--raio); padding:6px 7px; text-align:center; }
+  .est .lt { font-family:var(--fonte-mono); font-weight:700; font-size:20px; line-height:1.1; }
+  .est .nm { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; color:var(--navy); letter-spacing:.02em; }
+  .est p { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; margin-top:2px; }
+  .est.r { border-color:var(--verde); }    .est.r .lt { color:var(--verde); }
+  .est.s { border-color:var(--azul); }     .est.s .lt { color:var(--azul); }
+  .est.d { border-color:var(--vermelho); background:var(--vermelho-claro); } .est.d .lt { color:var(--vermelho); }
+  .est.t { border-color:var(--laranja); }  .est.t .lt { color:var(--laranja); }
+  .est.z { border-color:var(--roxo); background:var(--roxo-claro); } .est.z .lt { color:var(--roxo); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 027</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>O que é um processo: PID, estados e a árvore</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>O que é<br>um Processo</h1>
+      <div class="sub">PID, estados e a árvore — o que você realmente procura quando a máquina engasga.</div>
     </div>
     <div class="badge"><b>027</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- FORK + EXEC -->
+  <div class="secao-titulo">Como um processo nasce: <code class="inl">fork</code> + <code class="inl">exec</code></div>
+  <section class="ciclo">
+    <div class="cx"><b>bash · 2140</b><span>O shell vai rodar <b>ls</b></span></div>
+    <span class="sg">fork()<br>→</span>
+    <div class="cx v"><b>cópia · 2311</b><span>Clone do shell; o pai espera em <b>wait()</b></span></div>
+    <span class="sg">exec()<br>→</span>
+    <div class="cx l"><b>ls · 2311</b><span>Troca a imagem, <b>mantém o PID</b></span></div>
+    <span class="sg">exit<br>→</span>
+    <div class="cx r"><b>SIGCHLD</b><span>Pai colhe o código de saída</span></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- ÁRVORE + /proc -->
+  <div class="secao-titulo">A árvore enraizada no PID 1 &amp; o <code class="inl">/proc</code> que a expõe</div>
+  <section class="duo">
+    <div class="arvore">
+      <div class="no"><b class="b-raiz">systemd</b> <span class="pid">(1)</span></div>
+      <div class="no"><i>├─</i> <b class="b-serv">sshd</b> <span class="pid">(729)</span></div>
+      <div class="no"><i>├─</i> <b class="b-serv">cron</b> <span class="pid">(645)</span></div>
+      <div class="no"><i>└─</i> <b class="b-ses">lightdm</b> <span class="pid">(701)</span></div>
+      <div class="no"><i>&nbsp;&nbsp;&nbsp;└─</i> <b class="b-ses">xfce4-terminal</b> <span class="pid">(1330)</span></div>
+      <div class="no"><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─</i> <b class="b-usr">bash</b> <span class="pid">(1342)</span></div>
+      <div class="no"><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─</i> <b class="b-usr">find</b> <span class="pid">(1501)</span></div>
+      <div class="leg"><b>PPID</b> é o pai; <code class="inl">pstree -sp PID</code> sobe a linhagem até o 1. <b>Shell filho de servidor web</b> = alerta clássico de invasão.</div>
+    </div>
+    <div class="proc">
+      <div class="cab">/proc/&lt;PID&gt;/ — a tabela como arquivos</div>
+      <div class="li"><code>status</code><span>Estado, PPID, UIDs, memória, threads</span></div>
+      <div class="li"><code>cmdline</code><span>Linha de comando (campos com byte nulo)</span></div>
+      <div class="li"><code>exe</code><span>Link para o binário real — não mente</span></div>
+      <div class="li"><code>cwd</code><span>Diretório de trabalho atual</span></div>
+      <div class="li"><code>fd/</code><span>Um link por descritor aberto</span></div>
+      <div class="li"><code>task/</code><span>Um subdiretório por <i>thread</i> (TID)</span></div>
+      <div class="li"><code>environ</code><span>Ambiente — inclui segredos vazados</span></div>
+    </div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+  <!-- ESTADOS -->
+  <div class="secao-titulo">A coluna <code class="inl">STAT</code>: em que estado ele está</div>
+  <section class="estados">
+    <div class="est r"><div class="lt">R</div><div class="nm">Rodando</div><p>Na CPU ou pronto na fila.</p></div>
+    <div class="est s"><div class="lt">S</div><div class="nm">Dormindo</div><p>Espera evento. O normal.</p></div>
+    <div class="est d"><div class="lt">D</div><div class="nm">E/S travada</div><p>Ignora sinais — nem <b>kill -9</b>.</p></div>
+    <div class="est t"><div class="lt">T</div><div class="nm">Parado</div><p>Levou <b>SIGSTOP</b>/<b>SIGTSTP</b>.</p></div>
+    <div class="est z"><div class="lt">Z</div><div class="nm">Zumbi</div><p>Morreu; o pai não colheu.</p></div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- NA PRÁTICA -->
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> pgrep -a sshd            <span class="cmt"># PID + linha de comando; nunca casa consigo mesmo</span>
+<span class="out">729 /usr/sbin/sshd -D</span>
+<span class="prompt">$</span> ps -p $$ -o pid,ppid,stat,comm
+<span class="out">  PID  PPID STAT COMMAND
+ 1342  1330 Ss   bash</span>
+<span class="prompt">$</span> ls -l /proc/1501/exe     <span class="cmt"># "(deleted)" aqui = binário apagado após subir</span>
+<span class="out">lrwxrwxrwx 1 kali kali 0 ago 31 10:22 /proc/1501/exe -&gt; /usr/bin/find</span>
+<span class="prompt">$</span> tr '\0' '\n' &lt; /proc/1501/cmdline   <span class="cmt"># separador é byte nulo, não espaço</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
+  <div class="perigo"><b>Cuidado com <code class="inl">fuser -k /caminho</code>:</b> ele sinaliza <i>todos</i> os processos que tocam o caminho — num diretório movimentado (ou por engano em <code class="inl">/</code>) derruba a sessão inteira. Rode primeiro sem <code class="inl">-k</code>, leia a lista, depois decida.</div>
 
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Programa é arquivo em disco; <b>processo</b> é uma execução viva com PID, dono e memória próprios.</li>
+        <li><code class="inl">fork</code> duplica, <code class="inl">exec</code> troca a imagem <b>mantendo o PID</b> — por isso o shell sobrevive ao comando.</li>
+        <li>Em <b>D</b> nem <code class="inl">kill -9</code> funciona: resolva a E/S. <b>Z</b> já morreu — mate o <i>pai</i>.</li>
+        <li>Órfão não morre: é adotado pelo PID 1 (passa a exibir PPID 1).</li>
+        <li><code class="inl">pgrep</code>/<code class="inl">pstree</code> por nome; <code class="inl">lsof</code>/<code class="inl">fuser</code> por arquivo ou porta.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><code class="inl">pstree -pa</code> é o primeiro reflexo de triagem: responde <i>quem chamou isso</i>. E <b>nunca passe segredo em argumento</b> — <code class="inl">mysql -psenha</code> fica visível em <code class="inl">/proc/&lt;PID&gt;/cmdline</code> para qualquer usuário, que é exatamente o que <i>pspy</i> e <i>LinPEAS</i> colhem. Uso só em laboratório próprio ou com autorização escrita (Lei 12.737/2012).<br><br>Ferramenta do Kali cria árvore profunda de propósito (NSE do <code class="inl">nmap</code>, workers do <code class="inl">metasploit</code>): antes de dizer que um processo enlouqueceu, olhe as <b>threads</b> com <code class="inl">ps -L</code> ou <code class="inl">H</code> no htop.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 05 · Fase 2 <span class="n">027</span></span>
