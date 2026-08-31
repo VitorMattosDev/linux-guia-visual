@@ -23,7 +23,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 011** - Visualizando conteúdo: cat, less, head, tail e more - `guias/vol02/guia011-visualizando-conteudo-cat-less-head-tail-e-more.html`
 - [x] **guia 012** - Redirecionamento e pipes: stdin, stdout e stderr - `guias/vol02/guia012-redirecionamento-e-pipes-stdin-stdout-e-stderr.html`
 - [x] **guia 013** - Curingas, globbing e expansão de chaves - `guias/vol02/guia013-curingas-globbing-e-expansao-de-chaves.html`
-- [ ] **guia 014** - Histórico, atalhos de teclado e produtividade - `guias/vol02/guia014-historico-atalhos-de-teclado-e-produtividade.html`
+- [x] **guia 014** - Histórico, atalhos de teclado e produtividade - `guias/vol02/guia014-historico-atalhos-de-teclado-e-produtividade.html`
 
 ### Volume 3 — Arquivos e o Sistema de Arquivos
 

@@ -3,101 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 014 — Histórico, atalhos de teclado e produtividade</title>
+<title>GUIA 014 — Histórico, atalhos e produtividade</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a linha de comando e as regiões de cada atalho */
+  .linha { display:flex; flex-direction:column; gap:4px; }
+  .toks, .bars { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; }
+  .tk { background:var(--papel-tint); border:1px solid var(--linha); border-radius:4px;
+        text-align:center; font-family:var(--fonte-mono); font-size:11px; color:var(--navy); padding:5px 2px; }
+  .tk.cur { border-right:3px solid var(--vermelho); position:relative; }
+  .tk.cur::after { content:"cursor"; position:absolute; right:-4px; top:-11px;
+                   font-family:var(--fonte-texto); font-size:8px; color:var(--vermelho); font-weight:700; }
+  .br { border-radius:4px; padding:3px 7px; font-family:var(--fonte-mono); font-size:9.5px;
+        color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .b-az { background:var(--azul); } .b-la { background:var(--laranja); }
+  .b-ve { background:var(--verde); } .b-ro { background:var(--roxo); }
+  .b-ci { background:#8a93a0; }
+
+  .duplo { display:grid; grid-template-columns:1fr 1.05fr; gap:12px; align-items:start; }
+  .ops { display:flex; flex-direction:column; gap:5px; }
+  .op { border-left:4px solid var(--azul); background:var(--azul-claro);
+        border-radius:var(--raio-sm); padding:5px 9px; }
+  .op > b { font-family:var(--fonte-mono); font-size:11px; color:var(--navy); }
+  .op > span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+  .op.v { border-left-color:var(--verde);    background:var(--verde-claro); }
+  .op.l { border-left-color:var(--laranja);  background:var(--laranja-claro); }
+  .op.r { border-left-color:var(--roxo);     background:var(--roxo-claro); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 014</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Histórico, atalhos de teclado e produtividade</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Histórico e<br>Atalhos</h1>
+      <div class="sub">Errou o fim de uma linha de noventa caracteres? Não segure a seta nem apague tudo. E, no fim das contas, nem precisava redigitar: <code class="inl">!!</code> repete.</div>
     </div>
     <div class="badge"><b>014</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
+  <!-- A LINHA COMO EDITOR -->
+  <div class="secao-titulo">A linha é um editor — e o que cada atalho apaga depende do cursor</div>
+  <section class="linha">
+    <div class="toks">
+      <span class="tk">nmap</span><span class="tk">-sV</span><span class="tk">--top-ports</span>
+      <span class="tk cur">1000</span><span class="tk">alvo.local</span>
+    </div>
+    <div class="bars">
+      <span class="br b-ci" style="grid-column:1/5">◀ Ctrl+A — início da linha</span>
+      <span class="br b-ci" style="grid-column:5/6">Ctrl+E ▶</span>
+    </div>
+    <div class="bars">
+      <span class="br b-az" style="grid-column:4/5">Ctrl+W</span>
+      <span class="br b-ve" style="grid-column:5/6">Ctrl+K — até o fim</span>
+    </div>
+    <div class="bars">
+      <span class="br b-la" style="grid-column:1/5">Ctrl+U — do início até o cursor</span>
+      <span class="br b-ro" style="grid-column:5/6">Ctrl+Y cola de volta</span>
+    </div>
+  </section>
+
+  <!-- ONDE O HISTÓRICO MORA -->
+  <div class="secao-titulo">Por que o histórico às vezes some</div>
   <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo"><span class="num">1</span><h3>Você digita</h3><p>A linha entra na sessão assim que você aperta Enter.</p></div>
     <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo laranja"><span class="num">2</span><h3>Lista em memória</h3><p>Limite: <code class="inl">HISTSIZE</code>. É daqui que vêm <code class="inl">Ctrl+R</code> e a seta para cima.</p></div>
     <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo verde"><span class="num">3</span><h3>Arquivo, só ao sair</h3><p><code class="inl">HISTFILE</code>, limite <code class="inl">SAVEHIST</code>. <b>Com duas abas abertas, a última a fechar sobrescreve</b> — e apaga o histórico da outra.</p></div>
     <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo roxo"><span class="num">4</span><h3>A correção</h3><p><code class="inl">setopt INC_APPEND_HISTORY SHARE_HISTORY EXTENDED_HISTORY</code> (Zsh) · <code class="inl">shopt -s histappend</code> + <code class="inl">PROMPT_COMMAND='history -a'</code> (Bash).</p></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- ATALHOS + REUSO -->
+  <div class="secao-titulo">O que se aprende uma vez e rende pelo resto da vida</div>
+  <section class="duplo">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Atalho</th><th>Faz</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>Alt+B</code> / <code>Alt+F</code></td><td>Anda uma <b>palavra</b> para trás / para frente</td></tr>
+        <tr><td><code>Alt+.</code></td><td><b>Insere o último argumento</b> do comando anterior — repita para percorrer os anteriores</td></tr>
+        <tr><td><code>Alt+D</code></td><td>Apaga a palavra <i>depois</i> do cursor</td></tr>
+        <tr><td><code>Ctrl+T</code> / <code>Alt+T</code></td><td>Troca os dois caracteres / as duas palavras em torno do cursor</td></tr>
+        <tr><td><code>Ctrl+_</code></td><td>Desfaz a última edição</td></tr>
+        <tr><td><code>Ctrl+L</code></td><td>Limpa a tela mantendo a linha em edição</td></tr>
+        <tr><td><code>Ctrl+X Ctrl+E</code></td><td>Abre a linha no <code>$EDITOR</code>; ao salvar, o shell executa</td></tr>
+        <tr><td><code>Ctrl+R</code></td><td><b>Busca reversa</b>. De novo = ocorrência anterior · seta = editar · <code>Ctrl+G</code> = cancelar</td></tr>
       </tbody>
     </table>
+    <div class="ops">
+      <div class="op v"><b>apt update → sudo !!</b><span><code class="inl">!!</code> repete a linha inteira. O idioma mais usado do histórico.</span></div>
+      <div class="op v"><b>mkdir -p a/b/c → cd !$</b><span><code class="inl">!$</code> é o último argumento · <code class="inl">!^</code> o primeiro · <code class="inl">!*</code> todos · <code class="inl">!nmap</code> o último que começou assim.</span></div>
+      <div class="op l"><b>^sysog^syslog</b><span>Repete o anterior trocando a <b>primeira</b> ocorrência do texto. Conserta erro de digitação sem redigitar nada.</span></div>
+      <div class="op l"><b>!!:p</b><span><b>Mostra sem executar</b>, e deixa a linha na seta para cima. Use antes de todo <code class="inl">!!</code> que envolva <code class="inl">sudo</code> ou <code class="inl">rm</code>.</span></div>
+      <div class="op x" style="border-left-color:var(--vermelho);background:var(--vermelho-claro)"><b>Ctrl+S congela · Ctrl+Q descongela</b><span>O motivo nº 1 de "meu terminal travou": a mão vai no <code class="inl">Ctrl+S</code> de salvar e o controle de fluxo para a <b>exibição</b> — o programa segue rodando. <code class="inl">stty -ixon</code> no <code class="inl">~/.zshrc</code> desliga o susto de vez. (<code class="inl">Ctrl+C</code>, <code class="inl">Ctrl+Z</code>, <code class="inl">Ctrl+D</code> e estes dois são do <b>driver do terminal</b>, não do shell — por isso funcionam com o programa ocupado.)</span></div>
+      <div class="op r"><b>alias ll='ls -lah' · mkcd() &#123; mkdir -p "$1" &amp;&amp; cd "$1"; &#125;</b><span>Alias para o que se repete; <b>função</b> quando precisa de argumento — alias não recebe. E <code class="inl">fzf</code> troca o <code class="inl">Ctrl+R</code> por busca difusa no histórico inteiro.</span></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo">
+    <b>Tudo o que você digita fica em texto puro no histórico — senha inclusive.</b> <code class="inl">mysql -u root -pSenha123</code>, <code class="inl">curl -u admin:senha</code>, <code class="inl">hydra</code>, <code class="inl">sshpass</code>: todos deixam rastro em <code class="inl">~/.zsh_history</code>. Defesas: <b>um espaço antes do comando</b> com <code class="inl">HIST_IGNORE_SPACE</code> ativo, o <code class="inl">HISTIGNORE='*password*:*token*'</code> do Bash, ou o prompt interativo da própria ferramenta. <b>A outra ponta também vale:</b> num sistema que não é seu, o histórico é <b>evidência</b> — apagá-lo é ação registrada e, fora de escopo autorizado, crime no Brasil (Lei 12.737/2012). Do lado defensivo, é um dos primeiros arquivos que a resposta a incidente examina.
+  </div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">Ctrl+R</code> é o atalho de maior retorno da ficha; <code class="inl">Alt+.</code> é o segundo.</li>
+        <li>Sem gravação incremental, a <b>última aba a fechar vence</b> e leva o histórico das outras.</li>
+        <li><code class="inl">HISTTIMEFORMAT</code> / <code class="inl">EXTENDED_HISTORY</code> transformam o histórico numa linha do tempo do seu trabalho.</li>
+        <li><b>Tab é contextual:</b> <code class="inl">apt install</code> completa pacotes, <code class="inl">systemctl</code> unidades, <code class="inl">git checkout</code> ramos. Tab duas vezes lista.</li>
+        <li><code class="inl">watch -d -n 2 'ls -lh coleta/'</code> repete e <b>destaca o que mudou</b>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O Zsh do Kali já faz <b>busca por prefixo nas setas</b>: digite <code class="inl">nmap</code> e a seta para cima percorre só os comandos que começam assim — o recurso que mais economiza tempo depois do <code class="inl">Ctrl+R</code>. E aceita caminho abreviado: <code class="inl">cd /u/s/w</code> + <kbd>Tab</kbd> vira <code class="inl">/usr/share/wordlists</code>. O <code class="inl">kali-tweaks</code> <b>não</b> configura histórico — é edição manual, e acrescente ao <b>fim</b> do <code class="inl">~/.zshrc</code>. <code class="inl">EXTENDED_HISTORY</code> vira insumo direto de relatório num teste autorizado: o que rodou, contra quem e quando (combine com <code class="inl">script -T tempo.log sessao.log</code> para gravar a sessão inteira, saída incluída). E <b><code class="inl">Ctrl+C</code> numa varredura longa perde o progresso</b>: comece sempre com <code class="inl">-oA</code>/<code class="inl">-o</code> — só com saída em arquivo o <code class="inl">--resume</code> funciona — e prefira <code class="inl">tmux</code> a deixar a varredura presa à aba.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 02 · Fase 1 <span class="n">014</span></span>
