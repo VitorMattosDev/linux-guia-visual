@@ -3,101 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 018 — Compactação e arquivamento: tar, gzip, xz e zip</title>
+<title>GUIA 018 — Compactação e arquivamento</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: tar+gzip × zip, e o decodificador das letras do tar */
+  .filos { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .via { border:1.5px solid var(--linha); border-top:4px solid var(--azul); border-radius:10px; background:#fff; padding:7px 9px 8px; }
+  .via.zip { border-top-color:var(--laranja); }
+  .via > h3 { font-family:var(--fonte-titulo); font-size:13px; text-transform:uppercase; letter-spacing:.03em;
+              color:var(--azul); text-align:center; }
+  .via.zip > h3 { color:var(--laranja); }
+  .fluxinho { display:flex; align-items:center; justify-content:center; gap:5px; margin:6px 0 6px; }
+  .fluxinho .st { color:var(--tinta-suave); font-size:13px; font-weight:700; }
+  .pilha { display:flex; flex-direction:column; gap:3px; }
+  .arq { font-family:var(--fonte-mono); font-size:9px; border:1.5px solid var(--linha); background:var(--papel-tint);
+         border-radius:5px; padding:3px 6px; text-align:center; color:var(--tinta); }
+  .arq.mini { border-color:var(--verde); background:var(--verde-claro); color:var(--verde); font-weight:700; }
+  .pack { border-radius:7px; padding:6px 8px; font-size:9px; text-align:center; line-height:1.3;
+          border:1.5px solid var(--azul); background:var(--azul-claro); color:var(--navy); }
+  .pack b { display:block; font-family:var(--fonte-mono); font-size:10.5px; }
+  .pack.g { border-color:var(--verde); background:var(--verde-claro); }
+  .pack.z { border-color:var(--laranja); background:var(--laranja-claro); }
+  .via p.nota { font-size:9.5px; color:var(--tinta-suave); line-height:1.35; text-align:center; }
+  /* decodificador das letras do tar */
+  .tarline { display:flex; align-items:flex-start; justify-content:center; gap:5px; }
+  .fl { text-align:center; }
+  .fl .k { display:block; font-family:var(--fonte-mono); font-weight:700; font-size:16px; color:#fff;
+           border-radius:6px; padding:4px 9px; }
+  .fl .d { display:block; font-size:8.5px; color:var(--tinta-suave); margin-top:4px; line-height:1.2; max-width:88px; }
+  .k-cmd { background:#5b6b7d } .k-c { background:var(--verde) } .k-z { background:var(--azul) }
+  .k-f { background:var(--laranja) } .k-n { background:var(--navy) } .k-d { background:var(--roxo) }
+  .opcoes { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:7px; }
+  .op { border:1.5px solid var(--linha); border-radius:7px; background:var(--papel-tint); padding:4px 6px; text-align:center; }
+  .op b { display:block; font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); word-break:break-all; }
+  .op span { display:block; font-size:8.5px; color:var(--tinta-suave); line-height:1.2; margin-top:2px; }
+  /* tabela + terminal lado a lado */
+  .escolher { display:grid; grid-template-columns:.95fr 1.25fr; gap:10px; align-items:start; }
+  .escolher table.comparacao { font-size:10px; }
+  .escolher table.comparacao tbody td { padding:5px 7px; }
+  .escolher table.comparacao thead th { padding:6px 7px; font-size:9.5px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 018</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Compactação e arquivamento: tar, gzip, xz e zip</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Compactar<br>e Arquivar</h1>
+      <div class="sub">Um <i>tarbomb</i> despeja duzentos arquivos soltos no seu <code class="inl">~</code> — e a prevenção custa dois segundos.</div>
     </div>
     <div class="badge"><b>018</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- DUAS FILOSOFIAS -->
+  <div class="secao-titulo">Arquivar não é comprimir</div>
+  <section class="filos">
+    <div class="via">
+      <h3>tar &nbsp;→&nbsp; gzip</h3>
+      <div class="fluxinho">
+        <div class="pilha"><span class="arq">a.txt</span><span class="arq">b.txt</span><span class="arq">c.txt</span></div>
+        <span class="st">→</span>
+        <div class="pack"><b>.tar</b>um fluxo<br>contínuo</div>
+        <span class="st">→</span>
+        <div class="pack g"><b>.tar.gz</b>comprimido<br><b style="font-family:inherit">inteiro</b></div>
+      </div>
+      <p class="nota">Comprime <b>melhor</b>: repetições entre arquivos diferentes são aproveitadas. Em troca, tirar <i>um</i> arquivo obriga a descomprimir tudo até ele.</p>
+    </div>
+    <div class="via zip">
+      <h3>zip</h3>
+      <div class="fluxinho">
+        <div class="pilha"><span class="arq">a.txt</span><span class="arq">b.txt</span><span class="arq">c.txt</span></div>
+        <span class="st">→</span>
+        <div class="pilha"><span class="arq mini">a.gz</span><span class="arq mini">b.gz</span><span class="arq mini">c.gz</span></div>
+        <span class="st">→</span>
+        <div class="pack z"><b>.zip</b>índice +<br>blocos soltos</div>
+      </div>
+      <p class="nota">Comprime <b>pior</b>, mas o índice lê ou troca <i>um</i> arquivo sem tocar no resto — e é o formato que todo sistema abre.</p>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- AS LETRAS DO TAR -->
+  <div class="secao-titulo">As letras do <code class="inl">tar</code></div>
   <section>
+    <div class="tarline">
+      <div class="fl"><span class="k k-cmd">tar</span><span class="d">arquivador</span></div>
+      <div class="fl"><span class="k k-c">-c</span><span class="d"><b>c</b>reate · <b>t</b>able lista · e<b>x</b>tract extrai</span></div>
+      <div class="fl"><span class="k k-z">z</span><span class="d">gzip · <b>j</b> bzip2 · <b>J</b> xz · <b>a</b> pelo sufixo</span></div>
+      <div class="fl"><span class="k k-f">f</span><span class="d">o próximo argumento é o arquivo — sempre por último</span></div>
+      <div class="fl"><span class="k k-n">pacote.tar.gz</span><span class="d">o pacote; <code>-</code> = stdin/stdout</span></div>
+      <div class="fl"><span class="k k-d">dir/</span><span class="d">o que entra. Ao extrair, o tar detecta a compressão sozinho</span></div>
+    </div>
+    <div class="opcoes">
+      <div class="op"><b>-tvf</b><span>liste antes de extrair</span></div>
+      <div class="op"><b>-C /destino</b><span>extrai <i>em</i> outro diretório</span></div>
+      <div class="op"><b>--strip-components=1</b><span>descarta o nível de topo</span></div>
+      <div class="op"><b>--exclude='.git'</b><span>corta o que não interessa</span></div>
+      <div class="op"><b>-p</b><span>preserva permissões</span></div>
+    </div>
+  </section>
+
+  <!-- ESCOLHER O COMPRESSOR + PRÁTICA -->
+  <div class="secao-titulo">Qual compressor — e na prática</div>
+  <section class="escolher">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Compressor</th><th>Taxa</th><th>Quando usar</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>gzip</code> .gz</td><td>modesta</td><td>compatibilidade universal</td></tr>
+        <tr><td><code>zstd</code> .zst</td><td>ótima</td><td>o dia a dia: rápido dos dois lados</td></tr>
+        <tr><td><code>xz</code> .xz</td><td>excelente</td><td>comprime 1×, baixado muitas</td></tr>
+        <tr><td><code>bzip2</code> .bz2</td><td>boa</td><td>só legado; lento</td></tr>
       </tbody>
     </table>
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> tar -tvf desconhecido.tar.gz | head <span class="cmt"># LISTE</span>
+<span class="out">drwxr-xr-x kali/kali 0 projeto/</span> <span class="cmt"># raiz unica: ok</span>
+<span class="prompt">$</span> tar -xf desconhecido.tar.gz -C /tmp/inspecao
+<span class="prompt">$</span> zgrep "Failed password" /var/log/auth.log.*.gz
+<span class="prompt">$</span> zcat rockyou.txt.gz | head -100000 &gt; curta.txt
+<span class="prompt">$</span> tar -cf - dir/ | zstd -T0 | ssh host \
+    'zstd -d | tar -xf - -C /dst'  <span class="cmt"># sem temporario</span>
+<span class="prompt">$</span> gzip -t p.gz &amp;&amp; sha256sum p.gz &gt; p.gz.sha256</pre>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>Liste antes de extrair — e não confie no <code class="inl">zip -e</code>.</b> Um tarball pode vir sem diretório raiz (<i>tarbomb</i>) ou com caminhos <code class="inl">../</code> que escapam do destino: confira com <code class="inl">tar -tvf</code> e extraia com <code class="inl">-C</code> num diretório vazio e descartável. A senha do <code class="inl">zip -e</code> usa <i>ZipCrypto</i>, quebrado por ataque de texto claro conhecido — para proteger de verdade, <code class="inl">7z a -p -mhe=on</code> (AES-256, nomes também cifrados) ou <code class="inl">gpg -c</code> sobre o pacote pronto.</div>
+
+  <!-- RESUMO + DICA -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">tar</code> junta preservando nome, dono e permissão; o compressor só reduz o fluxo.</li>
+        <li><code class="inl">gzip</code> <b>apaga o original</b> por padrão — use <code class="inl">-k</code>.</li>
+        <li><code class="inl">zip -r</code>: sem o <code class="inl">-r</code> o pacote sai com o diretório vazio dentro.</li>
+        <li><code class="inl">zcat</code>, <code class="inl">zgrep</code> e <code class="inl">zless</code> leem o comprimido sem gastar disco (há versão para bz2, xz e zst).</li>
+        <li><code class="inl">-t</code> testa integridade em todos eles; <code class="inl">sha256sum</code> acompanha todo pacote entregue.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O <code class="inl">rockyou.txt</code> vem como <code class="inl">.gz</code> em <code class="inl">/usr/share/wordlists</code>: descomprimir ali ocupa 130 MB e mexe num diretório do pacote — prefira <code class="inl">zcat … | head</code> ou <code class="inl">gunzip -k</code> para uma cópia em <code class="inl">~</code>. Log rotacionado se lê com <code class="inl">zgrep</code>, sem descomprimir. Coleta de engajamento sai com <code class="inl">tar -czpf</code> (o <code class="inl">p</code> guarda as permissões como evidência) + hash ao lado, e viaja em fluxo por SSH, sem temporário na máquina que não é sua.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 03 · Fase 1 <span class="n">018</span></span>
