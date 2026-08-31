@@ -3,101 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 036 — Repositórios do Kali, metapacotes e kali-tweaks</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Escada cumulativa dos metapacotes */
+  .escada { display:flex; flex-direction:column; gap:4px; }
+  .nivel { display:grid; grid-template-columns:1fr 62px; align-items:center; gap:8px; }
+  .nivel .faixa { border-radius:var(--raio-sm); border:2px solid; padding:6px 10px; font-size:10px;
+                  color:var(--tinta-suave); line-height:1.3; }
+  .nivel .faixa b { font-family:var(--fonte-mono); font-size:11px; margin-right:6px; }
+  .nivel .tam { font-family:var(--fonte-mono); font-size:11px; font-weight:700; text-align:right; }
+  .n1 .faixa { border-color:#9fb0c4; background:#f2f5f9; width:44%; } .n1 .faixa b, .n1 .tam { color:#5b6b7d; }
+  .n2 .faixa { border-color:var(--azul); background:var(--azul-claro); width:58%; } .n2 .faixa b, .n2 .tam { color:var(--azul); }
+  .n3 .faixa { border-color:var(--verde); background:var(--verde-claro); width:72%; } .n3 .faixa b, .n3 .tam { color:var(--verde); }
+  .n4 .faixa { border-color:var(--laranja); background:var(--laranja-claro); width:86%; } .n4 .faixa b, .n4 .tam { color:var(--laranja); }
+  .n5 .faixa { border-color:var(--vermelho); background:var(--vermelho-claro); width:100%; } .n5 .faixa b, .n5 .tam { color:var(--vermelho); }
+  .cumul { font-size:9px; color:var(--tinta-suave); text-align:center; margin-top:3px;
+           font-family:var(--fonte-titulo); text-transform:uppercase; letter-spacing:.06em; }
+
+  /* Chips das categorias kali-tools-* */
+  .chips { display:flex; flex-wrap:wrap; gap:4px; margin-top:7px; }
+  .chips span { font-family:var(--fonte-mono); font-size:9px; background:var(--roxo-claro); color:var(--roxo);
+                border:1px solid var(--roxo); border-radius:999px; padding:2px 8px; }
+  .chips i { font-style:normal; font-size:9.5px; color:var(--tinta-suave); align-self:center; margin-right:2px; }
+
+  /* Coluna com moldura de alerta */
+  .coluna.aviso { border-color:var(--vermelho); }
+  .coluna.aviso h3 { color:var(--vermelho); }
+  .coluna.aviso li::before { color:var(--vermelho); }
+  .pin-cmp { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; }
+  .pin-cmp div { border-radius:var(--raio-sm); padding:5px 7px; font-size:9.5px; line-height:1.3; }
+  .pin-cmp .mau { background:var(--vermelho-claro); border:1.5px solid var(--vermelho); color:#8a1f1f; }
+  .pin-cmp .bom { background:var(--verde-claro); border:1.5px solid var(--verde); color:var(--tinta); }
+  .pin-cmp div > b:first-child { display:block; font-family:var(--fonte-mono); font-size:10px; margin-bottom:2px; }
+  .pin-cmp .mau > b:first-child { color:var(--vermelho); } .pin-cmp .bom > b:first-child { color:var(--verde); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 036</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Repositórios do Kali, metapacotes e kali-tweaks</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Metapacotes<br>e kali-tweaks</h1>
+      <div class="sub">“Quero todas as ferramentas” custa mais de 100 GB — e enche o disco no meio da instalação.</div>
     </div>
     <div class="badge"><b>036</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Metapacote: um pacote sem arquivos, cujo conteúdo é a lista de <code class="inl">Depends</code></div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="escada">
+      <div class="nivel n1"><div class="faixa"><b>kali-linux-core</b>o mínimo absoluto: sistema base, sem ferramentas</div><div class="tam">~1 GB</div></div>
+      <div class="nivel n2"><div class="faixa"><b>kali-linux-headless</b>só linha de comando, sem interface gráfica</div><div class="tam">~3 GB</div></div>
+      <div class="nivel n3"><div class="faixa"><b>kali-linux-default</b>o conjunto da imagem oficial — o que a maioria quer</div><div class="tam">~12 GB</div></div>
+      <div class="nivel n4"><div class="faixa"><b>kali-linux-large</b>o default mais as ferramentas menos comuns</div><div class="tam">~25 GB</div></div>
+      <div class="nivel n5"><div class="faixa"><b>kali-linux-everything</b>literalmente tudo — inclusive ferramentas conflitantes</div><div class="tam">&gt;100 GB</div></div>
+    </div>
+    <div class="cumul">▲ cada nível contém o anterior · tamanhos são ordem de grandeza, mudam toda semana num rolling</div>
+    <div class="chips">
+      <i>e por categoria, seguindo o menu do sistema:</i>
+      <span>kali-tools-top10</span><span>information-gathering</span><span>vulnerability</span><span>web</span>
+      <span>passwords</span><span>wireless</span><span>exploitation</span><span>sniffing-spoofing</span>
+      <span>post-exploitation</span><span>forensics</span><span>reporting</span>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Outra suíte sem contaminar o sistema</div>
+  <section class="duas-colunas">
+    <div class="coluna azul">
+      <h3>kali-tweaks — o menu que escreve por você</h3>
+      <ul>
+        <li><b>Metapackages</b> instala/remove os conjuntos acima mostrando o tamanho antes.</li>
+        <li><b>Network Repositories</b> habilita <code class="inl">experimental</code> e <code class="inl">bleeding-edge</code> <b>já com o pinning correto</b> — é por isso que se prefere o menu à edição manual.</li>
+        <li><b>Virtualization</b> instala o pacote de convidado (VMware, VirtualBox, QEMU) e resolve a tela travada e o copiar-e-colar.</li>
+        <li><b>Hardening</b> <i>reduz</i> a segurança de propósito: reabilita algoritmos SSH legados para alcançar equipamento antigo em teste autorizado. Ligue ao precisar, desligue depois.</li>
+      </ul>
+    </div>
+    <div class="coluna verde">
+      <h3>Pinning — prioridade negativa</h3>
+      <ul>
+        <li>Suítes: <code class="inl">bleeding-edge</code> → <code class="inl">experimental</code> → <code class="inl">rolling</code> (a única habilitada). <code class="inl">kali-last-snapshot</code> é a cópia congelada — a resposta certa para treinamento e laboratório reproduzível.</li>
+        <li>Regra em <code class="inl">/etc/apt/preferences.d/</code>: <code class="inl">Pin: release a=kali-experimental</code> + <code class="inl">Pin-Priority: -1</code>. Depois, <code class="inl">apt install -t kali-experimental &lt;pkg&gt;</code>.</li>
+        <li>Acima de <b>1000</b> é a única prioridade que permite <b>rebaixar</b> um pacote — mais forte que o <code class="inl">apt-mark hold</code>, que só congela.</li>
+      </ul>
+      <div class="pin-cmp">
+        <div class="mau"><b>sem pinning</b>A suíte entra com <b>500</b>, igual ao rolling: o APT passa a preferi-la para <i>tudo</i> e o próximo <code class="inl">full-upgrade</code> migra o sistema.</div>
+        <div class="bom"><b>com pinning −1</b>Existe no catálogo, mas <b>nunca é escolhida sozinha</b> — só com o <code class="inl">-t</code>, para o pacote que você pediu.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Dois estragos clássicos.</b> <b>(1)</b> O metapacote entra como <b>manual</b> e tudo que ele puxa entra como <b>automático</b>: <code class="inl">sudo apt remove kali-linux-large</code> transforma <b>centenas de ferramentas em órfãs</b>, e o <code class="inl">autoremove</code> seguinte propõe apagar todas — inclusive as que você passou a usar direto. Antes, <code class="inl">sudo apt-mark manual nmap wireshark sqlmap …</code>, e depois <b>leia a lista</b> do <code class="inl">apt autoremove -s</code>. <b>(2)</b> Repositório de terceiro, quando inevitável, exige as três medidas <b>juntas</b>: chave em <code class="inl">/etc/apt/keyrings/</code> amarrada por <code class="inl">signed-by</code> e <code class="inl">Pin-Priority: 100</code> para que ele não substitua pacote do sistema. Nunca <code class="inl">apt-key add</code> nem <code class="inl">[trusted=yes]</code>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">dpkg -L kali-linux-default</code> mostra só documentação: metapacote é <b>lista de compras</b>, não programa.</li>
+        <li>Três endereços, um repositório: <code class="inl">http.kali.org</code> (redirecionador), <code class="inl">kali.download</code> (CDN, resolve espelho dessincronizado) ou um espelho direto.</li>
+        <li><code class="inl">apt install -s</code> antes de qualquer metapacote — mede pacotes e disco antes de decidir.</li>
+        <li><code class="inl">apt-listchanges</code> avisa <b>antes</b>; <code class="inl">needrestart</code> descobre <b>depois</b> quem ainda roda com a biblioteca antiga em memória.</li>
+        <li>No RHEL: grupos (<code class="inl">dnf group install</code>) e <code class="inl">priority=</code>/<code class="inl">excludepkgs=</code> no <code class="inl">.repo</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b><code class="inl">kali-linux-default</code> é o ponto certo para quase todo mundo</b> — cabe numa VM de 40 GB com folga. Suba para <code class="inl">large</code> quando faltar algo específico; <code class="inl">everything</code> não faz sentido em máquina de trabalho. Em VM apertada ou contêiner: <code class="inl">kali-linux-headless</code> + só as categorias do seu trabalho (quem faz web não precisa de rádio). <b>Habilite as suítes extras pelo <code class="inl">kali-tweaks</code></b>, nunca à mão — sem prioridade negativa, o <code class="inl">full-upgrade</code> seguinte migra o sistema inteiro para versões experimentais. Ferramenta que não está no repositório tem <b>quatro caminhos legítimos</b>, nesta ordem: procurar outro nome, <code class="inl">pipx</code> se for Python, contêiner, ou compilar do fonte. Repositório de outra distribuição não está na lista. E o <code class="inl">needrestart</code> vale dos dois lados: garante que a correção entrou em vigor — e serviço rodando com biblioteca já corrigida em disco é achado comum em avaliação autorizada.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 06 · Fase 2 <span class="n">036</span></span>
