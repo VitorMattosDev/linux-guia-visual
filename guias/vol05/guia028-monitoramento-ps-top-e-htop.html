@@ -3,101 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 028 — Monitoramento: ps, top e htop</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Dissecação da linha do ps aux */
+  .psline { border:1.5px solid var(--linha); border-radius:var(--raio); padding:8px; background:var(--papel-tint); }
+  .cols { display:grid; grid-template-columns:.9fr .8fr .8fr .8fr 1fr 1fr .8fr .8fr 2.1fr; gap:4px; }
+  .col1 { text-align:center; }
+  .col1 .h { font-family:var(--fonte-titulo); font-size:8.5px; letter-spacing:.03em; color:var(--tinta-suave); text-transform:uppercase; }
+  .col1 .v { font-family:var(--fonte-mono); font-size:11px; font-weight:700; color:var(--navy);
+             border-radius:5px; padding:4px 2px; margin-top:2px; border:1.5px solid var(--linha); background:#fff; }
+  .col1.az .v { border-color:var(--azul); background:var(--azul-claro); }
+  .col1.vm .v { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .col1.lj .v { border-color:var(--laranja); background:var(--laranja-claro); }
+  .col1.vd .v { border-color:var(--verde); background:var(--verde-claro); }
+  .col1.vm .h { color:var(--vermelho); } .col1.lj .h { color:var(--laranja); } .col1.vd .h { color:var(--verde); }
+  .notas { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:7px; }
+  .notas div { font-size:9.5px; color:var(--tinta-suave); line-height:1.35; border-left:3px solid var(--linha); padding-left:6px; }
+  .notas div b { color:var(--navy); }
+  .notas .n1 { border-left-color:var(--vermelho); } .notas .n2 { border-left-color:var(--laranja); }
+  .notas .n3 { border-left-color:var(--verde); }
+
+  /* Teclas */
+  .teclas { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+  .teclas span { font-size:9.5px; color:var(--tinta-suave); }
+  kbd { font-family:var(--fonte-mono); font-size:10px; font-weight:700; background:var(--navy); color:#fff;
+        border-radius:4px; padding:1px 5px; }
+  .lista-t { display:flex; flex-direction:column; gap:3px; }
+  .lista-t div { font-size:10px; color:var(--tinta-suave); line-height:1.3; }
+  .lista-t b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 028</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Monitoramento: ps, top e htop</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Monitoramento<br>ps · top · htop</h1>
+      <div class="sub">O servidor está lento: a tela se enche de números — três deles quase sempre são lidos errado.</div>
     </div>
     <div class="badge"><b>028</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>ps — a fotografia</h3><p>Estado no instante em que rodou. É a ferramenta de <b>script, log e evidência</b>. <code class="inl">ps aux</code> (BSD) ou <code class="inl">ps -ef</code> (UNIX).</p></div>
+    <div class="card verde"><h3>top — o filme</h3><p>Redesenha a cada 3 s e revela <b>tendência</b>. Está em toda máquina: é o que se usa por SSH sem instalar nada.</p></div>
+    <div class="card laranja"><h3>htop — o filme com interface</h3><p>Cores, rolagem, árvore, filtro e ação direta sobre o processo. Investigação interativa começa aqui.</p></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <div class="secao-titulo">Anatomia de uma linha do <code class="inl">ps aux</code></div>
+  <section class="psline">
+    <div class="cols">
+      <div class="col1 az"><div class="h">User</div><div class="v">kali</div></div>
+      <div class="col1 az"><div class="h">PID</div><div class="v">2201</div></div>
+      <div class="col1 vm"><div class="h">%CPU</div><div class="v">98.3</div></div>
+      <div class="col1 vm"><div class="h">%MEM</div><div class="v">4.7</div></div>
+      <div class="col1 lj"><div class="h">VSZ</div><div class="v">921648</div></div>
+      <div class="col1 lj"><div class="h">RSS</div><div class="v">385204</div></div>
+      <div class="col1"><div class="h">TTY</div><div class="v">pts/0</div></div>
+      <div class="col1 vd"><div class="h">Stat</div><div class="v">R+</div></div>
+      <div class="col1"><div class="h">Command</div><div class="v">ffmpeg -i…</div></div>
+    </div>
+    <div class="notas">
+      <div class="n1"><b>%CPU é média de vida</b>, não instantâneo: quem correu a 100% por 10 s e dormiu 1 h aparece baixíssimo. Acima de 100% = várias threads.</div>
+      <div class="n2"><b>VSZ mente, RSS quase não.</b> VSZ é espaço reservado (infla fácil); RSS é o que está na RAM — mas conta bibliotecas compartilhadas em cada processo. Privado real: <code class="inl">Pss</code> em <code class="inl">smaps_rollup</code>.</div>
+      <div class="n3"><b>STAT tem sufixos:</b> <code class="inl">+</code> primeiro plano · <code class="inl">s</code> líder de sessão · <code class="inl">l</code> multithread · <code class="inl">&lt;</code> prioridade alta. <b>TTY = <code class="inl">?</code></b> é daemon: sem terminal, não leva SIGHUP.</div>
+    </div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
   <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>top — o cabeçalho é o diagnóstico</span></div>
+<pre>top - 10:07:52 up 2 days,  2 users,  <span class="cmt">load average: 1.42, 0.98, 0.61</span>
+Tarefas: 312 total, 2 executando, 310 dormindo, <span class="cmt">1 zumbi</span>
+%Cpu(s): 12,4 <b>us</b>  3,1 <b>sy</b>  78,2 <b>id</b>  <span class="cmt">6,0 wa</span>  0,0 <span class="cmt">st</span>
+MiB Mem : 7852 total, <span class="cmt">412 free</span>, 3120 used, <span class="cmt">4319 buff/cache</span>
+MiB Swap: 2048 total, 2048 free, 0 used.  <b>4210 avail Mem</b>
+<span class="prompt">$</span> ps -eo pid,comm,pcpu,rss,nlwp,etime,wchan --sort=-rss | head</pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+  <section class="duas-colunas">
+    <div class="coluna verde">
+      <h3>Os campos que enganam</h3>
+      <ul>
+        <li><b>wa alto com us baixo</b> = gargalo de <b>disco</b>, não de CPU. Troque de SSD, não de processador.</li>
+        <li><b>st</b> só existe em VM: é CPU roubada pelo hipervisor — vizinho barulhento, você não resolve de dentro.</li>
+        <li><b>buff/cache não é memória perdida</b> — é cache devolvido na hora. Olhe <b>avail Mem</b>, nunca <b>free</b>.</li>
+        <li><b>Load average</b> conta prontos <i>e</i> travados em E/S. Compare com o nº de núcleos.</li>
+        <li><b>wchan</b> mostra em que função do kernel o processo em <b>D</b> dorme — o atalho para a causa raiz.</li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>Teclas que valem a pena</h3>
+      <div class="lista-t">
+        <div><b>top:</b> <kbd>P</kbd> CPU · <kbd>M</kbd> memória · <kbd>1</kbd> por núcleo · <kbd>H</kbd> threads · <kbd>V</kbd> árvore · <kbd>k</kbd> sinal · <kbd>W</kbd> salva o layout</div>
+        <div><b>htop:</b> <kbd>F4</kbd> filtro (melhor que a busca) · <kbd>F5</kbd> árvore · <kbd>F6</kbd> ordenar · <kbd>F9</kbd> sinal · <kbd>Espaço</kbd> marca vários · <kbd>l</kbd> lsof · <kbd>s</kbd> strace</div>
+        <div><b>Barras do htop:</b> verde = usuário · vermelho = kernel · azul = <i>nice</i> positivo · laranja = E/S.</div>
+        <div><b>Alternativas:</b> <code class="inl">btop</code> (gráficos históricos na tela) · <code class="inl">glances</code> (painel único, modo cliente-servidor) · <code class="inl">atop</code> (grava amostras em disco).</div>
+        <div><b>Sem tela:</b> <code class="inl">top -b -n 1</code> para script · <code class="inl">pidstat -u 1 3</code> por processo · <code class="inl">watch -d -n1 'free -h'</code> destaca o que mudou · <b><code class="inl">atop -r</code> é o único que volta no tempo</b>.</div>
+      </div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>ps</b> fotografa · <b>top</b> filma · <b>htop</b> filma com interface. Escolha pela finalidade.</li>
+        <li><code class="inl">ps aux</code> e <code class="inl">ps -ef</code> são as formas canônicas; <code class="inl">ps -aux</code> só funciona por acidente.</li>
+        <li><code class="inl">ps -eo campos --sort=-campo</code> monta o painel exato — sempre melhor que <code class="inl">ps aux | grep</code>.</li>
+        <li>RSS ≠ memória privada; <code class="inl">wa</code> alto = disco; <code class="inl">buff/cache</code> é cache, não uso.</li>
+        <li>Pico que já passou só se investiga com <code class="inl">atop -r /var/log/atop/...</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Em máquina possivelmente comprometida, <b>não confie no <code class="inl">ps</code></b>: rootkit esconde PID. Cruze fontes — <code class="inl">ps -e -o pid</code> contra <code class="inl">ls /proc | grep '^[0-9]'</code>; o <code class="inl">unhide</code> automatiza. Comando de <code class="inl">cron</code> vive milissegundos e nenhum <code class="inl">ps</code> manual pega — é o que o <i>pspy</i> captura, em teste autorizado (Lei 12.737/2012). E <b>RSS gordo em hashcat é normal</b>: o sinal de aperto é o <b>swap crescendo</b>, não a memória usada.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 05 · Fase 2 <span class="n">028</span></span>

@@ -48,7 +48,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 ### Volume 5 — Processos e Controle de Tarefas
 
 - [x] **guia 027** - O que é um processo: PID, estados e a árvore - `guias/vol05/guia027-o-que-e-um-processo-pid-estados-e-a-arvore.html`
-- [ ] **guia 028** - Monitoramento: ps, top e htop - `guias/vol05/guia028-monitoramento-ps-top-e-htop.html`
+- [x] **guia 028** - Monitoramento: ps, top e htop - `guias/vol05/guia028-monitoramento-ps-top-e-htop.html`
 - [ ] **guia 029** - Sinais e controle: kill, killall, nice e prioridades - `guias/vol05/guia029-sinais-e-controle-kill-killall-nice-e-prioridade.html`
 - [ ] **guia 030** - Jobs, primeiro e segundo plano, nohup e disown - `guias/vol05/guia030-jobs-primeiro-e-segundo-plano-nohup-e-disown.html`
 - [ ] **guia 031** - Multiplexação de terminal: tmux e screen - `guias/vol05/guia031-multiplexacao-de-terminal-tmux-e-screen.html`
