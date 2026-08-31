@@ -3,101 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 007 — Obtendo ajuda: man, info, tldr e a doc do Kali</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: as seções do manual, o SYNOPSIS e as teclas do less */
+  .secoes { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .sec { border:1.5px solid var(--linha); border-radius:var(--raio-sm); padding:6px 8px; display:grid;
+         grid-template-columns:24px 1fr; gap:7px; align-items:start; background:#fff; }
+  .sec .n { width:24px; height:24px; border-radius:50%; background:var(--navy); color:#fff;
+            font-family:var(--fonte-titulo); font-weight:800; font-size:12px;
+            display:flex; align-items:center; justify-content:center; }
+  .sec b { display:block; font-family:var(--fonte-titulo); font-size:10px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
+  .sec span { font-size:9.5px; color:var(--tinta-suave); line-height:1.25; display:block; }
+  .sec.destaque { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .sec.destaque .n { background:var(--vermelho); }
+
+  .duplo { display:grid; grid-template-columns:1.35fr 1fr; gap:12px; align-items:start; }
+  .syn { background:#0f2038; border-radius:var(--raio); padding:11px 13px; font-family:var(--fonte-mono);
+         font-size:12.5px; color:#e6edf6; line-height:1.9; box-shadow:var(--sombra); }
+  .syn .cmd { color:#ff7b72; font-weight:700; }
+  .syn .opt { color:#7d8fa8; }
+  .syn .obr { color:#56d364; font-weight:700; }
+  .syn .rep { color:#ffa657; font-weight:700; }
+  .gram { display:grid; grid-template-columns:repeat(2,1fr); gap:5px; margin-top:7px; }
+  .gram div { font-size:9.5px; color:var(--tinta-suave); border-left:3px solid var(--linha); padding-left:7px; line-height:1.25; }
+  .gram b { font-family:var(--fonte-mono); color:var(--navy); }
+
+  .teclas { display:flex; flex-direction:column; gap:4px; }
+  .tecla { display:grid; grid-template-columns:74px 1fr; gap:8px; align-items:center; font-size:10px; color:var(--tinta-suave); }
+  .tecla kbd { font-family:var(--fonte-mono); font-size:10.5px; background:var(--navy); color:#fff;
+               border-radius:4px; padding:3px 0; text-align:center; font-weight:700; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 007</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Obtendo ajuda: man, info, tldr e a doc do Kali</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Obtendo<br>Ajuda</h1>
+      <div class="sub">3h da manhã, link de 200 kbps, sem sinal de celular — e a resposta já está instalada na máquina.</div>
     </div>
     <div class="badge"><b>007</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- QUAL FONTE -->
+  <div class="secao-titulo">A fonte certa depende da pergunta</div>
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>A sua dúvida</th><th>Onde perguntar</th><th>Por quê</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td>Sei o nome, quero a sintaxe agora</td><td><code>comando --help</code> · <code>tldr comando</code></td><td>Cabe na tela; <code>tldr</code> é só exemplo comentado</td></tr>
+        <tr><td>Sei o nome, quero a referência completa</td><td><code>man comando</code></td><td>Descreve <b>a versão instalada</b>, não a do autor do artigo</td></tr>
+        <tr><td><b>Não sei o nome</b>, sei o que quero fazer</td><td><code>apropos palavra</code> · <code>man -k palavra</code></td><td>Busca na descrição de todas as páginas em disco</td></tr>
+        <tr><td>Quero o formato de um arquivo de configuração</td><td><code>man 5 arquivo</code></td><td>A seção 5 é dos formatos, não dos comandos</td></tr>
+        <tr><td>Por que este pacote se comporta assim?</td><td><code>/usr/share/doc/&lt;pacote&gt;/</code></td><td><code>README.Debian</code> traz as decisões do empacotador</td></tr>
+        <tr><td>É builtin do shell (não tem arquivo)</td><td><code>help cd</code> (Bash) · <code>run-help cd</code> (Zsh)</td><td>A doc vem do shell — confira antes com <code>type -a</code></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- SEÇÕES DO MANUAL -->
+  <div class="secao-titulo">O mesmo nome existe em seções diferentes</div>
+  <section class="secoes">
+    <div class="sec destaque"><span class="n">1</span><div><b>Comandos de usuário</b><span>Tudo que se digita. <code class="inl">man 1 passwd</code> = trocar senha</span></div></div>
+    <div class="sec"><span class="n">2</span><div><b>Chamadas de sistema</b><span>A fronteira com o kernel — <code class="inl">open(2)</code></span></div></div>
+    <div class="sec"><span class="n">3</span><div><b>Funções de biblioteca</b><span>C e glibc — <code class="inl">printf(3)</code></span></div></div>
+    <div class="sec"><span class="n">4</span><div><b>Arquivos especiais</b><span>Dispositivos em <code class="inl">/dev</code></span></div></div>
+    <div class="sec destaque"><span class="n">5</span><div><b>Formatos de arquivo</b><span>A sintaxe da configuração. <code class="inl">man 5 passwd</code> = <code class="inl">/etc/passwd</code></span></div></div>
+    <div class="sec"><span class="n">6</span><div><b>Jogos</b><span>Herança histórica do Unix</span></div></div>
+    <div class="sec"><span class="n">7</span><div><b>Diversos e convenções</b><span>Padrões e protocolos — <code class="inl">man 7 hier</code></span></div></div>
+    <div class="sec"><span class="n">8</span><div><b>Administração</b><span>O que normalmente exige root — <code class="inl">man 8 mount</code></span></div></div>
+  </section>
+  <div class="perigo" style="border-left-color:var(--azul);background:var(--azul-claro);color:var(--navy)">
+    <b style="color:var(--azul)">Sem o número, o <code class="inl">man</code> entrega a seção 1.</b> Por isso <code class="inl">man passwd</code> mostra o comando e <code class="inl">man 5 passwd</code> mostra o formato do arquivo. <code class="inl">whatis passwd</code> lista todas as seções em que o nome existe; <code class="inl">man -a passwd</code> percorre uma a uma. O número entre parênteses numa referência — <code class="inl">crontab(5)</code> — é exatamente isso: onde procurar.
+  </div>
+
+  <!-- SYNOPSIS + NAVEGAÇÃO -->
+  <div class="secao-titulo">A gramática do SYNOPSIS · e as seis teclas do <code class="inl">man</code></div>
+  <section class="duplo">
+    <div>
+      <div class="syn">
+        <span class="cmd">ls</span> <span class="opt">[OPTION]</span><span class="rep">...</span> <span class="opt">[FILE]</span><span class="rep">...</span><br>
+        <span class="cmd">cp</span> <span class="opt">[OPTION]</span><span class="rep">...</span> <span class="obr">SOURCE</span><span class="rep">...</span> <span class="obr">DIRECTORY</span>
+      </div>
+      <div class="gram">
+        <div style="border-left-color:#7d8fa8"><b>[colchetes]</b> opcional — pode omitir</div>
+        <div style="border-left-color:var(--laranja)"><b>reticências...</b> pode repetir</div>
+        <div style="border-left-color:var(--verde)"><b>SEM colchetes</b> obrigatório</div>
+        <div style="border-left-color:var(--navy)"><b>{a|b}</b> escolha uma, obrigatória</div>
+      </div>
+      <div class="perigo" style="border-left-color:var(--verde);background:var(--verde-claro);color:#1c5c30;margin-top:7px">
+        Só com essa notação já se responde por que <code class="inl">ls</code> sozinho funciona e <code class="inl">cp arquivo</code> dá erro: o destino do <code class="inl">cp</code> não está entre colchetes.
+      </div>
+    </div>
+    <div class="teclas">
+      <div class="tecla"><kbd>espaço / b</kbd><span>Avança / volta uma tela</span></div>
+      <div class="tecla"><kbd>/texto</kbd><span><b>A tecla que salva:</b> busca para frente. Ninguém lê <code class="inl">man bash</code> inteiro</span></div>
+      <div class="tecla"><kbd>n / N</kbd><span>Próxima ocorrência / anterior</span></div>
+      <div class="tecla"><kbd>g / G</kbd><span>Início / fim da página</span></div>
+      <div class="tecla"><kbd>h</kbd><span>Ajuda do próprio visualizador</span></div>
+      <div class="tecla"><kbd>q</kbd><span>Sai</span></div>
+    </div>
+  </section>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Doc local sempre casa com a versão instalada; artigo na internet, não. Divergiu? <b>a local está certa</b>.</li>
+        <li><code class="inl">tldr</code> para lembrar a forma usual, <code class="inl">man</code> para o detalhe e o caso de borda.</li>
+        <li><code class="inl">apropos</code> vazio? o índice não existe: <code class="inl">sudo mandb</code>.</li>
+        <li><code class="inl">whereis</code> · <code class="inl">dpkg -S $(which x)</code> · <code class="inl">file $(which x)</code> — se for script, dá para <b>ler</b>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Muita ferramenta do Kali <b>não tem página de manual</b> — são projetos de comunidade. O caminho é <code class="inl">-h</code> (e não <code class="inl">--help</code>), depois o nome sozinho, depois <b>kali.org/tools</b>, que documenta cada ferramenta empacotada; <b>kali.org/docs</b> cobre a distribuição. Módulos do Metasploit se documentam dentro do console (<code class="inl">info &lt;modulo&gt;</code>, <code class="inl">show options</code>). Em imagem <code class="inl">headless</code> ou contêiner o <code class="inl">man</code> costuma ter sido removido: <code class="inl">apt install --reinstall man-db manpages</code>. Depois de instalar um metapacote, rode <code class="inl">sudo mandb</code>. <b>Comando colado sem leitura é comando não auditado</b> — vale para fórum, artigo e IA.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 01 · Fase 1 <span class="n">007</span></span>
