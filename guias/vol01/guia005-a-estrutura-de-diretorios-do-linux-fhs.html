@@ -3,101 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 005 — A estrutura de diretórios do Linux (FHS)</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a árvore do FHS e a matriz estático × variável */
+  .arvore { display:grid; grid-template-columns:1fr 1fr; gap:3px 16px; }
+  .ramo { display:grid; grid-template-columns:96px 1fr; gap:8px; align-items:baseline;
+          padding:3px 6px; border-radius:var(--raio-sm); border-left:4px solid var(--azul); background:var(--azul-claro); }
+  .ramo code { font-family:var(--fonte-mono); font-weight:700; font-size:11.5px; color:var(--navy); text-align:right; }
+  .ramo span { font-size:10px; color:var(--tinta-suave); line-height:1.3; }
+  .ramo.var  { border-left-color:var(--verde);   background:var(--verde-claro); }
+  .ramo.virt { border-left-color:var(--laranja); background:var(--laranja-claro); }
+  .legenda-a { display:flex; gap:16px; justify-content:center; font-size:10px; color:var(--tinta-suave); margin-top:5px; }
+  .legenda-a i { width:10px; height:10px; border-radius:3px; display:inline-block; margin-right:4px; vertical-align:-1px; }
+
+  .duplo { display:grid; grid-template-columns:1.05fr 1fr; gap:12px; align-items:start; }
+  .matriz { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+  .cel { border-radius:var(--raio-sm); padding:7px 9px; border:1.5px solid var(--linha); }
+  .cel h5 { font-family:var(--fonte-titulo); font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--tinta-suave); }
+  .cel b { font-family:var(--fonte-mono); font-size:11.5px; color:var(--navy); display:block; margin:2px 0; }
+  .cel p { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+  .cel.c1 { background:var(--azul-claro); }   .cel.c2 { background:var(--verde-claro); }
+  .cel.c3 { background:var(--laranja-claro); }.cel.c4 { background:var(--vermelho-claro); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 005</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>A estrutura de diretórios do Linux (FHS)</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Estrutura de<br>Diretórios (FHS)</h1>
+      <div class="sub">Raiz com 96% de uso às 23h: se é <code class="inl">/var/log</code> a história é uma, se é <code class="inl">/var/cache/apt</code> é outra.</div>
     </div>
     <div class="badge"><b>005</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- A ÁRVORE -->
+  <div class="secao-titulo">Uma árvore só, sem letra de unidade</div>
+  <section class="arvore">
+    <div class="ramo"><code>/boot</code><span>Kernel, initrd e o GRUB. Enche depois de algumas atualizações → <code class="inl">apt autoremove</code></span></div>
+    <div class="ramo var"><code>/var/log</code><span>Logs. O primeiro suspeito no alerta de disco cheio</span></div>
+    <div class="ramo"><code>/usr</code><span>Programas, bibliotecas e dados estáticos. <code class="inl">/bin</code>, <code class="inl">/sbin</code> e <code class="inl">/lib</code> são só links para cá</span></div>
+    <div class="ramo var"><code>/var/lib</code><span>Estado persistente: base do <code class="inl">dpkg</code>, PostgreSQL, Docker</span></div>
+    <div class="ramo"><code>/usr/local</code><span>O que <b>você</b> compilou. O <code class="inl">apt</code> nunca escreve aqui</span></div>
+    <div class="ramo var"><code>/var/cache</code><span>Recriável: <code class="inl">apt clean</code> libera espaço em 10 segundos</span></div>
+    <div class="ramo"><code>/etc</code><span>Configuração, <b>sempre em texto</b>, nunca binário. Padrão Debian: fragmentos em <code class="inl">*.d/</code></span></div>
+    <div class="ramo var"><code>/tmp</code><span>Curta duração. Costuma ser <b>tmpfs = RAM</b>: some no boot</span></div>
+    <div class="ramo"><code>/home /root</code><span>Diretórios pessoais. O root fica fora de <code class="inl">/home</code> — que pode falhar ao montar</span></div>
+    <div class="ramo var"><code>/var/tmp</code><span>Temporário que <b>sobrevive</b> à reinicialização</span></div>
+    <div class="ramo"><code>/opt</code><span>Software de terceiros autocontido, um diretório por produto</span></div>
+    <div class="ramo virt"><code>/proc</code><span>Processos e kernel. <code class="inl">/proc/self</code> é quem está lendo</span></div>
+    <div class="ramo"><code>/srv</code><span>Dados servidos a terceiros (no Debian, na prática, <code class="inl">/var/www</code>)</span></div>
+    <div class="ramo virt"><code>/sys</code><span>Dispositivos e drivers: temperatura, <code class="inl">operstate</code> da placa</span></div>
+    <div class="ramo"><code>/mnt /media</code><span>Pontos de montagem para mídia removível</span></div>
+    <div class="ramo virt"><code>/dev /run</code><span><code class="inl">null</code>, <code class="inl">zero</code>, <code class="inl">urandom</code>, discos · e o estado da execução atual</span></div>
   </section>
+  <div class="legenda-a">
+    <span><i style="background:var(--azul)"></i>em disco, estático</span>
+    <span><i style="background:var(--verde)"></i>variável — cresce e enche</span>
+    <span><i style="background:var(--laranja)"></i>virtual — gerado pelo kernel, não ocupa disco</span>
+  </div>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- LÓGICA + ONDE INSTALAR -->
+  <div class="secao-titulo">A lógica por trás · e onde instalar o que</div>
+  <section class="duplo">
+    <div class="matriz">
+      <div class="cel c1"><h5>Estático · compartilhável</h5><b>/usr</b><p>Pode ser montado somente-leitura ou servido por rede a várias estações.</p></div>
+      <div class="cel c2"><h5>Variável · compartilhável</h5><b>/srv · /var/mail</b><p>Muda, mas faz sentido para outras máquinas.</p></div>
+      <div class="cel c3"><h5>Estático · local</h5><b>/etc · /boot</b><p>Específico desta máquina — por isso é o alvo prioritário de backup.</p></div>
+      <div class="cel c4"><h5>Variável · local</h5><b>/var/log · /run · /tmp</b><p>Volátil e local: exige rotação e monitoramento de espaço.</p></div>
+    </div>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Veio de onde</th><th>Vai para onde</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td>Gerenciador de pacotes</td><td><code>/usr/bin</code> — <b>não mexa</b></td></tr>
+        <tr><td>Compilado do fonte</td><td><code>/usr/local</code></td></tr>
+        <tr><td>Terceiro autocontido</td><td><code>/opt/&lt;nome&gt;</code></td></tr>
+        <tr><td>Script só seu</td><td><code>~/.local/bin</code></td></tr>
+        <tr><td>Dados servidos</td><td><code>/srv</code> ou <code>/var/www</code></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>O caminho não diz em que disco o arquivo está — <code class="inl">findmnt --real</code> e <code class="inl">df -hT</code> dizem.</li>
+        <li>Disco cheio: <code class="inl">sudo du -xh --max-depth=1 / | sort -rh | head</code>. O <code class="inl">-x</code> evita <code class="inl">/proc</code> e <code class="inl">/sys</code>.</li>
+        <li><b>Nunca escreva à mão em <code class="inl">/usr/bin</code></b>: a próxima atualização sobrescreve sem avisar.</li>
+        <li><code class="inl">/proc</code>, <code class="inl">/sys</code> e <code class="inl">/dev</code> são "tudo é arquivo" na prática: leia com <code class="inl">cat</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Acabou o <code class="inl">/pentest/</code> do BackTrack: <b>ferramenta é pacote comum em <code class="inl">/usr/bin</code></b> — <code class="inl">dpkg -S /usr/bin/nmap</code> diz de qual pacote veio. Os dados de cada uma ficam em <code class="inl">/usr/share/&lt;ferramenta&gt;</code> (scripts NSE, módulos do Metasploit) e as listas em <code class="inl">/usr/share/wordlists</code> — o <code class="inl">rockyou.txt.gz</code> vem compactado e precisa de <code class="inl">gunzip</code> uma vez. Ferramenta clonada de repositório vai para <code class="inl">/opt</code>. <b>Atenção ao <code class="inl">/tmp</code> em RAM:</b> salvar captura longa ali numa VM pequena derruba a máquina — use <code class="inl">~/lab/capturas</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 01 · Fase 1 <span class="n">005</span></span>
