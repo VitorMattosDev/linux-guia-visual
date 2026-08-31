@@ -61,7 +61,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 035** - dpkg, arquivos .deb e resolução de dependências - `guias/vol06/guia035-dpkg-arquivos-deb-e-resolucao-de-dependencias.html`
 - [x] **guia 036** - Repositórios do Kali, metapacotes e kali-tweaks - `guias/vol06/guia036-repositorios-do-kali-metapacotes-e-kali-tweaks.html`
 - [x] **guia 037** - Compilando a partir do código-fonte - `guias/vol06/guia037-compilando-a-partir-do-codigo-fonte.html`
-- [ ] **guia 038** - Alternativas: pipx, snap, flatpak e AppImage - `guias/vol06/guia038-alternativas-pipx-snap-flatpak-e-appimage.html`
+- [x] **guia 038** - Alternativas: pipx, snap, flatpak e AppImage - `guias/vol06/guia038-alternativas-pipx-snap-flatpak-e-appimage.html`
 
 ### Volume 7 — Boot, systemd e Serviços
 

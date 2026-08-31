@@ -3,101 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 038 — Alternativas: pipx, snap, flatpak e AppImage</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Trio pip global x venv x pipx */
+  .trio { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .trio > div { border-radius:var(--raio); border:2px solid; padding:8px 10px; }
+  .trio h4 { margin:0 0 5px; font-family:var(--fonte-mono); font-size:11px; font-weight:700; }
+  .trio p { margin:0 0 4px; font-size:9.5px; line-height:1.35; color:var(--tinta-suave); }
+  .trio p:last-child { margin-bottom:0; }
+  .trio .veredito { display:block; margin-top:5px; font-family:var(--fonte-titulo); font-size:9.5px;
+                    text-transform:uppercase; letter-spacing:.04em; }
+  .trio .mau { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .trio .mau h4, .trio .mau .veredito { color:var(--vermelho); }
+  .trio .dev { border-color:var(--azul); background:var(--azul-claro); }
+  .trio .dev h4, .trio .dev .veredito { color:var(--azul); }
+  .trio .bom { border-color:var(--verde); background:var(--verde-claro); }
+  .trio .bom h4, .trio .bom .veredito { color:var(--verde); }
+  .trio-nota { margin-top:6px; font-size:9.5px; color:var(--tinta-suave); line-height:1.4;
+               background:var(--papel-tint); border-left:3px solid var(--roxo); padding:5px 8px;
+               border-radius:0 var(--raio-sm) var(--raio-sm) 0; }
+  .trio-nota b { color:var(--roxo); }
+
+  /* Escada de decisão */
+  .deg { display:grid; grid-template-columns:20px 1fr 1.35fr; gap:5px 7px; align-items:center; }
+  .deg > i { font-style:normal; font-family:var(--fonte-titulo); font-size:10px; font-weight:700;
+             color:#fff; background:var(--navy); border-radius:50%; width:19px; height:19px;
+             display:flex; align-items:center; justify-content:center; }
+  .deg > .q { font-size:10px; color:var(--navy); font-weight:600; }
+  .deg > .a { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; border-left:4px solid;
+              padding:3px 0 3px 8px; }
+  .deg > .a b { font-family:var(--fonte-mono); font-size:10px; }
+  .deg .g1 { border-color:var(--verde); }   .deg .g1 b { color:var(--verde); }
+  .deg .g2 { border-color:var(--azul); }    .deg .g2 b { color:var(--azul); }
+  .deg .g3 { border-color:var(--roxo); }    .deg .g3 b { color:var(--roxo); }
+  .deg .g4 { border-color:var(--laranja); } .deg .g4 b { color:var(--laranja); }
+  .deg .g5 { border-color:var(--vermelho); }.deg .g5 b { color:var(--vermelho); }
+  .desce { font-size:8.5px; color:var(--tinta-suave); font-family:var(--fonte-titulo);
+           text-transform:uppercase; letter-spacing:.06em; text-align:center; margin:5px 0 0; }
+  .formatos { margin-top:7px; display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .formatos div { font-size:9px; line-height:1.3; color:var(--tinta-suave); border-radius:var(--raio-sm);
+                  padding:5px 8px; border:1.5px solid; }
+  .formatos div > b:first-child { display:block; font-family:var(--fonte-titulo); font-size:10px;
+                                  text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px; }
+  .formatos .f1 { border-color:var(--azul); background:var(--azul-claro); } .formatos .f1 > b:first-child { color:var(--azul); }
+  .formatos .f2 { border-color:var(--verde); background:var(--verde-claro); } .formatos .f2 > b:first-child { color:var(--verde); }
+  .formatos .f3 { border-color:var(--laranja); background:var(--laranja-claro); } .formatos .f3 > b:first-child { color:var(--laranja); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 038</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Alternativas: pipx, snap, flatpak e AppImage</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>pipx, Flatpak<br>e AppImage</h1>
+      <div class="sub"><code class="inl">externally-managed-environment</code> não é obstáculo a contornar — é a proteção funcionando.</div>
     </div>
     <div class="badge"><b>038</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Python: três formas de instalar, três isolamentos</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="trio">
+      <div class="mau"><h4>sudo pip install</h4>
+        <p>Escreve em <code class="inl">/usr/lib/python3/</code>, o mesmo lugar dos pacotes <code class="inl">.deb</code> — e sem consultar o <code class="inl">dpkg</code>, que passa a <b>mentir sobre as versões</b>.</p>
+        <p>Uma biblioteca serve a todos os programas: um conflito quebra vários.</p>
+        <span class="veredito">bloqueado pela PEP 668</span></div>
+      <div class="dev"><h4>python3 -m venv</h4>
+        <p>Um diretório por <b>projeto</b>, com seu próprio Python e suas bibliotecas. Isolamento completo; nada toca o sistema.</p>
+        <p>Exige <code class="inl">source .venv/bin/activate</code> antes de usar; remover é <code class="inl">rm -rf .venv</code>.</p>
+        <span class="veredito">ideal para desenvolver</span></div>
+      <div class="bom"><h4>pipx install</h4>
+        <p>Um ambiente virtual por <b>aplicação</b>, criado e gerido sozinho. Os executáveis aparecem em <code class="inl">~/.local/bin</code>, já no <code class="inl">PATH</code>.</p>
+        <p>Usar não exige ativar nada. Duas ferramentas com bibliotecas incompatíveis convivem sem se ver.</p>
+        <span class="veredito">ideal para instalar ferramentas</span></div>
+    </div>
+    <div class="trio-nota"><b>A confusão é entre as duas da direita:</b> o <code class="inl">venv</code> serve a quem <i>escreve</i> Python; o <code class="inl">pipx</code> a quem só quer <i>usar</i> a ferramenta. Por baixo o pipx cria um venv — ele apenas cuida disso por você. Comandos que resolvem o dia a dia: <code class="inl">pipx run &lt;ferramenta&gt;</code> executa e descarta (uso único), <code class="inl">pipx install git+https://…</code> instala direto do repositório do autor sem clonar, <code class="inl">pipx upgrade-all</code> e <code class="inl">pipx reinstall-all</code> (depois de o Python do sistema mudar de versão).</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">A escada da decisão: do integrado ao invisível</div>
+  <section>
+    <div class="deg">
+      <i>1</i><div class="q">Está no repositório do Kali?</div><div class="a g1"><b>sudo apt install</b> — sempre a primeira opção: registrado no <code class="inl">dpkg</code> e atualizado sozinho.</div>
+      <i>2</i><div class="q">É uma ferramenta Python?</div><div class="a g1"><b>pipx install</b> — ou <code class="inl">pipx run</code> se o uso for único.</div>
+      <i>3</i><div class="q">É Go, Rust ou Node?</div><div class="a g2"><b>go install · cargo install · npm</b> com prefixo local. Binário em <code class="inl">~/go/bin</code>, <code class="inl">~/.cargo/bin</code>, <code class="inl">~/.local/bin</code> — ponha no <code class="inl">PATH</code>.</div>
+      <i>4</i><div class="q">Tem imagem de contêiner oficial?</div><div class="a g2"><b>docker run --rm</b> — o isolamento mais forte e a remoção mais completa; o custo é mapear volumes.</div>
+      <i>5</i><div class="q">É aplicação gráfica de desktop?</div><div class="a g3"><b>flatpak install</b> — conferindo antes o <code class="inl">flatpak info --show-permissions</code>.</div>
+      <i>6</i><div class="q">Existe AppImage do autor?</div><div class="a g4"><b>chmod +x</b> só <b>depois</b> de conferir o hash e de <code class="inl">--appimage-extract</code> para inspecionar.</div>
+      <i>7</i><div class="q">Nenhuma das anteriores</div><div class="a g5"><b>compilar</b> — e empacotar com <code class="inl">checkinstall</code> para não virar software invisível.</div>
+    </div>
+    <div class="desce">▼ se não, desça um degrau — cada degrau acrescenta algo que só você vai lembrar de atualizar</div>
+    <div class="formatos">
+      <div class="f1"><b>Snap</b>Imagem <code class="inl">squashfs</code> + daemon <code class="inl">snapd</code> residente, confinado por AppArmor; atualiza sozinho. Não vem no Kali.</div>
+      <div class="f2"><b>Flatpak</b>Aplicação + <i>runtime</i> compartilhado, <i>sandbox</i> por namespaces com <i>portals</i>. Atualiza sob comando; o 1º app baixa um runtime grande.</div>
+      <div class="f3"><b>AppImage</b>Arquivo único executável, nada instalado. <b>Isolamento nenhum</b>; atualização e registro, nenhum.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Dois riscos que o nome já entrega.</b> <b>(1)</b> <code class="inl">pip install --break-system-packages</code> faz exatamente o que diz: é aceitável em contêiner descartável ou imagem de build, mas numa máquina de trabalho produz um Python em que o <code class="inl">dpkg</code> afirma uma versão e o disco tem outra — e o sintoma aparece semanas depois, num <code class="inl">apt</code> que falha ao importar um módulo. Se o impulso for usá-la, o comando certo é <code class="inl">pipx install</code>. <b>(2)</b> Um <b>AppImage roda sem confinamento algum</b>, com todo o poder do seu usuário: <code class="inl">~/.ssh</code>, o chaveiro, os arquivos do cliente. <code class="inl">--appimage-extract</code> e a verificação do hash publicado pelo autor são a única defesa <b>antes</b> da primeira execução. Vale o mesmo para Flatpak que pede <code class="inl">--filesystem=home</code>: isso anula boa parte do isolamento — <code class="inl">flatpak override --nofilesystem=home</code> corrige.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>O bloqueio é um arquivo real: <code class="inl">/usr/lib/python3*/EXTERNALLY-MANAGED</code>. Dentro de um <code class="inl">venv</code> ativado o <code class="inl">pip</code> funciona normalmente.</li>
+        <li>Cada ferramenta do pipx vive em <code class="inl">~/.local/share/pipx/venvs/</code>, com um link em <code class="inl">~/.local/bin</code>.</li>
+        <li>Binário Go é <b>estático</b>: copiar o arquivo para outra máquina Linux costuma simplesmente funcionar.</li>
+        <li>Faça o inventário do que o <code class="inl">dpkg</code> desconhece: <code class="inl">pipx list</code>, <code class="inl">flatpak list</code>, <code class="inl">ls ~/go/bin ~/.cargo/bin ~/.local/bin</code>.</li>
+        <li>No RHEL a PEP 668 vale igual; o <b>Podman</b> substitui o Docker — sem daemon e capaz de rodar sem root.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Rode <code class="inl">apt search --names-only</code> antes de qualquer <code class="inl">pipx install</code></b>: o Kali empacota centenas de ferramentas Python como <code class="inl">.deb</code>, às vezes com nome diferente do projeto no GitHub. Quando não estiver, <code class="inl">pipx install git+https://…</code> resolve sem clonar e desinstala limpo. <b>Snap não é a escolha natural aqui</b> — exige o <code class="inl">snapd</code> residente e o confinamento AppArmor conflita com o que ferramenta de segurança precisa fazer: capturar pacote, modo monitor, socket bruto. <b>Contêiner é ótimo para análise e ruim para rede:</b> analisar artefato ou processar dados isolado é ideal, mas captura e <i>spoofing</i> exigem <code class="inl">--net=host</code> e capacidades extras — o que devolve boa parte do que ele isolava; aí instalar direto é mais honesto. E o que você instala fora do <code class="inl">apt</code> <b>não aparece em inventário nenhum</b>: em teste autorizado você precisa responder por cada ferramenta que rodou no ambiente do cliente.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 06 · Fase 2 <span class="n">038</span></span>
