@@ -8,7 +8,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 ### Volume 1 — Primeiros Passos: Linux e Kali
 
 - [x] **guia 001** - O que é Linux: kernel, distribuições e software livre - `guias/vol01/guia001-o-que-e-linux-kernel-distribuicoes-e-software-li.html`
-- [ ] **guia 002** - Por que Kali Linux: propósito, filosofia e quando não usá-lo - `guias/vol01/guia002-por-que-kali-linux-proposito-filosofia-e-quando-.html`
+- [x] **guia 002** - Por que Kali Linux: propósito, filosofia e quando não usá-lo - `guias/vol01/guia002-por-que-kali-linux-proposito-filosofia-e-quando-.html`
 - [ ] **guia 003** - Instalando o Kali: VM, bare metal, WSL e live USB - `guias/vol01/guia003-instalando-o-kali-vm-bare-metal-wsl-e-live-usb.html`
 - [ ] **guia 004** - Primeiro contato: sessão, ambiente Xfce e organização - `guias/vol01/guia004-primeiro-contato-sessao-ambiente-xfce-e-organiza.html`
 - [ ] **guia 005** - A estrutura de diretórios do Linux (FHS) - `guias/vol01/guia005-a-estrutura-de-diretorios-do-linux-fhs.html`
