@@ -12,7 +12,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 003** - Instalando o Kali: VM, bare metal, WSL e live USB - `guias/vol01/guia003-instalando-o-kali-vm-bare-metal-wsl-e-live-usb.html`
 - [x] **guia 004** - Primeiro contato: sessão, ambiente Xfce e organização - `guias/vol01/guia004-primeiro-contato-sessao-ambiente-xfce-e-organiza.html`
 - [x] **guia 005** - A estrutura de diretórios do Linux (FHS) - `guias/vol01/guia005-a-estrutura-de-diretorios-do-linux-fhs.html`
-- [ ] **guia 006** - Anatomia de um comando: shell, argumentos e opções - `guias/vol01/guia006-anatomia-de-um-comando-shell-argumentos-e-opcoes.html`
+- [x] **guia 006** - Anatomia de um comando: shell, argumentos e opções - `guias/vol01/guia006-anatomia-de-um-comando-shell-argumentos-e-opcoes.html`
 - [ ] **guia 007** - Obtendo ajuda: man, info, tldr e a doc do Kali - `guias/vol01/guia007-obtendo-ajuda-man-info-tldr-e-a-doc-do-kali.html`
 
 ### Volume 2 — O Terminal e o Shell

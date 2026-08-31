@@ -3,101 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 006 — Anatomia de um comando: shell, argumentos e opções</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: dissecação da linha de comando e a ordem de resolução */
+  .dissec { display:flex; gap:5px; justify-content:center; align-items:flex-start; flex-wrap:wrap; }
+  .peca { text-align:center; max-width:112px; }
+  .tok { display:block; font-family:var(--fonte-mono); font-weight:700; font-size:12.5px; color:#fff;
+         padding:7px 9px; border-radius:var(--raio-sm); white-space:nowrap; }
+  .t-ope { white-space:normal; word-break:break-all; }
+  .t-cmd { background:var(--vermelho); } .t-opc { background:var(--azul); }
+  .t-val { background:var(--verde); }    .t-ope { background:var(--laranja); }
+  .peca .rot { font-family:var(--fonte-titulo); font-size:8.5px; color:var(--navy); text-transform:uppercase;
+               letter-spacing:.02em; margin-top:5px; line-height:1.2; }
+  .peca .rot small { display:block; font-family:var(--fonte-texto); font-size:8.5px; color:var(--tinta-suave);
+                     text-transform:none; letter-spacing:0; font-weight:400; }
+
+  .ordem { display:flex; align-items:stretch; gap:5px; }
+  .grau { flex:1; border:1.5px solid var(--linha); border-radius:var(--raio-sm); padding:6px 8px; background:#fff; text-align:center; }
+  .grau b { display:block; font-family:var(--fonte-titulo); font-size:10.5px; color:var(--navy); text-transform:uppercase; }
+  .grau span { font-size:9.5px; color:var(--tinta-suave); line-height:1.25; display:block; margin-top:2px; }
+  .grau .n { display:inline-block; width:17px; height:17px; border-radius:50%; background:var(--azul); color:#fff;
+             font-family:var(--fonte-titulo); font-size:10px; line-height:17px; margin-bottom:3px; }
+  .ordem .seta { align-self:center; color:var(--azul); font-weight:700; }
+
+  .duplo { display:grid; grid-template-columns:1fr 1.05fr; gap:12px; align-items:start; }
+  .ops { display:flex; flex-direction:column; gap:5px; }
+  .op { border-left:4px solid var(--azul); background:var(--azul-claro); border-radius:var(--raio-sm); padding:5px 9px; }
+  .op b { font-family:var(--fonte-mono); font-size:12px; color:var(--navy); }
+  .op span { font-size:10px; color:var(--tinta-suave); display:block; line-height:1.3; }
+  .op.v { border-left-color:var(--verde); background:var(--verde-claro); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 006</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Anatomia de um comando: shell, argumentos e opções</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Anatomia de<br>um Comando</h1>
+      <div class="sub"><code class="inl">rm arquivo com espaco.txt</code> não apaga um arquivo: apaga três. Quem separou foi o shell, antes do programa existir.</div>
     </div>
     <div class="badge"><b>006</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- DISSECAÇÃO -->
+  <div class="secao-titulo">A linha, palavra por palavra</div>
+  <section class="dissec">
+    <div class="peca"><span class="tok t-cmd">nmap</span><div class="rot">Comando<small>o que será executado</small></div></div>
+    <div class="peca"><span class="tok t-opc">-sV</span><div class="rot">Opção curta<small>um traço, uma letra</small></div></div>
+    <div class="peca"><span class="tok t-opc">--top-ports</span><div class="rot">Opção longa<small>dois traços, palavra</small></div></div>
+    <div class="peca"><span class="tok t-val">100</span><div class="rot">Valor<small>pertence à opção anterior</small></div></div>
+    <div class="peca"><span class="tok t-opc">-oN</span><div class="rot">Opção<small>com valor</small></div></div>
+    <div class="peca"><span class="tok t-val">saida.txt</span><div class="rot">Valor<small>arquivo de saída</small></div></div>
+    <div class="peca"><span class="tok t-ope">192.168.56.0/24</span><div class="rot">Operando<small>o alvo do trabalho</small></div></div>
+  </section>
+  <div class="perigo" style="border-left-color:var(--azul);background:var(--azul-claro);color:var(--navy)">
+    <b style="color:var(--azul)">Para o shell, todas as palavras depois do comando são iguais.</b> Quem decide que <code class="inl">-sV</code> é opção e o resto é alvo é o <b>programa</b>, ao ler seu vetor de argumentos — por isso não existe sintaxe universal. Curtas sem valor se agrupam (<code class="inl">ls -lah</code>); <code class="inl">--</code> marca o <b>fim das opções</b> e salva de nome de arquivo que começa com traço: <code class="inl">rm -- -arquivo-estranho</code>. E há os rebeldes: <code class="inl">tar xzf</code>, <code class="inl">ps aux</code>, <code class="inl">dd if=... of=...</code> — sem traço nenhum.
+  </div>
+
+  <!-- ORDEM DE RESOLUÇÃO -->
+  <div class="secao-titulo">Como o shell decide o que executar</div>
+  <section class="ordem">
+    <div class="grau"><span class="n">1</span><b>Palavra-chave</b><span><code class="inl">if</code>, <code class="inl">for</code>, <code class="inl">while</code> — é sintaxe, não programa</span></div>
     <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="grau"><span class="n">2</span><b>Alias</b><span>Apelido seu ou da distro. <b>Não vale em script</b></span></div>
     <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="grau"><span class="n">3</span><b>Função</b><span>Definida na sessão ou no arquivo de init</span></div>
     <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="grau"><span class="n">4</span><b>Builtin</b><span><code class="inl">cd</code>, <code class="inl">echo</code>, <code class="inl">export</code> — dentro do próprio shell</span></div>
+    <span class="seta">→</span>
+    <div class="grau"><span class="n">5</span><b>PATH</b><span>Arquivo em disco, na ordem dos diretórios</span></div>
   </section>
+  <div class="perigo" style="border-left-color:var(--laranja);background:var(--laranja-claro);color:#7a3f04">
+    <b style="color:var(--laranja)"><code class="inl">type -a &lt;comando&gt;</code> mostra qual das cinco venceu</b> — e explica por que o terminal e o script se comportam diferente. O <b>diretório atual não está no <code class="inl">PATH</code></b>: por isso <code class="inl">./script.sh</code>. Não é inconveniência, é segurança — com <code class="inl">.</code> no <code class="inl">PATH</code>, um arquivo chamado <code class="inl">ls</code> num diretório gravável vira escalada de privilégio. <b>Nunca acrescente <code class="inl">.</code> ao <code class="inl">PATH</code>.</b>
+  </div>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- SAÍDA E ENCADEAMENTO -->
+  <div class="secao-titulo">Zero é sucesso — e é o que dá sentido ao encadeamento</div>
+  <section class="duplo">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Código de saída</th><th>Significa</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><b>0</b></td><td>Sucesso — o único valor bom</td></tr>
+        <tr><td><b>1</b></td><td>Erro genérico (<code>grep</code> sem achar nada)</td></tr>
+        <tr><td><b>2</b></td><td>Erro de uso / arquivo inexistente</td></tr>
+        <tr><td><b>126</b></td><td>Existe, mas não é executável</td></tr>
+        <tr><td><b>127</b></td><td>Comando não encontrado — erro de digitação ou não instalado</td></tr>
+        <tr><td><b>130</b></td><td>Interrompido por <code>Ctrl+C</code> (128 + sinal 2)</td></tr>
       </tbody>
     </table>
+    <div class="ops">
+      <div class="op v"><b>a &amp;&amp; b</b><span>Roda <b>b</b> só se <b>a</b> deu certo. <b>O padrão para tudo que pressupõe o passo anterior.</b></span></div>
+      <div class="op"><b>a || b</b><span>Roda <b>b</b> só se <b>a</b> falhou — o tratamento de erro.</span></div>
+      <div class="op"><b>a ; b</b><span>Roda <b>b</b> sempre, dê no que der.</span></div>
+      <div class="op"><b>a &amp;</b><span>Roda em segundo plano e devolve o prompt na hora.</span></div>
+      <div class="op"><b>\rm · command rm</b><span>Ignora o alias e chama o programa real.</span></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo">
+    <b>Trocar <code class="inl">&amp;&amp;</code> por <code class="inl">;</code> já destruiu sistemas.</b> Em <code class="inl">cd /tmp/trabalho ; rm -rf ./*</code>, se o <code class="inl">cd</code> falhar por um erro de digitação, o <code class="inl">rm -rf</code> executa <b>no diretório em que você estiver</b> — que pode ser o seu <code class="inl">~</code>. Escreva sempre <code class="inl">cd /tmp/trabalho &amp;&amp; rm -rf ./*</code>. Mesma família de erro: em <code class="inl">rm -rf "$DIR"/</code> com <code class="inl">$DIR</code> vazia, a linha vira <code class="inl">rm -rf /</code>. E <code class="inl">sudo echo x &gt; /etc/arquivo</code> <b>falha</b>: quem redireciona é o seu shell, não o sudo — use <code class="inl">echo x | sudo tee -a /etc/arquivo</code>.
+  </div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Ler → separar por espaço → expandir → resolver → <code class="inl">fork</code> → <code class="inl">execve</code>. O programa só existe no fim.</li>
+        <li>Espaço em nome quebra tudo: <code class="inl">"$arquivo"</code> entre aspas, sempre.</li>
+        <li><code class="inl">hash -r</code> (Bash) ou <code class="inl">rehash</code> (Zsh) quando o shell não acha o programa recém-instalado.</li>
+        <li>O shell é só mais um programa: <code class="inl">ps -p $$ -o comm=</code> mostra qual está rodando de verdade.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O shell padrão é o <b>Zsh</b> desde a 2020.4 — para tudo desta ficha ele é idêntico ao Bash; use <code class="inl">rehash</code> no lugar de <code class="inl">hash -r</code>. A distro define aliases coloridos para <code class="inl">ls</code>, <code class="inl">grep</code>, <code class="inl">ip</code>: veja com <code class="inl">alias</code> e lembre que <b>script nenhum os enxerga</b>. Ferramenta clonada em <code class="inl">/opt</code> não está no <code class="inl">PATH</code> — faça um link em <code class="inl">/usr/local/bin</code>. <b>Cuidado com comando copiado de artigo:</b> dá para esconder um comando extra num bloco formatado. Cole num editor antes de executar — o shell obedece à linha, não à sua intenção.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 01 · Fase 1 <span class="n">006</span></span>
