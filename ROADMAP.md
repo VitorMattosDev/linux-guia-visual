@@ -28,7 +28,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 ### Volume 3 — Arquivos e o Sistema de Arquivos
 
 - [x] **guia 015** - Tipos de arquivo, inodes e a árvore de diretórios - `guias/vol03/guia015-tipos-de-arquivo-inodes-e-a-arvore-de-diretorios.html`
-- [ ] **guia 016** - Links simbólicos e hard links - `guias/vol03/guia016-links-simbolicos-e-hard-links.html`
+- [x] **guia 016** - Links simbólicos e hard links - `guias/vol03/guia016-links-simbolicos-e-hard-links.html`
 - [ ] **guia 017** - Localizando arquivos: find, locate, which e type - `guias/vol03/guia017-localizando-arquivos-find-locate-which-e-type.html`
 - [ ] **guia 018** - Compactação e arquivamento: tar, gzip, xz e zip - `guias/vol03/guia018-compactacao-e-arquivamento-tar-gzip-xz-e-zip.html`
 - [ ] **guia 019** - Montagem de dispositivos e o comando mount - `guias/vol03/guia019-montagem-de-dispositivos-e-o-comando-mount.html`

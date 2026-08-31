@@ -3,101 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 016 — Links simbólicos e hard links</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: os dois mecanismos de link, lado a lado */
+  .linkdiag { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .painel { border:1.5px solid var(--linha); border-top:4px solid var(--azul); border-radius:10px;
+            padding:7px 10px 9px; background:#fff; }
+  .painel.simb { border-top-color:var(--roxo); }
+  .painel > h3 { font-family:var(--fonte-titulo); font-size:14px; text-transform:uppercase;
+                 letter-spacing:.03em; color:var(--azul); text-align:center; }
+  .painel.simb > h3 { color:var(--roxo); }
+  .painel > .sub { font-size:9.5px; color:var(--tinta-suave); text-align:center; margin-bottom:6px; }
+  .mini { display:flex; align-items:center; justify-content:center; gap:5px; margin:2px 0 7px; }
+  .mini .st { color:var(--tinta-suave); font-size:14px; font-weight:700; }
+  .mini .st.tr { color:var(--roxo); }
+  .nomes { display:flex; flex-direction:column; gap:4px; }
+  .chip { font-family:var(--fonte-mono); font-size:9.5px; border:1.5px solid var(--linha); background:var(--papel-tint);
+          border-radius:6px; padding:4px 6px; text-align:center; color:var(--tinta); }
+  .nodo { border-radius:6px; padding:5px 7px; font-size:9px; text-align:center; line-height:1.35;
+          border:1.5px solid var(--azul); background:var(--azul-claro); color:var(--navy); }
+  .nodo b { font-family:var(--fonte-mono); font-size:9.5px; display:block; }
+  .nodo.roxo { border-color:var(--roxo); background:var(--roxo-claro); }
+  .nodo.dados { border-color:var(--verde); background:var(--verde-claro); color:var(--verde); font-weight:700; }
+  .painel ul { list-style:none; display:flex; flex-direction:column; gap:3px; }
+  .painel li { font-size:10px; color:var(--tinta); padding-left:15px; position:relative; line-height:1.3; }
+  .painel li::before { content:"✔"; position:absolute; left:0; color:var(--azul); font-weight:700; font-size:9px; }
+  .painel.simb li::before { color:var(--roxo); }
+  .painel li.nao::before { content:"✖"; color:var(--vermelho); }
+  /* prática: terminal + cadeia do update-alternatives */
+  .pratica { display:grid; grid-template-columns:1.45fr .9fr; gap:10px; align-items:start; }
+  .cadeia { border:1.5px solid var(--linha); border-radius:10px; padding:8px 9px; background:var(--papel-tint); }
+  .cadeia .rot { font-family:var(--fonte-titulo); font-size:9.5px; font-weight:800; letter-spacing:.04em;
+                 text-transform:uppercase; color:var(--tinta-suave); text-align:center; margin-bottom:6px; }
+  .cadeia .elo { border-radius:6px; padding:5px 6px; font-family:var(--fonte-mono); font-size:9.5px;
+                 text-align:center; border:1.5px solid var(--laranja); background:var(--laranja-claro); color:var(--navy); }
+  .cadeia .elo.meio { border-color:var(--azul); background:var(--azul-claro); }
+  .cadeia .elo.fim  { border-color:var(--verde); background:var(--verde-claro); }
+  .cadeia .baixo { text-align:center; color:var(--azul); font-size:13px; font-weight:700; line-height:1.1; }
+  .cadeia .leg { font-size:9px; color:var(--tinta-suave); text-align:center; margin-top:5px; line-height:1.3; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 016</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Links simbólicos e hard links</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Links Simbólicos<br>e Hard Links</h1>
+      <div class="sub">O <code class="inl">cat</code> diz <i>No such file or directory</i> — mas o arquivo está ali, dois diretórios adiante.</div>
     </div>
     <div class="badge"><b>016</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- OS DOIS MECANISMOS -->
+  <div class="secao-titulo">Um aponta para o inode, o outro para um caminho</div>
+  <section class="linkdiag">
+    <div class="painel">
+      <h3>Hard link</h3>
+      <div class="sub"><code class="inl">ln dados.txt copia.txt</code></div>
+      <div class="mini">
+        <div class="nomes"><span class="chip">dados.txt</span><span class="chip">copia.txt</span></div>
+        <span class="st">→</span>
+        <div class="nodo"><b>inode 4711</b>links: 2</div>
+        <span class="st">→</span>
+        <div class="nodo dados">conteúdo</div>
+      </div>
+      <ul>
+        <li>Dois nomes legítimos: <b>não existe "o original"</b>.</li>
+        <li>Sobrevive a renomear/mover o outro nome.</li>
+        <li>Some só quando o contador zera.</li>
+        <li class="nao">Não atravessa sistema de arquivos.</li>
+        <li class="nao">Não funciona para diretório.</li>
+      </ul>
+    </div>
+    <div class="painel simb">
+      <h3>Link simbólico</h3>
+      <div class="sub"><code class="inl">ln -s dados.txt atalho</code></div>
+      <div class="mini">
+        <span class="chip">atalho</span>
+        <span class="st">→</span>
+        <div class="nodo roxo"><b>inode 9002</b>conteúdo:<br>"dados.txt"</div>
+        <span class="st tr">⇢</span>
+        <div class="nodo"><b>inode 4711</b>o alvo</div>
+      </div>
+      <ul>
+        <li>Arquivo próprio, tipo <code class="inl">l</code>; tamanho = nº de caracteres do caminho.</li>
+        <li>Atravessa sistemas de arquivos e aceita diretório.</li>
+        <li>Pode apontar para o que ainda não existe.</li>
+        <li class="nao">Alvo saiu do lugar → link pendurado.</li>
+        <li class="nao">Não conta no contador de links do alvo.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- ARMADILHAS DO LN -->
+  <div class="secao-titulo">As três armadilhas do <code class="inl">ln</code></div>
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>Ordem dos argumentos</h3><p><code>ln -s ALVO LINK</code> — origem primeiro, como no <b>cp</b>. Se <b>LINK</b> for um diretório existente, o link nasce <i>dentro</i> dele com o nome-base do alvo.</p></div>
+    <div class="card laranja"><h3><code>-sfn</code>, nunca só <code>-sf</code></h3><p>Se o link já aponta para um diretório, <code>ln -sf</code> <b>entra</b> nele e cria o link lá dentro. O <code>-n</code> trata o link como arquivo e substitui de fato.</p></div>
+    <div class="card roxo"><h3>Relativo × absoluto</h3><p>O relativo resolve a partir de <b>onde o link está</b>, não de onde você o criou. <code>ln -sr</code> calcula o <code>../</code> sozinho — ideal em árvore que será movida.</p></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+  <section class="pratica">
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> ln dados.txt copia.txt <span class="cmt"># hard link</span>
+<span class="prompt">$</span> stat -c '%n i=%i links=%h' dados.txt copia.txt
+<span class="out">dados.txt i=4711 links=2</span>
+<span class="out">copia.txt i=4711 links=2</span>
+<span class="prompt">$</span> ln -s dados.txt atalho ; ls -l atalho
+<span class="out">lrwxrwxrwx 1 kali kali 9 atalho -> dados.txt</span>
+<span class="prompt">$</span> find . -xtype l -printf '%p -> %l\n'
+<span class="out">./config.yaml -> ../antigo/config.yaml</span>
+<span class="prompt">$</span> namei -l /usr/bin/vi <span class="cmt"># cada etapa e a permissao</span></pre>
+    </div>
+    <div class="cadeia">
+      <div class="rot">A cadeia do <code class="inl">vi</code> no Kali</div>
+      <div class="elo">/usr/bin/vi</div>
+      <div class="baixo">↓</div>
+      <div class="elo meio">/etc/alternatives/vi</div>
+      <div class="baixo">↓</div>
+      <div class="elo fim">/usr/bin/vim.basic</div>
+      <div class="leg">Só o elo do meio muda em <code class="inl">update-alternatives --config editor</code>. Nada em <code class="inl">/usr/bin</code> é tocado — e a atualização do pacote não desfaz a escolha.</div>
+    </div>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
+  <div class="perigo"><b><code class="inl">chown -RL</code> pode arruinar o sistema.</b> O <code class="inl">-L</code> segue os links e leva a mudança de dono para fora da árvore — um link para <code class="inl">/etc</code> dentro de <code class="inl">/var/www</code> basta. Use <code class="inl">chown -Rh</code> (muda o dono do link, não do alvo) e, antes de qualquer <code class="inl">-R</code> em diretório que você não criou, liste o que há lá dentro: <code class="inl">find /var/www -type l -ls</code>.</div>
 
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + DICA -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Hard link = outro nome para o mesmo inode; simbólico = arquivo com um caminho dentro.</li>
+        <li><code class="inl">-P</code> não segue · <code class="inl">-L</code> segue · <code class="inl">-H</code> só o da linha de comando.</li>
+        <li><code class="inl">cat</code> e <code class="inl">cp</code> seguem o link; <code class="inl">rm</code> <b>nunca</b> toca o alvo; <code class="inl">cp -a</code> preserva a estrutura.</li>
+        <li><code class="inl">find -xtype l</code> acha os quebrados; <code class="inl">namei -l</code> diz qual etapa do caminho barrou.</li>
+        <li>Laço de link devolve <code class="inl">ELOOP</code> por volta de 40 níveis — é proteção, não defeito.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><code class="inl">/usr/share/wordlists</code> é quase todo feito de links para os diretórios dos pacotes — <code class="inl">namei -l</code> mostra onde de fato vão parar, e um <code class="inl">apt autoremove</code> agressivo deixa links pendurados (<code class="inl">find /usr/share -xtype l</code>). Wordlist gigante em outra partição pede <b>link simbólico</b>: hard link não cruza sistema de arquivos. E monte a pasta de engajamento com <code class="inl">ln -sr</code>, para ela sobreviver a ser arquivada e movida.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 03 · Fase 1 <span class="n">016</span></span>
