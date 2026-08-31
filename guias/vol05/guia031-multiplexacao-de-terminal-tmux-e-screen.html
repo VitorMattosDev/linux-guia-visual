@@ -3,101 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 031 — Multiplexação de terminal: tmux e screen</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .mux { display:grid; grid-template-columns: 1.15fr 1fr; gap:10px; align-items:stretch; }
+
+  /* Maquete da tela do tmux */
+  .tela { background:#12253f; border-radius:var(--raio); padding:6px; display:flex; flex-direction:column; gap:5px; }
+  .tela .linha { display:flex; gap:5px; flex:1; }
+  .pane { flex:1; background:#0d1a2d; border:1px solid #24405f; border-radius:5px; padding:5px 7px;
+          font-family:var(--fonte-mono); font-size:9px; color:#9fd8b0; line-height:1.4; }
+  .pane.ativo { border-color:var(--verde); box-shadow:0 0 0 1px var(--verde) inset; }
+  .pane .t { color:#7fb0e8; display:block; font-size:8.5px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
+  .pane .b { color:#e8b06a; }
+  .statusbar { background:var(--verde); border-radius:4px; padding:2px 7px; display:flex; justify-content:space-between;
+               font-family:var(--fonte-mono); font-size:9px; color:#fff; }
+  .statusbar b { background:#12253f; border-radius:3px; padding:0 4px; }
+
+  /* Hierarquia */
+  .hier { display:flex; flex-direction:column; gap:4px; }
+  .hier .nv { border:1.5px solid var(--linha); border-radius:var(--raio-sm); padding:4px 8px; }
+  .hier .nv b { font-family:var(--fonte-titulo); font-size:10.5px; color:var(--navy); text-transform:uppercase; letter-spacing:.03em; }
+  .hier .nv span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+  .hier .n1 { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .hier .n2 { border-color:var(--azul); background:var(--azul-claro); margin-left:10px; }
+  .hier .n3 { border-color:var(--verde); background:var(--verde-claro); margin-left:20px; }
+  .hier .n4 { border-color:var(--laranja); background:var(--laranja-claro); margin-left:30px; }
+  .hier .cli { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; margin-top:2px; }
+
+  /* Atalhos */
+  .atalhos { display:grid; grid-template-columns:repeat(3,1fr); gap:4px 10px; }
+  .at { display:flex; gap:6px; align-items:baseline; font-size:10px; color:var(--tinta-suave); line-height:1.3; }
+  .at kbd { font-family:var(--fonte-mono); font-size:9.5px; font-weight:700; background:var(--navy); color:#fff;
+            border-radius:4px; padding:1px 5px; flex:none; }
+  .at kbd.v { background:var(--verde); } .at kbd.l { background:var(--laranja); }
+  .scr { margin-top:7px; border-left:4px solid var(--roxo); background:var(--roxo-claro); border-radius:var(--raio-sm);
+         padding:5px 9px; font-size:10px; color:var(--tinta-suave); line-height:1.35; }
+  .scr b { color:var(--roxo); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 031</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Multiplexação de terminal: tmux e screen</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>tmux &amp; screen<br>Multiplexação</h1>
+      <div class="sub">O <code class="inl">nohup</code> mantém o processo vivo; o tmux mantém a <b>sessão de trabalho</b> inteira.</div>
     </div>
     <div class="badge"><b>031</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <div class="secao-titulo">Servidor → sessão → janela → painel</div>
+  <section class="mux">
+    <div class="tela">
+      <div class="linha">
+        <div class="pane ativo"><span class="t">painel 1 · nmap</span>Nmap scan report for<br>10.0.2.15<br><span class="b">Discovered open port 445</span></div>
+        <div class="pane"><span class="t">painel 2 · htop</span>1 [|||||  42%]<br>2 [||     11%]<br>Mem[||||| 3.1G/7.8G]</div>
+      </div>
+      <div class="linha" style="flex:.7">
+        <div class="pane"><span class="t">painel 3 · tail -f</span>[+] 4812 linhas gravadas em scan.gnmap</div>
+      </div>
+      <div class="statusbar"><span><b>recon</b> 1:scan* 2:logs 3:notas</span><span>kali · 14:05</span></div>
+    </div>
+    <div class="hier">
+      <div class="nv n1"><b>Servidor</b><span>Um por usuário. <b>Sem terminal de controle</b> (TTY <code class="inl">?</code>, PPID 1) — é por isso que sobrevive à queda do SSH.</span></div>
+      <div class="nv n2"><b>Sessão</b><span>Agrupamento nomeado. É a unidade de <i>attach</i>/<i>detach</i>: uma por assunto.</span></div>
+      <div class="nv n3"><b>Janela</b><span>Ocupa a tela toda, como uma aba. Numerada e renomeável.</span></div>
+      <div class="nv n4"><b>Painel</b><span>Divisão da janela; cada um com seu shell.</span></div>
+      <div class="cli"><b>Cliente</b> é o seu terminal: espia o servidor e pode sumir. <code class="inl">C-b d</code> e a queda da conexão têm <b>o mesmo efeito</b> — nada a salvar antes.</div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Prefixo <code class="inl">C-b</code>: solte o Ctrl, depois a tecla</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="atalhos">
+      <div class="at"><kbd class="v">d</kbd><span><i>detach</i>: sai deixando tudo rodando</span></div>
+      <div class="at"><kbd>c</kbd><span>cria janela · <kbd>,</kbd> renomeia</span></div>
+      <div class="at"><kbd>w</kbd><span>lista interativa de janelas</span></div>
+      <div class="at"><kbd>%</kbd><span>divide na <b>vertical</b></span></div>
+      <div class="at"><kbd>"</kbd><span>divide na <b>horizontal</b></span></div>
+      <div class="at"><kbd>setas</kbd><span>move entre painéis · <kbd>o</kbd> próximo</span></div>
+      <div class="at"><kbd class="l">z</kbd><span><b>zoom</b>: amplia o painel e desfaz</span></div>
+      <div class="at"><kbd>[</kbd><span>rolagem e cópia (<kbd>/</kbd> busca, <kbd>q</kbd> sai)</span></div>
+      <div class="at"><kbd>0…9</kbd><span>vai direto à janela</span></div>
+      <div class="at"><kbd>x</kbd><span>fecha o painel · <kbd>&amp;</kbd> a janela</span></div>
+      <div class="at"><kbd>espaço</kbd><span>percorre os layouts prontos</span></div>
+      <div class="at"><kbd>?</kbd><span>lista todos os atalhos</span></div>
+    </div>
+    <div class="scr"><b>screen, o antecessor onipresente</b> — prefixo <code class="inl">C-a</code>: <code class="inl">screen -S nome</code> cria · <code class="inl">-ls</code> lista · <code class="inl">-r</code> reconecta · <code class="inl">-d -r</code> expulsa o outro cliente · <code class="inl">C-a d</code> destaca. Só ele tem <code class="inl">screen -x</code>: <b>dois usuários na mesma tela ao vivo</b>. Aprenda esses cinco para a máquina antiga onde o tmux não existe.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~ — o essencial e o ~/.tmux.conf</span></div>
+<pre><span class="prompt">$</span> tmux new -As recon    <span class="cmt"># conecta se existir, cria se não — o idioma a memorizar</span>
+<span class="prompt">$</span> tmux ls
+<span class="out">recon: 3 windows (created Sun Aug 31 09:00:12 2026) (attached)</span>
+<span class="prompt">$</span> tmux a -d -t recon    <span class="cmt"># reconecta e desconecta os outros clientes</span>
+<span class="prompt">$</span> tmux send-keys -t recon:1 'nmap -sV -oA scan alvo' C-m   <span class="cmt"># monta ambiente por script</span>
+<span class="prompt">$</span> tmux pipe-pane -o -t recon:1 'cat &gt;&gt; ~/logs/painel.log'  <span class="cmt"># grava o painel</span>
+<span class="cmt"># ~/.tmux.conf — as cinco linhas que mais mudam o dia:</span>
+<span class="out">set -g mouse on · set -g base-index 1 · set -g history-limit 50000
+set -g renumber-windows on · bind | split-window -h -c "#{pane_current_path}"</span></pre>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>O servidor roda <b>sem terminal de controle</b>; o seu terminal é só um cliente descartável.</li>
+        <li>Hierarquia: <b>servidor → sessão → janela → painel</b>. Sessão é a unidade de attach.</li>
+        <li><code class="inl">tmux new -As nome</code> · <code class="inl">tmux ls</code> · <code class="inl">tmux a -t nome</code> · <code class="inl">C-b d</code>.</li>
+        <li>O histórico de rolagem é do tmux: use <code class="inl">C-b [</code>, não a roda do emulador (ou ligue <code class="inl">mouse on</code>).</li>
+        <li>Sessões sobrevivem a logout e à queda da conexão — <b>não a reboot</b>. Versione o script de montagem.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Uma sessão nomeada <b>por engajamento</b>, com janelas <i>recon</i>, <i>enum</i>, <i>exploit</i> e <i>notas</i>. O layout de acompanhamento é ferramenta + <code class="inl">htop</code> + <code class="inl">tail -f</code>, com <code class="inl">C-b z</code> para ampliar. <code class="inl">pipe-pane</code> (ou <code class="inl">script -a</code>) grava o que foi executado — <b>registro que protege as duas partes</b> na discussão de uma indisponibilidade. No alvo é o contrário: subir tmux lá deixa servidor persistente, artefato que muda o estado do cliente. E confira <code class="inl">ls -ld /tmp/tmux-*</code> (deve ser <b>700</b>): socket frouxo entrega uma sessão de root a quem quiser.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 05 · Fase 2 <span class="n">031</span></span>
