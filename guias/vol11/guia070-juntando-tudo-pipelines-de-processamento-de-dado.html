@@ -3,101 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 070 — Juntando tudo: pipelines de processamento de dados</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Os sete estágios */
+  .sete { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .st { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 4px; text-align:center; }
+  .st .n { display:inline-block; width:15px; height:15px; line-height:15px; border-radius:50%;
+           color:#fff; font-family:var(--fonte-mono); font-size:9px; font-weight:700; }
+  .st > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+            letter-spacing:.02em; margin:2px 0 1px; }
+  .st p { font-size:7.8px; line-height:1.25; color:var(--tinta-suave); }
+  .st i { display:block; font-family:var(--fonte-mono); font-style:normal; font-size:7.6px;
+          margin-top:3px; padding-top:3px; border-top:1px dashed #ccd6e2; }
+  .st.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .st.r .n { background:var(--vermelho); } .st.r > b, .st.r i { color:var(--vermelho); }
+  .st.a { border-color:var(--azul); background:var(--azul-claro); }
+  .st.a .n { background:var(--azul); } .st.a > b, .st.a i { color:var(--azul); }
+  .st.v { border-color:var(--verde); background:var(--verde-claro); }
+  .st.v .n { background:var(--verde); } .st.v > b, .st.v i { color:#1d7038; }
+  .st.l { border-color:var(--laranja); background:var(--laranja-claro); }
+  .st.l .n { background:var(--laranja); } .st.l > b, .st.l i { color:#a8530a; }
+
+  .faixa { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:4px; }
+  .fa { font-size:7.6px; text-align:center; border-radius:3px; padding:2px 3px; font-weight:700;
+        line-height:1.2; }
+  .fa.r { background:rgba(210,59,59,.12); color:var(--vermelho); }
+  .fa.a { background:rgba(31,111,208,.10); color:var(--azul); }
+  .fa.v { background:rgba(46,155,78,.12); color:#1d7038; }
+  .fa.l { background:rgba(232,114,12,.12); color:#a8530a; }
+
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+
+  .grade2 { display:grid; grid-template-columns:1.12fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.4px; line-height:1.45; }
+
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:118px 1fr; gap:6px; align-items:baseline;
+              font-size:8.4px; line-height:1.3; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:9px;
+                color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .trapbox { border-left:4px solid var(--laranja); background:var(--laranja-claro);
+        border-radius:var(--raio-sm); padding:5px 8px; margin-top:6px;
+        font-size:8.6px; line-height:1.35; color:var(--tinta-suave); }
+  .trapbox b { color:#a8530a; }
+  .trapbox .fix { color:#1d7038; font-weight:700; font-family:var(--fonte-mono); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 070</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Juntando tudo: pipelines de processamento de dados</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Juntando tudo<br>pipelines de dados</h1>
+      <div class="sub">Onze da noite, resposta a incidente: <i>quais endereços bateram no <code class="inl">/admin</code> mais de vinte vezes na hora anterior, e com quais agentes de usuário?</i> Noventa arquivos comprimidos, <b>quarenta gigabytes</b>. A primeira tentativa rodou <b>três horas</b> e devolveu uma lista errada por quatro motivos, nenhum deles um erro visível. O pipeline correto roda em <b>quatro minutos</b> e cabe em cinco linhas — e usa os mesmos comandos. <b>A diferença não é vocabulário; é método.</b></div>
     </div>
     <div class="badge"><b>070</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Os sete estágios — descarte cedo, estruture tarde</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="sete">
+      <div class="st r"><span class="n">1</span><b>localizar</b><p>quais arquivos</p><i>find · zcat · ls</i></div>
+      <div class="st r"><span class="n">2</span><b>reduzir</b><p>descartar o que não interessa</p><i>grep -F · -E</i></div>
+      <div class="st a"><span class="n">3</span><b>extrair</b><p>isolar os campos</p><i>awk · cut · grep -o</i></div>
+      <div class="st a"><span class="n">4</span><b>normalizar</b><p>uniformizar a forma</p><i>tr · sed · awk</i></div>
+      <div class="st v"><span class="n">5</span><b>agregar</b><p>contar, somar, agrupar</p><i>awk · uniq -c</i></div>
+      <div class="st v"><span class="n">6</span><b>ordenar</b><p>o relevante no topo</p><i>sort -rn · -k</i></div>
+      <div class="st l"><span class="n">7</span><b>apresentar</b><p>formatar para ler</p><i>head · column · jq</i></div>
+    </div>
+    <div class="faixa">
+      <div class="fa r" style="grid-column:span 2">os únicos que reduzem VOLUME</div>
+      <div class="fa a" style="grid-column:span 2">dão estrutura ao que sobrou</div>
+      <div class="fa v" style="grid-column:span 2">resumem em resposta</div>
+      <div class="fa l">entrega</div>
+    </div>
+    <div class="nota"><b>A ordem não é decorativa.</b> Tudo depois do estágio 2 paga o preço do que passou: um <code class="inl">grep</code> caro antes de um barato faz o caro processar cem vezes mais linhas do que precisava — foi um dos quatro erros da abertura. <b>Filtre por arquivo antes de filtrar por linha, filtre por linha antes de extrair campo, e só estruture o que sobreviveu.</b> Nem todo pipeline tem os sete: um relatório rápido é <code class="inl">grep | sort | uniq -c | sort -rn</code>, ou seja, os estágios 2, 5 e 6. Mas quando o resultado sai errado, a pergunta <b>"em qual estágio isso se perdeu?"</b> encurta a depuração de uma hora para dois minutos, porque cada estágio é testável isoladamente. Os outros três erros daquela noite: o <code class="inl">grep admin</code> casou <code class="inl">/administrativo</code> e <code class="inl">admin.css</code> (faltou ancorar na requisição); o <code class="inl">&gt;&gt;</code> dentro de um laço abriu o arquivo noventa vezes e <b>grudou a última linha de um arquivo na primeira do seguinte</b>; e metade da pergunta — os agentes de usuário — simplesmente ficou de fora.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Construir por estágio · e o que realmente custa tempo</div>
+  <section class="grade2">
+    <div>
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-pipeline</span></div>
+<pre><span class="cmt"># 1. veja como os dados REALMENTE são</span>
+<span class="prompt">$</span> zcat acesso.log.gz | head -3
+<span class="cmt"># 2. um estágio por vez, com head na frente: instantâneo</span>
+<span class="prompt">$</span> zcat acesso.log.gz | head -1000 | grep -F ':02:' | head -3
+<span class="cmt"># 3. confira a CONTAGEM a cada estágio — é onde a perda aparece</span>
+<span class="prompt">$</span> zcat acesso.log.gz | wc -l
+<span class="out">200000</span>
+<span class="prompt">$</span> zcat acesso.log.gz | grep -cF ':02:'
+<span class="out">66701</span>
+<span class="cmt"># 4. o pipeline final: 4 minutos sobre 40 GB</span>
+<span class="prompt">$</span> LC_ALL=C zcat /var/log/nginx/acesso-*.gz \
+    | grep -F ':02:' \
+    | grep -E '"(GET|POST) /admin(/|\?| )' \
+    | awk -F'"' '{split($1,c," "); print c[1] "\t" $6}' \
+    | sort | uniq -c | sort -rn | head -20 | column -t -s $'\t'</pre>
+      </section>
+      <div class="trapbox"><b>Para inspecionar um pipeline já pronto</b>, o <code class="inl">tee</code> grava o meio sem interromper o fluxo: <code class="inl">… | tee /tmp/e2.txt | awk … | tee /tmp/e3.txt | sort -rn</code>, e depois <code class="inl">wc -l /tmp/e[23].txt</code>. Para saber se um comando longo <b>está andando ou travado</b>, <span class="fix">pv enorme.log | grep -F 'ERRO' | wc -l</span> mostra vazão e progresso <b>sem alterar os dados</b>.</div>
+    </div>
+    <div>
+      <p class="sub2">Desempenho: quatro decisões, quase todo o tempo</p>
+      <ul class="lista">
+        <li><i>barato antes</i><span><code class="inl">grep -F</code> &gt; <code class="inl">-E</code> &gt; <code class="inl">-P</code> &gt; <code class="inl">awk</code> com condição composta. Encadeados, <b>o barato vem primeiro</b> — inverter custa 10×</span></li>
+        <li><i>uma passada</i><span><code class="inl">awk '/ERRO/{n[$1]++} END{…}'</code> substitui <code class="inl">grep|cut|sort|uniq -c</code>: 2 processos em vez de 4, e de 2 a 5× mais rápido <b>em arquivo grande com poucas chaves</b> (em volume pequeno, a cadeia legível vence; e o <code class="inl">sort</code> externo é imbatível quando as chaves não cabem na memória)</span></li>
+        <li><i>LC_ALL=C</i><span>vale para <code class="inl">grep</code>, <code class="inl">sort</code> e <code class="inl">awk</code> — e muda <b>resultado</b>, não só velocidade</span></li>
+        <li><i>xargs -P 8</i><span>só ajuda quando o trabalho <b>se divide por unidade independente</b> e o gargalo é CPU. Em HD mecânico, oito processos disputando cabeçote são <b>mais lentos</b> que um</span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">Os erros que não aparecem como erro</p>
+      <ul class="lista">
+        <li><i>uniq sem sort</i><span>conta em silêncio errado — e <code class="inl">join</code> sobre entrada não ordenada perde pares</span></li>
+        <li><i>xargs -P</i><span><b>intercala a saída</b> dos processos: grave um arquivo por processo, ou use <code class="inl">parallel</code>, que serializa. <b>A redução final é sempre sequencial</b></span></li>
+        <li><i>nome com espaço</i><span>quebra <code class="inl">for f in $(ls)</code> e <code class="inl">xargs</code> sem <code class="inl">-0</code>: use <code class="inl">find … -print0 | xargs -0</code></span></li>
+        <li><i>sem \n final</i><span><code class="inl">&gt;&gt;</code> gruda registros. Na dúvida, <code class="inl">tail -c 1 arquivo | xxd</code></span></li>
+        <li><i>\r do Windows</i><span>campeão de falha silenciosa — <code class="inl">cat -A</code> mostra <code class="inl">^M</code>, <code class="inl">^I</code> e <code class="inl">$</code></span></li>
+        <li><i>entrada vazia</i><span>produz nada e sai com <b>status 0</b>: indistinguível de "processou tudo e não achou". Se importa, conte antes</span></li>
+        <li><i>subshell</i><span><code class="inl">cat x | while read l; do ((n++)); done</code> deixa <code class="inl">n</code> em zero — use <code class="inl">done &lt; &lt;(cat x)</code></span></li>
+        <li><i>SIGPIPE</i><span><code class="inl">| head -5</code> mata o produtor, o que é <b>correto</b> — mas sob <code class="inl">set -o pipefail</code> vira "falha" do pipeline</span></li>
+      </ul>
+      <div class="nota" style="margin-top:5px"><b>Pipeline que se repete vira script:</b> <code class="inl">#!/usr/bin/env bash</code>, <code class="inl">set -euo pipefail</code>, parâmetros nomeados com mensagem de uso (<code class="inl">"${1:?uso: $0 &lt;dir&gt; &lt;hora&gt;}"</code>), limite configurável por variável, <code class="inl">export LC_ALL=C</code> e o <code class="inl">--</code> antes dos caminhos. <b>E saiba quando parar:</b> junção de várias tabelas grandes é banco de dados (<code class="inl">duckdb</code> lê CSV e Parquet direto do disco); estrutura profunda, estado complexo entre registros, tratamento de erro por registro ou necessidade de <b>testes</b> pedem um programa. A heurística honesta: <b>mais de cinco ou seis estágios, mais de um <code class="inl">awk</code> não trivial, ou você vai ter de explicá-lo a alguém na semana que vem</b> — escreva em Python. Não é derrota: é a mesma escolha que fez o <code class="inl">awk</code> substituir o <code class="inl">cut</code>.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Paralelizar por alvo multiplica o tráfego que você gera no alvo.</b> <code class="inl">xargs -P 8</code> sobre uma lista de hosts gera <b>oito vezes</b> o volume — e o contrato de um teste autorizado costuma ter limite de taxa. Estourá-lo é <b>indisponibilidade provocada</b>, mesmo sem intenção e mesmo com autorização para testar (Lei 12.737/2012). Use <code class="inl">-P</code> compatível com o combinado, <code class="inl">parallel --delay</code> para espaçar, e <b>prefira paralelizar o processamento local</b> dos resultados, que não toca o alvo. Pelo mesmo motivo, <b>todo pipeline que gera lista de alvos passa por um filtro de escopo</b> — como <b>estágio obrigatório</b>, nunca como conferência mental: <code class="inl">awk 'FNR==NR{ok[$1];next} $1 in ok' escopo.txt candidatos.txt</code> é o que impede que um <code class="inl">/16</code> digitado errado vire varredura fora do escopo.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Todo pipeline tem sete estágios:</b> localizar, reduzir, extrair, normalizar, agregar, ordenar, apresentar. Nomeá-los é o que permite perguntar "em qual estágio isso se perdeu?".</li>
+        <li><b>Descarte cedo, estruture tarde.</b> Só os dois primeiros reduzem volume; filtro barato antes de filtro caro.</li>
+        <li><b>Construa um estágio por vez, com <code class="inl">head</code> na frente</b>, e confira a contagem depois de cada um — é onde as perdas silenciosas aparecem.</li>
+        <li><b>Uma passada de <code class="inl">awk</code> costuma vencer <code class="inl">grep|cut|sort|uniq -c</code></b> em arquivo grande com poucas chaves; em volume pequeno, a cadeia legível vence.</li>
+        <li><b><code class="inl">LC_ALL=C</code> muda desempenho e resultado.</b> Fixe em qualquer script cuja saída seja ordenada ou comparada.</li>
+        <li><b>Paralelize por unidade independente e cuide da saída:</b> <code class="inl">xargs -P</code> intercala; a redução final é sempre sequencial.</li>
+        <li><b>Os erros que não aparecem como erro:</b> <code class="inl">uniq</code> sem <code class="inl">sort</code>, nome com espaço sem <code class="inl">-print0</code>, <code class="inl">\r</code> do Windows, entrada vazia com status 0, variável perdida em subshell, <code class="inl">SIGPIPE</code> sob <code class="inl">pipefail</code>.</li>
+        <li><b>Pipeline que se repete vira script</b> com parâmetros, uso, <code class="inl">set -euo pipefail</code> e <code class="inl">--</code>.</li>
+        <li><b>Saiba quando parar:</b> junção de tabelas grandes, estrutura profunda, estado complexo ou testes = escreva o programa.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>A triagem de resultado de varredura é exatamente um pipeline de sete estágios:</b> localizar (<code class="inl">find . -name '*.gnmap'</code>), reduzir (<code class="inl">grep -F 'Ports:'</code>), extrair (<code class="inl">awk</code>), normalizar (<code class="inl">tr -s ' '</code>), agregar (contagem por porta), ordenar e apresentar (<code class="inl">column -t</code>). Escrever isso como <b>script parametrizado</b>, e não como linha decorada digitada de novo a cada teste, é o que permite rodar a mesma triagem em todo engajamento sem reconstruir o raciocínio às onze da noite. <b>O <code class="inl">tee</code> preserva a evidência bruta</b>, e isso importa juridicamente: numa resposta a incidente ou num teste com relatório, o dado intermediário é <b>prova</b>. <code class="inl">zcat *.gz | tee bruto-preservado.txt | grep …</code> guarda a entrada exata do processamento, e um <code class="inl">sha256sum</code> sobre ela fixa a <b>cadeia de custódia</b> — reprocessar depois com o pipeline corrigido só é possível se o bruto foi guardado. <b>A redação de dado sensível é o último estágio, e é verificada:</b> antes de entregar qualquer arquivo gerado, passe o <code class="inl">sed</code>/<code class="inl">jq</code> de redação e <b>depois confira com <code class="inl">grep -c</code> procurando o que deveria ter sumido</b> — um pipeline de redação que falha em silêncio entrega senha em claro num PDF de relatório. E lembre que <b>o ambiente muda o estágio 1</b>: numa máquina da família RHEL os logs de serviço estão no <code class="inl">journald</code> em formato binário, então o começo é <code class="inl">journalctl --since … -o json</code> em vez de <code class="inl">zcat /var/log/*.gz</code> — e a saída em JSON cai direto no <code class="inl">jq</code>. O <code class="inl">parallel</code> e o <code class="inl">pv</code> vêm com um <code class="inl">apt install</code> no Kali, mas exigem o EPEL no RHEL: num alvo, conte só com <code class="inl">xargs</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 11 · Fase 3 <span class="n">070</span></span>
