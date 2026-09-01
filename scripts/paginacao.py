@@ -21,6 +21,18 @@ caso aperte o respiro com `--gap-blocos` no <style> local da ficha.
 Uso:
     python scripts/paginacao.py             # todas as fichas marcadas [x]
     python scripts/paginacao.py 84 20       # so estas
+    python scripts/paginacao.py 84 --blocos # detalha bloco a bloco (ver abaixo)
+
+O modo `--blocos` e a ferramenta de trabalho enquanto voce DESENHA a ficha: ele
+lista a altura de cada filho direto do `.guia` e dos blocos internos que costumam
+mandar na altura (o `.terminal`, as colunas do `.grade2`, o Resumo e a Dica).
+Serve para saber ONDE cortar em vez de adivinhar. Dois padroes que aparecem toda
+hora e so ficam visiveis aqui:
+
+  - num grid de duas colunas, a coluna MAIS ALTA manda; encurtar a outra nao
+    muda nada. Equilibre as duas (ou mexa na proporcao de `grid-template-columns`);
+  - o Resumo e a Dica ficam sempre com a MESMA altura (sao celulas do mesmo grid),
+    entao aparar so um dos dois nao encolhe o bloco: apare os dois.
 """
 import glob
 import io
@@ -49,7 +61,14 @@ JS = """(sel) => {
     blocos.push([el.className || el.tagName.toLowerCase(),
                  r.top + window.scrollY - base, r.height]);
   });
-  return {alt: g.getBoundingClientRect().height, blocos};
+  const filhos = [...g.children].map(el => [
+    el.tagName.toLowerCase() + '.' + (el.className || '-'),
+    Math.round(el.getBoundingClientRect().height)]);
+  const dentro = [];
+  for (const s of ['.terminal', '.grade2 > *', '.bloco', '.perigo', '.regra', '.nota'])
+    document.querySelectorAll(s).forEach((el, i) =>
+      dentro.push([s + '[' + i + ']', Math.round(el.getBoundingClientRect().height)]));
+  return {alt: g.getBoundingClientRect().height, blocos, filhos, dentro};
 }"""
 
 
@@ -84,6 +103,7 @@ def pdf_ok(num):
 
 
 def main():
+    detalhe = "--blocos" in sys.argv
     args = {int(a) for a in sys.argv[1:] if a.isdigit()}
     nums = args or prontas()
     if not nums:
@@ -118,6 +138,19 @@ def main():
                     (num, "ultima pagina com %.0f%% — sobra so %.0f px; "
                           "aperte --gap-blocos ou corte %d px" % (ocup, falta, int(falta))))
             linhas.append((num, alt, paginas, ocup, n_pdf))
+
+            if detalhe:
+                falta = alt - UTIL if paginas == 1 else 0
+                print("\nguia %03d — %.0f px de %.0f (%s)"
+                      % (num, alt, UTIL,
+                         "sobra %.0f px" % -falta if falta < 0 else "PASSOU %.0f px" % falta))
+                print("  filhos diretos do .guia (o gap entre eles tambem custa):")
+                for nome, h in d["filhos"]:
+                    print("    %5d px  %s" % (h, nome[:64]))
+                print("  blocos internos que costumam mandar na altura:")
+                for nome, h in d["dentro"]:
+                    print("    %5d px  %s" % (h, nome[:64]))
+                print()
         b.close()
 
     print("%-5s %8s %5s %9s %6s" % ("ficha", "altura", "pag", "ult.pag", "pdf"))

@@ -166,7 +166,11 @@ Tudo aqui já custou tempo uma vez. Não redescubra.
 
 ### Ambiente (Windows + Git Bash)
 
-- **Instalação:** `python -m pip install playwright pypdf` e `python -m playwright install chromium`.
+- **Instalação:** `python -m pip install playwright pypdf pymupdf` e
+  `python -m playwright install chromium`. O `pymupdf` serve para **olhar o PDF de
+  verdade** (o `pdftoppm` não existe aqui):
+  `python -c "import fitz; d=fitz.open('_saida/pdf/guia084.pdf'); d[0].get_pixmap(dpi=96).save('p1.png')"`
+  — e aí sim dá para conferir onde a quebra de página caiu numa ficha de duas páginas.
   O `--break-system-packages` do PROMPT-INICIAL é de Linux e **não** se usa aqui.
 - **Escreva o HTML da ficha com a ferramenta Write, nunca com heredoc no Bash.** Heredoc com
   ficha inteira quebra o parser (`unexpected EOF while looking for matching '`).
@@ -265,6 +269,50 @@ classe (005), dissecação token a token (006), grade numerada (007). **O visual
 ficha é sempre a figura que o capítulo já tem em TikZ** — traduza-a para CSS em vez de
 inventar outra. Tudo saiu em SVG/CSS: o Volume 1 não pediu nenhuma imagem realista nem
 captura de tela, e `assets/img/` segue vazio.
+
+## Aprendizados de produção (Volume 13)
+
+### Desenhe já dentro do orçamento, e meça em vez de adivinhar
+
+`python scripts/paginacao.py NNN --blocos` lista a altura de cada bloco da ficha. Use isso
+**enquanto escreve**, não só no fim: no Volume 13 as três primeiras fichas custaram muitas
+rodadas de tentativa e erro até eu medir direito; as quatro últimas saíram quase de primeira.
+
+Orçamento que funcionou para uma ficha de UMA página (1077 px em print), com
+`--gap-blocos: 5mm` e 7 filhos diretos (topo, cabeçalho, 3 seções, rodapé-blocos, rodapé):
+
+| Parte | Altura |
+|---|---|
+| `.topo` + `.cabecalho` (subtítulo de 3 linhas) | ~142 px |
+| cada seção de conteúdo (título + figura/grade) | ~195 px |
+| `.rodape-blocos` (Resumo 5–6 bullets + Dica) | ~190 px |
+| `.rodape` | 35 px |
+| os 6 gaps de 5 mm | ~113 px |
+
+### As três armadilhas que consumiram tempo
+
+- **Em grid de duas colunas, a coluna mais alta manda.** Aparar a coluna curta não muda
+  nada — e foi o erro que mais repeti. Equilibre as duas, ou mexa na proporção do
+  `grid-template-columns` (alargar a coluna de texto costuma eliminar duas linhas).
+- **Resumo e Dica têm sempre a mesma altura** (células do mesmo grid): cortar só a Dica
+  não encolhe o bloco. Corte os dois, ou aproveite a folga para engordar o Resumo de graça.
+- **Trocar palavras raramente tira uma linha.** Se precisa de 30 px, mexa no que muda
+  altura de verdade: `--gap-blocos`, `line-height`, uma linha a menos no terminal, uma
+  linha a menos na tabela. Reescrever frase por frase gasta rodadas e não entrega px.
+
+### Um detalhe de HTML que pega
+
+Bloco de "terminal" feito com `<div>` em vez de `<pre>` **colapsa as quebras de linha**:
+o conteúdo vira um parágrafo só e a ficha parece 60 px mais curta do que é. Se usar um
+`<div>` estilizado como terminal, ponha `white-space: pre-wrap` (aconteceu na ficha 082).
+
+### Densidade do Volume 13
+
+Sete fichas, sete visuais distintos, todos tradução direta da figura TikZ do capítulo:
+pilha TCP/IP + encapsulamento (078), as três camadas que disputam a interface (079), a
+escada de diagnóstico em seis degraus (080), senha × chave pública e os três túneis (081),
+decodificador do `curl -v` (082), o caminho do pacote pelos ganchos do Netfilter (083),
+o que o TLS esconde (084). Tudo em SVG/CSS — `assets/img/` segue vazio.
 
 ## Estratégia de produção
 
