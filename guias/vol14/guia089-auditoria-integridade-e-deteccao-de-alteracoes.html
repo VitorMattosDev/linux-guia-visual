@@ -3,101 +3,198 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 089 — Auditoria, integridade e detecção de alterações</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: o pipeline de deteccao ---- */
+  .fluxo .passo { padding:4px 7px; }
+  .fluxo .passo h3 { font-size:9px; }
+  .fluxo .passo p { font-size:7.5px; line-height:1.18; }
+  .fluxo .passo .num { width:15px; height:15px; font-size:9px; line-height:15px; }
+  .fluxo .seta { font-size:13px; }
+
+  .custodia { display:grid; grid-template-columns:128px 1fr; gap:8px; align-items:center;
+              border:1.5px solid var(--vermelho); background:var(--vermelho-claro);
+              border-radius:var(--raio-sm); padding:4px 8px; margin-top:5px; }
+  .custodia > b { font-family:var(--fonte-titulo); font-size:9.2px; color:var(--vermelho);
+                  text-transform:uppercase; letter-spacing:.03em; line-height:1.15; }
+  .custodia > b i { display:block; font-style:normal; font-family:var(--fonte-texto);
+                    font-size:7.2px; font-weight:400; text-transform:none; letter-spacing:0;
+                    color:var(--tinta-suave); }
+  .custodia > span { font-size:8.1px; line-height:1.24; color:var(--tinta-suave); }
+  .custodia > span b { color:var(--vermelho); }
+  .custodia code { font-family:var(--fonte-mono); font-size:7.9px; font-weight:600; color:var(--navy); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- figura 2: auditd x journald + auid ---- */
+  .dois { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .cx { border:1px solid var(--linha); border-top:3px solid; border-radius:var(--raio-sm);
+        background:#fff; padding:4px 8px; }
+  .cx > b { display:block; font-family:var(--fonte-titulo); font-size:9.4px;
+            text-transform:uppercase; letter-spacing:.03em; }
+  .cx > i { font-style:normal; display:block; font-size:7.6px; color:var(--tinta-suave);
+            line-height:1.2; margin-bottom:3px; }
+  .cx ul { list-style:none; display:flex; flex-direction:column; gap:1.5px; }
+  .cx li { font-size:7.7px; line-height:1.19; color:var(--tinta-suave);
+           padding-left:8px; position:relative; }
+  .cx li::before { content:"›"; position:absolute; left:0; font-weight:700; }
+  .cx li b { color:var(--navy); }
+  .cx li code { font-family:var(--fonte-mono); font-size:7.6px; font-weight:600; color:var(--navy); }
+  .cx.a { border-top-color:var(--azul); } .cx.a > b, .cx.a li::before { color:var(--azul); }
+  .cx.g { border-top-color:var(--tinta-suave); } .cx.g > b, .cx.g li::before { color:var(--tinta-suave); }
+
+  .auid { display:grid; grid-template-columns:172px 1fr; gap:8px; align-items:center;
+          border:1px solid var(--roxo); background:var(--roxo-claro); border-radius:var(--raio-sm);
+          padding:3px 8px; margin-top:5px; }
+  .auid > code { font-family:var(--fonte-mono); font-size:8.6px; font-weight:700; color:var(--roxo);
+                 text-align:center; }
+  .auid > span { font-size:8.1px; line-height:1.24; color:var(--tinta-suave); }
+  .auid > span b { color:var(--navy); }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:0.87fr 1.2fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.4px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.5px 6px; line-height:1.18; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.5px; }
+
+  .guia { --gap-blocos:3.2mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.8px; line-height:1.22; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 089</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Auditoria, integridade e detecção de alterações</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Auditoria, integridade<br>e detecção de alterações</h1>
+      <div class="sub">A pergunta do cliente era simples e ninguém soube responder: <b>"esse servidor ainda é o que vocês instalaram?"</b> Quatro anos no ar, oito administradores, correções de madrugada e scripts baixados da internet rodados como <code class="inl">root</code>. <code class="inl">/usr/bin</code> tinha 2.400 arquivos — e nenhum ponto de comparação.</div>
     </div>
     <div class="badge"><b>089</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O pipeline: só a etapa 1 não pode ser feita depois</div>
+    <section class="fluxo" style="margin-top:4px">
+      <div class="passo"><span class="num">1</span><h3>Linha de base</h3><p>Hash de cada arquivo <b>no momento em que o sistema estava íntegro</b>.</p></div>
+      <span class="seta">→</span>
+      <div class="passo verde"><span class="num">2</span><h3>Coleta</h3><p>Estado atual: hash, dono, permissão, <code>mtime</code>, tamanho.</p></div>
+      <span class="seta">→</span>
+      <div class="passo laranja"><span class="num">3</span><h3>Comparação</h3><p>O que mudou, o que sumiu, o que apareceu do nada.</p></div>
+      <span class="seta">→</span>
+      <div class="passo roxo"><span class="num">4</span><h3>Triagem</h3><p>Mudança esperada — ou <b>alerta</b>? É aqui que o esforço sobrevive ou morre.</p></div>
+    </section>
+    <div class="custodia">
+      <b>Custódia externa<i>mídia só-leitura, host de gestão separado ou repositório assinado</i></b>
+      <span><b>A base guardada na própria máquina é editável por quem comprometeu a máquina.</b> O invasor com <code>root</code> troca o binário, roda <code>aide --update</code>, e a verificação seguinte dá tudo em ordem. A base tem de viver fora do alcance do sistema monitorado — e a verificação ideal roda <b>de fora dele</b>, porque um <i>rootkit</i> de kernel mente para qualquer programa que rode ali dentro.</span>
+    </div>
+    <div class="regra"><b>Monitore o que muda pouco e vale muito:</b> binários, <code>/etc</code>, módulos de kernel, pontos de arranque automático (unidades, <code>cron</code>, <code>~/.bashrc</code>) e credenciais (<code>shadow</code>, <code>sudoers</code>, <code>authorized_keys</code>). <b>Deixe de fora o volátil por natureza</b> — <code>/var/log</code>, <code>/var/cache</code>, <code>/tmp</code>, <code>/proc</code> —, senão o ruído afoga o sinal.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Dois registros que respondem perguntas diferentes</div>
+    <div class="dois" style="margin-top:4px">
+      <div class="cx a">
+        <b>auditd — o que o kernel observou</b>
+        <i>evidência: independe da boa vontade do programa</i>
+        <ul>
+          <li><b>Vigiar caminho:</b> <code>-w /etc/sudoers -p wa -k escalada</code> (<code>w</code>=escrita, <code>a</code>=atributo, <code>-k</code>=chave de consulta).</li>
+          <li><b>Vigiar chamada:</b> <code>-a always,exit -S execve -F euid=0</code>. Meça o volume antes de deixar fixa.</li>
+          <li><b>Persistir:</b> <code>/etc/audit/rules.d/*.rules</code> + <code>augenrules --load</code>. Via <code>auditctl</code>, só na memória.</li>
+          <li><b><code>-e 2</code> torna o conjunto imutável até o boot</b> — nem <code>root</code> altera as regras. É o que vira evidência.</li>
+        </ul>
+      </div>
+      <div class="cx g">
+        <b>journald — o que o programa contou</b>
+        <i>diagnóstico: rico, mas voluntário</i>
+        <ul>
+          <li>Registra o que a aplicação <b>decidiu</b> registrar — se ela não conta, não há linha.</li>
+          <li>Ótimo para entender <b>por que</b> um serviço falhou; fraco como prova do que alguém fez.</li>
+          <li><b>Log que vive só na máquina monitorada é prova sob custódia do suspeito.</b> Envie para fora: <code>systemd-journal-remote</code>, <code>audisp-remote</code>.</li>
+          <li><code>chattr +a</code> num log impede reescrever e truncar — a limpeza seletiva de rastro deixa de funcionar.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="auid">
+      <code>uid=0  auid=1001</code>
+      <span><b>O campo mais valioso de um evento.</b> O <code>auid</code> é fixado no <i>login</i> e <b>imutável dali em diante</b>: esta linha diz que foi o usuário <b>1001</b> quem, via <code>sudo</code>, fez aquilo como <code>root</code>. Numa máquina com cinco administradores, é a diferença entre "alguém apagou" e "fulano apagou".</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — e o que cada camada realmente cobre</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="cmt"># 1. os hashes que o apt já mantém — 30 segundos</span>
+<span class="prompt">$</span> sudo debsums -c
+<span class="out">/usr/bin/whoami            ← um byte a mais e ele aparece</span>
+<span class="cmt"># 2. auditoria: regras, e depois torná-las imutáveis</span>
+<span class="prompt">$</span> sudo auditctl -w /etc/shadow -p wa -k identidade
+<span class="prompt">$</span> sudo augenrules --load &amp;&amp; sudo auditctl -l
+<span class="prompt">$</span> sudo auditctl -e 2   <span class="cmt"># imutável até o reboot</span>
+<span class="prompt">$</span> sudo ausearch -k identidade -ts today -i
+<span class="prompt">$</span> sudo ausearch -m USER_LOGIN -sv no <span class="cmt"># logins que falharam</span>
+<span class="cmt"># 3. linha de base explícita — e a custódia dela</span>
+<span class="prompt">$</span> sudo aideinit &amp;&amp; sudo aide --check
+<span class="prompt">$</span> sudo sha256sum /var/lib/aide/aide.db  <span class="cmt"># leve para fora</span>
+<span class="cmt"># 4. o que nem root altera sem dar um passo auditável</span>
+<span class="prompt">$</span> sudo chattr +i /etc/passwd    <span class="cmt"># imutável</span>
+<span class="prompt">$</span> sudo chattr +a /var/log/importante <span class="cmt"># só acréscimo</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Camada</th><th>Cobre — e o buraco que deixa</th></tr></thead>
+          <tbody>
+            <tr><td><code>debsums -c</code></td><td>tudo que veio de pacote, sem configurar nada. Não vê o que foi instalado fora do <code>apt</code></td></tr>
+            <tr><td><code>aide --check</code></td><td>o que você declarar, com hash e metadados. Custa manter a base fora da máquina</td></tr>
+            <tr><td><code>auditd</code></td><td><b>quem</b> fez, com qual chamada. Volume alto se a regra for genérica</td></tr>
+            <tr><td><code>chattr +i</code> / <code>+a</code></td><td>não impede <code>root</code>: obriga um passo a mais, e auditável</td></tr>
+            <tr><td>log remoto</td><td>tira a prova da custódia do suspeito — exige um coletor de pé</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="regra"><b>Quando o alerta é real:</b> <b>não desligue</b> (memória e conexões morrem junto), isole da rede sem apagar nada, colete antes de mexer (<code>ss -tunap</code>, <code>ps auxf</code>, <code>lsof -n</code>, <code>last</code>), preserve com hash — e <b>não conserte por cima</b>: sistema comprometido em nível de <code>root</code> só volta a ser confiável reconstruído de mídia limpa.</div>
+    <div class="perigo"><b><code class="inl">rkhunter</code> e <code class="inl">chkrootkit</code> rodam sobre o sistema que investigam.</b> Um <i>rootkit</i> em nível de kernel responde o que quiser a quem perguntar — e essas ferramentas perguntam. E só detectam o <b>conhecido</b>. Diante de suspeita séria, a análise correta é feita <b>de fora</b>: disco montado em outra máquina, ou o <i>live</i> USB do Kali em <b>modo forense</b>, que não monta nada automaticamente nem toca na área de troca.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Detecção exige uma linha de base registrada quando o sistema estava íntegro.</b> É a única etapa que não se faz em retrospecto.</li>
+        <li><b>Base guardada na máquina monitorada é adulterável por quem a comprometeu</b> — a custódia externa é o que separa o método do teatro.</li>
+        <li><b><code class="inl">auditd</code> registra o que o kernel observou; <code class="inl">journald</code>, o que os programas decidiram contar.</b> O <code class="inl">auid</code> responde "quem fez", não só "com qual UID".</li>
+        <li><b><code class="inl">-e 2</code> torna as regras imutáveis até o reboot</b> — e o reboot é ele próprio um evento visível.</li>
+        <li><b><code class="inl">debsums -c</code> é a verificação de trinta segundos</b>; o AIDE cobre o resto, ao custo de manter a base.</li>
+        <li><b>Log que só existe na máquina monitorada não é prova.</b> Envie para fora no momento em que é gerado.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Kali <i>rolling</i> é hostil a uma linha de base ingênua — é a lição mais prática do capítulo aqui.</b> Num Debian estável <code class="inl">/usr/bin</code> fica parado por meses e uma mudança é notável; no Kali, um <code class="inl">full-upgrade</code> semanal reescreve centenas de binários e o <code class="inl">aide --check</code> seguinte devolve milhares de linhas — em duas semanas o operador aprende a ignorar o relatório, que é <b>o modo mais comum de um sistema de detecção falhar</b>. O método que funciona: <code class="inl">aide --update</code> logo após cada atualização planejada, <b>com a base nova recustodiada fora da máquina</b>. Assim qualquer mudança fora da janela de atualização vira anomalia por definição. <b>A máquina Kali é a mais interessante de auditar da sua rede e não é a mais monitorada:</b> concentra credencial de laboratório, captura e resultado de teste autorizado — e ao mesmo tempo um <code class="inl">auditd</code> mal configurado nela gera ruído gigantesco. Comece pelas regras de identidade e escalada e deixe o <code class="inl">execve</code> genérico de fora até medir o volume. <b><code class="inl">debsums -c</code> é o teste que você pode rodar hoje:</b> a resposta esperada é lista vazia, e qualquer binário de <code class="inl">/usr/bin</code> que apareça merece explicação imediata. <b>Perfil de MAC bem construído é sensor:</b> um perfil que gera zero negações em operação normal transforma <i>qualquer</i> <code class="inl">apparmor="DENIED"</code> em evento — cruzado com o <code class="inl">auditd</code>, dá duas fontes independentes. <b>RHEL:</b> o <code class="inl">auditd</code> é nativo e já vem habilitado, com conjuntos alinhados a normas em <code class="inl">/usr/share/audit/sample-rules/</code> — <code class="inl">30-stig.rules</code> dá um ponto de partida auditado. A verificação por pacote é <code class="inl">rpm -Va</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 14 · Fase 4 <span class="n">089</span></span>
