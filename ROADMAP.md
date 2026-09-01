@@ -161,7 +161,7 @@ Decisão do Vitor sobre quando encarar: pode ser antes do Volume 14 ou depois do
 
 ### Volume 15 — Automação e Produtividade
 
-- [ ] **guia 092** - Personalizando o shell: .bashrc, aliases e funções - `guias/vol15/guia092-personalizando-o-shell-bashrc-aliases-e-funcoes.html`
+- [x] **guia 092** - Personalizando o shell: .bashrc, aliases e funções - `guias/vol15/guia092-personalizando-o-shell-bashrc-aliases-e-funcoes.html`
 - [ ] **guia 093** - Zsh, plugins e o prompt do Kali - `guias/vol15/guia093-zsh-plugins-e-o-prompt-do-kali.html`
 - [ ] **guia 094** - Automatizando tarefas com cron e scripts agendados - `guias/vol15/guia094-automatizando-tarefas-com-cron-e-scripts-agendad.html`
 - [ ] **guia 095** - Controle de versão com Git na linha de comando - `guias/vol15/guia095-controle-de-versao-com-git-na-linha-de-comando.html`

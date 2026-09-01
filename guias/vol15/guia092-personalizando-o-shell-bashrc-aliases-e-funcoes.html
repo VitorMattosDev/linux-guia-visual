@@ -3,101 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 092 — Personalizando o shell: .bashrc, aliases e funções</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: os tres tipos de shell e o que cada um le ---- */
+  .tipos { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; align-items:start; }
+  .tp { border:1.5px solid; border-radius:var(--raio-sm); padding:4px 7px 6px; }
+  .tp > b { display:block; font-family:var(--fonte-titulo); font-size:9.6px; text-transform:uppercase;
+            letter-spacing:.03em; line-height:1.15; }
+  .tp > i { font-style:normal; display:block; font-size:7.1px; color:var(--tinta-suave);
+            line-height:1.16; margin-bottom:2px; }
+  .tp.l { border-color:var(--azul); background:var(--azul-claro); } .tp.l > b { color:var(--azul); }
+  .tp.i { border-color:var(--verde); background:var(--verde-claro); } .tp.i > b { color:#1d7038; }
+  .tp.n { border-color:var(--vermelho); background:var(--vermelho-claro); } .tp.n > b { color:var(--vermelho); }
+
+  .arq { background:var(--papel); border:1.2px solid var(--linha); border-radius:4px;
+         padding:1.5px 6px; text-align:center; }
+  .arq code { font-family:var(--fonte-mono); font-size:8.4px; color:var(--navy); font-weight:600; }
+  .arq span { display:block; font-size:6.8px; color:var(--tinta-suave); line-height:1.15; }
+  .arq.destaque { border-color:var(--verde); border-width:1.6px; background:var(--verde-claro); }
+  .arq.destaque code { color:#1d7038; }
+  .arq.vazio { border-style:dashed; border-color:var(--vermelho); background:transparent; }
+  .arq.vazio code { color:var(--vermelho); font-weight:500; }
+  .dn { text-align:center; font-size:9px; color:var(--tinta-suave); line-height:1; margin:2px 0; }
+  .dn.trace { color:var(--azul); font-weight:700; }
+
+  /* ---- alias x funcao ---- */
+  .ax { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; }
+  .bx { border:1.5px solid; border-radius:var(--raio-sm); padding:4px 8px; }
+  .bx > b { display:block; font-family:var(--fonte-titulo); font-size:9.4px; text-transform:uppercase;
+            letter-spacing:.02em; margin-bottom:2px; }
+  .bx ul { margin:0; padding-left:11px; }
+  .bx li { font-size:7.7px; line-height:1.2; color:var(--tinta-suave); margin-bottom:1.5px; }
+  .bx li b { color:var(--navy); }
+  .bx code { font-family:var(--fonte-mono); font-size:7.5px; color:var(--roxo); font-weight:600; }
+  .bx.a { border-color:var(--laranja); background:var(--laranja-claro); } .bx.a > b { color:var(--laranja); }
+  .bx.f { border-color:var(--roxo); background:var(--roxo-claro); } .bx.f > b { color:var(--roxo); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1.05fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.4px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.1px 6px; line-height:1.16; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.4px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:2.9mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.8px; line-height:1.22; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 092</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Personalizando o shell: .bashrc, aliases e funções</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Personalizando o shell:<br>.bashrc, aliases e funções</h1>
+      <div class="sub">Digitou <code class="inl">alias ll='ls -la'</code>, gostou, pôs no <code class="inl">~/.bashrc</code>: funcionou em toda aba nova. Escreveu um script com <code class="inl">ll</code>, agendou no <code class="inl">cron</code> — e às três da manhã chegou um e-mail com <b><code class="inl">ll: command not found</code></b>. Nada quebrou. <b>O shell só leu outro arquivo.</b></div>
     </div>
     <div class="badge"><b>092</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Como o shell foi iniciado decide quais arquivos ele lê</div>
+    <div class="tipos" style="margin-top:4px">
+      <div class="tp l">
+        <b>login</b>
+        <i>tty, ssh, <code class="inl">su -</code>, <code class="inl">bash -l</code> — nasce da autenticação</i>
+        <div class="arq"><code>/etc/profile</code></div>
+        <div class="dn">↓</div>
+        <div class="arq"><code>~/.bash_profile</code><span>só o 1º que existir entre ele, <code>.bash_login</code> e <code>.profile</code></span></div>
+        <div class="dn trace">⇣ só se pedir</div>
+        <div class="arq destaque"><code>~/.bashrc</code><span>via <code>source</code> explícito</span></div>
+      </div>
+      <div class="tp i">
+        <b>interativo, sem login</b>
+        <i>aba nova do terminal — você já estava autenticado</i>
+        <div class="arq"><code>/etc/bash.bashrc</code></div>
+        <div class="dn">↓</div>
+        <div class="arq destaque"><code>~/.bashrc</code><span>o único que roda em <b>toda</b> aba nova</span></div>
+        <div class="dn">&nbsp;</div>
+        <div class="arq vazio"><code>nenhum perfil</code><span>ambiente vem herdado</span></div>
+      </div>
+      <div class="tp n">
+        <b>não-interativo</b>
+        <i>script, <code class="inl">cron</code>, <code class="inl">ssh host 'cmd'</code> — sem prompt</i>
+        <div class="arq"><code>$BASH_ENV</code><span>e só se a variável existir</span></div>
+        <div class="dn">↓</div>
+        <div class="arq vazio"><code>nenhum arquivo</code></div>
+        <div class="dn">&nbsp;</div>
+        <div class="arq vazio"><code>nenhum alias</code><span>o e-mail das 3h nasce aqui</span></div>
+      </div>
+    </div>
+    <div class="regra"><b>A seta tracejada é a chave de tudo.</b> O <code>~/.bashrc</code> <b>não</b> é lido por um shell de login — ele só entra porque a distribuição pôs um <code>source ~/.bashrc</code> dentro do <code>~/.bash_profile</code>. Apague a linha e o SSH perde os aliases; o script não lê nenhum dos dois. Os testes: <code>shopt -q login_shell</code> e <code>[[ $- == *i* ]]</code> — a letra <b>i</b> em <code>$-</code> só existe em shell interativo, daí todo <code>.bashrc</code> de distribuição abrir com <code>case $- in *i*) ;; *) return;; esac</code>: sem a guarda, um banner ali entra no meio da saída e quebra <code>scp</code> e <code>rsync</code>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Onde vai cada coisa — e alias × função</div>
+    <div class="grade2" style="margin-top:4px">
+      <table class="comparacao">
+        <thead><tr><th>Arquivo</th><th>Quando roda · o que colocar</th></tr></thead>
+        <tbody>
+          <tr><td>~/.bash_profile</td><td>seu login · <b>ambiente</b>: <code>export</code>, <code>PATH</code>, agente SSH</td></tr>
+          <tr><td>~/.bashrc</td><td>toda aba sua · <b>comportamento</b>: alias, função, prompt, histórico</td></tr>
+          <tr><td>~/.bash_logout</td><td>fim do login · limpeza: cache, travar tela</td></tr>
+          <tr><td><b>~/.zshenv</b></td><td><b>todo</b> Zsh, até script · o lugar certo do <code>PATH</code> no Kali</td></tr>
+          <tr><td>~/.zshrc</td><td>Zsh interativo · o equivalente ao <code>.bashrc</code></td></tr>
+        </tbody>
+      </table>
+      <div class="ax">
+        <div class="bx a">
+          <b>alias — troca a 1ª palavra</b>
+          <ul>
+            <li>Substituição textual, <b>só da primeira palavra</b>, antes de executar.</li>
+            <li>Argumento sempre no <b>fim</b>: <code>alias x='cmd --opt'</code> não põe nada no meio.</li>
+            <li><code>sudo ll</code> falha — contorne com <code>alias sudo='sudo '</code> (com espaço).</li>
+            <li><b>Não vale em script</b>: expansão vem desligada.</li>
+            <li>Escape pontual: <code>\grep</code> ou <code>command ls</code> — o alias de cor suja o pipeline.</li>
+          </ul>
+        </div>
+        <div class="bx f">
+          <b>função — comando de verdade</b>
+          <ul>
+            <li>Tem parâmetros, lógica e <b>código de saída</b>. Faz tudo que o alias faz.</li>
+            <li><code>mkcd(){ mkdir -p -- "$1" &amp;&amp; cd -- "$1"; }</code> — impossível como alias.</li>
+            <li>Robustez: <code>--</code>, aspas em toda expansão, <code>local</code>, erro em <code>stderr</code>.</li>
+            <li><code>export -f</code> alcança subshells Bash, e só eles.</li>
+            <li>O que precisa valer <b>em script</b> vem de biblioteca com <code>source</code>, não do <code>.bashrc</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — os ajustes de maior retorno diário</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~ — em qual shell eu estou?</span></div>
+<pre><span class="prompt">$</span> ps -p $$ -o comm= ; echo $SHELL
+<span class="out">zsh                       /usr/bin/zsh</span>
+<span class="cmt"># editar ~/.bashrc aqui nao muda NADA</span>
+<span class="prompt">$</span> type ll        <span class="cmt"># alias? funcao? binario?</span>
+<span class="out">ll is an alias for ls -alF --color=auto</span>
+<span class="prompt">$</span> bash -n ~/.bashrc &amp;&amp; echo "sintaxe ok"
+<span class="cmt"># checa SEM executar. Um erro ali te deixa</span>
+<span class="cmt"># sem shell utilizavel no proximo login.</span>
+<span class="prompt">$</span> shellcheck ~/.bashrc ; bash -lic 'exit'</pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Linha</th><th>O incômodo que ela resolve</th></tr></thead>
+          <tbody>
+            <tr><td><code>shopt -s histappend</code></td><td>a última aba fechada <b>sobrescrevia</b> o histórico de todas</td></tr>
+            <tr><td><code>HISTCONTROL=ignoreboth</code></td><td>duplicatas somem; e linha iniciada por <b>espaço</b> não é gravada — a forma certa de digitar uma senha</td></tr>
+            <tr><td><code>export LESS='-R -F -X -i'</code></td><td>cor preservada, sai se couber, não limpa a tela, busca sem caixa</td></tr>
+            <tr><td><code>~/.bashrc.d/*.sh</code></td><td>um laço com <code>source</code> fragmenta o monstro de 300 linhas</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="perigo"><b>Nunca ponha <code class="inl">.</code> (o diretório atual) no <code class="inl">PATH</code>, muito menos no início.</b> Com ele lá, entrar num diretório escrito por outra pessoa e digitar <code class="inl">ls</code> executa o <code class="inl">ls</code> plantado ali: escalada de privilégio clássica, trivial de explorar, inteiramente evitável — use <code class="inl">./programa</code>, a barra torna a intenção inequívoca. <b>E pense antes de <code class="inl">alias rm='rm -i'</code>:</b> ele treina o reflexo de confirmar sem ler, e no servidor, no contêiner ou dentro de um script — todos sem o alias — o <code class="inl">rm</code> apaga sem perguntar. Prefira <code class="inl">alias rmi='rm -i'</code> ou uma função-lixeira, deixando o <code class="inl">rm</code> real com o comportamento real.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Login, interativo e nenhum dos dois lêem arquivos diferentes.</b> O script e o <code class="inl">cron</code> não lêem nem <code class="inl">.bash_profile</code> nem <code class="inl">.bashrc</code> — é a causa do <i>command not found</i> das três da manhã.</li>
+        <li><b>Ambiente no <code class="inl">.bash_profile</code>, comportamento interativo no <code class="inl">.bashrc</code>.</b> O <code class="inl">.bashrc</code> roda a cada aba: tem de ser rápido e <b>silencioso</b> — banner ali quebra <code class="inl">scp</code> e <code class="inl">rsync</code>.</li>
+        <li><b>O Bash lê só o primeiro</b> entre <code class="inl">.bash_profile</code>, <code class="inl">.bash_login</code> e <code class="inl">.profile</code>. Criar um <code class="inl">.bash_profile</code> onde só havia <code class="inl">.profile</code> apaga o <code class="inl">PATH</code> em silêncio.</li>
+        <li><b>Alias troca a primeira palavra e morre no script;</b> quando precisa de argumento no meio, de lógica ou de código de saída, é função.</li>
+        <li><b><code class="inl">histappend</code> + <code class="inl">HISTCONTROL=ignoreboth</code></b> corrigem os dois piores padrões do histórico: sobrescrita pela última aba e duplicata.</li>
+        <li><b><code class="inl">bash -n</code> antes de confiar.</b> Um erro de sintaxe no arquivo de inicialização é a via mais rápida para ficar sem shell utilizável.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O shell padrão é o Zsh desde o Kali 2020.4 — e é aqui que quase todo mundo tropeça:</b> o usuário <code class="inl">kali</code> tem <code class="inl">/usr/bin/zsh</code> no <code class="inl">/etc/passwd</code>, com um <code class="inl">~/.zshrc</code> de mais de cem linhas mantido pelo pacote <code class="inl">kali-defaults</code>. O <code class="inl">~/.bashrc</code> continua lá, íntegro, para os contextos que usam Bash — então <b>o alias que você acrescentou ao <code class="inl">~/.bashrc</code> simplesmente não aparece no terminal</b>, e nenhum erro indica isso. Confira com <code class="inl">ps -p $$</code> e <code class="inl">echo $SHELL</code> <i>antes</i> de escolher o arquivo. O Zsh tem cinco arquivos onde o Bash tem dois, e o <code class="inl">~/.zshenv</code> é o único dos dois shells lido <b>sempre</b>, inclusive por script: o lugar certo do <code class="inl">PATH</code> e o pior possível para qualquer coisa que imprima. <b>O <code class="inl">kali-tweaks</code> troca o prompt sem editar arquivo</b>, mas escreve em arquivos do pacote — atualizar o <code class="inl">kali-defaults</code> sobrescreve edições manuais em <code class="inl">/usr/share/kali-*</code>; personalização sua vai no <code class="inl">~/.zshrc</code>. <b>Trocar de shell é <code class="inl">chsh -s /usr/bin/bash</code></b>, nunca editar o <code class="inl">/etc/passwd</code> na mão — e vale só no <i>próximo</i> login, o que faz muita gente achar que falhou. <b>Root tem <code class="inl">/root/.zshrc</code> próprio:</b> seus aliases não valem sob <code class="inl">sudo -i</code>, e assim deve ser. <b>Fora do Debian:</b> Bash é Bash, mas o Fedora/RHEL chama <code class="inl">/etc/bash.bashrc</code> de <code class="inl">/etc/bashrc</code> e usa <code class="inl">/etc/profile.d/*.sh</code> intensamente — dotfile portável testa a existência antes do <code class="inl">source</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 15 · Fase 4 <span class="n">092</span></span>
