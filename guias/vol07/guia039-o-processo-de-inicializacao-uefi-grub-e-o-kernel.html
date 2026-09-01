@@ -3,101 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 039 — O processo de inicialização: UEFI, GRUB e o kernel</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Visual específico: a "tela característica" dentro de cada elo da cadeia */
+  .fluxo .passo .tela { display:block; margin-top:5px; font-family:var(--fonte-mono);
+    font-size:8.5px; background:#0f2038; color:#8fe28f; border-radius:4px;
+    padding:3px 5px; line-height:1.35; word-break:break-word; }
+  /* Fluxo de configuração do GRUB: o que se edita × o que é gerado */
+  .lado { display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start; }
+  .gflux { display:flex; flex-direction:column; gap:5px; }
+  .gcx { border-radius:6px; padding:6px 9px; font-size:10px; line-height:1.35; }
+  .gcx b { font-family:var(--fonte-mono); font-size:10.5px; display:block; }
+  .gcx.edit { background:var(--verde-claro); border-left:4px solid var(--verde); }
+  .gcx.edit b { color:var(--verde); }
+  .gcx.ger  { background:#e8f1fd; border-left:4px solid var(--azul); text-align:center; }
+  .gcx.ger b { color:var(--azul); }
+  .gcx.saida{ background:var(--vermelho-claro); border-left:4px solid var(--vermelho); }
+  .gcx.saida b { color:var(--vermelho); }
+  .gseta { text-align:center; color:var(--azul); font-size:13px; line-height:.7; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 039</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>O processo de inicialização: UEFI, GRUB e o kernel</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>O Processo de<br>Inicialização</h1>
+      <div class="sub">Do POST ao PID 1 — e como descobrir em qual dos cinco elos o sistema parou.</div>
     </div>
     <div class="badge"><b>039</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
+  <!-- A CADEIA DE ENTREGAS + A TELA DE CADA FALHA -->
+  <div class="secao-titulo">A cadeia de cinco entregas — e a tela de cada falha</div>
   <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo"><span class="num">1</span><h3>Firmware</h3><p>POST, NVRAM. Lê a ESP e chama um <code>.efi</code>.</p><span class="tela">no bootable device</span></div>
     <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo verde"><span class="num">2</span><h3>GRUB</h3><p>Menu: escolhe kernel e parâmetros.</p><span class="tela">grub rescue&gt;</span></div>
     <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo laranja"><span class="num">3</span><h3>Kernel</h3><p>Descompacta <code>vmlinuz</code>, detecta hardware.</p><span class="tela">Kernel panic</span></div>
     <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+    <div class="passo roxo"><span class="num">4</span><h3>initramfs</h3><p>Carrega módulos, abre LUKS/LVM, monta a raiz.</p><span class="tela">(initramfs)</span></div>
+    <span class="seta">→</span>
+    <div class="passo vermelho"><span class="num">5</span><h3>PID 1</h3><p><code>switch_root</code> e o systemd assume.</p><span class="tela">logs travados numa unit</span></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <!-- BIOS x UEFI -->
+  <div class="secao-titulo">Os dois firmwares</div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna verde">
+      <h3>BIOS (legado)</h3>
+      <ul>
+        <li>Executa os primeiros 512 bytes do disco — o <b>MBR</b>.</li>
+        <li>Só 446 bytes úteis: o GRUB precisa se espalhar em estágios.</li>
+        <li>Tabela de partições <code class="inl">dos</code>, quatro entradas primárias.</li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>UEFI</h3>
+      <ul>
+        <li>Lê FAT32: a <b>ESP</b> em <code class="inl">/boot/efi</code>, com arquivos <code class="inl">.efi</code> por fornecedor.</li>
+        <li>Ordem de boot em variáveis da NVRAM — <code class="inl">efibootmgr -v</code>.</li>
+        <li>Teste definitivo: existe <code class="inl">/sys/firmware/efi</code>? Então é UEFI.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- GRUB GERADO + PARÂMETROS DO KERNEL -->
+  <div class="secao-titulo">O <code class="inl">grub.cfg</code> é gerado · o que o kernel recebe</div>
+  <section class="lado">
+    <div class="gflux">
+      <div class="gcx edit"><b>/etc/default/grub</b>timeout, resolução, parâmetros do kernel</div>
+      <div class="gcx edit"><b>/etc/grub.d/*</b>scripts que geram cada entrada do menu</div>
+      <div class="gseta">▼</div>
+      <div class="gcx ger"><b>sudo update-grub</b></div>
+      <div class="gseta">▼</div>
+      <div class="gcx saida"><b>/boot/grub/grub.cfg</b>gerado — editar aqui some na próxima atualização de kernel</div>
+    </div>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Parâmetro do kernel</th><th>Função</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>root=UUID=…</code></td><td>Qual partição é a raiz (não renumera)</td></tr>
+        <tr><td><code>ro quiet splash</code></td><td>Raiz só-leitura, sem logs, tela gráfica</td></tr>
+        <tr><td><code>nomodeset</code></td><td>Contorna driver de vídeo / tela preta</td></tr>
+        <tr><td><code>systemd.unit=rescue.target</code></td><td>Sobe em modo mínimo</td></tr>
+        <tr><td><code>init=/bin/bash</code></td><td>Shell no lugar do PID 1 — último recurso</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">Na prática</div>
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> ls /sys/firmware/efi &amp;&amp; echo UEFI || echo BIOS   <span class="cmt"># o teste que vale</span>
+<span class="prompt">$</span> cat /proc/cmdline
+<span class="out">BOOT_IMAGE=/boot/vmlinuz-6.12.13-amd64 root=UUID=8f3a... ro quiet splash</span>
+<span class="prompt">$</span> systemd-analyze
+<span class="out">4.512s (firmware) + 2.883s (loader) + 3.201s (kernel) + 11.744s (userspace)</span>
+<span class="prompt">$</span> sudo efibootmgr -o 0002,0000,0001   <span class="cmt"># reordena o boot, nao apaga nada</span>
+<span class="prompt">$</span> sudo update-initramfs -u            <span class="cmt"># reparo padrao apos trocar disco</span></pre>
+  </section>
+
+  <div class="perigo"><b>Cuidado com <code class="inl">efibootmgr -b NNNN -B</code>:</b> apaga a entrada da NVRAM para sempre e pode deixar o outro sistema do dual boot inacessível. Salve antes (<code class="inl">efibootmgr -v &gt; ~/efi-antes.txt</code>) e prefira <code class="inl">-o</code>, que só reordena. Gravar imagem com <code class="inl">dd</code> em <code class="inl">/dev/sda</code> destrói o GRUB em BIOS.</div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Diagnosticar "não inicia" é decidir qual dos <b>cinco elos</b> foi o último a rodar.</li>
+        <li>Reinstalar o Windows não apaga o GRUB — só reescreve a <code class="inl">BootOrder</code>.</li>
+        <li>O initramfs existe para romper a dependência circular: o driver do disco raiz mora dentro do disco raiz.</li>
+        <li>Tecla <b>e</b> no menu do GRUB edita a entrada só para este boot; <b>Ctrl+X</b> inicia. Nada é gravado.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O <b>live</b> monta um <code class="inl">squashfs</code> só-leitura com <i>overlay</i> na RAM — por isso tudo some ao desligar; persistência exige partição rotulada <code class="inl">persistence</code>. O <b>modo forense</b> difere só na linha do kernel: não monta nada automaticamente. E <b>Secure Boot</b> não trava o boot, trava o driver Wi-Fi: <code class="inl">Required key not available</code> em módulo DKMS é isso — confira com <code class="inl">mokutil --sb-state</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 07 · Fase 2 <span class="n">039</span></span>
