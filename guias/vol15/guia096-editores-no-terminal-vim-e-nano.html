@@ -3,101 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 096 — Editores no terminal: vim e nano</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: a maquina de estados dos modos do Vim ---- */
+  .modos { display:grid; grid-template-columns:1fr 88px 1.12fr 88px 1fr; align-items:center; gap:0 4px; }
+  .md { border:1.6px solid; border-radius:var(--raio-sm); padding:4px 7px; text-align:center; }
+  .md + .md { margin-top:6px; }
+  .md > b { display:block; font-family:var(--fonte-titulo); font-size:9.6px; text-transform:uppercase;
+            letter-spacing:.03em; line-height:1.1; }
+  .md > span { display:block; font-size:7.2px; line-height:1.16; color:var(--tinta-suave); }
+  .md.n { border-color:var(--azul); background:var(--azul-claro); padding:8px 7px; }
+  .md.n > b { color:var(--azul); font-size:12px; }
+  .md.n > span { font-size:7.6px; }
+  .md.i { border-color:var(--verde); background:var(--verde-claro); } .md.i > b { color:#1d7038; }
+  .md.v { border-color:var(--laranja); background:var(--laranja-claro); } .md.v > b { color:var(--laranja); }
+  .md.c { border-color:var(--vermelho); background:var(--vermelho-claro); } .md.c > b { color:var(--vermelho); }
+  .md.s { border-color:var(--tinta-suave); background:var(--papel-tint); } .md.s > b { color:var(--tinta-suave); }
+  .tr { text-align:center; font-family:var(--fonte-mono); font-size:7.2px; line-height:1.25; }
+  .tr + .tr { margin-top:22px; }
+  .tr .ida { display:block; color:var(--navy); font-weight:700; }
+  .tr .esc { display:block; color:var(--vermelho); font-weight:700; }
+
+  /* ---- os dez comandos ---- */
+  .dez { display:grid; grid-template-columns:repeat(2,1fr); gap:2px 8px; }
+  .cm { display:grid; grid-template-columns:38px 1fr; gap:5px; align-items:baseline; }
+  .cm > code { font-family:var(--fonte-mono); font-size:8.4px; font-weight:700; color:var(--navy);
+               background:var(--papel-tint); border:1px solid var(--linha); border-radius:3px;
+               text-align:center; padding:0 2px; }
+  .cm > span { font-size:7.6px; line-height:1.2; color:var(--tinta-suave); }
+  .cm > span b { color:var(--navy); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.05px; line-height:1.25;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:7.9px; color:var(--roxo); font-weight:600; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.3px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.6px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.2px 6px; line-height:1.16; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.4px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:2.4mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.05px; line-height:1.25; padding:5px 10px; }
+  .bloco .corpo { font-size:7.7px; line-height:1.21; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 096</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Editores no terminal: vim e nano</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Editores no terminal:<br>vim e nano</h1>
+      <div class="sub">Três da manhã, servidor remoto por SSH, o <code class="inl">sshd</code> não sobe. Sem interface gráfica. Sem <code class="inl">nano</code> — a imagem mínima não o inclui. Há <code class="inl">vi</code>, porque <b>todo</b> Unix tem <code class="inl">vi</code>. A pessoa digita a correção e as letras não aparecem. <b>Editar no terminal não é preferência: é competência de recuperação.</b></div>
     </div>
     <div class="badge"><b>096</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O Vim é modal — e NORMAL é o estado de repouso</div>
+    <div class="modos" style="margin-top:5px">
+      <div>
+        <div class="md s"><b>substituição</b><span>sobrescrever</span></div>
+        <div class="md c"><b>linha de comando</b><span>gravar, sair, substituir</span></div>
+      </div>
+      <div>
+        <div class="tr"><span class="ida">← R</span><span class="esc">Esc →</span></div>
+        <div class="tr"><span class="ida">← : / ?</span><span class="esc">Enter · Esc →</span></div>
+      </div>
+      <div class="md n"><b>NORMAL</b><span>navegar, apagar, copiar<br><b>é onde o Vim começa</b></span></div>
+      <div>
+        <div class="tr"><span class="ida">i a o I A O →</span><span class="esc">← Esc</span></div>
+        <div class="tr"><span class="ida">v V Ctrl-v →</span><span class="esc">← Esc</span></div>
+      </div>
+      <div>
+        <div class="md i"><b>inserção</b><span>digitar texto</span></div>
+        <div class="md v"><b>visual</b><span>selecionar região</span></div>
+      </div>
+    </div>
+    <div class="regra"><b>Toda volta é <code>Esc</code></b> — apertada duas vezes, você está em NORMAL a partir de qualquer lugar; é a tecla mais útil do editor. <b>A regra que resolve o pânico do primeiro contato: se as letras que você digita não aparecem, você está em NORMAL — aperte <code>i</code> e digite.</b> Para sair sem gravar nada: <code>Esc</code>, depois <code>:q!</code> e Enter. O Vim assume que você passa mais tempo <i>navegando e transformando</i> texto do que inserindo caracteres — o que é verdade quando se edita configuração. <b>Modo de inserção é para escrever; sai-se dele assim que terminou.</b></div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Os dez que bastam — e a gramática que dá velocidade</div>
+    <div class="grade2" style="margin-top:4px">
+      <div>
+        <div class="dez">
+          <div class="cm"><code>i</code><span>entra em <b>inserção</b> (antes do cursor)</span></div>
+          <div class="cm"><code>Esc</code><span>volta para o modo <b>normal</b></span></div>
+          <div class="cm"><code>:w</code><span>grava</span></div>
+          <div class="cm"><code>:q</code><span>sai</span></div>
+          <div class="cm"><code>:wq</code><span>grava e sai (ou <b>ZZ</b> em normal)</span></div>
+          <div class="cm"><code>:q!</code><span>sai <b>descartando</b> as alterações</span></div>
+          <div class="cm"><code>dd</code><span>apaga a linha inteira</span></div>
+          <div class="cm"><code>u</code><span>desfaz (<b>Ctrl-r</b> refaz)</span></div>
+          <div class="cm"><code>/txt</code><span>busca; <b>n</b> vai à próxima ocorrência</span></div>
+          <div class="cm"><code>:123</code><span>vai para a linha 123</span></div>
+        </div>
+        <div class="regra"><b>Aprendendo só isto você já não fica preso</b> e já corrige uma configuração remota. Depois vem a composição: um <b>número</b> na frente multiplica (<code>3dd</code>), repetir o operador age na linha (<code>dd</code>, <code>yy</code>, <code>cc</code>), e o <b><code>.</code> repete a última edição</b> — o comando mais subestimado do Vim. Busca e substituição têm a sintaxe do <code>sed</code>: <code>:%s/velho/novo/gc</code> confirma cada troca, <code>:5,20s/…/g</code> limita às linhas, <code>:g/^#/d</code> apaga os comentários e <code>:v/erro/d</code> apaga tudo que <b>não</b> casa. E <code>vim -u NONE</code> abre sem <code>.vimrc</code> nem plugin — a primeira coisa a tentar quando o editor age estranho.</div>
+      </div>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Operador + movimento</th><th>O que faz</th></tr></thead>
+          <tbody>
+            <tr><td><code>dw</code></td><td><b>d</b> apagar + <b>w</b> palavra: apaga até o fim da palavra</td></tr>
+            <tr><td><code>c$</code></td><td><b>c</b> alterar + <b>$</b> fim da linha; <code>y}</code> copia o parágrafo</td></tr>
+            <tr><td><code>di"</code></td><td>apaga <b>dentro</b> das aspas, de qualquer ponto entre elas</td></tr>
+            <tr><td><code>cip</code></td><td>substitui o parágrafo inteiro e já entra em inserção</td></tr>
+          </tbody>
+        </table>
+        <div class="regra"><b>Os <i>text objects</i> (<code>iw</code>, <code>i"</code>, <code>i(</code>, <code>it</code>) são o que mais rende em configuração:</b> com o cursor em qualquer ponto entre as aspas, <code>ci"</code> apaga o conteúdo e já deixa você digitando. <b>Um <code>~/.vimrc</code> mínimo:</b> <code>syntax on</code>, <code>number</code>, <code>expandtab</code>, <code>incsearch hlsearch</code>, <code>ignorecase smartcase</code> (<code>erro</code> acha <code>ERRO</code>; <code>Erro</code> só acha <code>Erro</code>) e <code>undofile</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">O nano, e quem decide qual editor abre</div>
+    <div class="grade2" style="margin-top:4px">
+      <table class="comparacao">
+        <thead><tr><th>nano</th><th>O que faz (^ = Ctrl, M- = Alt)</th></tr></thead>
+        <tbody>
+          <tr><td><code>Ctrl+O</code> · <code>Ctrl+X</code></td><td>grava (<i>write Out</i>) · sai, perguntando se quer gravar</td></tr>
+          <tr><td><code>Ctrl+W</code> · <code>Ctrl+\</code></td><td>busca (<code>Alt+W</code> repete) · busca e substitui. <code>Ctrl+_</code> vai a uma linha</td></tr>
+          <tr><td><code>Ctrl+K</code> · <code>Ctrl+U</code></td><td>recorta a linha · cola. <code>Alt+A</code> seleciona bloco; <code>Alt+U</code>/<code>Alt+E</code> desfaz e refaz</td></tr>
+          <tr><td><code>~/.nanorc</code></td><td><code>linenumbers</code>, <code>constantshow</code> e — o que importa — <b><code>tabstospaces</code></b></td></tr>
+        </tbody>
+      </table>
+      <div>
+        <div class="regra" style="margin-top:0"><b>O <code>tabstospaces</code> evita uma classe inteira de erro:</b> YAML com tabulação real é inválido, e a mensagem raramente diz isso. <b>E quem decide qual editor abre é a variável <code>EDITOR</code></b> — <code>git commit</code>, <code>crontab -e</code>, <code>visudo</code> e <code>systemctl edit</code> não escolhem editor: abrem o que estiver lá. É por isso que tanta gente se vê presa no Vim sem ter pedido, já que o padrão do Debian e do Kali é o <code>vi</code> quando a variável não existe. <code>export EDITOR=nano</code> no seu perfil resolve <b>para você</b>; <code>update-alternatives --config editor</code> muda o <code>/usr/bin/editor</code> e resolve <b>para a máquina</b>.</div>
+        <div class="regra"><b>Valide antes de gravar, sempre:</b> <code>visudo</code> para o <code>sudoers</code>, <code>sshd -t</code> para o SSH, <code>nginx -t</code>, <code>systemd-analyze verify</code> para as units. Um <code>/etc/sudoers</code> com erro de sintaxe deixa <b>ninguém</b> capaz de usar <code>sudo</code>, e recuperar exige boot em modo de recuperação. <b>Editando o <code>sshd_config</code> por SSH, mantenha a sessão atual aberta</b> e teste numa segunda conexão antes de fechá-la.</div>
+      </div>
+    </div>
+    <div class="perigo"><b><code class="inl">sudo vim /etc/algo</code> executa o editor inteiro como root — com o <i>seu</i> <code class="inl">.vimrc</code> e os <i>seus</i> plugins.</b> Esse arquivo é gravável pelo seu usuário, logo por qualquer processo que rode como você: um plugin comprometido vira execução como root na próxima configuração que você editar. Pior: dentro de um Vim rodando como root, <code class="inl">:!bash</code> abre um <b>shell de root</b> — o que transforma uma permissão de <code class="inl">sudo</code> restrita a "editar um arquivo" em root completo. A resposta é <b><code class="inl">sudoedit</code></b> (ou <code class="inl">sudo -e</code>): ele copia o arquivo para um temporário <i>seu</i>, roda o editor com os <i>seus</i> privilégios e a sua configuração, e só a cópia de volta acontece como root — o editor nunca executa privilegiado. No <code class="inl">sudoers</code>, conceder <code class="inl">sudoedit /etc/nginx/nginx.conf</code> é permissão de editar aquele arquivo; conceder <code class="inl">sudo vim</code> nele é, na prática, <b>conceder root</b>.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Editar no terminal é competência de recuperação.</b> Todo Unix tem <code class="inl">vi</code>; imagem mínima e contêiner muitas vezes não têm <code class="inl">nano</code> — e <code class="inl">apt install</code> não é opção quando foi a rede que você quebrou.</li>
+        <li><b>O Vim é modal, e NORMAL é o repouso.</b> Letras não aparecem? Aperte <code class="inl">i</code>. <code class="inl">Esc</code> volta de qualquer lugar; <code class="inl">:q!</code> sai descartando tudo.</li>
+        <li><b>Dez comandos bastam para sobreviver</b>; a gramática <b>operador + movimento</b> e o <code class="inl">.</code> de repetição é que dão velocidade depois.</li>
+        <li><b>O <code class="inl">nano</code> mostra os atalhos na tela</b> e resolve o dia a dia — e <code class="inl">set tabstospaces</code> evita o YAML inválido por tabulação.</li>
+        <li><b><code class="inl">sudoedit</code>, nunca <code class="inl">sudo vim</code>.</b> O segundo roda o editor inteiro como root, e <code class="inl">:!bash</code> lá dentro é um shell de root.</li>
+        <li><b><code class="inl">EDITOR</code> decide o que <code class="inl">git commit</code>, <code class="inl">crontab -e</code> e <code class="inl">visudo</code> abrem</b> — defina-a no perfil, ou mude o padrão da máquina com <code class="inl">update-alternatives</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Kali traz <code class="inl">vim</code>, <code class="inl">nano</code>, <code class="inl">vi</code> e <code class="inl">mousepad</code> — a imagem mínima e os contêineres, nem sempre:</b> a <code class="inl">kali-linux-core</code> e as imagens de contêiner podem vir só com o <code class="inl">vim.tiny</code> (o <code class="inl">vi</code>), sem <code class="inl">nano</code>. É exatamente a situação da abertura, e é o argumento prático para saber os dez comandos de sobrevivência mesmo preferindo o <code class="inl">nano</code>. <b>O <code class="inl">sudoedit</code> importa mais aqui do que em outros sistemas:</b> numa distribuição onde se instalam ferramentas de terceiros o tempo todo, e onde plugins de editor entram junto com repositórios clonados, a superfície do <code class="inl">sudo vim</code> deixa de ser hipótese. Adote o <code class="inl">sudoedit</code> como reflexo para tudo em <code class="inl">/etc</code>: o custo é zero e fecha um caminho de escalada conhecido. <b>Arquivo de troca (<code class="inl">.swp</code>) órfão denuncia sessão interrompida — e às vezes atividade que não foi sua.</b> Morto sem fechar, o Vim deixa um <code class="inl">.arquivo.swp</code>, e o <code class="inl">E325: ATTENTION</code> da abertura seguinte oferece recuperar o conteúdo não salvo. Numa investigação de máquina possivelmente comprometida, um <code class="inl">.swp</code> em <code class="inl">/etc</code> indica que <i>alguém editou algo ali</i> e a sessão foi interrompida: olhe antes de apagar — <code class="inl">find /etc -name '.*.swp'</code> encontra, <code class="inl">vim -r</code> recupera. <b>Fora do Debian:</b> o <code class="inl">vi</code> do RHEL mínimo é o <code class="inl">vim-minimal</code>, ainda mais limitado que o <code class="inl">vim.tiny</code>, e o <code class="inl">nano</code> não vem em instalação mínima; lá não existe o alias <code class="inl">editor</code>, então <code class="inl">EDITOR</code> é o caminho principal. O <code class="inl">sudoedit</code> e o <code class="inl">visudo</code> são idênticos nas duas famílias — vêm do mesmo pacote <code class="inl">sudo</code> —, e o argumento de segurança vale em qualquer distribuição.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 15 · Fase 4 <span class="n">096</span></span>
