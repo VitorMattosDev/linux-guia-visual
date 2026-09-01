@@ -3,101 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 064 — Expressões regulares: fundamentos e sabores</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Dissecação do padrão de IPv4 */
+  .tira { display:flex; gap:3px; align-items:stretch; justify-content:center; flex-wrap:wrap; }
+  .tk { font-family:var(--fonte-mono); font-size:15px; font-weight:700; padding:5px 8px;
+        border:1.5px solid; border-radius:var(--raio-sm); line-height:1.1; }
+  .tk.anc { border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); }
+  .tk.grp { border-color:var(--azul);     background:var(--azul-claro);     color:var(--azul); }
+  .tk.cls { border-color:var(--verde);    background:var(--verde-claro);    color:#1d7038; }
+  .tk.qnt { border-color:var(--laranja);  background:var(--laranja-claro);  color:#a8530a; }
+  .tk.lit { border-color:var(--linha);    background:var(--papel-tint);     color:var(--tinta-suave); }
+
+  .leg { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin-top:6px; }
+  .lg { border-top:3px solid; border-radius:2px; padding:3px 4px 0; font-size:8.4px;
+        line-height:1.3; color:var(--tinta-suave); }
+  .lg > b:first-child { display:block; font-family:var(--fonte-mono); font-size:9.5px; margin-bottom:1px; }
+  .lg b { color:var(--navy); }
+  .lg.a { border-color:var(--vermelho); } .lg.a > b:first-child { color:var(--vermelho); }
+  .lg.g { border-color:var(--azul); }     .lg.g > b:first-child { color:var(--azul); }
+  .lg.c { border-color:var(--verde); }    .lg.c > b:first-child { color:#1d7038; }
+  .lg.q { border-color:var(--laranja); }  .lg.q > b:first-child { color:#a8530a; }
+  .lg.l { border-color:var(--linha); }    .lg.l > b:first-child { color:var(--tinta-suave); }
+
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+
+  .grade2 { display:grid; grid-template-columns:1.02fr 1fr; gap:9px; align-items:start; }
+  table.comparacao thead th { text-transform:none; font-size:10px; letter-spacing:0; }
+  table.comparacao thead th small { display:block; font-family:var(--fonte-mono); font-size:7.6px;
+        font-weight:400; opacity:.75; letter-spacing:0; }
+  .comparacao td { font-size:9px; }
+  .comparacao td.m { font-family:var(--fonte-mono); font-size:10px; text-align:center; font-weight:700; }
+  .comparacao td.bre  { color:var(--vermelho); background:rgba(210,59,59,.06); }
+  .comparacao td.ere  { color:#1d7038;         background:rgba(46,155,78,.07); }
+  .comparacao td.pcre { color:var(--azul);     background:rgba(31,111,208,.06); }
+  .comparacao td.nao  { font-family:var(--fonte-mono); font-size:8.6px; text-align:center;
+        color:#95a3b3; background:rgba(0,0,0,.02); }
+
+  .dd { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 8px; margin-bottom:6px; }
+  .dd > b { display:block; font-family:var(--fonte-mono); font-size:10px; margin-bottom:2px; }
+  .dd p { font-size:8.5px; line-height:1.32; color:var(--tinta-suave); }
+  .dd p b { color:var(--navy); }
+  .dd.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .dd.r > b { color:var(--vermelho); }
+  .dd.v { border-color:var(--verde);    background:var(--verde-claro); }    .dd.v > b { color:#1d7038; }
+  .trapbox { border-left:4px solid var(--laranja); background:var(--laranja-claro);
+        border-radius:var(--raio-sm); padding:5px 8px; font-size:8.6px; line-height:1.35;
+        color:var(--tinta-suave); }
+  .trapbox b { color:#a8530a; }
+  .trapbox .fix { color:#1d7038; font-weight:700; font-family:var(--fonte-mono); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 064</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Expressões regulares: fundamentos e sabores</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Expressões<br>regulares</h1>
+      <div class="sub">O servidor estava sob força bruta e o analista rodou <code class="inl">grep 10.0.0.1 /var/log/auth.log</code>. Vieram as linhas certas — e uma com <code class="inl">id=10a0b0c1</code>, que não tem endereço nenhum. O ponto que ele digitou querendo dizer <b>ponto</b> significa, para a ferramenta, <b>qualquer caractere</b>. Na tentativa seguinte, <code class="inl">grep 'Failed+'</code> devolveu zero linhas — sem erro, sem aviso: o <code class="inl">grep</code> sem <code class="inl">-E</code> não conhece o <code class="inl">+</code>. Um padrão descreve <b>forma</b>, e há <b>três dialetos</b> dessa notação na mesma máquina.</div>
     </div>
     <div class="badge"><b>064</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Anatomia de um padrão real — endereço IPv4</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="tira">
+      <span class="tk anc">^</span>
+      <span class="tk grp">(</span>
+      <span class="tk cls">[0-9]</span>
+      <span class="tk qnt">{1,3}</span>
+      <span class="tk lit">\.</span>
+      <span class="tk grp">)</span>
+      <span class="tk qnt">{3}</span>
+      <span class="tk cls">[0-9]</span>
+      <span class="tk qnt">{1,3}</span>
+      <span class="tk anc">$</span>
+    </div>
+    <div class="leg">
+      <div class="lg a"><b>^ $ âncora</b>Condição sobre a <b>posição</b>: não consome caractere. Daí <code class="inl">^$</code> ser "linha vazia".</div>
+      <div class="lg g"><b>( ) grupo</b>Delimita o item para o quantificador <b>e captura</b> o trecho como <code class="inl">\1</code>.</div>
+      <div class="lg c"><b>[ ] classe</b><b>Um</b> caractere dentre os listados. <code class="inl">[^0-9]</code> nega; <code class="inl">[.]</code> desarma o ponto.</div>
+      <div class="lg q"><b>{n,m} quantifica</b>Repete só o item <b>imediatamente anterior</b>. Em <code class="inl">ab*</code>, o <code class="inl">*</code> governa só o <code class="inl">b</code>.</div>
+      <div class="lg l"><b>\. literal</b>A barra <b>tira</b> o poder do símbolo. <code class="inl">\.</code> é ponto de verdade.</div>
+    </div>
+    <div class="nota">Lido da esquerda para a direita: <i>da borda esquerda da linha, três repetições de "um a três dígitos seguidos de ponto", depois mais um a três dígitos, e a borda direita.</i> Note o que ele <b>não</b> diz: nada impede <code class="inl">999.999.999.999</code>. <b>Expressão regular reconhece forma; validar valor é outro problema</b> — trabalho de <code class="inl">awk</code> ou de uma linguagem. Quando o padrão passa de três linhas ou precisa <i>contar</i>, troque de ferramenta: HTML, JSON e parênteses balanceados <b>não são linguagens regulares</b> e nenhum padrão resolve o caso geral. E não confunda com o <b>globbing</b>: o glob é do <b>shell</b> e opera sobre nomes de arquivo (<code class="inl">*</code> = qualquer sequência); a expressão regular é da <b>ferramenta</b> e opera sobre linhas (<code class="inl">*</code> = zero ou mais do item anterior).</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Os três sabores que convivem na mesma máquina</div>
+  <section class="grade2">
+    <div>
+      <table class="comparacao">
+        <thead><tr>
+          <th>Construto</th>
+          <th>BRE<small>grep · sed · expr</small></th>
+          <th>ERE<small>grep -E · sed -E · awk</small></th>
+          <th>PCRE<small>grep -P · perl · python</small></th>
+        </tr></thead>
+        <tbody>
+          <tr><td>uma ou mais</td><td class="m bre">a\+</td><td class="m ere">a+</td><td class="m pcre">a+</td></tr>
+          <tr><td>opcional</td><td class="m bre">a\?</td><td class="m ere">a?</td><td class="m pcre">a?</td></tr>
+          <tr><td>repetição contada</td><td class="m bre">a\{2,5\}</td><td class="m ere">a{2,5}</td><td class="m pcre">a{2,5}</td></tr>
+          <tr><td>grupo</td><td class="m bre">\(ab\)</td><td class="m ere">(ab)</td><td class="m pcre">(ab)</td></tr>
+          <tr><td>alternância</td><td class="m bre">a\|b</td><td class="m ere">a|b</td><td class="m pcre">a|b</td></tr>
+          <tr><td>dígito</td><td class="m bre">[[:digit:]]</td><td class="m ere">[[:digit:]]</td><td class="m pcre">\d</td></tr>
+          <tr><td>preguiçoso · olhar adiante</td><td class="nao">não existe</td><td class="nao">não existe</td><td class="m pcre">.*? (?=…)</td></tr>
+        </tbody>
+      </table>
+      <div class="nota">A regra que resolve quase tudo: em <b>BRE</b> o construto avançado exige barra invertida e o símbolo cru é literal; em <b>ERE</b> é o contrário — a barra só serve para <i>tirar</i> o poder. <b>Na dúvida, <code class="inl">grep -E</code></b>: é o mesmo padrão que você escreveria em <code class="inl">awk</code>, <code class="inl">sed -E</code> ou em qualquer linguagem moderna. O <code class="inl">egrep</code> e o <code class="inl">fgrep</code> ainda rodam, mas imprimem aviso de depreciação no Kali atual. E há uma quarta variante que não é expressão regular nenhuma: <code class="inl">grep -F</code> desliga a interpretação inteira, busca texto literal e é a mais rápida.</div>
+    </div>
+    <div>
+      <div class="dd r"><b>grep ^root /etc/passwd</b><p><b>Padrão vai entre aspas simples, sempre.</b> Sem elas o shell processa <code class="inl">*</code>, <code class="inl">?</code>, <code class="inl">[…]</code>, <code class="inl">$</code> e <code class="inl">\</code> <b>antes</b> da ferramenta ver o padrão — e o que chega ao <code class="inl">grep</code> já não é o que você escreveu.</p></div>
+      <div class="dd v"><b>grep -E '^(erro|falha)'</b><p><b>A alternância tem a menor precedência de todas.</b> <code class="inl">^erro|falha</code> significa "começa com erro" <b>ou</b> "contém falha" em qualquer posição — quase nunca o que se quer. Agrupe.</p></div>
+      <div class="trapbox"><b>O <code class="inl">.*</code> é guloso e atravessa delimitador.</b> Numa linha com três campos entre aspas, <code class="inl">grep -oE '".*"'</code> devolve <b>uma cadeia gigante</b>, da primeira à última aspa. Negue em vez de generalizar: <span class="fix">"[^"]*"</span> — em PCRE existe também o preguiçoso <span class="fix">".*?"</span>. <b>Faixa depende da localidade:</b> <code class="inl">[a-z]</code> muda de resultado conforme <code class="inl">LC_ALL</code>; as <b>classes POSIX nomeadas</b> são estáveis — <code class="inl">[[:digit:]]</code>, <code class="inl">[[:alpha:]]</code>, <code class="inl">[[:alnum:]]</code>, <code class="inl">[[:space:]]</code>, <code class="inl">[[:upper:]]</code>, <code class="inl">[[:punct:]]</code>, <code class="inl">[[:xdigit:]]</code>. Dentro dos colchetes as regras mudam: o <code class="inl">^</code> só nega na <b>primeira</b> posição, o <code class="inl">]</code> só é literal <b>logo no início</b> e o <code class="inl">-</code> só é literal no <b>começo ou no fim</b>. Bordas de palavra <code class="inl">\&lt;pai\&gt;</code> e <code class="inl">\bpai\b</code> impedem que <code class="inl">10.0.0.1</code> case dentro de <code class="inl">10.0.0.14</code>.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Retrocesso catastrófico (ReDoS) — não rode em produção.</b> O motor POSIX (<code class="inl">grep -E</code>, <code class="inl">sed</code>, <code class="inl">awk</code>) usa autômato finito: casa em tempo proporcional ao tamanho do texto e <b>não retrocede</b>. O motor PCRE (<code class="inl">grep -P</code>, linguagens) retrocede — e um quantificador aninhado explode: <code class="inl">echo "$(printf 'a%.0s' {1..40})" | grep -qP '(a+)+b'</code> prende um núcleo por minutos, porque o motor tenta um número <b>exponencial</b> de divisões antes de desistir. É por isso que <code class="inl">(a|ab)</code> casa <code class="inl">ab</code> em POSIX (mais longo) e <code class="inl">a</code> em PCRE (primeira alternativa que fecha). Defesas: prefira <code class="inl">-E</code> a <code class="inl">-P</code> quando os dois servirem; em PCRE, nada de quantificador dentro de grupo quantificado, e classe negada no lugar de <code class="inl">.*</code>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Padrão descreve forma, não texto literal.</b> O <code class="inl">.</code> é qualquer caractere: <code class="inl">grep 10.0.0.1</code> casa com <code class="inl">10a0b0c1</code>. Ponto de verdade se escreve <code class="inl">\.</code>.</li>
+        <li><b>Padrão vai entre aspas simples, sempre</b> — senão o shell consome <code class="inl">*</code>, <code class="inl">?</code>, <code class="inl">$</code>, <code class="inl">[</code> e <code class="inl">\</code> antes da ferramenta.</li>
+        <li><b>São três dialetos.</b> BRE exige <code class="inl">\+ \? \{ \( \|</code>; ERE usa os símbolos direto; PCRE acrescenta <code class="inl">\d</code>, <code class="inl">\b</code>, <code class="inl">.*?</code> e olhar adiante. <b>Na dúvida, ERE.</b></li>
+        <li><b>Classe POSIX nomeada é mais estável que faixa:</b> <code class="inl">[[:digit:]]</code> não muda com <code class="inl">LC_ALL</code>; <code class="inl">[0-9]</code> e <code class="inl">[a-z]</code> mudam.</li>
+        <li><b>Quantificador governa só o item anterior</b> — para repetir mais de um caractere, agrupe. E a alternância tem a <b>menor</b> precedência: <code class="inl">^a|b</code> quase nunca é o que se quer.</li>
+        <li><b><code class="inl">.*</code> é guloso e atravessa delimitadores.</b> Prefira a classe negada <code class="inl">[^"]*</code>.</li>
+        <li><b>POSIX não retrocede; PCRE sim.</b> Daí <code class="inl">(a|ab)</code> casar diferente e o ReDoS existir só no segundo.</li>
+        <li><b>Nem tudo é linguagem regular.</b> HTML, JSON e aninhamento não se resolvem com padrão: troque para <code class="inl">awk</code>, <code class="inl">jq</code> ou Python.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b><code class="inl">grep -F -- "$ALVO"</code> para tudo que veio de fora.</b> Filtrar a saída de uma varredura por um domínio guardado em variável trata o <b>conteúdo</b> da variável como padrão: um ponto vira coringa e um <code class="inl">[</code> mal fechado derruba o comando com <i>Unmatched [</i>. Se o alvo veio de arquivo de escopo, de argumento ou de resposta de API, use <code class="inl">-F</code>; o <code class="inl">--</code> fecha a lista de opções e evita que um alvo começando com traço seja lido como <i>flag</i>. <b>Wordlist se filtra com ERE, e o ganho é de horas:</b> <code class="inl">grep -E '^.{8,}$' rockyou.txt | grep -E '[[:upper:]]' | grep -E '[[:digit:]]'</code> reduz a lista à política de senha do alvo antes de entregá-la à ferramenta — três <code class="inl">grep</code> em cadeia são mais legíveis, e em geral mais rápidos, que um padrão único com olhar adiante. <b>Extrair indicador de log é o uso diário</b>, e quem faz isso é o <code class="inl">-o</code>: <code class="inl">grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b'</code> puxa IPv4, <code class="inl">grep -oE '[0-9a-f]{32}'</code> puxa <i>hashes</i> MD5 e <code class="inl">grep -oPi 'href="\K[^"]+'</code> puxa URLs de um HTML salvo — o <code class="inl">\K</code> do PCRE descarta o que veio antes e dispensa o grupo de captura. <b>ReDoS é classe de vulnerabilidade, não incômodo:</b> uma aplicação que valida entrada do usuário com quantificador aninhado cai com uma requisição de poucos quilobytes; em teste autorizado, <code class="inl">grep -rnE '\(\[?[^)]*[+*]\)?[+*]' --include='*.js' --include='*.py'</code> levanta candidatos. Isso é <b>análise de código com autorização do dono</b> — disparar a carga contra serviço de terceiro sem contrato é indisponibilidade provocada, enquadrada na <b>Lei 12.737/2012</b>. <b>Localidade muda a varredura:</b> <code class="inl">LC_ALL=C</code> deixa a semântica previsível e acelera bastante o <code class="inl">grep</code>, mas quebra o casamento de acentos — não use em texto em português. Fora do mundo GNU (macOS, BSD) não há <code class="inl">-P</code>, nem <code class="inl">\&lt;</code>, nem <code class="inl">\K</code>: script portátil usa ERE puro.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 11 · Fase 3 <span class="n">064</span></span>

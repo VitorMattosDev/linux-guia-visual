@@ -104,7 +104,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 
 ### Volume 11 — Processamento de Texto
 
-- [ ] **guia 064** - Expressões regulares: fundamentos e sabores - `guias/vol11/guia064-expressoes-regulares-fundamentos-e-sabores.html`
+- [x] **guia 064** - Expressões regulares: fundamentos e sabores - `guias/vol11/guia064-expressoes-regulares-fundamentos-e-sabores.html`
 - [ ] **guia 065** - grep e a busca de padrões - `guias/vol11/guia065-grep-e-a-busca-de-padroes.html`
 - [ ] **guia 066** - sed: o editor de fluxo - `guias/vol11/guia066-sed-o-editor-de-fluxo.html`
 - [ ] **guia 067** - awk: processamento por campos e registros - `guias/vol11/guia067-awk-processamento-por-campos-e-registros.html`
