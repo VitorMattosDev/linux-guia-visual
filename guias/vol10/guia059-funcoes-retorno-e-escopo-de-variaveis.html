@@ -3,101 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 059 — Funções, retorno e escopo de variáveis</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Os dois canais de saída */
+  .canais { display:grid; grid-template-columns:150px 1fr; gap:9px; align-items:center; }
+  .fn { border:2px solid var(--azul); background:var(--azul-claro); border-radius:var(--raio);
+        padding:8px 6px; text-align:center; }
+  .fn > b { display:block; font-family:var(--fonte-titulo); font-size:11px; color:var(--azul);
+            text-transform:uppercase; letter-spacing:.04em; }
+  .fn code { font-family:var(--fonte-mono); font-size:10px; color:var(--navy); display:block; margin-top:3px; }
+  .fn p { font-size:8.5px; color:var(--tinta-suave); margin-top:4px; line-height:1.25; }
+  .canal { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 8px; display:grid;
+           grid-template-columns:126px 1fr; gap:8px; align-items:center; }
+  .canal + .canal { margin-top:6px; }
+  .canal h4 { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase; letter-spacing:.03em; }
+  .canal .lido { font-family:var(--fonte-mono); font-size:9px; display:block; margin-top:1px; }
+  .canal p { font-size:9px; line-height:1.32; color:var(--tinta-suave); }
+  .canal p b { color:var(--navy); }
+  .canal.ok { border-color:var(--verde); background:var(--verde-claro); }
+  .canal.ok h4, .canal.ok .lido { color:var(--verde); }
+  .canal.ru { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .canal.ru h4, .canal.ru .lido { color:var(--vermelho); }
+  .oito { display:flex; gap:4px; margin-top:6px; }
+  .ob { flex:1; border:1px solid var(--linha); border-radius:4px; background:#fff; text-align:center;
+        padding:3px 2px; font-family:var(--fonte-mono); font-size:9px; color:var(--tinta-suave); }
+  .ob b { display:block; font-size:10.5px; color:var(--navy); }
+  .ob.mal { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .ob.mal b { color:var(--vermelho); }
+
+  .grade2 { display:grid; grid-template-columns:1.05fr 1fr; gap:9px; align-items:start; }
+  .subt { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+          letter-spacing:.04em; color:var(--navy); margin-bottom:4px; }
+
+  /* Três formas de devolver dados */
+  .vias { display:flex; flex-direction:column; gap:5px; }
+  .via { border-left:4px solid; border-radius:var(--raio-sm); padding:4px 8px; background:#fff;
+         border-top:1px solid var(--linha); border-right:1px solid var(--linha); border-bottom:1px solid var(--linha); }
+  .via > b { font-family:var(--fonte-mono); font-size:9.5px; display:block; }
+  .via p { font-size:8.5px; line-height:1.3; color:var(--tinta-suave); }
+  .via p b { color:var(--navy); }
+  .via.v1 { border-left-color:var(--verde); }   .via.v1 > b { color:#1d7038; }
+  .via.v2 { border-left-color:var(--laranja); } .via.v2 > b { color:#a8530a; }
+  .via.v3 { border-left-color:var(--roxo); }    .via.v3 > b { color:var(--roxo); }
+
+  /* Pilha do escopo dinâmico */
+  .pilha { display:flex; flex-direction:column; gap:4px; }
+  .niv { border:1.5px solid; border-radius:var(--raio-sm); padding:4px 8px; }
+  .niv > b { font-family:var(--fonte-mono); font-size:9.5px; display:block; }
+  .niv p { font-size:8.5px; line-height:1.28; color:var(--tinta-suave); }
+  .niv p b { color:var(--navy); }
+  .niv.g { border-color:var(--linha); background:#f2f5fa; } .niv.g > b { color:var(--tinta-suave); }
+  .niv.m { border-color:var(--azul); background:var(--azul-claro); } .niv.m > b { color:var(--azul); }
+  .niv.i { border-color:var(--verde); background:var(--verde-claro); } .niv.i > b { color:#1d7038; }
+  .seta-b { text-align:center; font-size:9px; color:var(--tinta-suave); line-height:1; }
+  .nota { font-size:9px; line-height:1.35; color:var(--tinta-suave); margin-top:5px; }
+  .nota b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 059</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Funções, retorno e escopo de variáveis</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Funções<br>retorno e escopo</h1>
+      <div class="sub">O inventário contava pacotes com <code class="inl">return "$n"</code>. Na instalação enxuta imprimia <b>180</b> — certo. Na estação com o <code class="inl">kali-linux-everything</code>, 4.412 pacotes, imprimiu <b>60</b>. Sem erro, sem aviso: o valor não coube no canal. Uma função tem <b>dois</b> caminhos para devolver informação, e o script escolheu o estreito.</div>
     </div>
     <div class="badge"><b>059</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Os dois canais de saída — <b>dado</b> ≠ <b>veredito</b></div>
   <section>
+    <div class="canais">
+      <div class="fn">
+        <b>função</b>
+        <code>contar_pacotes</code>
+        <p>Um <b>comando novo</b>, indistinguível de <code class="inl">ls</code> para quem chama — e com precedência sobre o programa externo.</p>
+      </div>
+      <div>
+        <div class="canal ok">
+          <div><h4>Saída padrão</h4><span class="lido">n=$(contar_pacotes)</span></div>
+          <p><b>Texto de qualquer tamanho.</b> Cabe <code class="inl">4412</code>, cabe uma tabela inteira, cabe um caminho com espaços. Custo: o <code class="inl">$( )</code> cria <b>subshell</b> — variável atribuída lá dentro morre junto — e remove as quebras de linha do fim.</p>
+        </div>
+        <div class="canal ru">
+          <div><h4>Código de saída</h4><span class="lido">contar_pacotes; $?</span></div>
+          <p><b>Inteiro de 0 a 255, e só.</b> O <code class="inl">return</code> responde <i>deu certo?</i>, não <i>qual é o resultado?</i>. <code class="inl">return</code> sem argumento devolve o código do <b>último comando</b> — o que se quer numa função-predicado como <code class="inl">usuario_existe() { id "$1" &gt;/dev/null 2&gt;&amp;1; }</code>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="oito">
+      <div class="ob">return 0<b>0</b></div>
+      <div class="ob">return 1<b>1</b></div>
+      <div class="ob">return 255<b>255</b></div>
+      <div class="ob mal">return 256<b>0</b> falha vira sucesso</div>
+      <div class="ob mal">return 300<b>44</b></div>
+      <div class="ob mal">return 4412<b>60</b> o bug da abertura</div>
+    </div>
+  </section>
+
+  <section class="grade2">
+    <div>
+      <div class="subt">Como devolver dados de verdade</div>
+      <div class="vias">
+        <div class="via v1"><b>n=$(contar_pacotes)</b><p><b>Idiomática.</b> A função imprime, o chamador captura. Comporta-se como função de verdade — ao custo de um processo por chamada, o que pesa em laço apertado.</p></div>
+        <div class="via v2"><b>RESULTADO=… ; contar_pacotes</b><p><b>Global por convenção.</b> Sem subshell, a mais rápida. Cria acoplamento invisível: quem lê a chamada não vê que a variável mudou. Nome em MAIÚSCULAS e comentário na linha acima.</p></div>
+        <div class="via v3"><b>local -n destino="$1"</b><p><b>Referência nomeada</b> (Bash 4.3+): o chamador escolhe onde o resultado vai parar. Prefixe o nome interno (<code class="inl">__destino</code>) — passar variável homônima dispara erro de referência circular.</p></div>
+      </div>
+      <div class="nota"><b><code class="inl">local x=$(cmd)</code> engole o erro do comando</b> (SC2155): <code class="inl">local</code> é um comando, e o <code class="inl">$?</code> que sobra é o <b>dele</b> — quase sempre zero. Declare numa linha, atribua na seguinte: <code class="inl">local v; v=$(cmd) || return 1</code>. Vale igual para <code class="inl">declare</code>, <code class="inl">export</code> e <code class="inl">readonly</code>.</div>
+    </div>
+    <div>
+      <div class="subt">Escopo <b>dinâmico</b>: vale a pilha, não o texto</div>
+      <div class="pilha">
+        <div class="niv g"><b>nível superior</b><p><code class="inl">segredo</code> <b>não existe</b> aqui — nem antes nem depois da chamada.</p></div>
+        <div class="seta-b">↓ chama</div>
+        <div class="niv m"><b>externa() { local segredo="abc"; … }</b><p>Dona da variável. Ao retornar, o valor anterior é restaurado.</p></div>
+        <div class="seta-b">↓ chama</div>
+        <div class="niv i"><b>interna() { echo "$segredo"; }</b><p><b>Vê <code class="inl">abc</code></b> sem receber nada como argumento.</p></div>
+      </div>
+      <div class="nota">Em C ou Python o escopo é <b>léxico</b> — definido por onde a função está escrita. No shell é definido por <b>quem chamou quem</b> em execução. Sem <code class="inl">local</code>, toda variável da função é global; e um <code class="inl">local i</code> sobrescreve o <code class="inl">i</code> de qualquer função chamada abaixo. Em biblioteca, nada de <code class="inl">i</code>, <code class="inl">n</code>, <code class="inl">tmp</code> ou <code class="inl">arquivo</code>.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="subt">Encerrar, envolver, e quando promover a função a script</div>
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>as três armadilhas do dia a dia</span></div>
+<pre><span class="cmt"># exit encerra o SCRIPT; return encerra so a FUNCAO. Biblioteca nunca chama exit.</span>
+morrer() { printf 'erro: %s\n' "$*" &gt;&amp;2; exit 1; }   <span class="cmt"># unica excecao legitima</span>
+
+<span class="cmt"># 'command' pula a funcao e chama o programa real -- sem ele, recursao infinita</span>
+rm() { command rm -i "$@"; }     <span class="cmt"># legitimo no ~/.bashrc, armadilha dentro de script</span>
+
+<span class="cmt"># $0 continua sendo o SCRIPT dentro da funcao; o nome da funcao esta em FUNCNAME</span>
+<span class="prompt">$</span> quem() { echo "$0 | ${FUNCNAME[0]} | chamado por ${FUNCNAME[1]:-&lt;script&gt;}"; }
+<span class="out">./ctx.sh | quem | chamado por externa</span>
+
+<span class="cmt"># sob set -e, a funcao usada como CONDICAO tem o set -e suspenso dentro dela</span>
+if valida; then …   <span class="cmt"># erro interno nao aborta: exija return explicito em cada saida</span></pre>
+    </div>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Situação</th><th>Escolha</th><th>Situação</th><th>Escolha</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td>Alterar diretório ou variáveis da sessão</td><td><b>Função</b> — script não consegue</td><td>Chamada por <code>cron</code> ou <code>systemd</code></td><td><b>Script</b> próprio</td></tr>
+        <tr><td>Corpo passou de ~50 linhas ou tem lógica própria</td><td><b>Script</b></td><td>Usada em três scripts diferentes</td><td><b>Biblioteca</b> com <code>source</code></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Uma função é um comando</b>, não uma função matemática: recebe posicionais (<code class="inl">$1</code>, <code class="inl">"$@"</code>), tem precedência sobre o programa externo e <b>precisa ser definida antes</b> da chamada. Prefira a forma POSIX <code class="inl">nome() { … }</code> — <code class="inl">function</code> não sobrevive a um <code class="inl">#!/bin/sh</code>.</li>
+        <li><b><code class="inl">return</code> devolve código de 0 a 255, nunca um valor.</b> <code class="inl">return 4412</code> vira <b>60</b> e <code class="inl">return 256</code> transforma falha em sucesso. Dado sai pela <b>saída padrão</b>.</li>
+        <li><b>Sem <code class="inl">local</code>, toda variável da função é global</b> — inclusive os contadores de laço, a fonte nº 1 de colisão silenciosa.</li>
+        <li><b>Escopo dinâmico:</b> o <code class="inl">local</code> é visível em tudo que a função chamar abaixo, nunca acima.</li>
+        <li><b><code class="inl">local x=$(cmd)</code> descarta o código de saída de <code class="inl">cmd</code>.</b> Declare numa linha, atribua na seguinte.</li>
+        <li><b><code class="inl">$0</code> é o script, não a função</b> — use <code class="inl">${FUNCNAME[0]}</code>, e a pilha inteira em <code class="inl">FUNCNAME</code>, para o log dizer de onde o erro veio.</li>
+        <li><b><code class="inl">command</code> evita a recursão infinita</b> ao envolver um comando; <code class="inl">builtin</code> força o <i>builtin</i>. Em script, dê nome próprio à função em vez de mascarar o comando.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Função de varredura não chama <code class="inl">exit</code>.</b> Num script que percorre alvos autorizados, abortar o programa inteiro porque um host não respondeu descarta o trabalho já feito nos anteriores — o relatório parcial de dezoito alvos vale mais que nenhum relatório. Devolva <code class="inl">return</code> com código por tipo de falha (<b>1</b> host inalcançável, <b>2</b> fora do escopo, <b>3</b> ferramenta ausente) e deixe o laço decidir se continua. E cuidado com o efeito colateral: se essa função for chamada dentro de <code class="inl">$( )</code>, o <code class="inl">exit</code> mata só o subshell e o script segue como se nada tivesse acontecido. <b>A validação de escopo pertence a uma função, e ela devolve código, não texto:</b> <code class="inl">no_escopo "$alvo" || continue</code> é legível e testável isoladamente; a validação escrita <i>inline</i> em quatro pontos do script garante que uma das cópias vai divergir — e varrer fora do escopo contratado é crime pela Lei 12.737/2012. <b>Não sobrescreva <code class="inl">nmap</code>, <code class="inl">curl</code> ou <code class="inl">ping</code> com função de mesmo nome:</b> quem lê <code class="inl">nmap -T4</code> conclui que a taxa é a do <code class="inl">-T4</code>, sem ver o <code class="inl">--max-rate</code> escondido vinte linhas acima. Chame de <code class="inl">nmap_lento</code> — o nome documenta a intenção. <b><code class="inl">local</code> em função que manipula credencial não apaga nada da memória:</b> ele controla visibilidade, não conteúdo. E <b>não use <code class="inl">export -f</code> em script que eleva privilégio</b> — função exportada é código que viaja no ambiente, e foi exatamente essa forma de transporte que o Shellshock (CVE-2014-6271) explorou.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 10 · Fase 3 <span class="n">059</span></span>

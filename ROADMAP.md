@@ -96,7 +96,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 ### Volume 10 — Scripting Intermediário
 
 - [x] **guia 058** - Laços: for, while e until - `guias/vol10/guia058-lacos-for-while-e-until.html`
-- [ ] **guia 059** - Funções, retorno e escopo de variáveis - `guias/vol10/guia059-funcoes-retorno-e-escopo-de-variaveis.html`
+- [x] **guia 059** - Funções, retorno e escopo de variáveis - `guias/vol10/guia059-funcoes-retorno-e-escopo-de-variaveis.html`
 - [ ] **guia 060** - Arrays indexados e associativos - `guias/vol10/guia060-arrays-indexados-e-associativos.html`
 - [ ] **guia 061** - Parâmetros posicionais e getopts - `guias/vol10/guia061-parametros-posicionais-e-getopts.html`
 - [ ] **guia 062** - Expansão de parâmetros avançada - `guias/vol10/guia062-expansao-de-parametros-avancada.html`
