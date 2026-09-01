@@ -3,101 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 082 — HTTP na linha de comando: curl, wget e netcat</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- territórios ---- */
+  .terr { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .tc { border:1.5px solid var(--linha); border-top:3px solid; border-radius:var(--raio-sm);
+        padding:5px 7px; }
+  .tc > b { display:block; font-family:var(--fonte-mono); font-size:11px; font-weight:700; }
+  .tc > i { display:block; font-style:normal; font-family:var(--fonte-titulo); font-size:8.2px;
+            text-transform:uppercase; letter-spacing:.03em; color:var(--tinta-suave); margin-bottom:2px; }
+  .tc > span { display:block; font-size:8px; line-height:1.26; color:var(--tinta-suave); }
+  .tc.a { border-top-color:var(--azul); background:var(--azul-claro); } .tc.a > b { color:var(--azul); }
+  .tc.v { border-top-color:var(--verde); background:var(--verde-claro); } .tc.v > b { color:#1d7038; }
+  .tc.l { border-top-color:var(--laranja); background:var(--laranja-claro); } .tc.l > b { color:#a8530a; }
+
+  /* ---- decodificador do curl -v ---- */
+  .dec { background:#0f2038; border-radius:var(--raio-sm); padding:6px 9px; white-space:pre-wrap;
+         font-family:var(--fonte-mono); font-size:7.6px; line-height:1.3; color:#e6edf6; }
+  .dec .p { display:inline-block; width:10px; font-weight:700; }
+  .dec .ast { color:#8fb4e0; } .dec .env { color:#56d364; } .dec .rec { color:#ffbd2e; }
+  .dec .cm { color:#7d8fa8; }
+  .leg { display:flex; gap:12px; flex-wrap:wrap; margin-top:4px; font-size:7.8px;
+         color:var(--tinta-suave); }
+  .leg b { font-family:var(--fonte-mono); font-size:9px; }
+
+  /* ---- netcat: os dois modos ---- */
+  .modo { border-left:3px solid; border-radius:0 var(--raio-sm) var(--raio-sm) 0;
+          padding:3px 7px; margin-bottom:4px; }
+  .modo.a { border-color:var(--azul); background:var(--azul-claro); }
+  .modo.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .modo > b { display:block; font-family:var(--fonte-titulo); font-size:9px;
+              text-transform:uppercase; letter-spacing:.03em; }
+  .modo.a > b { color:var(--azul); } .modo.r > b { color:var(--vermelho); }
+  .modo > code { display:block; font-family:var(--fonte-mono); font-size:7.4px;
+                 color:var(--navy); margin:1px 0 3px; }
+  .rota { display:grid; grid-template-columns:1fr 46px 1fr 46px 1fr; gap:2px; align-items:center; }
+  .no { border:1px solid var(--linha); background:#fff; border-radius:4px; padding:2px 2px;
+        text-align:center; font-size:6.9px; line-height:1.18; color:var(--navy); }
+  .no i { font-style:normal; font-family:var(--fonte-mono); color:var(--roxo); }
+  .lig { text-align:center; font-size:6.4px; line-height:1.1; color:var(--tinta-suave); }
+  .lig b { display:block; border-top:1.5px solid var(--tinta-suave); margin:2px 0 1px; }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1.28fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.6px; line-height:1.28; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+          letter-spacing:.03em; color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:5px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:66px 1fr; gap:6px; align-items:baseline;
+              font-size:8.1px; line-height:1.22; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700;
+                font-size:8.1px; color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8px; color:var(--navy); font-weight:600; }
+
+  .guia { gap:5mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:11px; line-height:1.34; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:8.35px; line-height:1.26; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:3px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 082</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>HTTP na linha de comando: curl, wget e netcat</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>HTTP na linha de comando:<br>curl, wget e netcat</h1>
+      <div class="sub">Um webhook parou. A aplicação jurava enviar; o parceiro jurava não receber. Dois dias de e-mail até alguém rodar <code class="inl">curl -v</code> e ver um <b>301</b> apontando para o endpoint novo — que a biblioteca HTTP, por padrão, <b>não segue em POST</b>. <b>O navegador esconde tudo; na linha de comando você vê o protocolo cru.</b></div>
     </div>
     <div class="badge"><b>082</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Três ferramentas, três territórios — e a saída que resolve o caso</div>
+    <div class="terr" style="margin-top:4px">
+      <div class="tc a"><b>curl</b><i>diagnóstico e API</i><span>Fala uma requisição e <b>mostra tudo</b>: qualquer método, cabeçalho e corpo. Interagir com API é aqui.</span></div>
+      <div class="tc v"><b>wget</b><i>download e espelho</i><span>Grava em arquivo por padrão, <b>retoma</b> o que caiu (<code>-c</code>) e insiste sozinho. ISO de 4 GB é aqui.</span></div>
+      <div class="tc l"><b>nc</b><i>cano de TCP/UDP</i><span>Não entende protocolo nenhum: move bytes entre o socket e o terminal. "Tem alguém nesta porta?" é aqui.</span></div>
+    </div>
+    <div class="dec" style="margin-top:6px">
+<span class="cm">$ curl -v -X POST https://api.parceiro.com/webhook \</span>
+<span class="cm">    -H 'Content-Type: application/json' -d '{"evento":"teste"}'</span>
+<span class="p ast">*</span><span class="ast"> Connected to api.parceiro.com · TLS handshake ok</span>
+<span class="p env">&gt;</span><span class="env"> POST /webhook HTTP/2</span>
+<span class="p env">&gt;</span><span class="env"> content-type: application/json</span>
+<span class="p rec">&lt;</span><span class="rec"> HTTP/2 301</span>
+<span class="p rec">&lt;</span><span class="rec"> location: https://api.parceiro.com/v2/webhook</span>
+    </div>
+    <div class="leg">
+      <span><b style="color:var(--azul)">*</b> nota do curl: DNS, TCP, TLS, reuso de conexão</span>
+      <span><b style="color:var(--verde)">&gt;</b> linha <b>enviada</b> — a sua requisição</span>
+      <span><b style="color:var(--laranja)">&lt;</b> linha <b>recebida</b> — a resposta do servidor</span>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">curl: as opções que aparecem em todo comando</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> curl -s -H 'Authorization: Bearer TOKEN' \
+    https://api.exemplo.com/v1/itens | jq -r '.[].nome'
+<span class="prompt">$</span> curl -s -X POST https://api.exemplo.com/v1/itens \
+    -H 'Content-Type: application/json' \
+    --data @corpo.json
+<span class="cmt"># -d implica POST e tipo FORMULÁRIO: sem o Content-Type
+# explícito, a API recebe JSON rotulado errado e rejeita.
+# -d remove quebras de linha; --data-binary @arq preserva.</span>
+<span class="prompt">$</span> curl -s -o /dev/null -w 'dns:%{time_namelookup} \
+    tls:%{time_appconnect} ttfb:%{time_starttransfer}\n' URL
+<span class="cmt"># o mtr do HTTP: ttfb alto com o resto baixo = o servidor
+# está demorando para processar, e não a rede.</span></pre>
+      </section>
+      <div>
+        <p class="sub2">O básico</p>
+        <ul class="lista">
+          <li><i>-sS</i><span>silencioso, <b>mas ainda mostra erro</b> — o par certo em script</span></li>
+          <li><i>-L</i><span>segue redirecionamento (o que faltava no webhook)</span></li>
+          <li><i>-I · -o · -O</i><span>só cabeçalhos · grava com o nome que você der · com o nome remoto</span></li>
+          <li><i>-m · --retry</i><span>timeout total · tenta de novo em falha transitória</span></li>
+        </ul>
+        <p class="sub2">A pegadinha que quebra script</p>
+        <ul class="lista">
+          <li><i>-f</i><span><b>Sem ele, o curl sai com 0 mesmo num 404 ou 500</b> — receber a resposta já é sucesso para ele. Sob <code>set -e</code>, um <code>500</code> passa como se tivesse dado certo. O <code>-f</code> faz o status HTTP virar status de saída: <b>obrigatório em automação</b></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">netcat: o mesmo binário escuta e conecta</div>
+    <div class="grade2" style="margin-top:4px">
+      <div>
+        <div class="modo a">
+          <b>modo cliente — conecta a uma porta</b>
+          <code>nc -zv exemplo.com 443 · nc -v smtp.exemplo.com 25</code>
+          <div class="rota">
+            <span class="no">seu teclado<br>e sua tela</span>
+            <span class="lig">stdin/stdout<b></b></span>
+            <span class="no"><i>nc</i> cliente</span>
+            <span class="lig">TCP<b></b></span>
+            <span class="no">serviço remoto<br><i>:443</i></span>
+          </div>
+        </div>
+        <div class="modo r">
+          <b>modo servidor — escuta numa porta</b>
+          <code>nc -lvnp 9000 &gt; recebido.tar</code>
+          <div class="rota">
+            <span class="no">quem<br>conecta</span>
+            <span class="lig">bytes que chegam<b></b></span>
+            <span class="no"><i>nc -l</i> à escuta</span>
+            <span class="lig">stdout<b></b></span>
+            <span class="no">seu terminal<br>ou um arquivo</span>
+          </div>
+        </div>
+        <div class="regra"><b>Como o <code>nc</code> não formata nada, você fala o protocolo à mão:</b> <code>printf 'GET / HTTP/1.1\r\nHost: exemplo.com\r\n\r\n' | nc exemplo.com 80</code>. E <code>-z</code> não envia dado: abre, confirma e fecha.</div>
+      </div>
+      <div>
+        <p class="sub2">wget: baixar e espelhar</p>
+        <ul class="lista">
+          <li><i>-c</i><span>continua o download interrompido — a razão de usar <code>wget</code> para arquivo grande</span></li>
+          <li><i>--mirror</i><span>com <code>--convert-links --page-requisites --no-parent</code>: site offline sem subir na árvore por acidente</span></li>
+          <li><i>--wait=1</i><span>com <code>--random-wait</code>: espelhar sem parecer — nem funcionar como — negação de serviço</span></li>
+        </ul>
+        <p class="sub2">TLS sem o cadeado</p>
+        <ul class="lista">
+          <li><i>s_client</i><span><code>echo | openssl s_client -connect host:443 -servername host | openssl x509 -noout -subject -dates</code></span></li>
+          <li><i>-servername</i><span><b>obrigatório com SNI</b>: sem ele você inspeciona o certificado errado e diagnostica um problema que não existe</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="perigo"><b><code class="inl">nc</code> escutando com <code class="inl">-e /bin/bash</code> entrega um shell a quem conectar</b> — é o <i>reverse shell</i> canônico, e por isso a <code class="inl">netcat-openbsd</code> do Kali <b>removeu o <code class="inl">-e</code></b>. Use só em laboratório próprio e isolado; o <code class="inl">nc</code> não tem cifra nem autenticação. E <b><code class="inl">curl -k</code> é marcador temporário, nunca configuração</b>: em produção, apaga o alerta de intermediário que você quer ouvir.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O <code class="inl">-v</code> mostra requisição (<code class="inl">&gt;</code>) e resposta (<code class="inl">&lt;</code>) lado a lado</b> — é o que transforma "não funciona" em "responde 301 para cá".</li>
+        <li><b><code class="inl">curl</code> inspeciona e automatiza API; <code class="inl">wget</code> baixa e espelha; <code class="inl">nc</code> é o cano de TCP.</b></li>
+        <li><b><code class="inl">curl</code> sai com 0 mesmo em 404 e 500:</b> <code class="inl">-f</code> é obrigatório em automação, e <code class="inl">-sS</code> mantém a saída limpa mostrando só erro.</li>
+        <li><b><code class="inl">-d</code> implica POST e formato de formulário</b> — para JSON, o <code class="inl">Content-Type</code> explícito não é opcional.</li>
+        <li><b><code class="inl">-w</code> decompõe a latência</b> em DNS, TCP, TLS e primeiro byte, sem instalar nada.</li>
+        <li><b>O mesmo <code class="inl">nc</code> escuta e conecta</b> — simetria que serve ao diagnóstico e ao shell reverso.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b><code class="inl">curl</code> e <code class="inl">wget</code> são o motor de metade das ferramentas ofensivas, e a mesma requisição muda de natureza pelo alvo:</b> buscar a release de uma ferramenta é trivial; automatizar milhares de requisições contra servidor alheio para mapear endpoints é ataque a aplicação web, com o enquadramento da Lei 12.737/2012 quando não há autorização. O <code class="inl">-A</code> (User-Agent) e os cookies (<code class="inl">-b</code>/<code class="inl">-c</code>) mantêm sessão num teste — e denunciam automação mal disfarçada num log. <b><code class="inl">nc</code> é a ferramenta didática do shell reverso, e entendê-la é defesa:</b> o padrão a detectar é uma conexão de <b>saída</b>, iniciada pelo próprio servidor, para porta alta incomum — por isso firewall de saída importa tanto quanto o de entrada. <b><i>Banner grabbing</i> é o reconhecimento mais barato e educado</b> (<code class="inl">nc -v host porta</code> colhe o que o serviço publica de propósito); vira problema ao escalar para faixas inteiras. Do lado defensivo, reduzir banners (<code class="inl">ServerTokens Prod</code>) diminui o que um levantamento colhe de graça. <b><code class="inl">socat</code> é o <code class="inl">nc</code> com esteroides:</b> túnel cifrado e <i>relay</i> — pivô limpo num teste autorizado, e o mesmo canal por onde dados saem quando o firewall de saída deixa. <b>RHEL:</b> o <code class="inl">nc</code> costuma ser o <code class="inl">ncat</code> do Nmap, com o <code class="inl">-e</code> atrás de <code class="inl">--sh-exec</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 13 · Fase 4 <span class="n">082</span></span>
