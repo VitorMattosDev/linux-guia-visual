@@ -151,7 +151,7 @@ Decisão do Vitor sobre quando encarar: pode ser antes do Volume 14 ou depois do
 
 ### Volume 14 — Segurança e o Ambiente Kali
 
-- [ ] **guia 085** - Hardening do Linux: superfície de ataque e princípios - `guias/vol14/guia085-hardening-do-linux-superficie-de-ataque-e-princi.html`
+- [x] **guia 085** - Hardening do Linux: superfície de ataque e princípios - `guias/vol14/guia085-hardening-do-linux-superficie-de-ataque-e-princi.html`
 - [ ] **guia 086** - Gerenciamento de segredos: chaves SSH e GPG - `guias/vol14/guia086-gerenciamento-de-segredos-chaves-ssh-e-gpg.html`
 - [ ] **guia 087** - Capabilities, isolamento e menor privilégio - `guias/vol14/guia087-capabilities-isolamento-e-menor-privilegio.html`
 - [ ] **guia 088** - Confinamento: AppArmor, SELinux e sandboxing - `guias/vol14/guia088-confinamento-apparmor-selinux-e-sandboxing.html`

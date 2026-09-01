@@ -3,101 +3,166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 085 — Hardening do Linux: superfície de ataque e princípios</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: as cinco camadas da superficie de ataque ---- */
+  .camadas { display:flex; flex-direction:column; gap:2px; }
+  .cam { display:grid; grid-template-columns:1fr 152px; gap:8px; align-items:center;
+         border:1.5px solid; border-radius:var(--raio-sm); padding:2px 8px; }
+  .cam > div { font-size:8.4px; line-height:1.2; color:var(--tinta); }
+  .cam > div b { font-family:var(--fonte-titulo); text-transform:uppercase;
+                 letter-spacing:.03em; font-size:9px; }
+  .cam > div i { font-style:normal; display:block; font-size:7.4px; color:var(--tinta-suave); }
+  .cam > code { font-family:var(--fonte-mono); font-size:7.9px; font-weight:700;
+                white-space:pre-line; line-height:1.2; text-align:right; }
+  .cam.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .cam.r b, .cam.r > code { color:var(--vermelho); }
+  .cam.y { border-color:var(--laranja); background:var(--laranja-claro); }
+  .cam.y b, .cam.y > code { color:#a8530a; }
+  .cam.a { border-color:var(--azul); background:var(--azul-claro); }
+  .cam.a b, .cam.a > code { color:var(--azul); }
+  .cam.v { border-color:var(--verde); background:var(--verde-claro); }
+  .cam.v b, .cam.v > code { color:#1d7038; }
+  .cam.g { border-color:var(--linha); background:var(--papel-tint); }
+  .cam.g b, .cam.g > code { color:var(--navy); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- figura 2: os principios ---- */
+  .princ { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+  .pr { border:1px solid var(--linha); border-top:3px solid var(--azul);
+        border-radius:var(--raio-sm); background:#fff; padding:3px 7px; }
+  .pr b { display:block; font-family:var(--fonte-titulo); font-size:8.8px; color:var(--navy);
+          text-transform:uppercase; letter-spacing:.02em; line-height:1.15; }
+  .pr span { display:block; font-size:7.5px; line-height:1.2; color:var(--tinta-suave); margin-top:2px; }
+  .pr span code { font-family:var(--fonte-mono); font-size:7.7px; color:var(--roxo); font-weight:600; }
+  .pr.v { border-top-color:var(--verde); } .pr.l { border-top-color:var(--laranja); }
+  .pr.x { border-top-color:var(--roxo); }  .pr.d { border-top-color:var(--vermelho); }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:0.92fr 1.22fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.5px; line-height:1.27; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.5px 6px; line-height:1.18; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.7px; }
+
+  .guia { --gap-blocos:4mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:8.1px; line-height:1.24; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 085</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Hardening do Linux: superfície de ataque e princípios</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Hardening do Linux:<br>superfície de ataque</h1>
+      <div class="sub">Kernel do dia anterior, nenhum CVE aberto, nenhum dia zero — e a máquina foi invadida assim mesmo. O que havia era um banco subido para um teste em janeiro, escutando em <code class="inl">0.0.0.0</code> com a senha da documentação. <b>Ninguém quebrou nada: entraram pela porta que ninguém lembrava de ter deixado aberta.</b></div>
     </div>
     <div class="badge"><b>085</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">As cinco camadas — e o comando que mede cada uma</div>
+    <div class="camadas" style="margin-top:4px">
+      <div class="cam r"><div><b>Rede</b> — portas em escuta<i>quem alcança a máquina sem credencial nenhuma</i></div><code>ss -tulpn</code></div>
+      <div class="cam y"><div><b>Serviços</b> — daemons ativos<i>cada um é código rodando e uma configuração a errar</i></div><code>systemctl list-units
+--state=running</code></div>
+      <div class="cam a"><div><b>Contas</b> — shell utilizável, chaves, <code>sudo</code><i>quem já está dentro, e até onde consegue ir</i></div><code>getent passwd
+cat /etc/sudoers.d/*</code></div>
+      <div class="cam v"><div><b>Binários privilegiados</b> — SUID, SGID, capabilities<i>o caminho de usuário local até <code>root</code></i></div><code>find / -perm -4000
+getcap -r /</code></div>
+      <div class="cam g"><div><b>Kernel</b> — módulos, <code>/proc</code>, <code>/sys</code>, syscalls<i>a última fronteira; falha aqui derruba tudo acima</i></div><code>lsmod
+sysctl -a</code></div>
+    </div>
+    <div class="regra"><b>Cada camada só é alcançável depois da anterior — reduzir a de cima vale mais:</b> serviço que não roda não tem CVE que importe, nem patch, nem perfil a escrever. E a diferença que decidiu o caso da abertura: <code>127.0.0.1:5432</code> e <code>0.0.0.0:5432</code> é o mesmo banco, o mesmo firewall, duas superfícies opostas — <b>e é opção do serviço, não do firewall</b>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Cinco princípios que substituem qualquer lista de receitas</div>
+    <div class="princ" style="margin-top:4px">
+      <div class="pr"><b>Menor privilégio</b><span>Cada processo recebe só o que precisa. Não é desconfiar de gente — é limitar o estrago. <code>nginx</code> como <code>www-data</code> ou como <code>root</code> servem a mesma página; a diferença aparece no dia em que ele é explorado.</span></div>
+      <div class="pr v"><b>Defesa em profundidade</b><span>A pergunta útil não é "esta medida impede o ataque?", e sim <b>"quando ela falhar, o que ainda está de pé?"</b> — camadas independentes, nunca alternativas entre si.</span></div>
+      <div class="pr l"><b>Falhar fechado</b><span>Diante de erro ou ambiguidade, negue: a política <code>drop</code>, a regra de <code>sudo</code> que lista o que <i>pode</i>, o serviço que recusa configuração inválida.</span></div>
+      <div class="pr x"><b>Reduzir antes de proteger</b><span>Software não instalado não precisa ser configurado, atualizado, monitorado nem confinado. Antes de escrever um perfil, pergunte se o serviço precisa existir — a resposta é "não" com frequência surpreendente.</span></div>
+      <div class="pr d"><b>Auditabilidade</b><span>Controle que não deixa registro é controle que você não sabe se funciona — e cuja falha só se descobre quando alguém avisa de fora.</span></div>
+      <div class="pr" style="border-top-color:var(--navy)"><b>O padrão de fábrica<br>não é o padrão seguro</b><span>Distribuições otimizam para "funciona na primeira tentativa", não para "resiste a um adversário". É uma escolha legítima delas e um problema seu.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Medir, endurecer — e pagar o preço com consciência</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="cmt"># 1. o retrato ANTES — sem medição, hardening é fé</span>
+<span class="prompt">$</span> sudo ss -tulpn | grep -v '127.0.0.1\|::1'
+<span class="out">tcp LISTEN 0 128 0.0.0.0:5432 (("postgres"...</span>
+<span class="cmt">#    ^ o esquecido de janeiro, exposto à rede inteira</span>
+<span class="prompt">$</span> systemctl list-unit-files --state=enabled
+<span class="prompt">$</span> sudo find / -xdev -perm -4000 -type f | sort
+<span class="cmt"># 2. desligar é sempre melhor do que configurar</span>
+<span class="prompt">$</span> sudo systemctl disable --now cups avahi-daemon
+<span class="prompt">$</span> sudo systemctl mask bluetooth   <span class="cmt"># nem por dep.</span>
+<span class="cmt"># 3. kernel — /etc/sysctl.d/99-hardening.conf</span>
+<span class="out">kernel.kptr_restrict = 2     kernel.dmesg_restrict = 1
+kernel.yama.ptrace_scope = 1 fs.suid_dumpable = 0</span>
+<span class="prompt">$</span> sudo sysctl --system
+<span class="cmt"># 4. SSH: validar ANTES de recarregar. Sempre.</span>
+<span class="prompt">$</span> sudo sshd -t &amp;&amp; sudo systemctl reload ssh
+<span class="prompt">$</span> sudo lynis audit system --quick <span class="cmt"># o placar</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Medida</th><th>O que ela cobra</th></tr></thead>
+          <tbody>
+            <tr><td><code>PasswordAuthentication no</code></td><td>perder a chave privada é perder o acesso</td></tr>
+            <tr><td>política <code>drop</code> no firewall</td><td>cada serviço novo exige regra explícita</td></tr>
+            <tr><td><code>noexec</code> em <code>/tmp</code></td><td>instaladores que usam <code>/tmp</code> param</td></tr>
+            <tr><td><code>ptrace_scope = 1</code></td><td><code>gdb</code> e <code>strace</code> passam a exigir <code>sudo</code></td></tr>
+            <tr><td>confinamento estrito</td><td>perfil mal ajustado quebra o serviço de forma opaca</td></tr>
+          </tbody>
+        </table>
+        <div class="regra"><b>Hardening genérico não existe</b> — só para uma máquina com propósito declarado. Ignorar o custo produz o servidor "seguro" que ninguém administra e que acumula gambiarras que anulam tudo.</div>
+      </div>
+    </div>
+    <div class="perigo"><b><code class="inl">sudo sshd -t</code> antes de todo <code class="inl">reload</code>, sem exceção</b> — erro de sintaxe faz o serviço recusar-se a subir, e numa máquina remota isso é perder o acesso em definitivo. <b>Mantenha a sessão aberta</b>, abra uma <b>segunda</b> para testar, e só feche a primeira quando a segunda funcionar. E <code class="inl">PasswordAuthentication no</code> sem chave pública instalada <b>e testada</b> tranca você para fora na hora.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>A maioria das invasões explora configuração, não vulnerabilidade:</b> o serviço esquecido em <code class="inl">0.0.0.0</code> com senha padrão, não o dia zero.</li>
+        <li><b>Superfície de ataque é lista finita e enumerável</b> — rede, serviços, contas, binários privilegiados, kernel — e cada camada tem seu comando.</li>
+        <li><b>Fechar a camada de cima vale mais que corrigir tudo abaixo.</b> Trabalhe do <code class="inl">ss -tulpn</code> para baixo.</li>
+        <li><b>Cinco princípios decidem o que a lista não previu:</b> menor privilégio, defesa em profundidade, falhar fechado, reduzir antes de proteger, auditabilidade.</li>
+        <li><b>Atualizar é a medida de maior retorno</b> (no Kali, <code class="inl">full-upgrade</code>). E guarde o "antes": relatório honesto é inventário inicial, final e o <code class="inl">diff</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Kali é deliberadamente o oposto de um sistema endurecido, e por bom motivo:</b> ele hospeda ferramentas feitas para gerar tráfego incomum, abrir sockets crus, injetar pacotes e carregar módulos — firewall restritivo, confinamento estrito e <code class="inl">ptrace_scope</code> alto atrapalhariam isso. Endurecer aqui é <b>decisão sua, consciente e reversível</b>. <b>Mas ele não é o descuidado que a fama sugere:</b> desde 2020 usa o usuário não privilegiado <code class="inl">kali</code> em vez de <code class="inl">root</code>, e <b>nenhum serviço de rede sobe habilitado</b> — <code class="inl">ssh</code>, <code class="inl">postgresql</code> e <code class="inl">apache2</code> vêm desativados, e um <code class="inl">ss -tulpn</code> novo sai quase vazio. O risco real é o <code class="inl">systemctl enable ssh</code> que você deu num laboratório há três meses e nunca desfez. <b><code class="inl">kali-tweaks</code> centraliza as decisões:</b> a seção <i>Hardening</i> configura o SSH deste capítulo e inclui <i>aceitar algoritmos legados</i> — as duas direções a um menu de distância. <b>VM clonada herda a chave de host do SSH</b>, e máquinas com a mesma identidade anulam a checagem de <i>fingerprint</i>: <code class="inl">sudo rm /etc/ssh/ssh_host_*</code> e <code class="inl">dpkg-reconfigure openssh-server</code>. <b>Fechar o ciclo:</b> <code class="inl">nmap -sV -p- 127.0.0.1</code> e uma varredura de outra VM sua mostram a superfície <b>como um atacante a vê</b> — a máquina que você endureceu é o único alvo cuja autorização é indiscutível; contra outro é crime (Lei 12.737/2012). <b>RHEL</b> já parte de <code class="inl">firewalld</code> ativo e SELinux <i>enforcing</i>, e troca o <code class="inl">lynis</code> pelo <b>OpenSCAP</b>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 14 · Fase 4 <span class="n">085</span></span>
