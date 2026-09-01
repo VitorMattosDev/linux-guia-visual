@@ -3,101 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 058 — Laços: for, while e until</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* De onde vem a lista */
+  .fontes { display:flex; flex-direction:column; gap:5px; }
+  .fo { display:grid; grid-template-columns:170px 200px 1fr; gap:8px; align-items:center;
+        border:1.5px solid; border-radius:var(--raio-sm); padding:5px 8px; }
+  .fo .cmd { font-family:var(--fonte-mono); font-size:9.5px; line-height:1.3; word-break:break-all; }
+  .fo .toks { display:flex; flex-wrap:wrap; gap:3px; }
+  .fo .tk { font-family:var(--fonte-mono); font-size:9px; border-radius:3px; padding:2px 5px; color:#fff; }
+  .fo p { font-size:9px; line-height:1.32; color:var(--tinta-suave); }
+  .fo p b { color:var(--navy); }
+  .fo.mau { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .fo.mau .cmd { color:var(--vermelho); } .fo.mau .tk { background:var(--vermelho); }
+  .fo.bom { border-color:var(--verde); background:var(--verde-claro); }
+  .fo.bom .cmd { color:#1d7038; } .fo.bom .tk { background:var(--verde); }
+
+  /* Os quatro laços */
+  .lacos { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+  .lc { border:1.5px solid var(--linha); border-top-width:3px; border-radius:var(--raio-sm);
+        background:#fff; padding:5px 7px; display:flex; flex-direction:column; gap:3px; }
+  .lc > b { font-family:var(--fonte-mono); font-size:10px; text-align:center; }
+  .lc .cx { font-size:8.5px; line-height:1.25; text-align:center; border-radius:4px; padding:3px 4px; }
+  .lc .cond { background:#eef2f8; border:1px solid var(--linha); color:var(--tinta); }
+  .lc .corpo { background:var(--verde-claro); border:1px solid var(--verde); color:#1d7038; }
+  .lc .volta { font-size:8px; color:var(--tinta-suave); text-align:center; }
+  .lc p { font-size:8.5px; line-height:1.28; color:var(--tinta-suave); }
+  .lc p b { color:var(--navy); }
+  .lc.a { border-top-color:var(--azul); }    .lc.a > b { color:var(--azul); }
+  .lc.v { border-top-color:var(--verde); }   .lc.v > b { color:var(--verde); }
+  .lc.l { border-top-color:var(--laranja); } .lc.l > b { color:#a8530a; }
+  .lc.x { border-top-color:var(--roxo); }    .lc.x > b { color:var(--roxo); }
+
+  .grade2 { display:grid; grid-template-columns:1.12fr 1fr; gap:9px; align-items:start; }
+  .subt { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+          letter-spacing:.04em; color:var(--navy); margin-bottom:4px; }
+
+  /* Subshell */
+  .proc { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .pr { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 7px; font-size:8.5px;
+        line-height:1.28; color:var(--tinta-suave); }
+  .pr > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; margin-bottom:2px;
+            text-transform:uppercase; letter-spacing:.03em; }
+  .pr.pai { border-color:var(--azul); background:var(--azul-claro); } .pr.pai > b { color:var(--azul); }
+  .pr.sub { border-color:var(--vermelho); background:var(--vermelho-claro); } .pr.sub > b { color:var(--vermelho); }
+  .fix { display:flex; flex-direction:column; gap:3px; margin-top:6px; }
+  .fx { border-left:4px solid var(--verde); background:var(--verde-claro); border-radius:var(--raio-sm);
+        padding:4px 7px; font-size:8.5px; line-height:1.3; color:var(--tinta-suave); }
+  .fx > b { font-family:var(--fonte-mono); font-size:9.5px; color:#1d7038; margin-right:5px; }
+  .nota { font-size:9px; line-height:1.35; color:var(--tinta-suave); margin-top:5px; }
+  .nota b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 058</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Laços: for, while e until</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Laços<br>for · while · until</h1>
+      <div class="sub">O expurgo da madrugada rodava havia meses até a coleta gravar <code class="inl">relatorio de marco.log</code>. Naquela noite o <code class="inl">gzip</code> foi chamado três vezes — com <i>relatorio</i>, <i>de</i> e <i>marco.log</i> —, o log real continuou crescendo e um mês depois a partição encheu. O erro não estava no <code class="inl">for</code> nem no <code class="inl">gzip</code>: estava na <b>fonte da lista</b>.</div>
     </div>
     <div class="badge"><b>058</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <div class="secao-titulo">De onde vem a lista — o laço itera <b>palavras</b>, não arquivos</div>
+  <section class="fontes">
+    <div class="fo mau">
+      <div class="cmd">for f in $(ls *.log)</div>
+      <div class="toks"><span class="tk">relatorio</span><span class="tk">de</span><span class="tk">marco.log</span></div>
+      <p><b>3 iterações.</b> A saída virou <b>texto</b> e o <code class="inl">IFS</code> recortou nos espaços; um nome com <code class="inl">*</code> ainda se expandiria outra vez. Não existe caso em que iterar sobre <code class="inl">ls</code> seja melhor.</p>
+    </div>
+    <div class="fo bom">
+      <div class="cmd">for f in *.log</div>
+      <div class="toks"><span class="tk">relatorio de marco.log</span></div>
+      <p><b>1 iteração.</b> O <i>globbing</i> entrega <b>itens</b>, não uma cadeia de caracteres: espaço e quebra de linha sobrevivem inteiros. Vale igual para <code class="inl">{1..10}</code> e <code class="inl">"${arr[@]}"</code>.</p>
+    </div>
+    <div class="fo bom">
+      <div class="cmd">while IFS= read -r -d '' f<br>&nbsp;&nbsp;&lt; &lt;(find … -print0)</div>
+      <div class="toks"><span class="tk">relatorio de marco.log</span></div>
+      <p><b>1 iteração</b>, e também em subdiretório e com <code class="inl">\n</code> no nome. O separador é o <b>byte nulo</b> — o único caractere que o kernel proíbe num nome de arquivo.</p>
+    </div>
+    <div class="nota"><b>Glob que não casa não vira lista vazia:</b> em diretório sem <code class="inl">*.log</code>, o laço roda <b>uma vez</b> com <code class="inl">f</code> valendo o texto literal <code class="inl">*.log</code>. Conserte com <code class="inl">shopt -s nullglob</code> ou com <code class="inl">[[ -e $f ]] || continue</code> na primeira linha do corpo. E se o corpo é uma chamada única a um comando, dispense o laço: <code class="inl">find … -exec gzip {} +</code> ou <code class="inl">xargs -0</code>.</div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <div class="secao-titulo">Quem testa o quê, e quando</div>
+  <section class="lacos">
+    <div class="lc a">
+      <b>for x in lista</b>
+      <div class="cx cond">expande a lista<br><b>uma única vez</b></div>
+      <div class="volta">↓ sobrou item?</div>
+      <div class="cx corpo">x = próximo<br>executa o corpo ↺</div>
+      <p>Acrescentar arquivos ao diretório no meio de um <code class="inl">for f in *</code> <b>não</b> muda o que já foi expandido.</p>
+    </div>
+    <div class="lc x">
+      <b>for (( ; ; ))</b>
+      <div class="cx cond">i=0 · i&lt;n · i++<br>contexto aritmético</div>
+      <div class="volta">↓ enquanto verdadeiro</div>
+      <div class="cx corpo">executa o corpo ↺</div>
+      <p>A forma certa quando o limite é <b>variável</b>: <code class="inl">{1..$n}</code> não funciona — chaves expandem antes das variáveis.</p>
+    </div>
+    <div class="lc v">
+      <b>while comando</b>
+      <div class="cx cond">o comando<br>saiu com <b>0</b>?</div>
+      <div class="volta">↓ sim</div>
+      <div class="cx corpo">executa o corpo ↺</div>
+      <p>Reavalia <b>a cada volta</b>: serve para esperar estado externo — e erro na condição vira laço infinito, não mensagem.</p>
+    </div>
+    <div class="lc l">
+      <b>until comando</b>
+      <div class="cx cond">o comando<br>saiu com <b>0</b>?</div>
+      <div class="volta">↓ <b>não</b></div>
+      <div class="cx corpo">executa o corpo ↺</div>
+      <p>É o <code class="inl">while !</code> escrito de forma legível: <code class="inl">until systemctl is-active --quiet pg; do sleep 2; done</code>.</p>
+    </div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+  <section class="grade2">
+    <div>
+      <div class="subt">O idioma de leitura — três detalhes obrigatórios</div>
+      <div class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>while read — linha a linha, e por campos</span></div>
+<pre><span class="cmt"># IFS= preserva espacos das pontas | -r preserva a \ | &lt; depois do done evita o subshell</span>
+<span class="prompt">$</span> while IFS= read -r linha || [[ -n $linha ]]; do
+<span class="prompt">&gt;</span>     printf '[%s]\n' "$linha"
+<span class="prompt">&gt;</span> done &lt; dados.txt          <span class="cmt"># o || pega a ultima linha sem \n final</span>
+
+<span class="cmt"># com valor, o IFS divide em campos; o resto cai na ultima variavel</span>
+<span class="prompt">$</span> while IFS=: read -r usuario _ uid _ _ _ shell; do
+<span class="prompt">&gt;</span>   (( uid &gt;= 1000 &amp;&amp; uid &lt; 65534 )) &amp;&amp; printf '%-12s %s\n' "$usuario" "$shell"
+<span class="prompt">&gt;</span> done &lt; /etc/passwd
+<span class="out">kali         /usr/bin/bash</span></pre>
+      </div>
+      <div class="nota"><b><code class="inl">break n</code> e <code class="inl">continue n</code> saem de <i>n</i> níveis</b> — <code class="inl">break 2</code> abandona os dois laços aninhados e dispensa a variável <code class="inl">encontrado=1</code>. E <b>redirecione o laço inteiro</b> (<code class="inl">done &gt; saida.txt</code>) em vez de <code class="inl">&gt;&gt;</code> a cada volta: o arquivo é aberto uma vez, não cinco mil.</div>
+    </div>
+    <div>
+      <div class="subt">A variável que some no <code class="inl">done</code></div>
+      <div class="proc">
+        <div class="pr pai"><b>shell pai</b><code class="inl">total=0</code> continua valendo <b>0</b> depois do laço. Nenhum erro é emitido.</div>
+        <div class="pr sub"><b>subshell do pipe</b>a cópia de <code class="inl">total</code> chega a 4 — e morre com o processo.</div>
+      </div>
+      <div class="nota" style="margin-top:5px"><code class="inl">cat arq | while read l; do (( total++ )); done</code> — cada estágio de um <i>pipe</i> roda no <b>próprio processo</b>. O sintoma é sempre o mesmo: valor certo <i>dentro</i> do laço, valor antigo depois do <code class="inl">done</code>.</div>
+      <div class="fix">
+        <div class="fx"><b>done &lt; arq</b>redirecionamento: sem <i>pipe</i>, sem <i>fork</i>. A forma preferida quando a origem é um arquivo.</div>
+        <div class="fx"><b>done &lt; &lt;(cmd)</b>substituição de processo — o laço fica no pai. O <b>espaço entre os dois <code class="inl">&lt;</code> é obrigatório</b>.</div>
+        <div class="fx"><b>shopt -s lastpipe</b>o último estágio passa a rodar no pai (exige <code class="inl">set +m</code> em script).</div>
+      </div>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
+  <div class="perigo"><b>Um erro de lógica num <code class="inl">if</code> atinge um arquivo; num laço, atinge todos os que casaram.</b> Por isso todo laço destrutivo se escreve <b>duas vezes</b>: primeiro com <code class="inl">echo "APAGARIA: $arq"</code> no lugar da ação, para ler a lista inteira; só depois se troca o <code class="inl">echo</code> por <code class="inl">rm -f -- "$arq"</code>. O <code class="inl">--</code> impede que um arquivo chamado <code class="inl">-rf</code> seja lido como opção — vale para <code class="inl">rm</code>, <code class="inl">cp</code>, <code class="inl">mv</code> e <code class="inl">chown</code>. <b>Nunca rode laço destrutivo com lista vinda de variável não validada:</b> um <code class="inl">$DIR</code> vazio transforma <code class="inl">rm -rf "$DIR"/*</code> em <code class="inl">rm -rf /*</code>. Ensaie num diretório descartável de <code class="inl">mktemp -d</code> e use <code class="inl">rm -i</code> na primeira execução real.</div>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O <code class="inl">for</code> itera sobre palavras, não sobre arquivos.</b> Quem decide as palavras é a expansão que gera a lista: <code class="inl">for f in *.log</code>, <b>nunca</b> <code class="inl">for f in $(ls *.log)</code>.</li>
+        <li><b>Glob sem correspondência passa literalmente</b> — <code class="inl">shopt -s nullglob</code> ou <code class="inl">[[ -e $f ]] || continue</code>. E <code class="inl">**</code> recursivo exige <code class="inl">shopt -s globstar</code>, desligado por padrão em toda distribuição.</li>
+        <li><b><code class="inl">for (( i=0; i&lt;n; i++ ))</code> quando o limite é variável</b>, porque a expansão de chaves ocorre antes da de variáveis e <code class="inl">{1..$n}</code> vira texto literal.</li>
+        <li><b><code class="inl">while</code>/<code class="inl">until</code> reavaliam a condição a cada volta</b>: é a ferramenta de esperar por estado externo — sempre com <code class="inl">sleep</code> e com <b>limite de tentativas</b>, senão o script espera para sempre.</li>
+        <li><b>O idioma é <code class="inl">while IFS= read -r linha; do … done &lt; arquivo</code></b>, com <code class="inl">|| [[ -n $linha ]]</code> quando o arquivo puder não terminar em quebra de linha.</li>
+        <li><b><code class="inl">cmd | while read</code> perde as variáveis no <code class="inl">done</code></b> — o lado direito do <i>pipe</i> é subshell. Corrija com <code class="inl">&lt; arquivo</code> ou <code class="inl">&lt; &lt;(comando)</code>.</li>
+        <li><b>Para <code class="inl">find</code>, o par seguro é <code class="inl">-print0</code> + <code class="inl">read -r -d ''</code>.</b> Corpo com uma só chamada? Prefira <code class="inl">-exec … +</code> ou <code class="inl">xargs -0</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O laço amplifica tanto o acerto quanto o engano — por isso o filtro de escopo vai <i>dentro</i> dele, não depois.</b> Valide cada alvo contra a faixa contratada logo na primeira linha do corpo: <code class="inl">[[ $alvo =~ ^10\.10\.10\. ]] || { echo "fora do escopo: $alvo" &gt;&amp;2; continue; }</code>. Um erro de digitação numa lista de 254 endereços não produz um alvo errado, produz 254 — e varrer fora do escopo autorizado é crime pela Lei 12.737/2012. <b><code class="inl">for host in {1..254}</code> é conveniente e quase sempre a ferramenta errada:</b> <code class="inl">nmap</code>, <code class="inl">masscan</code> e <code class="inl">fping</code> já varrem em paralelo com controle de temporização, e <code class="inl">nmap -sn 10.0.0.0/24</code> leva segundos onde o laço serial leva minutos. Use o laço para <b>orquestrar</b> — iterar sobre arquivos de saída, perfis de varredura, alvos já confirmados —, não para substituir a ferramenta. <b>O <code class="inl">sleep</code> é controle de intensidade, não enfeite:</b> laço sem pausa contra um serviço de laboratório é indistinguível de uma negação de serviço acidental, e derruba justamente o alvo que você precisava analisar. <b>Saída de <code class="inl">gobuster</code> e <code class="inl">nikto</code> vira nome de arquivo com <code class="inl">%20</code>, <code class="inl">&amp;</code>, <code class="inl">?</code> e espaço</b> — exatamente a família que quebra <code class="inl">for f in $(ls)</code>: percorra com glob ou <code class="inl">find -print0</code> e cite toda expansão. E no <i>rolling</i>, cheque a ferramenta <b>antes</b> de entrar no laço (<code class="inl">command -v nmap &gt;/dev/null || exit 1</code>): dentro dele, o teste custa 254 chamadas e 254 mensagens idênticas.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 10 · Fase 3 <span class="n">058</span></span>
