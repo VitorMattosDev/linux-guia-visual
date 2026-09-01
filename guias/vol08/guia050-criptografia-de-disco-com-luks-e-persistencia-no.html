@@ -3,101 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 050 — Criptografia de disco com LUKS e persistência no Kali</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Modelo de slots: senhas → chave mestra → dados */
+  .slots { display:flex; align-items:center; gap:5px; }
+  .col-s { display:flex; flex-direction:column; gap:4px; }
+  .cxs { border:1px solid; border-radius:6px; padding:4px 6px; font-size:9px; line-height:1.2;
+         text-align:center; width:118px; }
+  .cxs b { display:block; font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); }
+  .cxs.senha { border-color:var(--azul);    background:var(--azul-claro); }
+  .cxs.slot  { border-color:var(--laranja); background:var(--laranja-claro); }
+  .setas { display:flex; flex-direction:column; gap:4px; }
+  .setas span { height:26px; display:flex; align-items:center; justify-content:center;
+                font-size:7.5px; color:var(--tinta-suave); font-family:var(--fonte-titulo); }
+  .setas span i { font-style:normal; color:var(--azul); font-size:14px; margin-right:2px; }
+  .un { font-size:16px; color:var(--laranja); font-weight:700; }
+  .mestra { border:1.5px solid var(--vermelho); background:var(--vermelho-claro); border-radius:8px;
+            padding:7px 8px; width:124px; text-align:center; font-size:8.5px; line-height:1.25; color:var(--tinta-suave); }
+  .mestra b { display:block; font-family:var(--fonte-titulo); font-size:10.5px; color:var(--vermelho); text-transform:uppercase; }
+  .aes { font-size:8px; color:var(--tinta-suave); text-align:center; font-family:var(--fonte-titulo); }
+  .aes i { font-style:normal; color:var(--vermelho); font-size:14px; display:block; }
+  .dadosv { flex:1; border:1px solid var(--linha); background:var(--papel-tint); border-radius:8px;
+            padding:7px 8px; font-size:9px; line-height:1.35; color:var(--tinta-suave); }
+  .dadosv b { color:var(--navy); }
+  /* Pilha de uma instalação cifrada */
+  .pilhac { display:flex; flex-direction:column; gap:4px; }
+  .linhac { display:flex; gap:6px; align-items:stretch; }
+  .linhac > .rot { flex:0 0 58px; text-align:right; font-family:var(--fonte-titulo); font-size:9px;
+                   text-transform:uppercase; letter-spacing:.03em; display:flex; align-items:center;
+                   justify-content:flex-end; line-height:1.1; }
+  .linhac > .cont { flex:1; display:flex; gap:4px; }
+  .bxc { border:1px solid; border-radius:5px; padding:4px 6px; font-size:8.5px; text-align:center;
+         line-height:1.25; display:flex; flex-direction:column; justify-content:center; }
+  .bxc b { font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); }
+  .lvc { border-color:var(--verde);    background:var(--verde-claro); }
+  .vgc { border-color:var(--laranja);  background:var(--laranja-claro); }
+  .lkc { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .ptc { border-color:var(--linha);    background:var(--papel-tint); color:var(--tinta-suave); }
+  .linhac.lv > .rot { color:var(--verde); } .linhac.vg > .rot { color:#a8530a; }
+  .linhac.lk > .rot { color:var(--vermelho); } .linhac.pt > .rot { color:var(--tinta-suave); }
+  .vazio { flex:0 0 168px; }
+  .nota-pc { font-size:9px; line-height:1.4; color:var(--tinta-suave); padding-left:64px; }
+  .nota-pc b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 050</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Criptografia de disco com LUKS e persistência no Kali</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Criptografia de Disco<br>LUKS e a persistência</h1>
+      <div class="sub">O notebook fica no táxi. Com um live USB, ler tudo leva cinco minutos: <b>permissão é conferida pelo kernel que está rodando</b> — outro kernel, outro root.</div>
     </div>
     <div class="badge"><b>050</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- MODELO DE CHAVES -->
+  <div class="secao-titulo">Duas chaves — por que trocar a senha é instantâneo</div>
+  <section class="slots">
+    <div class="col-s">
+      <div class="cxs senha"><b>senha do usuário</b></div>
+      <div class="cxs senha"><b>senha de recuperação</b></div>
+      <div class="cxs senha"><b>arquivo de chave</b>pendrive, TPM</div>
+    </div>
+    <div class="setas">
+      <span><i>→</i>Argon2id</span><span><i>→</i>Argon2id</span><span><i>→</i>Argon2id</span>
+    </div>
+    <div class="col-s">
+      <div class="cxs slot"><b>slot 0</b>mestra cifrada</div>
+      <div class="cxs slot"><b>slot 1</b>mestra cifrada</div>
+      <div class="cxs slot"><b>slot 2</b>mestra cifrada</div>
+    </div>
+    <span class="un">→</span>
+    <div class="mestra"><b>chave mestra</b>gerada aleatoriamente na formatação — nunca digitada</div>
+    <div class="aes"><i>→</i>AES-XTS</div>
+    <div class="dadosv"><b>Dados do volume.</b> Cada senha só decifra uma <b>cópia</b> da mestra num <i>slot</i> — daí trocar a senha reescrever poucos KB em vez de recifrar o disco, e várias pessoas terem senhas distintas para o mesmo volume. LUKS1 tem 8 <i>slots</i>; <b>LUKS2, 32</b>, com Argon2id (caro em tempo <b>e</b> em memória). E daí também: <b>apagar o cabeçalho destrói todas as cópias de uma vez</b>.</div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- PILHA CIFRADA -->
+  <div class="secao-titulo">A pilha de uma instalação cifrada — RAID → LUKS → LVM</div>
+  <section class="pilhac">
+    <div class="linhac lv">
+      <div class="rot">LVs</div>
+      <div class="cont"><div class="vazio"></div>
+        <div class="bxc lvc" style="flex:2"><b>raiz</b> (ext4)</div>
+        <div class="bxc lvc" style="flex:1"><b>troca</b></div>
+        <div class="bxc lvc" style="flex:1"><b>lar</b></div>
+      </div>
+    </div>
+    <div class="linhac vg">
+      <div class="rot">LVM</div>
+      <div class="cont"><div class="vazio"></div>
+        <div class="bxc vgc" style="flex:1">grupo de volumes <b>vg0</b></div>
+      </div>
+    </div>
+    <div class="linhac lk">
+      <div class="rot">LUKS</div>
+      <div class="cont"><div class="vazio"></div>
+        <div class="bxc lkc" style="flex:1"><b>/dev/mapper/sda3_crypt</b> — tudo acima daqui é cifrado</div>
+      </div>
+    </div>
+    <div class="linhac pt">
+      <div class="rot">partições</div>
+      <div class="cont">
+        <div class="bxc ptc" style="flex:0 0 80px"><b>EFI</b>FAT32</div>
+        <div class="bxc ptc" style="flex:0 0 84px"><b>/boot</b><i>em claro</i></div>
+        <div class="bxc ptc" style="flex:1"><b>/dev/sda3</b> — contêiner LUKS</div>
+      </div>
+    </div>
+    <div class="nota-pc"><b>LUKS embaixo, LVM em cima:</b> uma senha abre um contêiner e protege todos os volumes lógicos — a ordem inversa pediria uma senha por volume, sem ganho. A <b>EFI e a <code class="inl">/boot</code> ficam fora por necessidade</b>: alguém tem de carregar o kernel e o <i>initramfs</i> que vão pedir a senha. É a superfície que sobra — com acesso físico repetido dá para alterar o <i>initramfs</i> e capturar a senha (a “camareira maligna”). Defesa: <i>Secure Boot</i> com chaves próprias ou selar a chave no TPM (<code class="inl">systemd-cryptenroll --tpm2-device=auto</code>).</div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- NA PRÁTICA -->
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> sudo cryptsetup luksFormat /dev/sdX3   <span class="cmt"># confirme YES em maiúsculas — apaga tudo</span>
+<span class="prompt">$</span> sudo cryptsetup luksHeaderBackup /dev/sdX3 --header-backup-file ~/hdr.img  <span class="cmt"># AGORA</span>
+<span class="prompt">$</span> sudo cryptsetup open /dev/sdX3 cofre &amp;&amp; sudo mkfs.ext4 -L persistence /dev/mapper/cofre
+<span class="cmt"># mkfs e mount sempre em /dev/mapper/&lt;nome&gt; — no dispositivo cru, mata o cabeçalho</span>
+<span class="prompt">$</span> echo "/ union" | sudo tee /mnt/cofre/persistence.conf   <span class="cmt"># persistência do Kali</span>
+<span class="prompt">$</span> sudo cryptsetup luksAddKey /dev/sdX3 ~/chave.bin   <span class="cmt"># exige uma senha que já funcione</span>
+<span class="prompt">$</span> sudo cryptsetup --test-passphrase open /dev/sdX3   <span class="cmt"># testa sem mapear nada</span>
+<span class="prompt">$</span> sudo blkid /dev/sdX3          <span class="cmt"># UUID do CONTÊINER  → /etc/crypttab</span>
+<span class="prompt">$</span> sudo blkid /dev/mapper/cofre  <span class="cmt"># UUID do SISTEMA DE ARQUIVOS → /etc/fstab</span>
+<span class="out">cofre  UUID=8f2e…  none  luks,discard,tries=3   </span><span class="cmt"># crypttab: nofail em disco externo</span>
+<span class="prompt">$</span> sudo update-initramfs -u   <span class="cmt"># quem pede a senha da raiz é o initramfs. Não é opcional.</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
+  <div class="perigo"><b>Perder o cabeçalho é perder os dados — não existe recuperação.</b> Ele ocupa poucos MB no início do volume e guarda <b>todas</b> as cópias da chave mestra: um <code class="inl">dd</code> nos primeiros blocos, um <code class="inl">wipefs -a</code> ou uma tabela de partição reescrita com outro deslocamento e nenhuma senha do mundo abre o volume. Faça <code class="inl">luksHeaderBackup</code>, guarde <b>fora do disco protegido</b>, trate como material sensível — e <b>teste a restauração</b> antes de precisar dela; note que um cabeçalho antigo <b>revive senhas já removidas</b>. O <code class="inl">luksAddKey</code> exige uma senha válida: <b>removeu o último <i>slot</i>, acabou</b>. E o <code class="inl">reencrypt</code>, que troca a chave mestra com o sistema no ar, é a operação mais longa e arriscada — backup completo antes, sem exceção.</div>
 
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Permissão não protege contra acesso físico.</b> Ela é conferida pelo kernel em execução contra o usuário autenticado — outro sistema, iniciado como <code class="inl">root</code>, ignora tudo.</li>
+        <li><b>Opere sempre em <code class="inl">/dev/mapper/&lt;nome&gt;</code></b>, nunca no dispositivo cru: formatar o original destrói o cabeçalho.</li>
+        <li><b>Dois UUIDs:</b> o do contêiner vai no <code class="inl">crypttab</code>, o do sistema de arquivos vai no <code class="inl">fstab</code>. Trocá-los trava o boot esperando um dispositivo que nunca aparece.</li>
+        <li><b>Com AES-NI a criptografia não é o gargalo</b> — o <code class="inl">cryptsetup benchmark</code> entrega mais do que um SSD SATA sustenta. Em ARM sem aceleração, compare com <code class="inl">xchacha20</code>.</li>
+        <li><code class="inl">discard</code> em volume cifrado revela <b>quais blocos estão em uso</b>: bom para SSD, ruim quando o próprio volume de dados é sensível.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Persistência cifrada é o padrão para pendrive.</b> Crie a 3ª partição depois das duas da imagem, <code class="inl">luksFormat</code>, formate em <b>ext4</b> com rótulo <code class="inl">persistence</code> e grave <code class="inl">/ union</code> no <code class="inl">persistence.conf</code>. O <i>initramfs</i> acha a partição <b>pelo rótulo</b> — imune à troca de letras a cada máquina — e exFAT/FAT32 não servem: não representam dono nem permissão, e o sistema não sobe. Num equipamento de trabalho, criptografia <b>não é opcional</b>: ele carrega capturas, credenciais de teste e dados de cliente. O <code class="inl">cryptsetup</code> do Kali traz as <b>chaves <i>nuke</i></b> (<code class="inl">luksAddNuke</code>): digitada no boot, a senha apaga todos os <i>slots</i> em vez de abrir — protege confidencialidade contra acesso não autorizado, mas destruir dados para obstruir investigação legalmente autorizada é crime, e sem backup do cabeçalho é definitivo também para o dono. Em perícia, a chave mestra vive na <b>memória</b> enquanto o volume está aberto: <b>máquina ligada com volume aberto não se desliga</b> antes da captura de memória.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 08 · Fase 2 <span class="n">050</span></span>
