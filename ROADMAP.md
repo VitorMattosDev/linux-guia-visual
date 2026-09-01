@@ -70,7 +70,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 041** - Gerenciando serviços com systemctl - `guias/vol07/guia041-gerenciando-servicos-com-systemctl.html`
 - [x] **guia 042** - Logs com journald e o syslog tradicional - `guias/vol07/guia042-logs-com-journald-e-o-syslog-tradicional.html`
 - [x] **guia 043** - Agendamento: cron, at e timers do systemd - `guias/vol07/guia043-agendamento-cron-at-e-timers-do-systemd.html`
-- [ ] **guia 044** - Targets, recuperação e problemas de boot - `guias/vol07/guia044-targets-recuperacao-e-problemas-de-boot.html`
+- [x] **guia 044** - Targets, recuperação e problemas de boot - `guias/vol07/guia044-targets-recuperacao-e-problemas-de-boot.html`
 
 ### Volume 8 — Armazenamento e Sistemas de Arquivos
 

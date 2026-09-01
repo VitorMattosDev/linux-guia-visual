@@ -3,101 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 044 — Targets, recuperação e problemas de boot</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Escada da recuperação: cinco degraus, do menos ao mais invasivo */
+  .escada { display:flex; gap:8px; align-items:stretch; }
+  .escada .degraus { flex:1; display:flex; flex-direction:column; gap:5px; }
+  .dg { display:flex; align-items:center; gap:8px; border-radius:6px; padding:5px 9px;
+        border-left:5px solid; font-size:10px; line-height:1.35; }
+  .dg .n { flex:0 0 auto; width:20px; height:20px; border-radius:50%; color:#fff;
+           font-family:var(--fonte-titulo); font-weight:700; font-size:11px;
+           display:flex; align-items:center; justify-content:center; }
+  .dg b { font-family:var(--fonte-titulo); color:var(--navy); }
+  .dg code { font-family:var(--fonte-mono); }
+  .dg.g1 { border-color:var(--verde);   background:var(--verde-claro); }    .dg.g1 .n{background:var(--verde)}
+  .dg.g2 { border-color:var(--verde);   background:#eef8f1; }               .dg.g2 .n{background:var(--verde)}
+  .dg.g3 { border-color:var(--laranja); background:#fdf1e4; }               .dg.g3 .n{background:var(--laranja)}
+  .dg.g4 { border-color:var(--vermelho);background:#fdeeee; }               .dg.g4 .n{background:var(--vermelho)}
+  .dg.g5 { border-color:var(--vermelho);background:var(--vermelho-claro); } .dg.g5 .n{background:var(--vermelho)}
+  .eixo { flex:0 0 26px; border-radius:6px; background:linear-gradient(to top,var(--vermelho),var(--verde));
+          color:#fff; font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+          letter-spacing:.06em; display:flex; align-items:center; justify-content:center; }
+  .eixo span { writing-mode:vertical-rl; }
+  /* Tira de parâmetros de kernel para depurar o boot */
+  .params { display:flex; flex-wrap:wrap; gap:5px; align-items:center; justify-content:center; }
+  .params .rot { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+    letter-spacing:.04em; color:var(--tinta-suave); margin-right:2px; }
+  .params span.k { font-family:var(--fonte-mono); font-size:10px; background:#eef2f8;
+    color:var(--tinta-suave); border-radius:999px; padding:2px 8px; }
+  .params span.k b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 044</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Targets, recuperação e problemas de boot</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Recuperação e<br>Problemas de Boot</h1>
+      <div class="sub">Uma linha a mais no <code class="inl">fstab</code> e a máquina para em <i>emergency mode</i>. O difícil é chegar até a correção.</div>
     </div>
     <div class="badge"><b>044</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- ESCADA -->
+  <div class="secao-titulo">A escada da recuperação — desça um degrau por vez</div>
+  <section class="escada">
+    <div class="degraus">
+      <div class="dg g1"><span class="n">1</span><div><b>Kernel anterior no menu do GRUB</b> — resolve atualização de kernel que quebrou o sistema. Por isso <b>dois kernels</b> sempre instalados.</div></div>
+      <div class="dg g2"><span class="n">2</span><div><b>Tecla <code>e</code>: parâmetro temporário</b> — <code>nomodeset</code>, <code>systemd.unit=rescue.target</code>. Nada é gravado; <code>Ctrl+X</code> inicia.</div></div>
+      <div class="dg g3"><span class="n">3</span><div><b>rescue.target</b> — roda o <code>sysinit</code>: raiz montada, <b>fstab aplicado</b>, swap, journal, shell de root. Sem rede.</div></div>
+      <div class="dg g4"><span class="n">4</span><div><b>emergency.target</b> — só a raiz, somente leitura, nada montado. <b>É o degrau para quando o problema é o próprio fstab.</b></div></div>
+      <div class="dg g5"><span class="n">5</span><div><b>Live USB + chroot</b> — quando não inicia de forma alguma. Mais poder e mais chance de estragar o sistema errado.</div></div>
+    </div>
+    <div class="eixo"><span>mais invasivo ↓</span></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- DO SINTOMA À AÇÃO -->
+  <div class="secao-titulo">Do sintoma na tela à ação</div>
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>O que aparece na tela</th><th>Causa provável</th><th>O que fazer</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td>Sem menu: <code>grub rescue&gt;</code></td><td>GRUB não achou os próprios módulos</td><td><code>set root=</code> + <code>set prefix=</code> + <code>insmod normal</code> + <code>normal</code>; depois <code>grub-install</code> e <code>update-grub</code></td></tr>
+        <tr><td><code>(initramfs)</code> + <code>ALERT! UUID… does not exist</code></td><td>UUID da raiz mudou, ou falta o módulo do controlador</td><td>Compare <code>blkid</code> com <code>/proc/cmdline</code>; <code>update-initramfs -u</code> via chroot</td></tr>
+        <tr><td><code>You are in emergency mode</code></td><td>Montagem do <code>fstab</code> falhou e derrubou o <code>local-fs.target</code></td><td><code>mount -o remount,rw /</code>, corrigir o <code>fstab</code>, validar com <code>findmnt --verify</code></td></tr>
+        <tr><td><code>A start job is running for…</code> contando 90 s</td><td>Serviço travado — quase sempre um <code>wait-online</code></td><td><code>journalctl -b -1 -p err</code>; <code>systemd.mask=</code> no próximo boot; depois <code>disable</code></td></tr>
+        <tr><td>Sobe, mas <code>Read-only file system</code></td><td>Kernel remontou a raiz por erro de FS — ou acabaram os <b>inodes</b></td><td><code>dmesg | grep -i ext4</code>; <code>df -h</code> <b>e</b> <code>df -i</code>; <code>fsck</code> com o FS desmontado</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section class="params">
+    <span class="rot">Depurar o boot pela linha do kernel:</span>
+    <span class="k"><b>systemd.unit=rescue.target</b></span>
+    <span class="k"><b>systemd.mask=</b>x.service — só neste boot</span>
+    <span class="k"><b>systemd.debug_shell</b> — shell no Alt+F9</span>
+    <span class="k"><b>systemd.log_level=debug</b></span>
+    <span class="k"><b>rd.break</b> — para dentro do initramfs</span>
+  </section>
+
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">Na prática — o <code class="inl">chroot</code> do degrau 5</div>
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~ (live USB)</span></div>
+<pre><span class="prompt">$</span> lsblk -f &amp;&amp; sudo mount /dev/sda2 /mnt
+<span class="prompt">$</span> sudo mount /dev/sda1 /mnt/boot/efi   <span class="cmt"># a ESP: o passo esquecido no 1</span>
+<span class="prompt">$</span> for d in /dev /dev/pts /proc /sys /run; do sudo mount --bind "$d" "/mnt$d"; done
+<span class="prompt">$</span> sudo chroot /mnt /bin/bash
+<span class="prompt">#</span> cat /etc/os-release; cat /etc/hostname; ls /home/   <span class="cmt"># qual sistema e este?</span>
+<span class="prompt">#</span> grub-install --target=x86_64-efi --efi-directory=/boot/efi &amp;&amp; update-grub
+<span class="prompt">$</span> sudo findmnt --verify --verbose &amp;&amp; sudo mount -a   <span class="cmt"># valide ANTES do reboot</span></pre>
+  </section>
+
+  <div class="perigo"><b>Dentro do <code class="inl">chroot</code>, confirme em qual sistema você está antes de qualquer comando.</b> Com dois sistemas ou um disco de backup ligado há mais de uma raiz plausível, e um <code class="inl">grub-install</code> ou <code class="inl">passwd root</code> no lugar errado não dá erro nenhum — o estrago é silencioso e o problema original continua. Na máquina remota, <code class="inl">systemctl isolate rescue.target</code> derruba a rede e o SSH junto.</div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">nofail</code> em toda montagem não essencial</b> — com <code class="inl">x-systemd.device-timeout=10</code> corta a espera de 90 s.</li>
+        <li><code class="inl">findmnt --verify</code> + <code class="inl">mount -a</code> antes de reiniciar: 5 segundos que substituem uma sessão de recuperação.</li>
+        <li><code class="inl">isolate</code> age <b>agora</b>; <code class="inl">set-default</code> age no <b>próximo boot</b>.</li>
+        <li>Reparar não é entender: depois que voltar, <code class="inl">journalctl -b -1 -p err</code> diz por que caiu — senão cai de novo.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O <b>live USB do Kali é a ferramenta de recuperação</b> que você já tem: traz <code class="inl">cryptsetup</code>, <code class="inl">lvm2</code>, <code class="inl">gdisk</code>, <code class="inl">testdisk</code>. Com disco criptografado, abra antes do chroot: <code class="inl">cryptsetup luksOpen /dev/sda3 raiz</code> + <code class="inl">vgchange -ay</code>. Cuidado com <code class="inl">apt autoremove</code>: ele leva o kernel anterior, que é o degrau 1. E <b>modo forense ≠ recuperação</b> — se a máquina puder virar objeto de investigação, imagem com hash primeiro, reparo depois.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 07 · Fase 2 <span class="n">044</span></span>
