@@ -3,101 +3,197 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 071 — Tratamento de erros: set -euo pipefail e traps</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .grade-topo { display:grid; grid-template-columns:1.25fr 1fr; gap:9px; align-items:start; }
+
+  /* Os três pecados */
+  .pecado { display:grid; grid-template-columns:20px 1fr; gap:6px; align-items:start;
+            border-left:3px solid var(--vermelho); background:var(--vermelho-claro);
+            border-radius:var(--raio-sm); padding:5px 8px; margin-bottom:5px; }
+  .pecado .n { width:17px; height:17px; line-height:17px; border-radius:50%; background:var(--vermelho);
+               color:#fff; font-family:var(--fonte-mono); font-size:9.5px; font-weight:700; text-align:center; }
+  .pecado > div > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+              letter-spacing:.02em; color:var(--vermelho); margin-bottom:1px; }
+  .pecado p { font-size:8.4px; line-height:1.32; color:var(--tinta-suave); }
+  .pecado p code { font-family:var(--fonte-mono); font-size:8.4px; color:var(--navy); font-weight:600; }
+
+  /* Prólogo decodificado */
+  .prologo { border:1.5px solid var(--verde); background:var(--verde-claro);
+             border-radius:var(--raio-sm); padding:6px 8px; }
+  .prologo .lin { font-family:var(--fonte-mono); font-size:10px; font-weight:700; color:#1d7038;
+                  letter-spacing:-.01em; }
+  .prologo .lin em { font-style:normal; background:rgba(46,155,78,.22); border-radius:2px; padding:0 1px; }
+  .prologo ul { list-style:none; margin-top:4px; padding-top:4px; border-top:1px dashed #b9dcc5; }
+  .prologo li { display:grid; grid-template-columns:60px 1fr; gap:5px; align-items:baseline;
+                font-size:8.1px; line-height:1.3; color:var(--tinta-suave); margin-bottom:1.5px; }
+  .prologo li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.6px;
+                  color:#1d7038; }
+  .prologo li b { color:var(--navy); }
+
+  /* As quatro escapatórias do set -e */
+  .esc { display:grid; grid-template-columns:repeat(4,1fr) 1.05fr; gap:5px; margin-top:7px; align-items:stretch; }
+  .ec { border:1.5px solid var(--laranja); background:var(--laranja-claro); border-radius:var(--raio-sm);
+        padding:5px 6px; text-align:center; }
+  .ec b { display:block; font-family:var(--fonte-mono); font-size:10px; color:#a8530a; font-weight:700; }
+  .ec span { display:block; font-size:7.7px; line-height:1.25; color:var(--tinta-suave); margin-top:2px; }
+  .ec.ok { border-color:var(--verde); background:var(--verde-claro); }
+  .ec.ok b { color:#1d7038; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; }
+  .esc-cap { grid-column:1/5; font-size:7.8px; text-align:center; font-weight:700; color:#a8530a;
+             background:rgba(232,114,12,.12); border-radius:3px; padding:2px; }
+
+  .nota { font-size:8.6px; line-height:1.36; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.4px; color:var(--roxo); font-weight:600; }
+
+  .grade2 { display:grid; grid-template-columns:1.16fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.2px; line-height:1.42; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:6px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:88px 1fr; gap:6px; align-items:baseline;
+              font-size:8.3px; line-height:1.3; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.8px;
+                color:var(--roxo); word-break:break-all; }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8.2px; color:var(--navy); font-weight:600; }
+  .lista.saida li { grid-template-columns:44px 1fr; }
+  .lista.saida li i { color:var(--laranja); }
+
+  .fix { border-left:4px solid var(--azul); background:var(--azul-claro); border-radius:var(--raio-sm);
+         padding:5px 8px; margin-top:6px; font-size:8.4px; line-height:1.35; color:var(--tinta-suave); }
+  .fix b { color:var(--azul); }
+  .fix code { font-family:var(--fonte-mono); font-size:8.4px; color:var(--navy); font-weight:600; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 071</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Tratamento de erros: set -euo pipefail e traps</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Tratamento de erros<br>set -euo pipefail e traps</h1>
+      <div class="sub">O script de backup rodava havia sete meses e o e-mail do <code class="inl">cron</code> chegava vazio — sinal de sucesso. No dia da restauração, o arquivo do dia anterior tinha <b>20 bytes</b>. Três meses antes o <code class="inl">/mnt/backup</code> deixara de ser montado: o <code class="inl">mkdir</code> criou o diretório no disco raiz, o <code class="inl">tar</code> encheu a partição e morreu, e o script <b>seguiu obediente</b> para a linha seguinte — apagou os dumps, imprimiu "backup concluido" e <b>saiu com status zero</b>. Nada ali está sintaticamente errado: é o padrão do Bash. <b>Este assunto é desligar esse padrão.</b></div>
     </div>
     <div class="badge"><b>071</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Os três pecados do padrão · o prólogo que os desliga · e onde o set -e ainda não age</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="grade-topo">
+      <div>
+        <div class="pecado"><span class="n">1</span><div><b>erro não interrompe</b>
+          <p>O Bash segue para a próxima linha, aconteça o que acontecer. Um <code>cd</code> que falha não impede o <code>rm -rf *</code> seguinte de rodar — <b>no diretório errado</b>.</p></div></div>
+        <div class="pecado"><span class="n">2</span><div><b>variável ausente = string vazia</b>
+          <p>Erro de digitação não gera erro nenhum: <code>rm -rf "$DESTNO/"</code> vira <code>rm -rf /</code>. É literalmente a origem do bug que apagou a instalação do Steam em 2015.</p></div></div>
+        <div class="pecado"><span class="n">3</span><div><b>o pipeline mente</b>
+          <p>O status é o do <b>último</b> comando. Em <code>zcat corrompido.gz | wc -l</code>, se o <code>zcat</code> explodir o <code>wc</code> imprime <code>0</code> e sai com zero: o pipeline inteiro reporta sucesso.</p></div></div>
+      </div>
+      <div class="prologo">
+        <div class="lin">#!/usr/bin/env bash</div>
+        <div class="lin">set -<em>E</em><em>e</em><em>u</em><em>o pipefail</em></div>
+        <div class="lin">shopt -s inherit_errexit</div>
+        <ul>
+          <li><i>-e</i><span><b>errexit</b> — morre no primeiro status ≠ 0</span></li>
+          <li><i>-u</i><span><b>nounset</b> — variável não definida é erro fatal</span></li>
+          <li><i>pipefail</i><span>status do <b>último que falhou</b>, não do último</span></li>
+          <li><i>-E</i><span><b>errtrace</b> — o trap <code>ERR</code> é herdado por funções e subshells</span></li>
+          <li><i>inherit_<wbr>errexit</i><span>fecha o buraco do <code>x=$(cat /nao/existe; echo ok)</code>, que <b>sobrevive</b> sem ele (Bash ≥ 4.4)</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="esc">
+      <div class="ec"><b>if / while</b><span>condição de teste</span></div>
+      <div class="ec"><b>&amp;&amp; ou ||</b><span>tudo à esquerda</span></div>
+      <div class="ec"><b>! comando</b><span>negação</span></div>
+      <div class="ec"><b>a | b | c</b><span>quem não é o último</span></div>
+      <div class="ec ok"><b>só aqui o script morre</b><span>fora das quatro, status ≠ 0 encerra na hora</span></div>
+      <div class="esc-cap">as quatro escapatórias são INTENCIONAIS — sem elas, todo <code>if</code> falso mataria o script</div>
+    </div>
+
+    <div class="nota"><b>A exceção que mais engana é a função.</b> Chamada em contexto de condição, o <code>set -e</code> fica desligado <b>dentro dela inteira, recursivamente</b>: uma função de 40 linhas invocada como <code>if preparar; then</code> roda até o fim mesmo que a terceira linha falhe — imprime <code>AINDA RODEI</code> e ainda devolve "tudo certo". Duas regras daí: <b>não chame função longa em contexto de condição</b> (separe a checagem do trabalho) e, dentro dela, verifique explicitamente com <code>cd /alvo || return 1</code>. A segunda armadilha é aritmética: <code>((i++))</code> devolve <b>status 1 quando o valor anterior era zero</b> — um contador que começa em <code>i=0</code> mata o script. Use <code>((++i))</code> ou <code>i=$((i + 1))</code>. Sob <code>set -u</code>, o idioma a memorizar é <code>${VAR:-}</code> para leitura segura e <code>${1:?uso: $0 &lt;arquivo&gt;}</code> para argumento obrigatório com mensagem própria. E para saber <b>qual</b> estágio do pipeline falhou existe o array <code>PIPESTATUS</code> — volátil, sobrescrito até por um <code>echo</code>: copie na linha seguinte com <code>estados=("${PIPESTATUS[@]}")</code>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">trap: a limpeza que o set -e não faz</div>
+  <section class="grade2">
+    <div>
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-erros — limpeza.sh</span></div>
+<pre><span class="prompt">$</span> cat limpeza.sh
+<span class="out">#!/usr/bin/env bash
+set -Eeuo pipefail; shopt -s inherit_errexit</span>
+<span class="cmt"># temporário com credencial: só o dono lê</span>
+<span class="out">umask 077
+TMP="$(mktemp -d)"</span>          <span class="cmt"># nunca /tmp/script-$$</span>
+<span class="out">limpar() {
+    local st=$?</span>              <span class="cmt"># PRESERVE o status ANTES de tudo</span>
+<span class="out">    rm -rf -- "$TMP"</span>        <span class="cmt"># aspas + -- : se vazio, falha</span>
+<span class="out">    return "$st"
+}
+trap limpar EXIT</span>            <span class="cmt"># roda SEMPRE (menos em kill -9)</span>
+<span class="out">erro() { printf '%s: erro %d na linha %d: %s\n' \
+    "${BASH_SOURCE[1]##*/}" "$?" "${BASH_LINENO[0]}" \
+    "$BASH_COMMAND" &gt;&amp;2; }
+trap erro ERR</span>               <span class="cmt"># só diagnóstico, nunca limpeza</span>
+<span class="out">mountpoint -q /mnt/backup || die 78 "nao montado"</span>
+<span class="prompt">$</span> ./limpeza.sh --falhar; echo "status: $?"
+<span class="out">limpeza.sh: erro 1 na linha 18: false
+limpando /tmp/tmp.7Kx2 (status 1)
+status: 1</span></pre>
+      </section>
+      <div class="fix"><b>Ctrl-C que se comunica.</b> Sair com <code>exit 1</code> depois de uma interrupção faz o chamador acreditar em falha genérica. A forma correta de "morrer como se não houvesse trap" é <code>interromper() { limpar; trap - INT; kill -INT "$$"; }</code> — o pai enxerga <b>130</b> (128+2) e sabe que houve <code>SIGINT</code>.</div>
+    </div>
+    <div>
+      <p class="sub2">Os quatro pseudo-sinais</p>
+      <ul class="lista">
+        <li><i>EXIT</i><span>o shell vai terminar <b>por qualquer motivo</b> — fim normal, <code>exit 1</code>, morte por <code>set -e</code>, <code>SIGTERM</code>, <code>SIGINT</code>. Só <code>kill -9</code> escapa. <b>É onde mora a limpeza</b></span></li>
+        <li><i>ERR</i><span>um comando falhou, sob <b>as mesmas quatro exceções</b> do <code>set -e</code>. Só diagnóstico</span></li>
+        <li><i>DEBUG</i><span>antes de <b>cada</b> comando simples (herdado com <code>set -T</code>)</span></li>
+        <li><i>RETURN</i><span>ao voltar de uma função ou de um <code>source</code></span></li>
+      </ul>
+      <p class="sub2">A ordem é fixa</p>
+      <div class="nota" style="margin-top:0"><b><code>ERR</code> dispara antes do <code>EXIT</code></b>, e o <code>EXIT</code> é o último código do processo a rodar — mesmo que o handler de <code>ERR</code> chame <code>exit</code>. O status que o chamador enxerga é <b>o que o handler de <code>EXIT</code> devolve</b>: sem o <code>local st=$?</code> na primeira linha, um <code>rm</code> bem-sucedido transforma falha em sucesso. Nas aspas do <code>trap</code>, <b>simples e uma função nomeada</b>: <code>trap "rm -f $ARQ" EXIT</code> expande <b>no registro</b>, <code>trap 'limpar' EXIT</code> expande <b>no disparo</b> (é o aviso <code>SC2064</code> do ShellCheck).</div>
+      <p class="sub2">Códigos com significado</p>
+      <ul class="lista saida">
+        <li><i>1–63</i><span>livre para o seu script</span></li>
+        <li><i>64</i><span>argumento inválido · <i>65</i> entrada malformada</span></li>
+        <li><i>69</i><span>dependência ausente · <i>78</i> erro de configuração <span style="font-size:7.6px">(<code>sysexits.h</code>)</span></span></li>
+        <li><i>126/7</i><span>não executável / não encontrado — do shell</span></li>
+        <li><i>128+N</i><span>morto pelo sinal N: <b>130</b> = Ctrl-C, <b>143</b> = <code>SIGTERM</code></span></li>
+      </ul>
+      <p class="sub2">O que o prólogo <b>não</b> faz</p>
+      <div class="nota" style="margin-top:0">Não detecta o erro que <b>não devolve status</b> (<code>grep</code> sem casamento devolve 1 sendo normal; <code>find</code> sem resultado devolve 0). Não valida entrada. Não garante atomicidade — só o <code>trap</code>, ou escrever num temporário e <code>mv</code> no fim. E não substitui a verificação explícita: <code>mountpoint -q /mnt/backup || die 78 …</code> é o que teria salvado o script da abertura. <b>É o piso, não o teto:</b> converte falha silenciosa em falha ruidosa, e é só isso que se pede dele.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>O caso <code class="inl">rm -rf</code> guiado por variável é a pior consequência dos pecados 1 e 2 juntos.</b> Sem <code class="inl">set -u</code>, <code class="inl">rm -rf "$DESTNO/"</code> com o nome digitado errado apaga a raiz; sem aspas e sem <code class="inl">--</code>, um <code class="inl">$TMP</code> vazio ou começando com <code class="inl">-</code> vira comando de destruição ou erro de sintaxe silencioso. A forma segura é <b>sempre</b> <code class="inl">rm -rf -- "$TMP"</code>, com <code class="inl">TMP</code> vindo de <code class="inl">mktemp -d</code> — nome previsível em <code class="inl">/tmp</code> é vulnerabilidade clássica de link simbólico: o atacante cria antes <code class="inl">/tmp/meuscript-1234</code> apontando para <code class="inl">/etc/shadow</code> e o seu script escreve lá com o privilégio que tiver. <b>Ensaie qualquer trap de limpeza com <code class="inl">echo rm -rf --</code> no lugar do <code class="inl">rm</code></b> antes de rodar de verdade, e ensaie em VM descartável.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O padrão do Bash é continuar depois do erro</b>, tratar variável ausente como vazia e reportar só o último do pipeline. Os três juntos produzem o script que falha e diz que deu certo.</li>
+        <li><b><code class="inl">set -Eeuo pipefail</code> + <code class="inl">shopt -s inherit_errexit</code></b> é o prólogo completo: as três correções mais a herança do trap <code class="inl">ERR</code> e o subshell de <code class="inl">$( )</code>.</li>
+        <li><b><code class="inl">set -e</code> tem quatro exceções intencionais</b> — condição de <code class="inl">if</code>/<code class="inl">while</code>, esquerda de <code class="inl">&amp;&amp;</code>/<code class="inl">||</code>, negação com <code class="inl">!</code> e comando não final de pipeline. A pior é a <b>função chamada em contexto de condição</b>, que roda inteira sem proteção.</li>
+        <li><b><code class="inl">((i++))</code> com <code class="inl">i=0</code> devolve 1</b> e mata o script. Use <code class="inl">((++i))</code> ou <code class="inl">i=$((i + 1))</code>.</li>
+        <li><b><code class="inl">${VAR:-}</code> é o acesso seguro sob <code class="inl">set -u</code></b>; <code class="inl">${1:?mensagem}</code> documenta o argumento obrigatório na própria expansão.</li>
+        <li><b>A limpeza mora no <code class="inl">trap … EXIT</code></b>, sempre com <code class="inl">local st=$?</code> na primeira linha do handler e <code class="inl">mktemp -d</code> em vez de nome previsível. O <code class="inl">ERR</code> cuida só do diagnóstico, e dispara antes.</li>
+        <li><b><code class="inl">trap - INT; kill -INT "$$"</code></b> é a forma correta de morrer por interrupção: devolve 130 em vez de um <code class="inl">1</code> mudo.</li>
+        <li><b>Nenhuma opção do <code class="inl">set</code> substitui verificação explícita</b> — <code class="inl">mountpoint -q</code>, <code class="inl">command -v</code> e <code class="inl">die</code> com código significativo continuam sendo trabalho seu.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Ferramenta cujo status 1 significa "não achei" é a briga diária com o <code class="inl">set -e</code>.</b> <code class="inl">nmap</code> com host fora do ar, <code class="inl">grep</code> sem casamento, <code class="inl">nikto</code> sem achado — todos devolvem status ≠ 0 em situação <b>normal</b> de um teste, e o script morre no primeiro alvo silencioso. O idioma é isolar e decidir pelo conteúdo, não pelo status: <code class="inl">resultado=$(nmap -Pn "$alvo") || true</code>. <b>Script de coleta que morre no meio deixa evidência pela metade:</b> o <code class="inl">trap EXIT</code> não deve só apagar temporários — tem de fechar o arquivo de resultado de forma consistente e <b>registrar no log que a execução foi interrompida</b>, porque um relatório truncado sem marca de interrupção é pior que nenhum: parece completo. Se o script manipula hash, token ou arquivo de senha, o <code class="inl">mktemp -d</code> vem precedido de <code class="inl">umask 077</code> e a limpeza usa <code class="inl">shred -u</code> onde o sistema de arquivos permitir. <b>Num script que toca alvo externo, o <code class="inl">trap INT</code> tem de parar de verdade</b> — e parar também os filhos: continuar gerando tráfego depois que o operador mandou parar é, na prática, exceder o escopo combinado (Lei 12.737/2012). E <b>verificação de escopo é <code class="inl">die</code>, não aviso</b>: a checagem de que o alvo está na lista autorizada encerra o script com código distinto, nunca imprime alerta e prossegue — aviso em <code class="inl">stderr</code> dentro do <code class="inl">cron</code> não é lido por ninguém. <b>Família RHEL:</b> <code class="inl">set</code> e <code class="inl">trap</code> são do Bash, mas <code class="inl">/bin/sh</code> ali é o Bash em modo POSIX, sem <code class="inl">inherit_errexit</code> — shebang <code class="inl">#!/bin/sh</code> perde as proteções nas duas famílias, e <code class="inl">#!/usr/bin/env bash</code> é a forma portátil. Em serviço do systemd, o status de saída é o que dispara <code class="inl">Restart=on-failure</code>: sair com zero depois de falhar impede o serviço de reiniciar.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 12 · Fase 3 <span class="n">071</span></span>

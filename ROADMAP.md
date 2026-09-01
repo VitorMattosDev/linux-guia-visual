@@ -114,7 +114,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 
 ### Volume 12 — Scripting Avançado e Robusto
 
-- [ ] **guia 071** - Tratamento de erros: set -euo pipefail e traps - `guias/vol12/guia071-tratamento-de-erros-set-euo-pipefail-e-traps.html`
+- [x] **guia 071** - Tratamento de erros: set -euo pipefail e traps - `guias/vol12/guia071-tratamento-de-erros-set-euo-pipefail-e-traps.html`
 - [ ] **guia 072** - Depuração de scripts: set -x e ShellCheck - `guias/vol12/guia072-depuracao-de-scripts-set-x-e-shellcheck.html`
 - [ ] **guia 073** - Arquivos, descritores e processos em scripts - `guias/vol12/guia073-arquivos-descritores-e-processos-em-scripts.html`
 - [ ] **guia 074** - Subshells, agrupamento e here-documents - `guias/vol12/guia074-subshells-agrupamento-e-here-documents.html`
