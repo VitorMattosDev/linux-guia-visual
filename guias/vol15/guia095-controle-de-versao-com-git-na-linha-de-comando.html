@@ -3,101 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 095 — Controle de versão com Git na linha de comando</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: as tres areas + o remoto ---- */
+  .areas { display:grid; grid-template-columns:1fr 74px 1fr 74px 1fr 74px 1fr; align-items:center; }
+  .ar { border:1.6px solid; border-radius:var(--raio-sm); padding:4px 6px; text-align:center; }
+  .ar > b { display:block; font-family:var(--fonte-titulo); font-size:9.4px; text-transform:uppercase;
+            letter-spacing:.02em; line-height:1.12; }
+  .ar > span { display:block; font-size:7px; line-height:1.14; color:var(--tinta-suave); margin-top:1px; }
+  .ar.a1 { border-color:var(--azul); background:var(--azul-claro); } .ar.a1 > b { color:var(--azul); }
+  .ar.a2 { border-color:var(--laranja); background:var(--laranja-claro); } .ar.a2 > b { color:var(--laranja); }
+  .ar.a3 { border-color:var(--verde); background:var(--verde-claro); } .ar.a3 > b { color:#1d7038; }
+  .ar.a4 { border-color:var(--tinta-suave); background:var(--papel-tint); } .ar.a4 > b { color:var(--tinta-suave); }
+  .mv { text-align:center; font-family:var(--fonte-mono); font-size:7px; line-height:1.2; }
+  .mv .idapara { color:#1d7038; font-weight:700; display:block; }
+  .mv .volta { color:var(--vermelho); font-weight:700; display:block; margin-top:2px; }
+  .pull { margin-top:3px; text-align:center; font-family:var(--fonte-mono); font-size:7.4px;
+          color:var(--vermelho); font-weight:700; border-top:1.4px dashed var(--vermelho);
+          padding-top:2px; }
+
+  /* ---- gitignore ---- */
+  .ign { border:1.5px solid var(--vermelho); background:var(--vermelho-claro);
+         border-radius:var(--raio-sm); padding:4px 8px; }
+  .ign > b { display:block; font-family:var(--fonte-titulo); font-size:9px; color:var(--vermelho);
+             text-transform:uppercase; letter-spacing:.02em; }
+  .ign pre { font-family:var(--fonte-mono); font-size:7.4px; line-height:1.3; margin:2px 0 0;
+             color:var(--navy); white-space:pre-wrap; }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:3.5px 9px; font-size:8px; line-height:1.24;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.3px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.6px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1px 6px; line-height:1.15; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.4px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:2.4mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8px; line-height:1.24; padding:4.5px 10px; }
+  .bloco .corpo { font-size:7.7px; line-height:1.21; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 095</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Controle de versão com Git na linha de comando</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Controle de versão com<br>Git na linha de comando</h1>
+      <div class="sub">Sete arquivos no diretório: <code class="inl">firewall.sh</code>, <code class="inl">.bak</code>, <code class="inl">.bak2</code>, <code class="inl">.old</code>, <code class="inl">.funciona</code>, <code class="inl">.FINAL</code> e <code class="inl">.FINAL2</code> — nenhum com data confiável, porque um <code class="inl">cp</code> preservou o carimbo e outro não. A regra que bloqueava o acesso indevido estava num deles, e <b>o que estava em produção não era ele.</b></div>
     </div>
     <div class="badge"><b>095</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Três áreas e um remoto: o mapa que resolve quase toda dúvida</div>
+    <div class="areas" style="margin-top:5px">
+      <div class="ar a1"><b>diretório de trabalho</b><span>os arquivos que você edita</span></div>
+      <div class="mv"><span class="idapara">git add →</span><span class="volta">← git restore</span></div>
+      <div class="ar a2"><b>índice (<i>stage</i>)</b><span>o próximo commit sendo montado</span></div>
+      <div class="mv"><span class="idapara">git commit →</span><span class="volta">← restore --staged</span></div>
+      <div class="ar a3"><b>repositório local</b><span>histórico completo em <code>.git/</code></span></div>
+      <div class="mv"><span class="idapara">git push →</span><span class="volta">← git fetch</span></div>
+      <div class="ar a4"><b>remoto</b><span><code>origin</code>, outra máquina</span></div>
+    </div>
+    <div class="pull">git pull  =  git fetch + git merge — do remoto direto ao seu diretório de trabalho</div>
+    <div class="regra"><b>O índice existe para você escolher <i>o que</i> entra no próximo commit.</b> Editou cinco arquivos e só três são a correção? <code>git add</code> nos três, <code>git commit</code>, e os outros dois seguem esperando — é o que permite um histórico em que cada commit é <i>uma</i> mudança coerente. <b>Os três <code>diff</code> seguem o mesmo mapa:</b> <code>git diff</code> = trabalho×índice; <code>--staged</code> = índice×último commit; <code>HEAD</code> = trabalho×último commit — confundi-los é a origem nº 1 de "o Git não vê a minha mudança". <b>E a propriedade que muda tudo:</b> depois de entrar num commit é quase impossível perder algo — o <code>git reflog</code> guarda por onde o <code>HEAD</code> passou nos últimos 90 dias. <b>Antes do primeiro <code>git add</code>, não há rede nenhuma.</b></div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Desfazer: o mapa dos arrependimentos</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:1.14fr 0.86fr">
+      <table class="comparacao">
+        <thead><tr><th>Quero desfazer…</th><th>Comando · efeito</th></tr></thead>
+        <tbody>
+          <tr><td>uma edição minha</td><td><code>git restore arq</code> — volta ao que está no índice</td></tr>
+          <tr><td>um <code>git add</code></td><td><code>git restore --staged arq</code> — sai do índice, edição intacta</td></tr>
+          <tr><td>a mensagem do último commit</td><td><code>git commit --amend</code> — reescreve o último commit</td></tr>
+          <tr><td>commits ainda <b>locais</b></td><td><code>git reset --soft HEAD~1</code> — desfaz o commit, mantém tudo</td></tr>
+          <tr><td>commits locais <b>e</b> o trabalho</td><td><code>git reset --hard HEAD~1</code> — <b>destrutivo</b>: perde as edições</td></tr>
+          <tr><td>um commit <b>já publicado</b></td><td><code>git revert &lt;hash&gt;</code> — cria um commit que inverte o outro</td></tr>
+        </tbody>
+      </table>
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/scripts</span></div>
+<pre><span class="prompt">$</span> git reset --hard HEAD~1 <span class="cmt"># o commit "sumiu"</span>
+<span class="prompt">$</span> git reflog | head -3
+<span class="out">9f2c1ab HEAD@{0}: reset: moving to HEAD~1
+4b7e3d0 HEAD@{1}: commit: experimento</span>
+<span class="prompt">$</span> git reset --hard HEAD@{1} <span class="cmt"># voltou</span>
+<span class="cmt"># conflito de merge: decisão humana, não erro</span>
+<span class="out">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+iptables -A INPUT --dport 8080 -j DROP
+=======
+nft add rule inet filter input tcp dport 8080 drop
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; migra-nftables</span>
+<span class="cmt"># edite deixando o final correto, apague as 3 marcas,</span>
+<span class="cmt"># git add + git commit — ou git merge --abort</span></pre>
+      </section>
+    </div>
+    <div class="regra"><b>Duas regras evitam quase todo estrago.</b> <b>1.</b> <code>--amend</code> e <code>reset</code> <i>reescrevem</i> o histórico; <code>revert</code> não. Enquanto o commit é só seu, reescreva à vontade; <b>depois do <code>push</code>, use <code>revert</code></b> — reescrever o que já foi publicado quebra o repositório de todo mundo que já baixou. <b>2.</b> Perdeu-se e não sabe onde está? <code>git reflog</code> lista as posições recentes do <code>HEAD</code> e <code>git reset --hard HEAD@{3}</code> volta a uma delas — o <code>reflog</code> é a rede de segurança, mas <b>só do que chegou a um commit</b>: o que <code>git restore</code> ou <code>reset --hard</code> descartam some de verdade.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — do primeiro commit ao <code>/etc</code> versionado</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~ — o ciclo inteiro</span></div>
+<pre><span class="prompt">$</span> git config --global user.name "Seu Nome"
+<span class="prompt">$</span> git config --list --show-origin | head
+<span class="cmt"># mostra QUAL arquivo definiu cada valor:</span>
+<span class="cmt"># /etc/gitconfig &lt; ~/.gitconfig &lt; .git/config</span>
+<span class="prompt">$</span> git init &amp;&amp; git add firewall.sh
+<span class="prompt">$</span> git diff --staged <span class="cmt"># confira ANTES de commitar</span>
+<span class="prompt">$</span> git commit -m "firewall: bloqueia 8080, que
+      expunha o painel"  <span class="cmt"># a mensagem diz o PORQUÊ</span>
+<span class="prompt">$</span> git switch -c ajuste; git merge ajuste
+<span class="prompt">$</span> git fetch; git log --oneline main..origin/main
+<span class="cmt"># fetch só baixa; pull já mescla. Em máquina</span>
+<span class="cmt"># compartilhada, fetch+log é o hábito prudente.</span>
+<span class="prompt">$</span> sudo apt install etckeeper &amp;&amp; sudo etckeeper init
+<span class="cmt"># cada apt install vira um commit em /etc</span></pre>
+      </section>
+      <div>
+        <div class="ign">
+          <b>.gitignore — desde o primeiro commit</b>
+<pre>*.log   *.tmp   *.bak   __pycache__/
+.venv/  segredos.env  *.key  *.pem  id_rsa*</pre>
+        </div>
+        <div class="regra"><b>A mensagem de commit explica o <i>porquê</i>, não o <i>quê</i></b> — o <code>diff</code> já mostra o que mudou. "Corrige bug" não ajuda ninguém em seis meses. <b>Autenticação por SSH, sempre:</b> senha em URL HTTPS fica em texto claro no <code>.git/config</code> e vaza no primeiro <code>cat</code>. <b>O <code>etckeeper</code> transforma "o que mudou na configuração quando aquele pacote entrou?" num <code>git log</code></b> — o antídoto contra o diretório de <code>.bak</code> da abertura. Mas repositório de <code>/etc</code> <b>contém segredos por definição</b> (<code>shadow</code>, chaves de serviço, tokens): o <code>/etc/.git</code> fica <code>0700</code> e <b>não</b> vai para remoto compartilhado. Versionar <code>/etc</code> é ótimo para auditoria local; publicá-lo é vazar a máquina inteira.</div>
+      </div>
+    </div>
+    <div class="perigo"><b>Um segredo commitado é um segredo vazado, e apagá-lo depois não resolve.</b> Chave privada, token ou senha que entrou num commit fica no histórico <b>permanentemente</b>: um <code class="inl">git rm</code> no commit seguinte tira o arquivo do estado atual e mantém o conteúdo acessível em todo clone que já existe. Se foi para um remoto, considere a credencial comprometida de fato e <b>rotacione-a imediatamente</b> — é a única ação que realmente resolve. O <code class="inl">git filter-repo</code> limpa o repositório para o futuro, mas não recupera o que já foi copiado. Prevenção: <code class="inl">.gitignore</code> desde o primeiro commit e <code class="inl">git diff --staged</code> antes de cada <code class="inl">git commit</code>.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O Git substitui o diretório de <code class="inl">.bak</code> por um histórico com autor, data e motivo</b> — vale para script, configuração e dotfile, não só para código.</li>
+        <li><b>Três áreas explicam quase tudo:</b> trabalho, índice e repositório local. <code class="inl">add</code>, <code class="inl">commit</code> e <code class="inl">push</code> vão; <code class="inl">restore</code>, <code class="inl">restore --staged</code> e <code class="inl">fetch</code> voltam.</li>
+        <li><b>Reescrever histórico local é livre; publicado, não.</b> <code class="inl">reset</code> e <code class="inl">--amend</code> só antes do <code class="inl">push</code>; depois disso, <code class="inl">revert</code>.</li>
+        <li><b>O <code class="inl">reflog</code> recupera quase tudo que passou por um commit</b> — e nada do que nunca foi commitado.</li>
+        <li><b>Segredo commitado é segredo vazado:</b> <code class="inl">.gitignore</code> desde o início, <code class="inl">diff --staged</code> antes de cada commit, rotação imediata se escapou.</li>
+        <li><b>Conflito não é erro</b>, é o Git dizendo que a decisão é humana — resolva e <code class="inl">git add</code>, ou <code class="inl">git merge --abort</code> e pense melhor.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Git já vem instalado e é dependência de metade do ecossistema:</b> boa parte das ferramentas fora dos repositórios oficiais se instala com <code class="inl">git clone</code> — e clonar repositório de terceiro é <b>trazer código de terceiro</b> que roda na sua máquina assim que você o executa. Ler o que se clona antes de rodar é o cuidado do <i>hardening</i> aplicado ao código-fonte. <b>Os ganchos do Git executam código automaticamente, e isso é vetor real:</b> os arquivos em <code class="inl">.git/hooks/</code> disparam em commit e merge. O <code class="inl">git clone</code> <b>não</b> copia os hooks do remoto — mas um <code class="inl">post-checkout</code> num repositório que alguém te entregou compactado roda na primeira operação; <code class="inl">ls -la .git/hooks/</code> antes é hábito barato. <b>Versionar os scripts e as anotações de um teste autorizado é rastreabilidade</b> — cada commit tem autor e carimbo, e responde "quem fez o quê e quando". O que <b>não</b> entra: credenciais capturadas, dados pessoais do alvo e material sensível colhido no teste, que têm tratamento previsto em contrato e não pertencem a um <code class="inl">git push</code>. <b>Segredo em repositório é um dos achados mais comuns em revisão de segurança</b>, e o Kali traz <code class="inl">trufflehog</code> e <code class="inl">gitleaks</code> para varrer o histórico inteiro atrás de chaves e tokens — rodados contra os <b>seus</b> repositórios, ou os do cliente dentro do escopo autorizado. <b>Cuidado com <code class="inl">git init</code> no home inteiro:</b> ele captura <code class="inl">.ssh/</code>, <code class="inl">.zsh_history</code>, <code class="inl">.msf4/</code>. Versionar dotfiles é ótimo, mas a abordagem correta lista o que <i>incluir</i>. <b>Fora do Debian:</b> Git é Git e o <code class="inl">etckeeper</code> está no EPEL; a diferença é a <i>versão</i> — em RHEL estável, <code class="inl">git switch</code> e <code class="inl">git restore</code> (que chegaram na 2.23) podem não existir, e aí valem <code class="inl">git checkout -b</code> e <code class="inl">git checkout --</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 15 · Fase 4 <span class="n">095</span></span>
