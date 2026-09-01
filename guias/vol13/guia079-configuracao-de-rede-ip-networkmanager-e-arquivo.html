@@ -3,101 +3,232 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 079 — Configuração de rede: ip, NetworkManager e arquivos</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: as três camadas que disputam a interface ---- */
+  .camadas3 { display:flex; flex-direction:column; gap:3px; }
+  .c3 { display:grid; grid-template-columns:212px 1fr; gap:12px; align-items:center; }
+  .cx { border:1.5px solid; border-radius:var(--raio-sm); padding:4px 8px; text-align:center; }
+  .cx b { display:block; font-family:var(--fonte-titulo); font-size:10.5px; text-transform:uppercase; }
+  .cx i { display:block; font-style:normal; font-family:var(--fonte-mono); font-size:7.4px;
+          color:var(--tinta-suave); line-height:1.2; }
+  .cx.a { border-color:var(--azul); background:var(--azul-claro); } .cx.a b { color:var(--azul); }
+  .cx.l { border-color:var(--laranja); background:var(--laranja-claro); } .cx.l b { color:#a8530a; }
+  .cx.g { border-color:#8496a8; background:#f2f5f9; } .cx.g b { color:var(--navy); }
+  .an { font-size:8.3px; line-height:1.32; color:var(--tinta-suave); }
+  .an b { color:var(--navy); }
+  .an code { font-family:var(--fonte-mono); font-size:8.1px; color:var(--roxo); font-weight:600; }
+  .sx { font-size:7.6px; color:var(--tinta-suave); text-align:center; font-family:var(--fonte-mono); }
+  .sx b { color:var(--azul); font-size:9px; }
+  .regra { border-left:4px solid var(--vermelho); background:var(--vermelho-claro);
+           border-radius:var(--raio-sm); padding:5px 9px; font-size:8.4px; line-height:1.32;
+           color:#8a1f1f; margin-top:5px; }
+  .regra b { color:var(--vermelho); }
+  .regra code { font-family:var(--fonte-mono); font-size:8.2px; font-weight:600; }
+
+  /* ---- figura 2: interfaces virtuais ---- */
+  .virt { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+  .vc { border:1.5px solid var(--linha); border-top:3px solid var(--roxo);
+        border-radius:var(--raio-sm); padding:5px 6px; display:flex; flex-direction:column; gap:3px; }
+  .vc > b { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+            color:var(--roxo); text-align:center; }
+  .vc > code { display:block; font-family:var(--fonte-mono); font-size:7px; color:var(--navy);
+               background:#eef2f8; border-radius:3px; padding:2px 3px; line-height:1.25;
+               word-break:break-word; }
+  .vc > i { font-style:normal; font-size:7.4px; color:var(--tinta-suave); line-height:1.24; }
+  .dg { display:flex; flex-direction:column; align-items:center; gap:0; }
+  .chip { border:1px solid; border-radius:3px; font-family:var(--fonte-mono); font-size:6.8px;
+          padding:1px 3px; white-space:nowrap; }
+  .chip.v { border-color:var(--azul); background:var(--azul-claro); color:var(--azul); }
+  .chip.f { border-color:#8496a8; background:#f2f5f9; color:var(--navy); }
+  .chip.g { border-color:var(--verde); background:var(--verde-claro); color:#1d7038; }
+  .tronco { width:1px; height:5px; background:var(--linha); }
+  .ramos { display:flex; gap:3px; border-top:1px solid var(--linha); padding-top:4px;
+           justify-content:center; position:relative; }
+  .ramos .chip::before { content:""; position:absolute; top:-4px; width:1px; height:4px;
+                         background:var(--linha); }
+  .ramos .chip { position:relative; }
+  .par { display:flex; align-items:center; gap:3px; justify-content:center; }
+  .ns { border:1px dashed var(--vermelho); border-radius:4px; padding:2px; }
+  .ns.p { border-color:#8496a8; }
+  .cabo { font-size:7px; color:var(--tinta-suave); font-family:var(--fonte-mono); }
+
+  /* ---- geral ---- */
+  .nota { font-size:8.4px; line-height:1.36; color:var(--tinta-suave); }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.2px; color:var(--roxo); font-weight:600; }
+
+  .grade2 { display:grid; grid-template-columns:1.22fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.9px; line-height:1.32; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+          letter-spacing:.03em; color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:5px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:14px 1fr; gap:5px; align-items:baseline;
+              font-size:8.2px; line-height:1.24; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700;
+                font-size:8.2px; color:var(--laranja); }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8px; color:var(--navy); font-weight:600; }
+
+  table.comparacao.mini { font-size:8.1px; box-shadow:none; }
+  table.comparacao.mini thead th { padding:3px 6px; font-size:8px; }
+  table.comparacao.mini tbody td { padding:2px 6px; }
+  table.comparacao.mini code { font-size:7.9px; padding:0 3px; }
+
+  .guia { gap:5mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:11px; line-height:1.34; }
+  .perigo { font-size:8.4px; line-height:1.32; padding:6px 10px; }
+  .bloco .corpo { font-size:8.6px; line-height:1.28; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:3px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 079</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Configuração de rede: ip, NetworkManager e arquivos</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Configuração de rede:<br>ip, NetworkManager e arquivos</h1>
+      <div class="sub">O servidor precisava de IP fixo. Dois comandos — <code class="inl">ip addr add</code> e <code class="inl">ip route add</code> — e funcionou na hora. Depois da queda de energia, o IP voltou a ser o do DHCP; alguém anotou os comandos num arquivo <i>"rodar isso depois de todo boot"</i>. <b>Esse arquivo é o sintoma:</b> configurar e persistir são operações separadas.</div>
     </div>
     <div class="badge"><b>079</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Quem realmente manda na interface — e por que a de cima sempre vence</div>
+    <div class="camadas3" style="margin-top:4px">
+      <div class="c3">
+        <div class="cx a"><b>gerenciador de rede</b><i>NetworkManager · systemd-networkd · ifupdown</i></div>
+        <div class="an"><b>Persistente.</b> Lê perfis em disco e os <b>reaplica</b>: no boot, ao conectar o cabo, ao renovar o DHCP, ao acordar da suspensão. No Kali é o NetworkManager: um <code>.nmconnection</code> por perfil em <code>/etc/NetworkManager/system-connections/</code>, modo <code>600</code>.</div>
+      </div>
+      <div class="c3"><div class="sx"><b>↓</b> aplica no boot e a cada evento de link</div><span></span></div>
+      <div class="c3">
+        <div class="cx l"><b>comando <code style="font-family:var(--fonte-mono)">ip</code></b><i>altera o estado agora, não grava nada</i></div>
+        <div class="an"><b>Efêmero.</b> Escreve direto no kernel. Some no reboot — e some <b>antes disso</b>, na próxima vez que o gerenciador agir sobre a interface. Lugar legítimo: teste, diagnóstico, recuperação, contêiner sem gerenciador.</div>
+      </div>
+      <div class="c3"><div class="sx"><b>↓</b> netlink</div><span></span></div>
+      <div class="c3">
+        <div class="cx g"><b>kernel</b><i>/proc/net · /sys/class/net</i></div>
+        <div class="an"><b>O estado real</b> — é o que <code>ip addr</code> lê. Não guarda <b>intenção</b>: não sabe dizer se um endereço veio de perfil, de DHCP ou da sua mão. Por isso "quem configurou isto?" não se responde olhando o kernel.</div>
+      </div>
+    </div>
+    <div class="regra"><b>A regra que evita o problema:</b> configurou com <code>ip</code> numa máquina com gerenciador ativo? A configuração <b>tem prazo de validade</b> — ou marque a interface como não gerenciada, ou mude pelo gerenciador. Quem manda sai de <code>nmcli device status</code>: <code>connected</code> = o NM assumiu e reaplica o perfil quando quiser; <code>unmanaged</code> = e só aí o manual sobrevive.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Interfaces virtuais: todas nascem de <code class="inl">ip link add</code>, todas são efêmeras</div>
+    <div class="virt" style="margin-top:4px">
+      <div class="vc">
+        <b>bridge</b>
+        <div class="dg">
+          <span class="chip v">br0</span><span class="tronco"></span>
+          <span class="ramos"><i class="chip f">enp0s3</i><i class="chip g">vnet0</i><i class="chip g">vnet1</i></span>
+        </div>
+        <code>ip link add br0 type bridge</code>
+        <i>Switch em software: placa física e VMs no mesmo segmento.</i>
+      </div>
+      <div class="vc">
+        <b>VLAN</b>
+        <div class="dg">
+          <span class="ramos" style="border-top:0;padding-top:0"><i class="chip v" style="position:static">enp0s3.10</i><i class="chip v" style="position:static">enp0s3.20</i></span>
+          <span class="tronco"></span><span class="chip f">enp0s3</span>
+        </div>
+        <code>ip link add link enp0s3 name enp0s3.10 type vlan id 10</code>
+        <i>Uma placa, várias redes lógicas marcadas com 802.1Q.</i>
+      </div>
+      <div class="vc">
+        <b>bond</b>
+        <div class="dg">
+          <span class="chip v">bond0</span><span class="tronco"></span>
+          <span class="ramos"><i class="chip f">enp1s0</i><i class="chip f">enp2s0</i></span>
+        </div>
+        <code>ip link add bond0 type bond mode active-backup</code>
+        <i>Duas placas, um endereço: redundância ou soma de banda.</i>
+      </div>
+      <div class="vc">
+        <b>veth + netns</b>
+        <div class="dg">
+          <span class="par">
+            <span class="ns p"><i class="chip g" style="position:static">veth0</i></span>
+            <span class="cabo">↔</span>
+            <span class="ns"><i class="chip g" style="position:static">veth1</i></span>
+          </span>
+        </div>
+        <code>ip netns add lab; ip link set veth1 netns lab</code>
+        <i>Pilha de rede própria — rotas e firewall separados. É o que o Docker usa por baixo.</i>
+      </div>
+    </div>
+    <div class="nota" style="margin-top:5px"><b>Todas somem no reboot</b> — para persistir, <code>nmcli connection add type bridge|vlan|bond</code>. Faltam <code>dummy</code> e <code>tun</code>/<code>tap</code> (VPN).</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática: o IP fixo que sobrevive ao boot</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> nmcli device status
+<span class="out">enp0s3  ethernet  connected  Wired connection 1</span>
+<span class="prompt">$</span> sudo nmcli con add type ethernet con-name lab-fixo \
+    ifname enp0s3 ipv4.method manual ipv4.gateway 10.0.0.1 \
+    ipv4.addresses 10.0.0.50/24 ipv4.dns "1.1.1.1 9.9.9.9" \
+    ipv6.method disabled connection.autoconnect yes
+<span class="prompt">$</span> sudo nmcli con up lab-fixo   <span class="cmt"># só agora vale</span>
+<span class="prompt">$</span> sudo nmcli con mod lab-fixo ipv4.method auto \
+    ipv4.gateway "" ipv4.addresses "" ipv4.dns ""   <span class="cmt"># "" APAGA</span>
+<span class="prompt">$</span> ls -l /etc/resolv.conf   <span class="cmt"># quem regrava o DNS?</span>
+<span class="out">... -> /run/systemd/resolve/stub-resolv.conf</span>
+<span class="cmt"># 127.0.0.53 = stub do resolved: servidor real em `resolvectl
+# status`, e POR INTERFACE — daí a VPN quebrar só alguns nomes</span></pre>
+      </section>
+      <div>
+        <p class="sub2">Os cinco detalhes que mordem</p>
+        <ul class="lista">
+          <li><i>1</i><span><code>ip addr add</code> <b>soma, não troca</b> — use <code>ip addr replace</code></span></li>
+          <li><i>2</i><span><b>Máscara não é opcional:</b> sem <code>/24</code> vira <code>/32</code> e a máquina não fala nem com o vizinho</span></li>
+          <li><i>3</i><span><code>ipv4.method manual</code> <b>substitui</b> o DHCP; com <code>auto</code> o endereço é somado ao dele</span></li>
+          <li><i>4</i><span><code>connection.autoconnect yes</code> faz subir no boot — sem ele o perfil existe e "não pega"</span></li>
+          <li><i>5</i><span>editar o <code>.nmconnection</code> à mão exige <code>con reload</code></span></li>
+        </ul>
+        <p class="sub2">net-tools → iproute2</p>
+        <table class="comparacao mini">
+          <tbody>
+            <tr><td><code>ifconfig</code> · <code>route -n</code></td><td><code>ip addr</code> · <code>ip route</code></td></tr>
+            <tr><td><code>arp -a</code> · <code>netstat -tulpn</code></td><td><code>ip neigh</code> · <code>ss -tulpn</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="perigo" style="margin-top:6px"><b>Mover o IP da placa para uma bridge derruba a conexão no instante em que o endereço sai da placa</b> — numa máquina remota, é ficar trancado do lado de fora. Faça pelo console, ou num script com rollback agendado por <code class="inl">at</code>. Idem <code class="inl">ip addr flush dev enp0s3</code>, que remove <b>todos</b> os endereços e mata o SSH em curso; e <code class="inl">chattr +i /etc/resolv.conf</code>, que funciona mas <b>quebra o gerenciador em silêncio</b>.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Configurar e persistir são operações distintas:</b> <code class="inl">ip</code> fala com o kernel e é efêmero; persistir é do gerenciador.</li>
+        <li><b>Com NetworkManager ativo, o manual tem prazo</b> — e o prazo não é o reboot, é o próximo toque na interface.</li>
+        <li><b><code class="inl">ip addr add</code> soma e IP sem máscara vira <code class="inl">/32</code>:</b> os dois erros mais frequentes.</li>
+        <li><b><code class="inl">ipv4.method manual</code> + <code class="inl">autoconnect yes</code></b> faz o IP fixo pegar e subir no boot.</li>
+        <li><b>NM e <code class="inl">ifupdown</code> na mesma interface</b> = máquina que se reconfigura sozinha, com cara de defeito de hardware.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Namespace de rede é o laboratório mais barato que existe.</b> Dois <code class="inl">ip netns</code> ligados por um par <code class="inl">veth</code> reproduzem cliente, servidor e roteador numa máquina só, com firewall independente, sem VM e <b>sem risco de tocar em rede alheia</b> — o ambiente certo para praticar firewall e captura. <b>Modo monitor não é configuração de rede:</b> a placa perde IP e o NM tenta reassumi-la — daí o <code class="inl">airmon-ng check kill</code>; depois, <code class="inl">airmon-ng stop wlan0mon</code> e <code class="inl">systemctl restart NetworkManager</code> devolvem o normal. <b>MAC aleatório é recurso do próprio NM</b> (<code class="inl">wifi.cloned-mac-address random|stable|permanent</code>): privacidade legítima em Wi-Fi público — usá-lo para burlar controle de acesso alheio é acesso não autorizado (Lei 12.737/2012). <b>Perfil guarda segredo em claro:</b> os <code class="inl">.nmconnection</code> têm PSK de Wi-Fi e credencial de VPN protegidos só pelo modo <code class="inl">600</code> — em máquina emprestada, entram na limpeza junto com <code class="inl">~/.ssh</code>. <b>RHEL:</b> o 9 removeu os <code class="inl">ifcfg-*</code>; script antigo falha em silêncio.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 13 · Fase 4 <span class="n">079</span></span>

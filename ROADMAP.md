@@ -127,7 +127,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 ### Volume 13 — Redes no Linux
 
 - [x] **guia 078** - Fundamentos: interfaces, IP e a pilha de rede - `guias/vol13/guia078-fundamentos-interfaces-ip-e-a-pilha-de-rede.html`
-- [ ] **guia 079** - Configuração de rede: ip, NetworkManager e arquivos - `guias/vol13/guia079-configuracao-de-rede-ip-networkmanager-e-arquivo.html`
+- [x] **guia 079** - Configuração de rede: ip, NetworkManager e arquivos - `guias/vol13/guia079-configuracao-de-rede-ip-networkmanager-e-arquivo.html`
 - [ ] **guia 080** - Diagnóstico: ping, traceroute, ss, dig e mtr - `guias/vol13/guia080-diagnostico-ping-traceroute-ss-dig-e-mtr.html`
 - [ ] **guia 081** - Acesso remoto: SSH, scp e rsync - `guias/vol13/guia081-acesso-remoto-ssh-scp-e-rsync.html`
 - [ ] **guia 082** - HTTP na linha de comando: curl, wget e netcat - `guias/vol13/guia082-http-na-linha-de-comando-curl-wget-e-netcat.html`
