@@ -3,101 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 094 — Automatizando tarefas com cron e scripts agendados</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: as seis etapas e a falha silenciosa de cada uma ---- */
+  .etapas { border:1.5px solid var(--linha); border-radius:var(--raio-sm); overflow:hidden; }
+  .et-h, .et { display:grid; grid-template-columns:78px 1fr 1fr; align-items:stretch; }
+  .et-h > span { background:var(--navy); color:#fff; font-family:var(--fonte-titulo); font-size:8.2px;
+                 text-transform:uppercase; letter-spacing:.04em; padding:3px 7px; }
+  .et > b { background:var(--azul-claro); border-right:1.4px solid var(--linha);
+            font-family:var(--fonte-titulo); font-size:8.6px; color:var(--azul);
+            text-transform:uppercase; letter-spacing:.02em; padding:3px 7px;
+            display:flex; align-items:center; }
+  .et > .f, .et > .o { font-size:7.5px; line-height:1.18; padding:2.5px 8px; }
+  .et > .f { color:#a33; background:var(--vermelho-claro); border-right:1.4px solid var(--linha); }
+  .et > .o { color:#1d6b3a; background:var(--verde-claro); }
+  .et > .f b, .et > .o b { color:inherit; }
+  .et + .et, .et { border-top:1.2px solid var(--linha); }
+  .et code { font-family:var(--fonte-mono); font-size:7.4px; font-weight:600; }
+
+  /* ---- niveis de notificacao ---- */
+  .niveis { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .nv { border:1.5px solid; border-radius:var(--raio-sm); padding:3px 8px; }
+  .nv > b { display:block; font-family:var(--fonte-titulo); font-size:8.8px; text-transform:uppercase;
+            letter-spacing:.02em; }
+  .nv > span { display:block; font-size:7.5px; line-height:1.2; color:var(--tinta-suave); }
+  .nv > span b { color:var(--navy); }
+  .nv code { font-family:var(--fonte-mono); font-size:7.3px; color:var(--roxo); font-weight:600; }
+  .nv.n1 { border-color:var(--linha); background:var(--papel-tint); } .nv.n1 > b { color:var(--tinta-suave); }
+  .nv.n2 { border-color:var(--laranja); background:var(--laranja-claro); } .nv.n2 > b { color:var(--laranja); }
+  .nv.n3 { border-color:var(--verde); background:var(--verde-claro); } .nv.n3 > b { color:#1d7038; }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1.08fr 0.92fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.2px; line-height:1.24; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.2px 6px; line-height:1.17; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.4px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:1.7mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.6px; line-height:1.2; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 094</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Automatizando tarefas com cron e scripts agendados</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Automatizando tarefas com<br>cron e scripts agendados</h1>
+      <div class="sub">O backup rodava às duas da manhã havia oito meses. No dia em que o disco morreu, o destino tinha <b>um</b> arquivo: o primeiro. O script quebrara na segunda noite — e as 240 execuções seguintes falharam caladas, porque o <code class="inl">&gt;/dev/null 2&gt;&amp;1</code> que evitava o incômodo diário descartava também o erro.</div>
     </div>
     <div class="badge"><b>094</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Seis etapas, seis maneiras de falhar em silêncio</div>
+    <div class="etapas" style="margin-top:4px">
+      <div class="et-h"><span>etapa</span><span>como falha em silêncio</span><span>o que fecha a brecha</span></div>
+      <div class="et"><b>disparo</b>
+        <div class="f">o serviço <code>cron</code> não está ativo, ou a linha do <code>crontab</code> não tem o <code>\n</code> final</div>
+        <div class="o"><code>systemctl is-active cron</code>; editar sempre por <code>crontab -e</code></div></div>
+      <div class="et"><b>ambiente</b>
+        <div class="f"><code>PATH</code> mínimo, sem <code>.bashrc</code>, <code>HOME</code> diferente: <code>command not found</code></div>
+        <div class="o">caminho absoluto; <code>PATH</code>, <code>LC_ALL</code> e <code>cd</code> declarados no topo do script</div></div>
+      <div class="et"><b>concorrência</b>
+        <div class="f">a execução anterior ainda roda; duas cópias corrompem o destino</div>
+        <div class="o"><code>flock -n 9</code> num arquivo de trava</div></div>
+      <div class="et"><b>execução</b>
+        <div class="f">erro no meio e as linhas seguintes rodam mesmo assim — o script ainda diz "concluído"</div>
+        <div class="o"><code>set -euo pipefail</code> e <code>trap ... EXIT</code> de limpeza</div></div>
+      <div class="et"><b>registro</b>
+        <div class="f"><code>&gt;/dev/null 2&gt;&amp;1</code> descarta justamente a mensagem de erro</div>
+        <div class="o"><code>logger -t</code> para o journald; nunca descartar o <code>stderr</code></div></div>
+      <div class="et"><b>notificação</b>
+        <div class="f">ninguém é avisado; a falha só aparece no dia em que se precisa do resultado</div>
+        <div class="o"><code>MAILTO</code>, ou um sinal de vida que alerta pela <b>ausência</b></div></div>
+    </div>
+    <div class="regra"><b>O caso da abertura atravessou a tabela inteira:</b> o erro nasceu na execução, foi descartado no registro e ninguém foi notificado. <b>Qualquer uma das três defesas, sozinha, teria bastado.</b> Um comando digitado tem três coisas que a tarefa agendada não tem — você olhando a saída, um ambiente completo e uma execução por vez. Cada ausência dessas é um modo de falha.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">O ambiente mínimo do cron — e o esqueleto que resiste a ele</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:0.95fr 1.05fr">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>/usr/local/sbin/backup-diario.sh</span></div>
+<pre><span class="out">#!/usr/bin/env bash
+set -euo pipefail                 <span class="cmt"># para no 1º erro</span>
+export PATH=/usr/local/bin:/usr/bin:/bin
+export LC_ALL=C                   <span class="cmt"># saída previsível</span>
+cd "$(dirname "$0")"
+log() { logger -t "$TAG" -p user.info -- "$*"; }
+exec 9&gt;"$TRAVA"                   <span class="cmt"># execução única</span>
+flock -n 9 || { log "já rodando"; exit 0; }
+tmp=$(mktemp -d)                  <span class="cmt"># limpeza sempre</span>
+trap 'rc=$?; rm -rf "$tmp"; exit $rc' EXIT
+[[ -d $ORIGEM ]] || { erro "sem origem"; exit 1; }
+rsync -a --link-dest="$DEST/atual" "$ORIGEM/" "$tmp/"
+mv -- "$tmp" "$DEST/$(date +%F)"  <span class="cmt"># quase atômico</span></span><span class="prompt">$</span> env -i HOME=$HOME PATH=/usr/bin:/bin ./backup.sh
+<span class="cmt"># imita o cron: se passa aqui, o ambiente não é a causa</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>O que o cron entrega</th><th>Por que quebra</th></tr></thead>
+          <tbody>
+            <tr><td><code>PATH=/usr/bin:/bin</code></td><td>sem <code>/usr/local/bin</code> nem <code>~/.local/bin</code>: ferramenta de <code>pipx</code> ou compilada some</td></tr>
+            <tr><td><code>SHELL=/bin/sh</code></td><td>é o <b>dash</b> no Debian/Kali: <code>[[ ]]</code>, arrays e <code>&lt;( )</code> dão erro de sintaxe. E nenhum arquivo de inicialização é lido: alias e função do <code>.bashrc</code> não existem</td></tr>
+          </tbody>
+        </table>
+        <div class="regra" style="margin-top:6px"><b>Idempotência não é opcional</b> — a tarefa <i>vai</i> rodar duas vezes. Teste o estado antes de agir: <code>grep -qxF "linha" arq || echo "linha" &gt;&gt; arq</code>. E fuja do <code>|| true</code>, que engole "já existia" e "faltou permissão" com a mesma cara.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Ser avisado — e escolher entre cron e timer</div>
+    <div class="niveis" style="margin-top:4px">
+      <div class="nv n1"><b>1 · MAILTO</b><span>O <code>cron</code> manda a saída por e-mail local — funciona <b>se</b> a máquina entrega e-mail, e quase nenhuma entrega. Frágil.</span></div>
+      <div class="nv n2"><b>2 · alerta no erro</b><span>O script avisa quando falha. Melhor — mas com um furo grave: <b>se nunca chegar a rodar, também nunca alerta</b>.</span></div>
+      <div class="nv n3"><b>3 · sinal de vida</b><span><code>curl -fsS "$URL" || true</code> na <b>última</b> linha; o observador externo alerta quando o sinal <b>não chega</b>. É o único que pega a tarefa que <b>deixou de existir</b>.</span></div>
+    </div>
+    <div class="grade2" style="margin-top:5px">
+      <table class="comparacao">
+        <thead><tr><th>Situação</th><th>Escolha</th></tr></thead>
+        <tbody>
+          <tr><td>tarefa simples e portável; sobreposição resolvida com <code>flock</code></td><td><code>cron</code></td></tr>
+          <tr><td>máquina desligada no horário, tarefa não pode ser pulada</td><td><code>anacron</code> ou timer com <code>Persistent=true</code></td></tr>
+          <tr><td>depende de outro serviço, precisa de limite de CPU/memória ou de registro estruturado</td><td>timer do systemd: herda as diretivas da unit; a saída já vai ao journal</td></tr>
+        </tbody>
+      </table>
+      <div>
+        <div class="regra" style="margin-top:0"><b>Registrar não é ser avisado.</b> Ninguém lê o journal de uma máquina que funciona. Padronize <code>logger -t tarefa</code> desde a primeira linha e consulte com <code>journalctl -t tarefa --since today</code>. Se preferir arquivo: <code>&gt;&gt; /var/log/tarefa.log 2&gt;&amp;1</code> — <b><code>&gt;&gt;</code>, não <code>&gt;</code></b>, e o <code>2&gt;&amp;1</code> <b>depois</b>, ou o <code>stderr</code> some; e arquivo próprio pede <code>logrotate</code>, ou você trocou o silêncio pelo disco cheio. Antes de agendar: <code>bash -n</code>, <code>shellcheck</code>, <code>env -i</code> e um <code>*/5 * * * *</code> por meia hora.</div>
+      </div>
+    </div>
+    <div class="perigo"><b>Nunca escreva <code class="inl">&gt;/dev/null 2&gt;&amp;1</code> numa tarefa agendada.</b> Para silenciar a saída normal e manter os erros, o correto é <code class="inl">&gt;/dev/null</code> sozinho: o <code class="inl">stderr</code> continua chegando e o <code class="inl">cron</code> avisa. Descartar o <code class="inl">stderr</code> é decidir de antemão não saber do dia em que a tarefa quebrar — foi a linha que custou oito meses de backup. <b>E a tarefa roda com o privilégio de quem a agendou:</b> script no <code class="inl">crontab</code> do root que seja gravável por usuário comum entrega root a ele na próxima execução. Script de root fica em <code class="inl">/usr/local/sbin</code>, dono <code class="inl">root</code>, permissão <code class="inl">755</code>, nunca onde outro escreve.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O silêncio é o padrão.</b> Disparo, ambiente, concorrência, execução, registro e notificação: cada etapa falha sem sintoma até o dia em que você precisa do resultado.</li>
+        <li><b>O ambiente do <code class="inl">cron</code> é mínimo:</b> <code class="inl">PATH=/usr/bin:/bin</code>, <code class="inl">SHELL=/bin/sh</code> (o <i>dash</i>) e nenhum arquivo de inicialização. Descubra o real com <code class="inl">* * * * * /usr/bin/env &gt; /tmp/amb.txt</code>.</li>
+        <li><b><code class="inl">set -euo pipefail</code> + <code class="inl">flock</code> + <code class="inl">trap ... EXIT</code></b> é o esqueleto mínimo: parar no 1º erro, execução única, limpeza <b>inclusive</b> no caminho de falha.</li>
+        <li><b>Idempotência não é opcional</b> — teste o estado antes de agir, e nunca mascare erro com <code class="inl">|| true</code>.</li>
+        <li><b>O alerta que pega o pior caso funciona pela ausência:</b> só o sinal de vida detecta a tarefa que <i>deixou de existir</i> — <code class="inl">crontab</code> apagado, serviço desativado, máquina desligada.</li>
+        <li><b>Teste com <code class="inl">env -i</code> antes de agendar.</b> Um script que você só viu funcionar no seu terminal não foi testado para o <code class="inl">cron</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Kali costuma ser uma VM que fica desligada — e isso quebra o <code class="inl">cron</code> por inteiro:</b> ele só dispara se a máquina estiver ligada no minuto exato, então a tarefa das duas da manhã <i>nunca</i> roda numa VM que você liga às nove, e nenhum erro avisa. Para manutenção e atualização de bases de ferramentas, o que você quer é o <code class="inl">anacron</code> — que executa o que foi perdido assim que a máquina liga — ou um timer com <code class="inl">Persistent=true</code>. <b>Automatizar <code class="inl">apt update</code> é seguro; <code class="inl">apt full-upgrade</code> sem supervisão, não:</b> num repositório <i>rolling</i>, uma atualização pode trocar kernel, driver gráfico ou biblioteca no meio da noite e deixar a VM sem interface pela manhã. Índices sozinhos, upgrades com você olhando. <b>Como praticamente nenhum Kali tem MTA, o <code class="inl">MAILTO</code> não entrega nada</b> e a saída se perde: <code class="inl">logger -t</code> desde a primeira linha resolve sem instalar nada, e <code class="inl">journalctl -t tarefa --since today</code> vira a consulta única. <b>Coleta periódica em teste autorizado é rotina — e o escopo tem de estar dentro do script</b>, porque a tarefa <i>continua rodando depois que o engajamento termina</i>: um scan esquecido no <code class="inl">crontab</code>, batendo num alvo após o fim do contrato, deixa de ser autorizado, e uso não autorizado é crime (Lei 12.737/2012). Grave a data de término no script e remova a entrada no encerramento. <b>Auditar o <code class="inl">crontab</code> do root e o <code class="inl">/etc/cron.d/</code> é parada obrigatória</b> em revisão de sistema comprometido: é um dos lugares mais comuns de persistência de invasor. <b>Fora do Debian:</b> o Fedora/RHEL usa o <code class="inl">cronie</code>, mesma sintaxe, <code class="inl">anacron</code> embutido; lá o <code class="inl">/bin/sh</code> é o Bash em modo POSIX, então <i>bashismo</i> passa e falha de volta no Debian (teste no <code class="inl">dash</code>), e o SELinux bloqueia sem sintoma: <code class="inl">ausearch -m avc -ts recent</code> quando a tarefa "não faz nada".</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 15 · Fase 4 <span class="n">094</span></span>
