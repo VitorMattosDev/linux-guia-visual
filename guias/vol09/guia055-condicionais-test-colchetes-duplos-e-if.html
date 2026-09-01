@@ -3,101 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 055 — Condicionais: test, colchetes duplos e if</title>
+<title>GUIA 055 — Condicionais: test, [[ ]] e if</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Os argumentos que o comando [ realmente recebe */
+  .casos { display:flex; flex-direction:column; gap:6px; }
+  .cs { display:flex; align-items:center; gap:6px; }
+  .cs .exp { flex:0 0 148px; font-family:var(--fonte-mono); font-size:11px; font-weight:700; }
+  .cs .arg { border:1.5px solid; border-radius:4px; padding:3px 0; width:44px; text-align:center;
+             font-family:var(--fonte-mono); font-size:11px; line-height:1.2; }
+  .cs .kw  { border:1.5px dashed; border-radius:4px; padding:3px 10px; font-size:9.5px;
+             font-family:var(--fonte-titulo); text-transform:uppercase; letter-spacing:.04em; }
+  .cs .txt { flex:1; font-size:9.5px; line-height:1.3; padding-left:6px; }
+  .cs.mal .exp, .cs.mal .txt b { color:var(--vermelho); }
+  .cs.mal .arg { border-color:var(--vermelho); background:var(--vermelho-claro); color:#8a1f1f; }
+  .cs.bom .exp, .cs.bom .txt b { color:var(--verde); }
+  .cs.bom .arg, .cs.bom .kw { border-color:var(--verde); background:var(--verde-claro); color:#1c6b34; }
+  .cs .txt { color:var(--tinta-suave); }
+
+  /* Mapa dos operadores */
+  .mapa { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .col3 { border:1.5px solid; border-top-width:4px; border-radius:var(--raio); background:#fff; padding:7px 9px; }
+  .col3 > h4 { font-family:var(--fonte-titulo); font-size:10.5px; text-transform:uppercase;
+               letter-spacing:.04em; margin-bottom:4px; }
+  .col3 .o { font-size:9.5px; line-height:1.35; color:var(--tinta-suave); }
+  .col3 .o code { font-family:var(--fonte-mono); font-weight:700; color:var(--navy); }
+  .col3 .obs { font-size:8.5px; line-height:1.3; color:var(--tinta-suave); margin-top:4px;
+               border-top:1px solid var(--linha); padding-top:4px; }
+  .col3.f { border-color:var(--azul); }     .col3.f > h4 { color:var(--azul); }
+  .col3.s { border-color:var(--verde); }    .col3.s > h4 { color:var(--verde); }
+  .col3.n { border-color:var(--laranja); }  .col3.n > h4 { color:#a8530a; }
+  .nota { font-size:9.5px; line-height:1.4; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+  .nota .al { color:var(--vermelho); font-weight:700; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 055</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Condicionais: test, colchetes duplos e if</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Condicionais<br>test, [[ ]] e if</h1>
+      <div class="sub">O script de rotação tinha uma guarda impecável: <code class="inl">if [ -f $ARQUIVO ]</code>. Na noite em que <code class="inl">ARQUIVO</code> ficou vazio, o teste <b>passou</b> — e a condição que existia para impedir o estrago disse "sim, o arquivo existe" sobre um nome vazio.</div>
     </div>
     <div class="badge"><b>055</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo"><code class="inl">[</code> não é sintaxe: é um <b>comando</b> — e isso explica tudo</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="casos">
+      <div class="cs mal">
+        <span class="exp">[ -f $ARQUIVO ]</span>
+        <span class="arg">[</span><span class="arg">-f</span><span class="arg">]</span>
+        <span class="txt"><b>1 argumento útil.</b> A regra do POSIX para um argumento é "verdadeiro se a cadeia não for vazia" — e <code class="inl">-f</code> não é vazia. <b>Passa.</b></span>
+      </div>
+      <div class="cs bom">
+        <span class="exp">[ -f "$ARQUIVO" ]</span>
+        <span class="arg">[</span><span class="arg">-f</span><span class="arg">&nbsp;</span><span class="arg">]</span>
+        <span class="txt"><b>2 argumentos.</b> Agora é mesmo um teste de arquivo, sobre um nome vazio. <b>Falha</b>, como deveria.</span>
+      </div>
+      <div class="cs bom">
+        <span class="exp">[[ -f $ARQUIVO ]]</span>
+        <span class="kw">palavra-chave do shell</span>
+        <span class="txt"><b>Não é um comando.</b> O shell analisa o conteúdo <i>sem</i> dividir em palavras — as aspas ficam dispensáveis. <b>Falha</b>, como deveria.</span>
+      </div>
+    </div>
+    <div class="nota">Quando o <code class="inl">[</code> é finalmente executado, <b>não existe mais vestígio de que houve ali uma variável</b>: a linha já passou pelas seis etapas de expansão e a variável vazia sem aspas simplesmente sumiu antes da chamada. Daí as duas regras: <b>aspas em toda expansão dentro de <code class="inl">[ ]</code></b>, e <b><code class="inl">[[ ]]</code> sempre que o script for Bash</b>. Pelo mesmo motivo, os espaços em volta dos colchetes não são opcionais — <code class="inl">[-f arq]</code> é o shell procurando um comando chamado <code class="inl">[-f</code>, e o <code class="inl">]</code> é só o último argumento obrigatório. E o <code class="inl">if</code> não avalia expressão booleana: ele <b>executa um comando e olha o código de saída</b> (zero = verdadeiro), então <code class="inl">if grep -q '^root:' /etc/passwd</code>, <code class="inl">if systemctl is-active --quiet ssh</code> e <code class="inl">if command -v nmap &gt;/dev/null</code> dispensam colchete nenhum — e são melhores que capturar a saída e testá-la.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">O mapa dos operadores — arquivo · cadeia · número</div>
+  <section>
+    <div class="mapa">
+      <div class="col3 f">
+        <h4>Arquivo</h4>
+        <div class="o"><code>-e</code> existe (qualquer tipo)<br>
+        <code>-f</code> arquivo comum · <code>-d</code> diretório<br>
+        <code>-L</code> link simbólico · <code>-s</code> não vazio<br>
+        <code>-r -w -x</code> legível, gravável, executável<br>
+        <code>-u -g -k</code> SUID, SGID, <i>sticky</i><br>
+        <code>-b -c -p -S</code> bloco, char, fifo, socket<br>
+        <code>a -nt b</code> a é mais novo · <code>a -ef b</code> mesmo inode</div>
+        <div class="obs"><code>-f link</code> segue o link e responde sobre o <b>destino</b>; <code>-L</code> responde sobre o próprio link.</div>
+      </div>
+      <div class="col3 s">
+        <h4>Cadeia</h4>
+        <div class="o"><code>-z s</code> vazia · <code>-n s</code> não vazia<br>
+        <code>a == b</code> igual — <b>padrão</b> no lado direito<br>
+        <code>a != b</code> diferente<br>
+        <code>a =~ re</code> casa com a expressão regular<br>
+        <code>a &lt; b</code> ordem alfabética</div>
+        <div class="obs">Em <code>[[ ]]</code>, <b>cite o lado direito</b> do <code>==</code> para comparar literalmente. Com <code>=~</code> é o inverso: a regex <b>não</b> vai entre aspas — guarde-a numa variável e leia o resultado em <code>${BASH_REMATCH[1]}</code>.</div>
+      </div>
+      <div class="col3 n">
+        <h4>Número</h4>
+        <div class="o"><code>-eq</code> igual · <code>-ne</code> diferente<br>
+        <code>-lt -le</code> menor, menor ou igual<br>
+        <code>-gt -ge</code> maior, maior ou igual<br>
+        Dentro de <code>(( ))</code>, os símbolos:<br>
+        <code>(( a &gt; b ))</code> · <code>(( a &gt;= 1 &amp;&amp; a &lt;= 10 ))</code><br>
+        <code>(( contador++ ))</code> · <code>(( total += v ))</code></div>
+        <div class="obs"><b style="color:var(--vermelho)">[[ 10 &gt; 9 ]] é falso</b>: compara texto, e "1" vem antes de "9".</div>
+      </div>
+    </div>
+    <div class="nota"><b>A regra que não falha: número dentro de <code class="inl">(( ))</code>, o resto dentro de <code class="inl">[[ ]]</code>.</b> Os operadores com hífen funcionam nos dois colchetes; os símbolos só têm sentido numérico em <code class="inl">(( ))</code> — e trocar os contextos é o erro <span class="al">silencioso</span> mais caro do capítulo: <code class="inl">[[ $versao &gt; 9 ]]</code> aprova a versão 10 como menor que a 9 e nunca reclama. Guarde <code class="inl">[ ]</code> só para script que precise rodar sob <code class="inl">/bin/sh</code>; ali, use <code class="inl">=</code> (não <code class="inl">==</code>) e troque o obsoleto <code class="inl">-a</code>/<code class="inl">-o</code> por <code class="inl">[ … ] &amp;&amp; [ … ]</code>.</div>
+  </section>
+
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-if</span></div>
+<pre><span class="prompt">$</span> re='^([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?$'   <span class="cmt"># regex SEM aspas no teste</span>
+<span class="prompt">$</span> [[ $alvo =~ $re ]] || { erro "alvo invalido: $alvo"; exit 1; }
+<span class="prompt">$</span> [[ $arq == *.log ]] &amp;&amp; echo casou     <span class="cmt"># padrao glob, nao regex</span>
+<span class="prompt">$</span> case "$1" in
+      -h|--help)      ajuda; exit 0 ;;
+      *.tar.gz|*.tgz) tar xzf "$1" ;;
+      [0-9]*)         echo "comeca com digito" ;;
+      "")             erro "argumento vazio"; exit 1 ;;
+      *)              erro "opcao desconhecida: $1"; exit 1 ;;   <span class="cmt"># o *) e obrigatorio</span>
+    esac
+<span class="prompt">$</span> ( set -e; n=0; (( n++ )); echo "nao chega aqui" )  <span class="cmt"># ABORTA: devolveu o 0 antigo</span>
+<span class="prompt">$</span> ( set -e; n=0; (( ++n )); echo "n=$n" )            <span class="out">n=1</span>  <span class="cmt"># ou: (( n++ )) || true</span></pre>
+  </section>
+
+  <div class="perigo"><b>Testar um arquivo não é mecanismo de segurança.</b> Entre <code class="inl">if [[ -w "$ALVO" ]]</code> e o <code class="inl">rm -rf -- "$ALVO"</code> da linha seguinte existe um intervalo em que outro processo troca o arquivo por um link apontando para outro lugar — é o <b>TOCTOU</b> (<i>time of check to time of use</i>), explorável quando o script roda com privilégio sobre caminho gravável por terceiros, com o <code class="inl">/tmp</code> como caso clássico. Defesas: <b>aja e trate o erro</b> em vez de testar antes (<code class="inl">rm -rf -- "$ALVO" 2&gt;/dev/null || true</code> não tem intervalo) · <code class="inl">tmp="$(mktemp -d)"</code> para temporário, que já nasce <code class="inl">700</code> e com nome imprevisível, nunca um nome previsível · <code class="inl">trap</code> para limpar na saída · e <b>nunca</b> opere como root sobre caminho de terceiro sem <code class="inl">--no-dereference</code> ou <code class="inl">-not -type l</code>. O teste de arquivo continua útil — para dar mensagem de erro decente antes de tentar.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">[</code> é um comando</b>: espaços obrigatórios, <code class="inl">]</code> é só o último argumento, e o conteúdo passa pelas seis etapas de expansão <b>antes</b> do teste.</li>
+        <li><b><code class="inl">if</code> executa um comando e olha o código de saída.</b> Zero é verdadeiro — qualquer programa serve de condição.</li>
+        <li><b>Em Bash, <code class="inl">[[ ]]</code> é o padrão:</b> não divide em palavras, aceita <code class="inl">&amp;&amp;</code>/<code class="inl">||</code>, casa padrão com <code class="inl">==</code> e regex com <code class="inl">=~</code> (preenchendo <code class="inl">BASH_REMATCH</code>).</li>
+        <li><b>Número em <code class="inl">(( ))</code>, o resto em <code class="inl">[[ ]]</code>.</b> <code class="inl">[[ 10 &gt; 9 ]]</code> é falso.</li>
+        <li><b><code class="inl">case</code> para várias alternativas</b>, com <code class="inl">*)</code> sempre presente — sem ele, entrada inesperada passa em silêncio.</li>
+        <li><b>Sob <code class="inl">set -e</code>, <code class="inl">(( n++ ))</code> com <code class="inl">n=0</code> derruba o script.</b> Use <code class="inl">(( ++n ))</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Validar o alvo com <code class="inl">=~</code> antes de disparar a ferramenta é a diferença entre laboratório e incidente.</b> Um teste de formato — <code class="inl">[[ $alvo =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?$ ]]</code> — pega o alvo digitado errado <i>antes</i> de a varredura sair; melhor ainda é conferir contra a lista do escopo autorizado e recusar o que não estiver nela. Varrer fora do escopo contratado é crime pela Lei 12.737/2012, e um <code class="inl">if</code> de três linhas é a barreira mais barata que existe contra um erro de digitação. <b>Desde 2020 o usuário padrão é o <code class="inl">kali</code>, não o root</b>: um <code class="inl">(( EUID != 0 )) &amp;&amp; { erro "execute com sudo"; exit 1; }</code> na primeira linha economiza o trabalho perdido no meio do caminho. <b>Num <i>rolling</i>, confira se a ferramenta existe:</b> <code class="inl">command -v nmap &gt;/dev/null || { erro "sudo apt install nmap"; exit 1; }</code> — o <code class="inl">which</code> não é embutido, varia entre distribuições e devolve códigos inconsistentes. E cuidado com ponto de montagem que some: em mídia montada pelo <code class="inl">udisks</code> ou em live USB, um <code class="inl">[[ -d /media/kali/EVIDENCIA ]]</code> pode passar e o script gravar no diretório vazio do ponto de montagem em vez de na mídia — <code class="inl">mountpoint -q</code> responde à pergunta certa. Por fim, <code class="inl">-r</code> e <code class="inl">-w</code> respondem sobre a permissão <b>efetiva</b>, ACLs e <i>capabilities</i> incluídas: um <code class="inl">[[ -r /etc/shadow ]]</code> verdadeiro para usuário comum é achado de auditoria.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 09 · Fase 3 <span class="n">055</span></span>
