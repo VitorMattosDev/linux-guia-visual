@@ -3,101 +3,166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 090 — O ecossistema de ferramentas do Kali: categorias e fluxos</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: o ciclo de seis fases ---- */
+  .ciclo { display:grid; grid-template-columns:1fr 15px 1fr 15px 1fr; gap:4px 5px;
+           align-items:stretch; }
+  .fase { border:1.5px solid; border-radius:var(--raio-sm); padding:3px 7px; }
+  .fase > b { display:block; font-family:var(--fonte-titulo); font-size:9px;
+              text-transform:uppercase; letter-spacing:.02em; line-height:1.15; }
+  .fase > b i { font-style:normal; display:inline-block; width:12px; height:12px;
+                line-height:12px; text-align:center; border-radius:50%; color:#fff;
+                font-size:7.6px; margin-right:3px; vertical-align:1px; }
+  .fase > span { display:block; font-size:7.5px; line-height:1.18; color:var(--tinta-suave); }
+  .fase > code { display:block; font-family:var(--fonte-mono); font-size:7.3px;
+                 line-height:1.2; margin-top:2px; word-break:break-word; }
+  .fase.a { border-color:var(--azul); background:var(--azul-claro); }
+  .fase.a > b, .fase.a > code { color:var(--azul); } .fase.a > b i { background:var(--azul); }
+  .fase.y { border-color:var(--laranja); background:var(--laranja-claro); }
+  .fase.y > b, .fase.y > code { color:#a8530a; } .fase.y > b i { background:var(--laranja); }
+  .fase.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .fase.r > b, .fase.r > code { color:var(--vermelho); } .fase.r > b i { background:var(--vermelho); }
+  .fase.v { border-color:var(--verde); background:var(--verde-claro); }
+  .fase.v > b, .fase.v > code { color:#1d7038; } .fase.v > b i { background:var(--verde); }
+  .st { align-self:center; text-align:center; font-size:12px; color:var(--tinta-suave); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- figura 2: o escopo assinado ---- */
+  .escopo { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
+  .it { border:1px solid var(--linha); border-top:3px solid var(--vermelho);
+        border-radius:var(--raio-sm); background:#fff; padding:3px 7px; }
+  .it > b { display:block; font-family:var(--fonte-titulo); font-size:8.6px; color:var(--navy);
+            text-transform:uppercase; letter-spacing:.02em; line-height:1.15; }
+  .it span { display:block; font-size:7.4px; line-height:1.19; color:var(--tinta-suave); margin-top:2px; }
+  .it span b { color:var(--navy); }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1fr 1.04fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.4px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.5px 6px; line-height:1.18; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.5px; }
+
+  .guia { --gap-blocos:3.4mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.8px; line-height:1.22; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 090</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>O ecossistema de ferramentas do Kali: categorias e fluxos</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>O ecossistema de<br>ferramentas do Kali</h1>
+      <div class="sub">Quem instala o Kali abre o menu, encontra centenas de ferramentas em treze categorias e escolhe a de nome mais chamativo para apontar a algum alvo. É a forma errada de usar a distribuição — e a mais provável de cometer um crime sem entender o que se fez. <b>As ferramentas não são o assunto: o fluxo é.</b></div>
     </div>
     <div class="badge"><b>090</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O ciclo de um teste — e onde cada categoria entra</div>
+    <div class="ciclo" style="margin-top:4px">
+      <div class="fase a"><b><i>1</i>Reconhecimento</b><span>Mapear <b>sem tocar</b>: fontes públicas, DNS, certificados, metadados.</span><code>whois · dig · theHarvester · recon-ng</code></div>
+      <span class="st">→</span>
+      <div class="fase a"><b><i>2</i>Varredura e enumeração</b><span>O que existe e responde. <b>Aqui começa a interação — e a necessidade de autorização.</b></span><code>nmap · masscan · gobuster · enum4linux</code></div>
+      <span class="st">→</span>
+      <div class="fase y"><b><i>3</i>Análise de vulnerabilidade</b><span>Separa "esta porta está aberta" de "esta versão tem falha conhecida".</span><code>nikto · nuclei · searchsploit · wpscan</code></div>
+
+      <div class="fase v"><b><i>6</i>Relatório</b><span><b>O único entregável.</b> Achado, severidade, reprodução, correção.</span><code>faraday · dradis · CherryTree</code></div>
+      <span class="st">←</span>
+      <div class="fase r"><b><i>5</i>Pós-exploração</b><span>Até onde o acesso leva: escalar, pivotar. <b>Reinicia o ciclo por dentro.</b></span><code>linpeas · BloodHound</code></div>
+      <span class="st">←</span>
+      <div class="fase r"><b><i>4</i>Exploração</b><span>A prova de conceito, controlada — a menor fração do tempo real.</span><code>metasploit · sqlmap · hydra</code></div>
+    </div>
+    <div class="regra"><b>O ciclo é iterativo, não linear:</b> a pós-exploração revela hosts e serviços internos invisíveis de fora, e cada descoberta reinicia a varredura — agora de um ponto de vista interno. <b>As três primeiras fases consomem a maior parte do tempo</b>, e a fase 6 é a de menos ferramenta e mais valor: <b>o cliente paga pelo relatório, não pelo acesso</b>. Um acesso obtido e não documentado de forma reproduzível não vale nada.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Antes de qualquer ferramenta: o escopo assinado</div>
+    <div class="escopo" style="margin-top:4px">
+      <div class="it"><b>Quais alvos</b><span>IPs, domínios e faixas <b>exatos</b>. O IP vizinho do mesmo bloco não entra por proximidade.</span></div>
+      <div class="it"><b>Quais técnicas</b><span>Negação de serviço, engenharia social e exploração ativa costumam ficar de fora.</span></div>
+      <div class="it"><b>Qual janela</b><span>Datas e horários. Testar fora deles é agir <b>sem autorização</b>.</span></div>
+      <div class="it"><b>Quem assina</b><span>Quem tem poder legal sobre os sistemas — o administrador pode não ser essa pessoa.</span></div>
+      <div class="it"><b>Contato de emergência</b><span>Para quando algo sai do previsto. Às vezes sai.</span></div>
+    </div>
+    <div class="perigo"><b>A ferramenta é idêntica; o que muda é o papel.</b> <code class="inl">nmap</code>, <code class="inl">hydra</code>, <code class="inl">sqlmap</code> e <code class="inl">metasploit</code> fazem exatamente a mesma coisa nas mãos de um <i>pentester</i> contratado e nas de um criminoso — a lei não distingue os dois pela ferramenta, e sim pela existência de <b>autorização escrita, específica e prévia</b> para aquele alvo, naquela janela, com aquelas técnicas. No Brasil, a <b>Lei 12.737/2012</b> tipifica a invasão de dispositivo informático alheio com pena de detenção: <i>alheio</i> e <i>indevida</i> são as palavras que importam, e valem independentemente de ter havido dano, da intenção declarada ou de a ferramenta ser pública. Varrer as portas de um servidor de terceiro já é o começo do que a lei descreve; a <b>LGPD</b> acrescenta responsabilidade sobre qualquer dado pessoal que o teste venha a tocar.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Instalar menos, não mais — e ter onde praticar</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="cmt"># metapacotes: conjuntos coerentes, não ferramenta a ferramenta</span>
+<span class="prompt">$</span> apt search '^kali-tools-' | head -30
+<span class="prompt">$</span> sudo apt install kali-tools-web
+<span class="prompt">$</span> kali-tweaks  <span class="cmt"># o painel: metapacotes, hardening, shell</span>
+<span class="cmt"># wordlists — a rockyou vem compactada na 1ª vez</span>
+<span class="prompt">$</span> sudo gunzip /usr/share/wordlists/rockyou.txt.gz
+<span class="cmt"># o banco que dá memória ao Metasploit entre sessões</span>
+<span class="prompt">$</span> sudo msfdb init  <span class="cmt"># e desative quando não usar</span>
+<span class="cmt"># o fluxo, contra alvo de treino em rede isolada:</span>
+<span class="prompt">$</span> whois exemplo.com; dig +short exemplo.com  <span class="cmt"># fase 1</span>
+<span class="prompt">$</span> nmap -sV -sC -p- 10.10.10.5                <span class="cmt"># fase 2</span>
+<span class="prompt">$</span> gobuster dir -u http://10.10.10.5 -w common.txt
+<span class="prompt">$</span> searchsploit apache 2.4; nikto -h http://10.10.10.5
+<span class="prompt">$</span> msfconsole                                 <span class="cmt"># fase 4</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Metapacote</th><th>O que traz</th></tr></thead>
+          <tbody>
+            <tr><td><code>kali-linux-headless</code></td><td>o núcleo, sem interface gráfica</td></tr>
+            <tr><td><code>kali-linux-default</code></td><td>o conjunto padrão da imagem — <b>comece aqui</b></td></tr>
+            <tr><td><code>kali-tools-web</code></td><td>ferramental de aplicação web</td></tr>
+            <tr><td><code>kali-tools-passwords</code></td><td>quebra de senha e força bruta</td></tr>
+            <tr><td><code>kali-tools-wireless</code></td><td>ataque e auditoria de Wi-Fi</td></tr>
+            <tr><td><code>kali-linux-everything</code></td><td>literalmente tudo — <b>e não é o que você quer</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="regra"><b>Instale menos, não mais:</b> uma máquina com <code>everything</code> é superfície de ataque imensa, atualização lenta e centenas de programas que você nunca abrirá. E <b>a regra de ouro do laboratório é o isolamento de rede</b> — uma VM deliberadamente vulnerável (Metasploitable, DVWA, <i>Juice Shop</i>) é, por definição, uma máquina que qualquer um compromete em minutos: ela vai em rede <i>host-only</i> ou interna do hipervisor, <b>jamais em ponte com a rede real</b>.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>A ferramenta é a mesma nas duas mãos; o que muda é a autorização</b> — escrita, específica e prévia, com alvos, técnicas, janela e quem assina.</li>
+        <li><b>O assunto não são as ferramentas, é o fluxo:</b> reconhecimento → varredura → análise → exploração → pós-exploração → relatório.</li>
+        <li><b>O ciclo é iterativo:</b> a pós-exploração revela alvos internos e reinicia a varredura de dentro.</li>
+        <li><b>A exploração é a menor fração do tempo; o relatório é o entregável.</b> Acesso não documentado não vale nada.</li>
+        <li><b>Metapacotes organizam as centenas de ferramentas</b> — e a recomendação contraria a tentação: instale menos.</li>
+        <li><b>Prática legal só contra a própria máquina ou alvo de treino</b>, sempre em rede isolada.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b><code class="inl">kali-tweaks</code> é o painel de controle da distribuição e a primeira coisa a abrir numa instalação nova:</b> gerencia metapacotes, rede, comportamento do shell, persistência da imagem <i>live</i> e o <i>hardening</i> — tudo num menu navegável e reversível. Muita gente instala ferramenta na mão por não saber que ele existe. <b>O modo <i>undercover</i> tem motivo prático e legítimo:</b> <code class="inl">kali-undercover</code> transforma a área de trabalho num clone visual do Windows 10 — num teste físico autorizado, ou trabalhando num café, a tela inconfundível do Kali chama atenção que o profissional não quer. É disfarce da interface, <b>não das ferramentas nem da responsabilidade legal</b>. <b><code class="inl">msfdb init</code> na primeira execução vale a pena:</b> cria a base PostgreSQL onde o Metasploit guarda hosts, serviços e achados, que é justamente o que alimenta a fase de relatório — mas é também um serviço a mais escutando na sua máquina, então ative quando for usar. <b>As <i>wordlists</i> em <code class="inl">/usr/share/wordlists</code> são o argumento vivo a favor de chave em vez de senha:</b> tudo que está na <code class="inl">rockyou.txt</code> é quebrável em segundos. <b>A ferramenta do Kali é dual por natureza, e essa é a lição que fecha o volume:</b> o <code class="inl">nmap</code> que enumera o alvo é o mesmo que audita a própria superfície; o <code class="inl">linpeas</code> que mapeia escalada na pós-exploração é o inventário de SUID e capabilities do guia 087 lido do outro lado; o <code class="inl">nikto</code> que acha má configuração no alvo acha a mesma coisa no seu servidor. <b>Aprender o Kali é aprender a olhar o próprio sistema com os olhos de quem vai atacá-lo</b> — e é para isso, legalmente, que ele serve na esmagadora maioria das mãos. <b>Outras distribuições ofensivas:</b> <b>Parrot OS Security</b> (foco em privacidade, mais leve), <b>BlackArch</b> (milhares de ferramentas sobre Arch) e <b>Commando VM</b> (o análogo para Windows) partilham a mesma natureza dual e a mesma exigência de autorização — a distribuição muda a embalagem, não a lei. Do lado defensivo, o <b>Security Onion</b> monta o outro polo: monitoramento, detecção e análise em vez de ataque.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 14 · Fase 4 <span class="n">090</span></span>
