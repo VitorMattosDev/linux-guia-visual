@@ -3,101 +3,223 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 073 — Arquivos, descritores e processos em scripts</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .grade-topo { display:grid; grid-template-columns:1.28fr 1fr; gap:9px; align-items:start; }
+
+  /* Tabela de descritores */
+  .fdtab { display:grid; grid-template-columns:auto 1fr; gap:8px; align-items:center; }
+  .proc { border:1.5px solid var(--azul); background:var(--azul-claro); border-radius:var(--raio-sm);
+          padding:6px 8px; text-align:center; }
+  .proc b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+            color:var(--azul); }
+  .proc i { display:block; font-family:var(--fonte-mono); font-style:normal; font-size:8px;
+            color:var(--tinta-suave); }
+  .fds { display:flex; flex-direction:column; gap:2px; }
+  .fdrow { display:grid; grid-template-columns:19px 34px 10px 1fr; gap:4px; align-items:center; }
+  .fd { width:19px; height:15px; line-height:15px; text-align:center; border-radius:3px; color:#fff;
+        font-family:var(--fonte-mono); font-size:9px; font-weight:700; background:#8496a8; }
+  .fdrow em { font-style:normal; font-family:var(--fonte-mono); font-size:7.5px; color:var(--tinta-suave); }
+  .ar { font-size:9px; color:var(--tinta-suave); text-align:center; }
+  .alvo { border:1px solid var(--linha); border-radius:3px; padding:1px 5px; font-size:8.2px;
+          font-family:var(--fonte-mono); color:var(--navy); background:#f2f5f9; }
+  .alvo i { font-style:normal; font-family:var(--fonte-texto); font-size:7.6px; color:var(--tinta-suave); }
+  .fdrow.r .fd { background:var(--vermelho); } .fdrow.r .alvo { border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); }
+  .fdrow.v .fd { background:var(--verde); }    .fdrow.v .alvo { border-color:var(--verde); background:var(--verde-claro); color:#1d7038; }
+  .fdrow.l .fd { background:var(--laranja); }  .fdrow.l .alvo { border-color:var(--laranja); background:var(--laranja-claro); color:#a8530a; }
+  .fdrow.x .fd { background:var(--roxo); }     .fdrow.x .alvo { border-color:var(--roxo); background:var(--roxo-claro); color:var(--roxo); }
+
+  /* Formas de redirecionamento */
+  .formas { list-style:none; display:flex; flex-direction:column; gap:1px; }
+  .formas li { display:grid; grid-template-columns:56px 1fr; gap:5px; align-items:baseline;
+               font-size:8.1px; line-height:1.26; color:var(--tinta-suave); }
+  .formas li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.6px;
+                 color:var(--roxo); }
+  .formas li b { color:var(--navy); }
+
+  /* Escrita no lugar x atômica */
+  .fluxo2 { margin-top:7px; }
+  .fl-lin { display:grid; grid-template-columns:118px repeat(4,1fr); gap:4px; align-items:stretch;
+            margin-bottom:4px; }
+  .fl-rot { font-family:var(--fonte-mono); font-size:8.2px; font-weight:700; display:flex;
+            align-items:center; padding-right:3px; line-height:1.15; }
+  .pas { border:1.5px solid; border-radius:var(--raio-sm); padding:4px 5px; text-align:center;
+         font-size:7.9px; line-height:1.22; color:var(--tinta-suave); }
+  .pas b { display:block; font-family:var(--fonte-mono); font-size:8.4px; }
+  .pas.g { border-color:var(--linha); background:#f2f5f9; } .pas.g b { color:var(--navy); }
+  .pas.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .pas.r b { color:var(--vermelho); }
+  .pas.a { border-color:var(--azul); background:var(--azul-claro); } .pas.a b { color:var(--azul); }
+  .pas.l { border-color:var(--laranja); background:var(--laranja-claro); } .pas.l b { color:#a8530a; }
+  .pas.v { border-color:var(--verde); background:var(--verde-claro); } .pas.v b { color:#1d7038; }
+  .fl-lin.err .fl-rot { color:var(--vermelho); }
+  .fl-lin.ok .fl-rot { color:#1d7038; }
+
+  .nota { font-size:8.5px; line-height:1.36; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.3px; color:var(--roxo); font-weight:600; }
+
+  .grade2 { display:grid; grid-template-columns:1.2fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.1px; line-height:1.42; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:6px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:74px 1fr; gap:6px; align-items:baseline;
+              font-size:8.2px; line-height:1.28; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.5px;
+                color:var(--roxo); word-break:break-all; }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8.1px; color:var(--navy); font-weight:600; }
+
+  .par { border-left:4px solid var(--azul); background:var(--azul-claro); border-radius:var(--raio-sm);
+         padding:5px 8px; margin-top:6px; font-size:8.3px; line-height:1.34; color:var(--tinta-suave); }
+  .par b { color:var(--azul); }
+  .par code { font-family:var(--fonte-mono); font-size:8.2px; color:var(--navy); font-weight:600; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 073</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Arquivos, descritores e processos em scripts</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Arquivos, descritores<br>e processos em scripts</h1>
+      <div class="sub">O analista queria só deixar a lista de alvos ordenada no lugar: <code class="inl">sort alvos.txt &gt; alvos.txt</code>. O arquivo ficou com <b>zero bytes</b> — sem mensagem de erro, sem confirmação, e o backup mais recente era de três dias antes. A explicação não está no <code class="inl">sort</code>: está na <b>ordem em que o shell faz as coisas</b>. Ele prepara os redirecionamentos <b>antes</b> de executar o comando, e <code class="inl">&gt; arquivo</code> quer dizer "abra truncando". Quando o <code class="inl">sort</code> foi ler, o arquivo já estava vazio havia milissegundos.</div>
     </div>
     <div class="badge"><b>073</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">A tabela de descritores · e a ordem que esvaziou o arquivo</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="grade-topo">
+      <div class="fdtab">
+        <div class="proc"><b>seu script</b><i>bash backup.sh</i><i>PID 4821</i></div>
+        <div class="fds">
+          <div class="fdrow"><span class="fd">0</span><em>stdin</em><span class="ar">→</span><span class="alvo">/dev/pts/1 <i>o terminal</i></span></div>
+          <div class="fdrow r"><span class="fd">1</span><em>stdout</em><span class="ar">→</span><span class="alvo">saida.txt <i>exec 1&gt; saida.txt</i></span></div>
+          <div class="fdrow"><span class="fd">2</span><em>stderr</em><span class="ar">→</span><span class="alvo">/dev/pts/1 <i>o terminal</i></span></div>
+          <div class="fdrow v"><span class="fd">3</span><em>livre</em><span class="ar">→</span><span class="alvo">dados.csv <i>exec 3&lt; dados.csv</i></span></div>
+          <div class="fdrow l"><span class="fd">9</span><em>livre</em><span class="ar">→</span><span class="alvo">rastro.log <i>BASH_XTRACEFD=9</i></span></div>
+          <div class="fdrow x"><span class="fd">200</span><em>livre</em><span class="ar">→</span><span class="alvo">meu.lock <i>flock -n 200</i></span></div>
+        </div>
+      </div>
+      <div>
+        <p class="sub2">As formas de redirecionar</p>
+        <ul class="formas">
+          <li><i>&gt; arq</i><span>abre para escrita, <b>truncando</b></span></li>
+          <li><i>&gt;&gt; arq</i><span>escreve acrescentando ao fim</span></li>
+          <li><i>&lt; arq</i><span>abre para leitura</span></li>
+          <li><i>&lt;&gt; arq</i><span>leitura <b>e</b> escrita, sem truncar</span></li>
+          <li><i>&gt;| arq</i><span>escreve mesmo com <code>noclobber</code> ligado</span></li>
+          <li><i>2&gt;&amp;1</i><span>o 2 passa a apontar para onde o 1 aponta <b>naquele momento</b></span></li>
+          <li><i>&amp;&gt; arq</i><span>atalho do Bash para <code>&gt; arq 2&gt;&amp;1</code></span></li>
+          <li><i>n&gt; arq</i><span>redireciona o descritor <code>n</code>; <code>n&gt;&amp;m</code> duplica; <code>n&gt;&amp;-</code> fecha</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fluxo2">
+      <div class="fl-lin err">
+        <div class="fl-rot">sort a.txt &gt; a.txt</div>
+        <div class="pas g"><b>1</b>shell prepara o redirecionamento</div>
+        <div class="pas r"><b>2</b>a.txt <b>truncado</b></div>
+        <div class="pas g"><b>3</b>sort só agora começa a rodar</div>
+        <div class="pas r"><b>4</b>lê 0 bytes, grava 0 bytes — <b>sem aviso</b></div>
+      </div>
+      <div class="fl-lin ok">
+        <div class="fl-rot">sort a &gt; tmp &amp;&amp; mv tmp a</div>
+        <div class="pas g"><b>1</b>mktemp <b>no mesmo diretório</b></div>
+        <div class="pas a"><b>2</b>sort lê o original, grava no temporário</div>
+        <div class="pas l"><b>3</b>o <b>&amp;&amp;</b> só segue se deu certo</div>
+        <div class="pas v"><b>4</b>mv renomeia <b>atomicamente</b></div>
+      </div>
+    </div>
+
+    <div class="nota"><b>A regra vale para qualquer transformação de arquivo, não só o <code>sort</code>: leia de um lugar, escreva em outro, troque no fim.</b> O ponto de atomicidade é o <code>mv</code> <b>dentro do mesmo sistema de arquivos</b> — entre sistemas diferentes ele vira cópia mais remoção, e o intervalo entre as duas é exatamente a janela que se queria eliminar. Por isso o temporário nasce ao lado do original, e não em <code>/tmp</code>. Se o <code>sort</code> falhar, o <code>&amp;&amp;</code> impede o <code>mv</code> e o original fica intacto. Alternativas: <code>sponge</code> (do <code>moreutils</code>) absorve toda a entrada antes de abrir o destino — <code>sort alvos.txt | sponge alvos.txt</code> — ao custo de manter tudo em memória; e <code>sed -i</code> / <code>gawk -i inplace</code> resolvem, mas <b>não são atômicos de verdade</b>: gravam num temporário e renomeiam, o que troca o inode e <b>quebra hard links</b>. Como rede extra, <code>set -o noclobber</code> transforma sobrescrita acidental em erro, e <code>&gt;|</code> é a permissão explícita. E a pegadinha da ordem: <code>cmd &gt; log 2&gt;&amp;1</code> manda os dois para o arquivo, mas <code>cmd 2&gt;&amp;1 &gt; log</code> manda o <b>stderr para o terminal</b> — quando o <code>2&gt;&amp;1</code> é processado, o 1 ainda aponta para lá. Leia da esquerda para a direita, como uma sequência de atribuições.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Ler linha a linha · exec · flock</div>
+  <section class="grade2">
+    <div>
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-descritores</span></div>
+<pre><span class="cmt"># o laço canônico — cada peça corrige um defeito</span>
+<span class="prompt">$</span> while IFS= read -r linha || [[ -n "$linha" ]]; do
+    printf '[%s]\n' "$linha"
+  done &lt; entrada.txt
+<span class="cmt"># comando de dentro que lê stdin engole o resto: use outro fd</span>
+<span class="prompt">$</span> while IFS= read -r -u 3 host; do ssh "$host" uptime; done 3&lt; hosts.txt
+<span class="cmt"># carregar tudo num array de uma vez</span>
+<span class="prompt">$</span> mapfile -t alvos &lt; &lt;(grep -v '^#' escopo.txt)
+<span class="prompt">$</span> printf 'total: %d\n' "${#alvos[@]}"
+<span class="out">total: 42</span>
+<span class="cmt"># registrar TUDO sem perder a tela — uma linha no topo do script</span>
+<span class="prompt">$</span> exec &gt; &gt;(tee -a /var/log/meuscript.log) 2&gt;&amp;1
+<span class="cmt"># salvar e restaurar o stdout</span>
+<span class="prompt">$</span> exec 3&gt;&amp;1; exec 1&gt; /tmp/relatorio.txt; echo linha; exec 1&gt;&amp;3 3&gt;&amp;-
+<span class="cmt"># trava: nada de arquivo .pid — o kernel solta até em kill -9</span>
+<span class="prompt">$</span> exec 200&gt; /var/lock/meu.lock
+<span class="prompt">$</span> flock -n 200 || { echo "ja ha uma execucao" &gt;&amp;2; exit 1; }
+<span class="cmt"># dois consumidores da mesma saída, e um teste de porta sem nc</span>
+<span class="prompt">$</span> gerar | tee &gt;(gzip &gt; r.gz) &gt;(sha256sum &gt; r.sha) &gt; r.txt
+<span class="prompt">$</span> timeout 2 bash -c 'exec 3&lt;&gt;/dev/tcp/127.0.0.1/22' &amp;&amp; echo "22 aberta"
+<span class="out">22 aberta</span></pre>
+      </section>
+      <div class="par"><b>Higiene do temporário, em quatro linhas:</b> <code>umask 077</code> <b>antes</b> de criar; respeite o <code>TMPDIR</code> (em serviço systemd com <code>PrivateTmp=yes</code> ele aponta para um diretório isolado); <code>TRABALHO="$(mktemp -d -t meuscript.XXXXXXXX)"</code>, com molde nomeado para o diretório ser identificável no <code>ls /tmp</code> quando algo der errado; e <code>trap 'rm -rf -- "$TRABALHO"' EXIT</code>. Para segredo que não deve tocar o disco, <code>mktemp -p /dev/shm</code> — memória, sem rastro em disco, mas <b>ainda legível por quem tem privilégio</b> na máquina.</div>
+    </div>
+    <div>
+      <p class="sub2">O laço canônico, peça por peça</p>
+      <ul class="lista">
+        <li><i>IFS=</i><span>vazio, impede que <b>espaços e tabulações das bordas</b> sejam removidos</span></li>
+        <li><i>-r</i><span>não interpreta a barra invertida — sem ele, <code>C:\novo</code> vira <code>C:ovo</code></span></li>
+        <li><i>|| [[ -n ]]</i><span>salva a <b>última linha sem quebra final</b>: sem isso ela é lida mas o <code>read</code> devolve 1 e o laço a descarta em silêncio</span></li>
+        <li><i>&lt; arq no done</i><span>e nunca <code>cat arq |</code>: o pipe cria subshell e <b>toda variável modificada no laço se perde</b>. Para saída de comando, <code>done &lt; &lt;(cmd)</code></span></li>
+      </ul>
+      <p class="sub2">exec e flock</p>
+      <ul class="lista">
+        <li><i>exec</i><span>sem comando, aplica o redirecionamento ao <b>shell inteiro</b> — todos os comandos seguintes herdam</span></li>
+        <li><i>flock -n</i><span>falha na hora em vez de esperar; sem <code>-n</code>, a segunda cópia fica na fila. <b>Não precisa apagar o lock:</b> o kernel libera até em <code>SIGKILL</code> — é a vantagem sobre o arquivo <code>.pid</code>, que deixa órfão em toda morte anormal</span></li>
+        <li><i>&lt;(...)</i><span>vira <b>caminho de arquivo</b> (<code>/dev/fd/63</code>), o que alimenta programa que não aceita pipe: <code>diff &lt;(sort a) &lt;(sort b)</code></span></li>
+        <li><i>&gt;(...)</i><span>o shell <b>não espera</b> o processo de dentro terminar — ler o arquivo na linha seguinte pode pegá-lo incompleto. Use <code>wait</code></span></li>
+        <li><i>/dev/tcp</i><span>socket implementado <b>pelo próprio Bash</b>: não existe no sistema de arquivos e não funciona em <code>dash</code> nem <code>sh</code></span></li>
+      </ul>
+      <p class="sub2">O script como processo</p>
+      <ul class="lista">
+        <li><i>$$</i><span>PID do shell atual — <b>não muda</b> em subshell</span></li>
+        <li><i>BASHPID</i><span>PID real, que <b>muda</b> em subshell</span></li>
+        <li><i>$! · PPID</i><span>último posto em segundo plano · o pai</span></li>
+        <li><i>BASH_SOURCE</i><span><code>[[ "${BASH_SOURCE[0]}" == "$0" ]]</code> distingue <b>executado</b> de <b>carregado com <code>source</code></b> — é o que deixa o mesmo arquivo ser biblioteca e programa</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Todo redirecionamento com <code class="inl">&gt;</code> é uma destruição silenciosa em potencial.</b> Não há confirmação, não há mensagem, e o conteúdo anterior não é recuperável: <code class="inl">sort a.txt &gt; a.txt</code>, <code class="inl">cmd &gt; $VAZIA</code> e um <code class="inl">&gt;</code> digitado onde se queria <code class="inl">&gt;&gt;</code> apagam arquivo de escopo, de resultado ou de log sem deixar rastro. As três defesas, em ordem: <b>(1)</b> nunca escreva no arquivo que está lendo — <code class="inl">tmp="$(mktemp "${arq}.XXXXXX")"; cmd "$arq" &gt; "$tmp" &amp;&amp; mv -- "$tmp" "$arq"</code>; <b>(2)</b> <code class="inl">set -o noclobber</code> no topo do script, que transforma sobrescrita em erro e exige <code class="inl">&gt;|</code> para o caso intencional; <b>(3)</b> <code class="inl">set -u</code>, para que <code class="inl">&gt; "$DESTINO"</code> com a variável vazia falhe em vez de virar erro de sintaxe ou arquivo perdido. Ensaie qualquer script novo em cópia descartável do diretório, nunca no artefato original.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O shell prepara os redirecionamentos antes de executar o comando</b> — por isso <code class="inl">sort a &gt; a</code> esvazia o arquivo. Leia de um lugar, escreva em outro, troque com <code class="inl">mv</code> no fim.</li>
+        <li><b>Redirecionar é apontar um descritor para outro destino.</b> <code class="inl">2&gt;&amp;1</code> copia o destino <b>atual</b> do 1: <code class="inl">cmd &gt; log 2&gt;&amp;1</code> e <code class="inl">cmd 2&gt;&amp;1 &gt; log</code> fazem coisas diferentes.</li>
+        <li><b><code class="inl">exec</code> sem comando redireciona o shell inteiro</b>: <code class="inl">exec 3&gt;&amp;1</code> salva a saída; <code class="inl">exec &gt; &gt;(tee -a log) 2&gt;&amp;1</code> registra tudo sem perder a tela.</li>
+        <li><b>O laço canônico é <code class="inl">while IFS= read -r linha || [[ -n "$linha" ]]; do … done &lt; arquivo</code></b> — cada peça corrige um defeito: bordas, barra invertida, última linha e o subshell do pipe.</li>
+        <li><b>Comando dentro do laço que lê <code class="inl">stdin</code> engole o resto do arquivo.</b> Use <code class="inl">-u 3</code> com <code class="inl">3&lt; arquivo</code>, ou <code class="inl">&lt; /dev/null</code> no comando de dentro.</li>
+        <li><b><code class="inl">mktemp</code> no mesmo diretório do original</b> é o que torna o <code class="inl">mv</code> final atômico; entre sistemas de arquivos diferentes, deixa de ser.</li>
+        <li><b><code class="inl">flock</code> sobre um descritor é a trava correta</b>: o kernel a libera mesmo em <code class="inl">SIGKILL</code>, ao contrário do arquivo <code class="inl">.pid</code> criado à mão.</li>
+        <li><b><code class="inl">&lt;(…)</code> e <code class="inl">&gt;(…)</code> viram caminhos de arquivo</b>, alimentando programa que não aceita pipe — lembrando que o shell não espera o processo de <code class="inl">&gt;(…)</code>.</li>
+        <li><b><code class="inl">umask 077</code> antes de <code class="inl">mktemp</code>, <code class="inl">/dev/shm</code> para segredo</b> e <code class="inl">trap … EXIT</code> para a remoção. Nome previsível em diretório público é vulnerabilidade, não descuido.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Coleta que grava enquanto lê é o desastre da abertura em escala.</b> Um script que refina a lista de alvos a cada rodada e a grava por cima do próprio arquivo <b>perde o escopo inteiro</b> na primeira falha — e a lista de escopo é o artefato mais importante de um teste autorizado. Reconstruí-la de memória é como escopo vira excesso, com o enquadramento da Lei 12.737/2012. Temporário no mesmo diretório e <code class="inl">mv</code> no fim. <b><code class="inl">flock</code> em varredura agendada não é preciosismo:</b> uma varredura que demora mais que o intervalo do agendamento acaba com <b>duas cópias disparando pacotes ao mesmo tempo contra o mesmo alvo</b> — o dobro da taxa combinada no contrato, sem que ninguém tenha pedido. <code class="inl">exec 200&gt; /var/lock/varredura.lock; flock -n 200 || exit 0</code> é uma linha e resolve. <b><code class="inl">exec &gt; &gt;(tee -a registro.log) 2&gt;&amp;1</code> no topo do script de coleta</b> dá registro completo do que foi executado com a saída ainda visível: num teste autorizado esse arquivo é a prova de que a atividade ficou dentro do combinado — sem ele, a defesa é a sua memória. <b><code class="inl">/dev/shm</code> para credencial, <code class="inl">/tmp</code> nunca:</b> hash, token e chave temporária pertencem à memória, com <code class="inl">umask 077</code> antes e remoção garantida por <code class="inl">trap</code> — e em máquina compartilhada o <code class="inl">/dev/shm</code> reduz o rastro em disco, não elimina a exposição. <b><code class="inl">/dev/tcp</code> verifica porta sem instalar nada</b> numa máquina onde você tem acesso legítimo mas não pode instalar pacotes; é recurso de diagnóstico, e usá-lo para varrer faixa fora de escopo autorizado é a mesma infração que fazê-lo com <code class="inl">nmap</code>. <b>Família RHEL:</b> serviços com <code class="inl">PrivateTmp=yes</code> ganham um <code class="inl">/tmp</code> privado — um script que grava lá esperando que outro processo leia simplesmente não se encontra, e o <code class="inl">TMPDIR</code> é o caminho de coordenação; e o SELinux rotula arquivos, então criar lock à mão em <code class="inl">/var/lock</code> pode dar "Permission denied" com permissões POSIX corretas — o idiomático é <code class="inl">/run/lock</code> com <code class="inl">RuntimeDirectory=</code> na unidade.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 12 · Fase 3 <span class="n">073</span></span>
