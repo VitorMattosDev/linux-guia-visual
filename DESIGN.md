@@ -20,7 +20,11 @@ código em JetBrains Mono. As fontes têm fallback de sistema — funciona offli
 
 ## A página
 
-`<article class="guia">` = uma A4 retrato (210×297mm), com textura pontilhada sutil.
+`<article class="guia">` = uma ficha em A4 retrato (210×297mm), com textura pontilhada
+sutil. **Ela flui pelas páginas que precisar** (uma ou duas): no print o `.guia` vira
+`display:block`, cada página ganha 12 mm de margem no topo e os blocos têm
+`break-inside: avoid`. Uma página comporta ~1077 px de altura.
+O respiro entre blocos é `--gap-blocos` (padrão 7 mm), ajustável no `<style>` local.
 Estrutura fixa: **topo → cabeçalho → [blocos] → rodape-blocos → rodape**.
 No print, cada `.guia` vira uma página (`page-break-after`).
 
@@ -116,7 +120,8 @@ Variações: `azul`, `verde`, `laranja`, `roxo`.
   variáveis. Veja o decodificador rwx em `guias/vol03/guia020-permissoes-de-arquivo.html`.
 
 ## Princípios
-1. Uma ficha = uma A4 = um assunto. Se não cabe, cortou de menos.
+1. Uma ficha = um assunto. Cabe numa A4 quando possível; quando não, ocupa duas páginas
+   cheias — **conteúdo cortado é sempre pior que página a mais**.
 2. Consistência entre as 103 fichas > capricho isolado.
 3. A cor tem função (verde=ok/resumo, laranja=atenção, vermelho=perigo, azul=info).
 4. Imagem que não ensina não entra.

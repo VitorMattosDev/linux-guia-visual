@@ -6,7 +6,7 @@ Instruções de trabalho para o Claude Code neste repositório.
 
 Coleção de **fichas visuais** (infográficos A4) para **consulta rápida** dos assuntos
 do *Manual de Linux e Shell Scripting*. Cada ficha condensa **um** capítulo do manual
-em **uma página** — no mesmo estilo do "Guia Visual de Redes, Fibra Óptica e Telecom":
+em **uma ficha** (uma ou duas páginas A4) — no mesmo estilo do "Guia Visual de Redes, Fibra Óptica e Telecom":
 limpo, colorido, didático, feito para bater o olho e lembrar.
 
 **103 fichas · 16 volumes · 5 fases**, espelhando 1:1 os capítulos do manual.
@@ -56,15 +56,16 @@ o volume até o fim; não pare no meio a não ser por erro de bloqueio.
    a. **Leia o capítulo-fonte** (`../manual-linux-master/volNN/capNNN-*.qmd`). Extraia: o
       problema de abertura, os 4–6 conceitos que mais importam, os comandos essenciais, a
       tabela/decodificação central, a seção **🐉 No Kali** e o **Laboratório**.
-   b. **Destile, não copie.** A ficha cabe em UMA A4. O que um técnico consultaria com pressa.
-      Corte o resto. Densidade acima de volume.
+   b. **Destile, não copie.** O que um técnico consultaria com pressa; corte o resto.
+      Mire UMA A4 (até 1077 px em print). Se o assunto não couber sem perder o essencial,
+      **use duas páginas cheias** — nunca corte conteúdo para forçar uma só.
    c. O stub HTML da ficha já existe (`guias/volNN/...`). Se faltar, `python scripts/novo-guia.py NNN`.
    d. **Preencha os blocos** (ver `DESIGN.md`). Ordem típica: topo → cabeçalho → fluxo →
       cards → duas colunas → na prática (terminal + comparação) → **Resumo + Dica** → rodapé.
    e. **Gere as imagens** que o assunto pedir (ver "Imagens"). O visual central costuma ser
       a figura TikZ do próprio capítulo, traduzida para CSS.
-   e2. **Renderize e confira a miniatura** (`python scripts/build.py NNN` →
-      `_saida/thumbs/guiaNNN.png`): cabe em uma página? nada cortado na direita?
+   e2. **Renderize e confira** (`python scripts/build.py NNN` → `_saida/thumbs/guiaNNN.png`
+      e `python scripts/paginacao.py NNN`): nada cortado na direita? sai inteira no PDF?
    f. Marque a ficha como `[x]` no `ROADMAP.md` e **commit**: `guia NNN: <título>`.
 
 4. **Ao fim do volume:** `python scripts/build.py --vol NN` — renderiza todas as fichas do
@@ -83,7 +84,8 @@ o volume até o fim; não pare no meio a não ser por erro de bloqueio.
 - **Resumo Rápido** (bloco verde, 3–5 bullets) — **obrigatório**.
 - **Dica de Ouro** (bloco azul) — o atalho/pegadinha que só se aprende usando. **Obrigatório.**
 
-Alvo de texto: enxuto. Se não cabe numa A4 confortável, cortou de menos.
+Alvo de texto: enxuto. Mas **conteúdo inteiro vem antes de página única**: se não couber
+confortavelmente numa A4, a ficha ocupa duas páginas — as duas razoavelmente cheias.
 
 ## Política editorial (herdada do manual)
 
@@ -137,7 +139,8 @@ acabou de escrever e confirme —
 **Por volume** (depois de `python scripts/build.py --vol NN`): abra cada miniatura
 em `_saida/thumbs/guiaNNN.png` e confirme —
 
-6. Cada ficha **cabe em UMA página** sem cortar conteúdo nem sobrar meia página vazia.
+6. Cada ficha sai **inteira** no PDF (o rodapé aparece) e nenhuma página fica quase vazia.
+   Rode `python scripts/paginacao.py` — ele responde isso de forma objetiva.
 7. Imagens carregaram (sem quadrado quebrado) e combinam com a paleta.
 8. As fichas do volume parecem uma família — mesma linguagem visual, sem uma destoando.
 
@@ -173,12 +176,33 @@ Tudo aqui já custou tempo uma vez. Não redescubra.
   com o print. Padrão que funciona:
   `s.replace("- [ ] **guia 0NN**", "- [x] **guia 0NN**")`.
 
-### O orçamento de altura da A4 (o erro mais caro)
+### O orçamento de altura (revisto no Volume 13 — leia antes de cortar conteúdo)
 
-Área útil = **273 mm** (297 − 2×12 de margem) e **703 px de largura** (186 mm @96dpi).
-O `.guia` aplica `gap: 7mm` entre **todos** os filhos diretos — 12 filhos já consomem 77 mm
-só de respiro. Uma ficha confortável tem **10 a 12 filhos diretos**. Custo aproximado
-medido no Volume 1:
+**A ficha pode ocupar mais de uma A4.** Até o Volume 13 o `.guia` tinha, no modo print,
+`height: 297mm` + `overflow: hidden`: o PDF sempre saía com uma página e **tudo o que
+passava de uma A4 era descartado em silêncio** — o Resumo Rápido, a Dica e o rodapé das
+fichas dos Volumes 9 a 12 nunca chegaram ao livro. Hoje a ficha **flui** pelas páginas que
+precisar, com margem de 12 mm no topo de cada uma e os blocos marcados para não serem
+partidos ao meio (`break-inside: avoid`).
+
+A ordem de preferência é esta, e ela vale mais que a estética:
+**ficha inteira em duas páginas cheias > ficha inteira em uma página > ficha cortada.**
+Nunca sacrifique conteúdo para forçar uma página só.
+
+- **Cabe em UMA página** a ficha com até **1077 px** de altura em `media=print`
+  (A4 = 1122,5 px @96dpi − 12 mm da margem superior). Largura útil: **703 px** (186 mm).
+- **Passou disso, use duas páginas** — mas as duas têm de ficar razoavelmente cheias.
+  Segunda página com menos de 20% é o único resultado inaceitável: ou você aperta o
+  respiro, ou redistribui conteúdo para equilibrar as duas.
+- **O respiro entre blocos é uma variável:** `--gap-blocos` (padrão 7 mm) no `<style>`
+  local da ficha, e o print respeita o mesmo valor. Baixar de 7 mm para 5 mm numa ficha
+  de 13 blocos recupera ~75 px **sem cortar uma palavra** — é sempre a primeira alavanca.
+  Abaixo de 4 mm a ficha começa a parecer apertada; aí é hora de aceitar a segunda página.
+- Cuidado com `gap` no print: o `.guia` vira `display: block`, então o espaço entre blocos
+  vem de `margin-bottom`, e **margens adjacentes colapsam**. Um `.secao-titulo` com
+  `margin` própria não soma ao respiro como somava no flex.
+
+Custo aproximado de cada bloco (medido no Volume 1, ainda válido):
 
 | Bloco | Altura |
 |---|---|
@@ -221,10 +245,12 @@ resolveu 005 (matriz + tabela lado a lado) e 006 (códigos de saída + operadore
   do commit, não só a 1ª do volume: quase toda ficha do Volume 1 precisou de um ajuste de
   layout que só aparece no render (estouro de largura, linha fora de lugar). É mais barato
   que consertar sete fichas no fim. O `build --vol NN` no fechamento continua obrigatório.
-- **Prova objetiva de "cabe em uma A4"**: cada PDF tem de ter **1 página**.
-  ```bash
-  python -c "from pypdf import PdfReader;import glob,os;[print(os.path.basename(f),len(PdfReader(f).pages)) for f in sorted(glob.glob('_saida/pdf/*.pdf'))]"
-  ```
+- **Prova objetiva de que a ficha saiu INTEIRA**: `python scripts/paginacao.py` (sem
+  argumento audita tudo que está `[x]`; com números, só essas fichas). Ele verifica as três
+  coisas que importam: o **rodapé aparece no PDF** (nada foi perdido), a **última página
+  não está quase vazia** e nenhum bloco atômico foi partido. Sai com status 1 se achar
+  problema. **Não volte à checagem antiga de "cada PDF tem 1 página"**: ela passava sempre,
+  porque o corte era silencioso — e foi por isso que 77 fichas ficaram incompletas no livro.
 - **Checagem dos obrigatórios do volume**, de uma vez (o `grep` do Git Bash não casa o 🐉;
   use Python):
   ```bash

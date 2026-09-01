@@ -68,23 +68,51 @@ html, body {
   box-shadow: 0 8px 30px rgba(15,37,71,.18);
   display: flex;
   flex-direction: column;
-  gap: 7mm;
+  /* Espaco entre blocos. Uma ficha pode apertar isto no <style> local com
+     --gap-blocos: 5mm — e o print respeita o mesmo valor (ver @media print). */
+  gap: var(--gap-blocos, 7mm);
   overflow: hidden;
 }
 
-@page { size: A4 portrait; margin: 0; }
+/* Margem vertical vem da @page (vale em TODA página da ficha); a lateral vem
+   do padding do .guia, para o rodapé poder sangrar até a borda do papel. */
+/* Margem SUPERIOR na @page: vale em toda pagina da ficha, inclusive nas de
+   continuacao. Embaixo fica 0 porque o rodape navy sangra ate a borda. */
+@page { size: A4 portrait; margin: 12mm 0 0; }  /* @page nao le custom property */
 
 @media print {
   html, body { background: #fff; }
+
+  /* Uma ficha começa sempre em página nova e FLUI pelas páginas que precisar.
+     Nada de height fixa + overflow:hidden: era isso que cortava o conteúdo
+     que passava de uma A4 e o descartava em silêncio no PDF. */
   .guia {
     width: var(--pag-larg);
-    min-height: var(--pag-alt);
-    height: var(--pag-alt);
+    min-height: 0;
+    height: auto;
     margin: 0;
+    padding: 0 var(--margem);
+    overflow: visible;
+    display: block;              /* flex não fragmenta bem entre páginas */
     box-shadow: none;
     page-break-after: always;
     break-after: page;
   }
+  /* o gap do flex vira margem, já que em print o .guia é block */
+  .guia > * { margin-bottom: var(--gap-blocos, 7mm); }
+  .guia > *:last-child { margin-bottom: 0; }
+  .rodape-blocos { margin-top: 0; }
+
+  /* blocos atômicos: preferem pular para a próxima página a ser partidos ao meio */
+  .topo, .cabecalho, .fluxo, .cards, .card, .duas-colunas, .coluna,
+  .terminal, .perigo, .bloco, .rodape-blocos, .rodape,
+  table.comparacao thead, table.comparacao tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* título de seção nunca fica órfão no pé da página */
+  .secao-titulo { break-after: avoid; page-break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
 }
 
 /* ---- 3. Topo: pílula "GUIA VISUAL NN" ----------------------------------- */
