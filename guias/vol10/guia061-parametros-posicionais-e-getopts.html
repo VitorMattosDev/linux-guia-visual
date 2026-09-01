@@ -3,101 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 061 — Parâmetros posicionais e getopts</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .subt { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+          letter-spacing:.04em; color:var(--navy); margin-bottom:4px; }
+
+  /* As cinco invocações que o if encadeado erra */
+  .falhas { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
+  .fa { border:1.5px solid var(--vermelho); background:var(--vermelho-claro);
+        border-radius:var(--raio-sm); padding:4px 6px; }
+  .fa > b { display:block; font-family:var(--fonte-mono); font-size:9px; color:var(--vermelho);
+            margin-bottom:2px; word-break:break-all; }
+  .fa p { font-size:8px; line-height:1.25; color:var(--tinta-suave); }
+
+  /* getopts caminhando */
+  .argv { display:flex; gap:5px; align-items:flex-start; margin:6px 0 4px; }
+  .arg { border-radius:4px; border:1.5px solid; padding:3px 8px; font-family:var(--fonte-mono);
+         font-size:9.5px; text-align:center; }
+  .arg small { display:block; font-family:var(--fonte-texto); font-size:7.5px; color:var(--tinta-suave); }
+  .arg.o { border-color:var(--azul); background:var(--azul-claro); color:var(--azul); }
+  .arg.p { border-color:var(--laranja); background:var(--laranja-claro); color:#a8530a; }
+  .arg.d { border-color:var(--verde); background:var(--verde-claro); color:#1d7038; }
+  .voltas { display:flex; flex-direction:column; gap:3px; }
+  .vt { display:grid; grid-template-columns:22px 240px 1fr; gap:6px; align-items:center;
+        border-left:3px solid var(--linha); background:var(--papel-tint); border-radius:var(--raio-sm);
+        padding:3px 7px; }
+  .vt .n { font-family:var(--fonte-titulo); font-size:10px; color:var(--azul); text-align:center; }
+  .vt .e { font-family:var(--fonte-mono); font-size:9px; color:var(--navy); }
+  .vt .c { font-size:8.5px; color:var(--tinta-suave); line-height:1.25; }
+  .vt.fim { border-left-color:var(--verde); background:var(--verde-claro); }
+  .vt.fim .n { color:var(--verde); }
+  .shiftbox { border:1.5px solid var(--verde); background:var(--verde-claro); border-radius:var(--raio-sm);
+              padding:5px 8px; margin-top:5px; display:grid; grid-template-columns:200px 1fr; gap:8px;
+              align-items:center; }
+  .shiftbox b { font-family:var(--fonte-mono); font-size:10px; color:#1d7038; }
+  .shiftbox p { font-size:8.5px; line-height:1.3; color:var(--tinta-suave); }
+  .shiftbox p b { font-family:var(--fonte-texto); color:var(--navy); font-size:8.5px; }
+
+  .grade2 { display:grid; grid-template-columns:1.55fr 1fr; gap:9px; align-items:start; }
+  .grade2 .terminal { font-size:8.8px; }
+  .grade2 .terminal pre { padding:8px 10px; line-height:1.45; }
+  .comparacao code { word-break:normal; }
+  .comparacao td.s { color:var(--verde); font-weight:700; text-align:center; }
+  .comparacao td.n { color:var(--vermelho); font-weight:700; text-align:center; }
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:5px; }
+  .nota b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 061</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Parâmetros posicionais e getopts</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Posicionais<br>e getopts</h1>
+      <div class="sub">A análise do script de coleta cresceu um <code class="inl">if</code> por vez: <code class="inl">if [ "$1" = "-v" ]; then … shift; fi</code>, três vezes. Funcionava — enquanto as opções viessem <b>na ordem dos <code class="inl">if</code></b>, uma por vez, e nunca depois do arquivo. A análise de argumentos é a fronteira entre <b>o que o usuário digitou</b> e <b>o que o script executa</b>, e ela precisa de estrutura.</div>
     </div>
     <div class="badge"><b>061</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Cinco invocações razoáveis — e nenhuma mensagem de erro</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="falhas">
+      <div class="fa"><b>coletar -n -v dados</b><p>O <code class="inl">-v</code> é testado <b>primeiro</b>: não é reconhecido, e <code class="inl">VERBOSE</code> fica 0.</p></div>
+      <div class="fa"><b>coletar -vn dados</b><p>Agrupadas: <code class="inl">"-vn"</code> não é igual a <code class="inl">"-v"</code>. Nada é reconhecido.</p></div>
+      <div class="fa"><b>coletar dados -v</b><p>Opção <b>depois</b> do operando: simplesmente ignorada.</p></div>
+      <div class="fa"><b>coletar -o dados</b><p><code class="inl">SAIDA</code> vira <code class="inl">dados</code> e o <b>arquivo fica vazio</b> — argumento faltando.</p></div>
+      <div class="fa"><b>coletar -- -rf</b><p>O <code class="inl">--</code> vira <b>nome de arquivo</b>, e o <code class="inl">-rf</code> chega ao comando interno como <b>opção</b>.</p></div>
+    </div>
+
+    <div class="subt" style="margin-top:7px">getopts caminhando pelo vetor · <code class="inl">while getopts ':vno:h' opcao</code></div>
+    <div class="argv">
+      <div class="arg o">-vn<small>$1</small></div>
+      <div class="arg o">-o<small>$2</small></div>
+      <div class="arg p">saida.txt<small>$3</small></div>
+      <div class="arg d">alvo1<small>$4</small></div>
+      <div class="arg d">alvo2<small>$5</small></div>
+    </div>
+    <div class="voltas">
+      <div class="vt"><span class="n">1ª</span><span class="e">opcao=v · OPTARG vazio · OPTIND=1</span><span class="c">ainda <b>dentro</b> do <code class="inl">-vn</code>: o <i>getopts</i> desagrupa sozinho.</span></div>
+      <div class="vt"><span class="n">2ª</span><span class="e">opcao=n · OPTARG vazio · OPTIND=2</span><span class="c">terminou o <code class="inl">-vn</code>; agora aponta para <code class="inl">$2</code>.</span></div>
+      <div class="vt"><span class="n">3ª</span><span class="e">opcao=o · OPTARG=saida.txt · OPTIND=4</span><span class="c">consumiu <b>dois</b> argumentos. Aceita colado também: <code class="inl">-osaida.txt</code>.</span></div>
+      <div class="vt fim"><span class="n">4ª</span><span class="e">devolve código ≠ 0 · OPTIND=4</span><span class="c"><code class="inl">$4</code> não começa com hífen: acabaram as opções, o laço termina.</span></div>
+    </div>
+    <div class="shiftbox">
+      <b>shift $(( OPTIND - 1 ))</b>
+      <p>Descarta os três argumentos já analisados: agora <code class="inl">"$@"</code> contém <b>só os operandos</b> e <code class="inl">$#</code> vale 2. <b>Sem essa linha</b>, o laço seguinte processaria <code class="inl">-vn</code>, <code class="inl">-o</code> e <code class="inl">saida.txt</code> como alvos — o erro nº 1 com <code class="inl">getopts</code>, e ele não emite aviso nenhum: só um alvo chamado <code class="inl">-vn</code>.</p>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section class="grade2">
+    <div>
+      <div class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>o esqueleto que resolve os cinco casos</span></div>
+<pre>while getopts <span class="cmt">':</span>vno<span class="cmt">:</span>h' opcao; do   <span class="cmt"># : inicial = modo silencioso</span>
+  case "$opcao" in                 <span class="cmt"># o : DEPOIS da letra = exige argumento</span>
+    v)  VERBOSE=1 ;;
+    n)  SIMULAR=1 ;;
+    o)  SAIDA="$OPTARG" ;;
+    h)  uso; exit 0 ;;             <span class="cmt"># --help e uso bem-sucedido: stdout, codigo 0</span>
+    :)  erro "-$OPTARG exige um argumento"; exit 2 ;;
+    \?) erro "opcao invalida: -$OPTARG"; uso &gt;&amp;2; exit 2 ;;
+  esac
+done
+shift $(( OPTIND - 1 ))            <span class="cmt"># a linha que todo mundo esquece</span>
+(( $# )) || { uso &gt;&amp;2; exit 2; }   <span class="cmt"># erro de uso: stderr, codigo 2</span>
+
+<span class="cmt"># opcoes LONGAS: getopts nao faz. O laco com case faz -- e trata o --</span>
+while (( $# )); do case "$1" in
+  -v|--verbose) VERBOSE=1; shift ;;
+  -o|--saida)   SAIDA="$2"; shift 2 ;;
+  --saida=*)    SAIDA="${1#*=}"; shift ;;
+  --)           shift; break ;;    <span class="cmt"># fim das opcoes</span>
+  -*)           erro "opcao desconhecida: $1"; exit 2 ;;
+  *)            break ;;           <span class="cmt"># primeiro operando</span>
+esac; done</pre>
+      </div>
+    </div>
+    <div>
+      <table class="comparacao">
+        <thead><tr><th>O que cobre</th><th>if</th><th>while+case</th><th>getopts</th></tr></thead>
+        <tbody>
+          <tr><td>Agrupadas <code>&#8209;vn</code></td><td class="n">não</td><td class="n">não</td><td class="s">sim</td></tr>
+          <tr><td>Colado <code>&#8209;osaida</code></td><td class="n">não</td><td class="n">não</td><td class="s">sim</td></tr>
+          <tr><td>Longas <code>&#8209;&#8209;verbose</code></td><td class="n">não</td><td class="s">sim</td><td class="n">não</td></tr>
+          <tr><td>Ordem livre das opções</td><td class="n">não</td><td class="s">sim</td><td class="s">sim</td></tr>
+          <tr><td>Separador <code>&#8209;&#8209;</code></td><td class="n">não</td><td class="s">sim</td><td class="s">sim</td></tr>
+          <tr><td>Rejeita opção desconhecida</td><td class="n">não</td><td class="s">sim</td><td class="s">sim</td></tr>
+        </tbody>
+      </table>
+      <div class="nota"><b>O <code class="inl">if</code> encadeado não tem caso de uso:</b> custa o mesmo trabalho e falha em tudo. Curtas apenas → <code class="inl">getopts</code>; qualquer opção longa → laço com <code class="inl">case</code>. O <code class="inl">getopt</code> externo do <code class="inl">util-linux</code> faz as duas coisas, mas exige o idioma <code class="inl">eval set -- "$OPCOES"</code> e não existe no BSD/macOS.</div>
+      <div class="nota"><b>Posicionais são um array:</b> <code class="inl">"$@"</code> repassa, <code class="inl">"$*"</code> só exibe, e <code class="inl">${10}</code> exige as chaves — <code class="inl">$10</code> é lido como <code class="inl">$1</code> seguido de <code class="inl">0</code>. <code class="inl">set -- a b c</code> reescreve a lista (o <code class="inl">--</code> inicial protege argumento com hífen). E <code class="inl">shift</code> <b>falha com código 1</b> se pedir mais do que existe, sem alterar nada: teste <code class="inl">$#</code> antes, ou o laço nunca termina.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Todo caminho vindo de variável entra no comando depois de um <code class="inl">--</code>.</b> Se <code class="inl">$arquivo</code> valer <code class="inl">-rf</code> ou <code class="inl">--no-preserve-root</code>, o utilitário lê o nome como <b>opção</b>: escreva <code class="inl">rm -- "$arquivo"</code>, <code class="inl">cp -- "$origem" "$destino"</code>, <code class="inl">chown -- "$dono" "$alvo"</code>. Vale também para <code class="inl">grep -- "$padrao"</code> — um padrão que comece com hífen vira opção do <code class="inl">grep</code>, e se ele vem de entrada do usuário isso é uma forma de alterar o comportamento do comando à distância. Para glob em diretório arbitrário, a defesa complementar é <code class="inl">for f in ./*</code>: cada item passa a começar com <code class="inl">./</code>, nunca com hífen. E valide <b>antes</b> de qualquer efeito colateral — quantidade mínima de operandos, coerência entre opções (<code class="inl">-n</code> com <code class="inl">-o</code> é incompatível) e se o destino é gravável.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Cadeia de <code class="inl">if</code> comparando <code class="inl">$1</code> falha em silêncio</b> na ordem trocada, na flag agrupada, na opção depois do operando e no argumento faltando.</li>
+        <li><b><code class="inl">getopts</code> traz a convenção POSIX de graça:</b> agrupamento <code class="inl">-vn</code>, argumento colado <code class="inl">-osaida</code>, <code class="inl">OPTARG</code> e parada no <code class="inl">--</code>.</li>
+        <li><b>Comece a cadeia com <code class="inl">:</code></b> (<code class="inl">':vno:h'</code>) para ficar com o controle das mensagens — sem isso o Bash imprime as dele, em inglês, sem o nome do seu script, e os ramos <code class="inl">:</code> e <code class="inl">\?</code> ficam indistinguíveis.</li>
+        <li><b><code class="inl">shift $(( OPTIND - 1 ))</code> não é opcional.</b> Sem ele as opções continuam em <code class="inl">"$@"</code> e viram operandos, sem aviso.</li>
+        <li><b><code class="inl">getopts</code> não faz opções longas</b> — para <code class="inl">--verbose</code> e <code class="inl">--saida=X</code>, o laço <code class="inl">while</code> com <code class="inl">case</code>, que também trata o <code class="inl">--</code> e <b>rejeita</b> opção desconhecida no ramo <code class="inl">-*</code>.</li>
+        <li><b>Dentro de função, <code class="inl">local OPTIND</code></b>; para analisar um segundo vetor na mesma execução, <code class="inl">OPTIND=1</code>. É variável global do shell.</li>
+        <li><b><code class="inl">--help</code> sai na saída padrão com código 0; erro de uso sai em <code class="inl">stderr</code> com código 2.</b> Trocar os dois faz a ajuda poluir <i>pipeline</i> e o erro passar despercebido na automação.</li>
+        <li><b><code class="inl">$0</code> é o caminho como foi chamado</b> — pode ser relativo, pode ser link, e não serve sob <code class="inl">source</code>. Use <code class="inl">${0##*/}</code> para mensagens e <code class="inl">${BASH_SOURCE[0]}</code> para achar o diretório real.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>A validação de escopo entra logo depois da análise, antes de qualquer pacote sair da máquina.</b> Verifique cada operando contra a faixa autorizada assim que o <code class="inl">shift</code> final entrega os alvos, e saia com código próprio se algum não pertence ao escopo — deixar a checagem para dentro do laço de varredura significa que os primeiros alvos <b>já foram tocados</b> quando o problema aparece. Varredura fora do escopo contratado é crime pela Lei 12.737/2012, e a análise de argumentos é o último ponto onde impedi-la ainda é barato. <b><code class="inl">-o</code> sem argumento é a falha que mais aparece em <i>wrapper</i> de ferramenta:</b> <code class="inl">coletar -o</code> no fim da linha deixa <code class="inl">OPTARG</code> vazio e o arquivo de saída vira o diretório atual — ou pior, o próximo argumento, que seria o alvo. Com o <code class="inl">:</code> inicial, esse caso cai no ramo <code class="inl">:</code> e o script para com mensagem clara em vez de sobrescrever algo. <b>Não repasse <code class="inl">"$@"</code> cru para <code class="inl">nmap</code>, <code class="inl">hydra</code> ou <code class="inl">sqlmap</code>:</b> se o script encaminha opções que ele mesmo não entende, o usuário ganha toda a superfície da ferramenta por baixo do seu <i>wrapper</i> — inclusive o <code class="inl">--script</code> do <code class="inl">nmap</code>, que <b>executa código NSE</b>. Aceite uma lista explícita de opções e monte a linha da ferramenta com um array. <b>Nome de saída de ferramenta ofensiva merece o <code class="inl">--</code>:</b> relatório de <code class="inl">gobuster</code> e <code class="inl">nikto</code> carrega URL no nome, e URL tem hífen com frequência. E <b><code class="inl">getopts</code> dentro de função exige <code class="inl">local OPTIND</code></b> — sem ele a segunda análise continua de onde a primeira parou, e o resultado é uma opção ignorada, sem erro, com um alvo processado na configuração errada.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 10 · Fase 3 <span class="n">061</span></span>
