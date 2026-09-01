@@ -3,101 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 087 — Capabilities, isolamento e menor privilégio</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: root monolitico quebrado em pecas ---- */
+  .quebra { display:grid; grid-template-columns:126px 20px 1fr; gap:6px; align-items:center; }
+  .uid0 { border:2px solid var(--vermelho); background:var(--vermelho-claro);
+          border-radius:var(--raio-sm); padding:7px 6px; text-align:center; }
+  .uid0 b { display:block; font-family:var(--fonte-titulo); font-size:15px; color:var(--vermelho);
+            letter-spacing:.03em; }
+  .uid0 i { font-style:normal; display:block; font-size:7.6px; line-height:1.22;
+            color:var(--tinta-suave); margin-top:2px; }
+  .leque { font-size:15px; color:var(--tinta-suave); text-align:center; line-height:1; }
+  .pecas { display:flex; flex-direction:column; gap:2px; }
+  .pc { display:grid; grid-template-columns:150px 1fr; gap:7px; align-items:center;
+        border:1px solid; border-left:3px solid; border-radius:var(--raio-sm);
+        padding:2px 8px; }
+  .pc > code { font-family:var(--fonte-mono); font-size:8.2px; font-weight:700; }
+  .pc > span { font-size:7.9px; line-height:1.2; color:var(--tinta-suave); }
+  .pc > span b { color:var(--navy); }
+  .pc.a { border-color:var(--azul); background:var(--azul-claro); } .pc.a > code { color:var(--azul); }
+  .pc.v { border-color:var(--verde); background:var(--verde-claro); } .pc.v > code { color:#1d7038; }
+  .pc.y { border-color:var(--laranja); background:var(--laranja-claro); } .pc.y > code { color:#a8530a; }
+  .pc.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .pc.r > code { color:var(--vermelho); }
+  .pc.r > span b { color:var(--vermelho); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- figura 2: peca pequena x peca que e root ---- */
+  .dois { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .cx { border:1px solid var(--linha); border-top:3px solid; border-radius:var(--raio-sm);
+        background:#fff; padding:4px 8px; }
+  .cx > b { display:block; font-family:var(--fonte-titulo); font-size:9.4px;
+            text-transform:uppercase; letter-spacing:.03em; }
+  .cx > i { font-style:normal; display:block; font-size:7.6px; color:var(--tinta-suave);
+            line-height:1.2; margin-bottom:3px; }
+  .cx ul { list-style:none; display:flex; flex-direction:column; gap:1.5px; }
+  .cx li { display:grid; grid-template-columns:112px 1fr; gap:6px; align-items:baseline;
+           font-size:7.7px; line-height:1.19; color:var(--tinta-suave); }
+  .cx li > i { font-style:normal; font-family:var(--fonte-mono); font-size:7.7px; font-weight:700; }
+  .cx li b { color:var(--navy); }
+  .cx.v { border-top-color:var(--verde); } .cx.v > b, .cx.v li > i { color:#1d7038; }
+  .cx.r { border-top-color:var(--vermelho); } .cx.r > b, .cx.r li > i { color:var(--vermelho); }
+
+  /* ---- unidade systemd ---- */
+  .grade2 { display:grid; grid-template-columns:1fr 1.02fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.4px; line-height:1.26; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  .unidade { border:1px solid var(--linha); border-radius:var(--raio-sm); background:var(--papel-tint);
+             padding:5px 9px; }
+  .unidade > b { display:block; font-family:var(--fonte-titulo); font-size:9px; color:var(--navy);
+                 text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px; }
+  .unidade pre { font-family:var(--fonte-mono); font-size:7.2px; line-height:1.24; color:var(--tinta);
+                 white-space:pre-wrap; }
+  .unidade pre em { font-style:normal; color:var(--tinta-suave); }
+  .unidade pre s { text-decoration:none; color:var(--roxo); font-weight:700; }
+
+  .guia { --gap-blocos:3.6mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.95px; line-height:1.23; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 087</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Capabilities, isolamento e menor privilégio</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Capabilities, isolamento<br>e menor privilégio</h1>
+      <div class="sub">Por décadas o <code class="inl">ping</code> foi SUID: rodava <b>inteiro</b> como <code class="inl">root</code> — com direito a ler <code class="inl">/etc/shadow</code>, matar qualquer processo e montar sistemas de arquivos — só para mandar 64 bytes de ICMP. Hoje ele não tem SUID nenhum: tem <code class="inl">cap_net_raw</code>, e mais nada. <b>Menor privilégio deixou de ser conselho e virou engenharia.</b></div>
     </div>
     <div class="badge"><b>087</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O poder monolítico de root, quebrado em peças nomeadas</div>
+    <div class="quebra" style="margin-top:4px">
+      <div class="uid0"><b>UID 0</b><i>uma única verificação no kernel inteiro: <b>pode tudo</b>. Sem gradação entre "pode um pouco" e "pode tudo".</i></div>
+      <div class="leque">→</div>
+      <div class="pecas">
+        <div class="pc a"><code>CAP_NET_RAW</code><span>socket cru e pacote forjado — <b><code>ping</code>, <code>tcpdump</code>, <code>nmap -sS</code></b></span></div>
+        <div class="pc v"><code>CAP_NET_BIND_SERVICE</code><span>escutar em porta abaixo de 1024 <b>sem ser <code>root</code></b></span></div>
+        <div class="pc v"><code>CAP_CHOWN</code><span>trocar o dono de um arquivo — instaladores</span></div>
+        <div class="pc y"><code>CAP_KILL</code><span>sinalizar processo de outro dono — supervisores</span></div>
+        <div class="pc r"><code>CAP_SYS_ADMIN</code><span>montar, criar <i>namespace</i>, dezenas de outras — <b>equivale a root</b></span></div>
+      </div>
+    </div>
+    <div class="regra"><b>Cada peça é verificada de forma independente:</b> o <code>ping</code> tem <code>CAP_NET_RAW</code> e nada mais, então uma falha nele rende forjar pacotes — não a máquina. <b>Mas a quebra não é uniforme:</b> <code>CAP_SYS_ADMIN</code> acumulou tantas operações que concedê-la é conceder <code>root</code> por um caminho mais longo. Capability só reduz privilégio <b>quando a peça é pequena</b>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">A lista que vale ler antes de conceder qualquer coisa</div>
+    <div class="dois" style="margin-top:4px">
+      <div class="cx v">
+        <b>Peças pequenas — redução real</b>
+        <i>fazem uma coisa, e a falha para nelas</i>
+        <ul>
+          <li><i>cap_net_raw</i><span>socket cru: <b><code>ping</code>, <code>dumpcap</code>, <code>mtr-packet</code></b></span></li>
+          <li><i>cap_net_bind_service</i><span>porta &lt; 1024 sem <code>root</code></span></li>
+          <li><i>cap_net_admin</i><span>interfaces, rotas, firewall (<code>ip</code>, <code>nft</code>, VPN)</span></li>
+          <li><i>cap_chown</i><span>dono de arquivo alheio — <b>com cautela: reescreve a rota até <code>root</code></b></span></li>
+          <li><i>cap_kill</i><span>sinalizar processo de outro usuário</span></li>
+        </ul>
+      </div>
+      <div class="cx r">
+        <b>Peças que são root com outro nome</b>
+        <i>conceder é entregar a máquina, mais devagar</i>
+        <ul>
+          <li><i>cap_sys_admin</i><span>montar, <i>namespaces</i>, dezenas de operações</span></li>
+          <li><i>cap_sys_module</i><span>carregar módulo de kernel = <b>controle total</b></span></li>
+          <li><i>cap_dac_override</i><span>ignora <b>toda</b> checagem de permissão: <code>/etc/shadow</code>, chaves privadas</span></li>
+          <li><i>cap_setuid / setgid</i><span>assumir outra identidade — escalada direta</span></li>
+          <li><i>cap_sys_ptrace</i><span>ler a memória de qualquer processo</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática: ler, conceder — e deixar o systemd confinar</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> getcap /usr/bin/ping
+<span class="out">/usr/bin/ping cap_net_raw=ep</span>
+<span class="prompt">$</span> sudo getcap -r / 2&gt;/dev/null <span class="cmt"># o inventário inteiro</span>
+<span class="cmt"># lista curta e explicável, ou há pergunta a fazer</span>
+<span class="prompt">$</span> capsh --print | head -3        <span class="cmt"># do processo atual</span>
+<span class="prompt">$</span> capsh --decode=0000000000003000 <span class="cmt"># hex → nomes</span>
+<span class="prompt">$</span> sudo setcap cap_net_bind_service=+ep ./meuservidor
+<span class="cmt"># e/p/i = efetivo (ativo agora) / permitido (o teto) /</span>
+<span class="cmt"># herdável. O conjunto LIMITANTE é o teto absoluto:</span>
+<span class="prompt">$</span> sudo capsh --drop=cap_net_raw -- -c 'ping -c1 1.1.1.1'
+<span class="out">ping: socktype: SOCK_RAW  (falha até sob sudo)</span>
+<span class="cmt"># no_new_privs: nem eu nem meus filhos ganham privilégio</span>
+<span class="prompt">$</span> setpriv --no-new-privs sudo id
+<span class="out">sudo: efetivo uid não é 0 — a escalada por SUID acabou</span>
+<span class="prompt">$</span> systemd-analyze security          <span class="cmt"># placar geral</span>
+<span class="prompt">$</span> systemd-analyze security meuservico.service</pre>
+      </section>
+      <div class="unidade">
+        <b>O sandbox que cabe num arquivo de unidade</b>
+<pre>[Service]
+User=meuservico
+<s>NoNewPrivileges</s>=yes            <em># fecha o SUID</em>
+<s>CapabilityBoundingSet</s>=CAP_NET_BIND_SERVICE
+<s>AmbientCapabilities</s>=CAP_NET_BIND_SERVICE
+<s>ProtectSystem</s>=strict          <em># tudo só-leitura</em>
+<s>ProtectHome</s>=yes               <em># /home e /root somem</em>
+<s>PrivateTmp</s>=yes                <em># /tmp só dele</em>
+<s>StateDirectory</s>=meuservico     <em># o único gravável</em>
+<s>ProtectKernelTunables</s>=yes     <em># /proc/sys travado</em>
+<s>ProtectKernelModules</s>=yes      <em># não carrega módulo</em>
+<s>PrivateDevices</s>=yes            <em># só /dev/null e cia.</em>
+<s>ProtectProc</s>=invisible         <em># não vê outro PID</em>
+<s>RestrictNamespaces</s>=yes
+<s>MemoryDenyWriteExecute</s>=yes
+<s>SystemCallFilter</s>=@system-service</pre>
+        <div class="regra" style="margin-top:4px">Por baixo são <i>namespaces</i>, cgroups e seccomp — os mecanismos do contêiner, <b>em forma declarativa e sem tocar no código</b>. <b>Aperte o parafuso aos poucos, com <code>journalctl -fu</code> aberto:</b> essas diretivas quebram serviço de forma opaca.</div>
+      </div>
+    </div>
+    <div class="perigo"><b>Nunca conceda capability (nem SUID, nem regra de <code class="inl">sudo</code>) a um interpretador.</b> Um <code class="inl">setcap cap_setuid=+ep /usr/bin/python3</code> transforma o Python numa máquina de escalada de duas linhas: <code class="inl">import os; os.setuid(0); os.system("/bin/bash")</code> — e qualquer usuário vira <code class="inl">root</code>. Vale para <code class="inl">perl</code>, <code class="inl">node</code>, <code class="inl">gdb</code> e todo programa com escape para shell: <code class="inl">NOPASSWD: /usr/bin/find</code> parece restrito e não é, porque <code class="inl">find . -exec /bin/sh \;</code> é um shell como <code class="inl">root</code>. <b>Privilégio dado a quem executa código arbitrário é privilégio irrestrito</b> — metade da escalada local que existe cabe nessa frase.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O kernel quebrou <code class="inl">root</code> em ~40 peças verificadas independentemente.</b> O <code class="inl">ping</code> moderno tem <code class="inl">cap_net_raw</code> e mais nada.</li>
+        <li><b>A quebra não é uniforme:</b> <code class="inl">cap_sys_admin</code>, <code class="inl">cap_sys_module</code>, <code class="inl">cap_dac_override</code> e <code class="inl">cap_setuid</code> são <code class="inl">root</code> por caminho mais longo.</li>
+        <li><b>Capability vai em binário que faz uma coisa só</b>, com entrada controlada — nunca em interpretador.</li>
+        <li><b><code class="inl">no_new_privs</code> apaga a escalada por SUID</b> em toda a árvore de processos, e é de mão única. É a base de todo sandbox moderno.</li>
+        <li><b>Copiar um arquivo não copia sua capability</b> — nem o bit SUID. Bom lembrete ao empacotar ou restaurar backup.</li>
+        <li><b><code class="inl">systemd-analyze security</code> dá nota a cada serviço</b> e converte "deveríamos endurecer isso" em lista priorizada.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Kali é um museu vivo de capability aplicada certo</b>, porque as ferramentas de rede precisam de privilégio e não podem ser SUID: <code class="inl">sudo getcap -r /usr</code> mostra o <code class="inl">dumpcap</code> com <code class="inl">cap_net_raw,cap_net_admin=eip</code> — a peça que deixa o Wireshark capturar com o usuário <code class="inl">kali</code>. <b><code class="inl">sudo dpkg-reconfigure wireshark-common</code> é a decisão certa</b> para capturar sem <code class="inl">sudo</code>: cria o grupo <code class="inl">wireshark</code>, dá a capability só ao <code class="inl">dumpcap</code> e restringe a execução ao grupo. Rodar o Wireshark inteiro como <code class="inl">root</code> exporia um decodificador gigantesco — generoso em CVEs — a tráfego arbitrário, com privilégio total. É o exemplo didático perfeito: privilégio mínimo, no menor componente, pelo menor tempo. <b>O <code class="inl">nmap</code> moderno não é SUID, e isso muda o resultado:</b> <code class="inl">nmap -sS</code> precisa de socket cru e, sem <code class="inl">CAP_NET_RAW</code> ou <code class="inl">sudo</code>, cai <b>em silêncio</b> para <code class="inl">-sT</code> (<code class="inl">connect()</code>) — mais lento, mais barulhento no log do alvo e com resultado diferente. Ver o <code class="inl">nmap</code> "funcionando" e devolvendo coisa estranha quase sempre é isto. <b>Enumerar capability e SUID é etapa padrão de pós-exploração — por isso enumere primeiro na sua máquina:</b> <code class="inl">sudo getcap -r /</code> e <code class="inl">sudo find / -perm -4000 -type f</code> levam dez segundos e respondem a pergunta que importa; é o que o <code class="inl">linpeas</code> faz. Contra sistema de terceiro sem autorização escrita, é crime pela Lei 12.737/2012. <b><code class="inl">systemd-analyze security</code> na sua VM é uma revelação desconfortável</b> — vários serviços comuns passam de 8. Num laboratório nem todos precisam ser corrigidos, mas o exercício ensina a ler o placar, e o mesmo comando em produção vira lista de tarefas. <b>RHEL:</b> capabilities e diretivas do systemd são idênticas (são do kernel), mas o SELinux empilha por cima — um <code class="inl">httpd_t</code> com todas as capabilities do mundo continua sem ler <code class="inl">/home</code> se a política não permitir. Duas verificações desacopladas: o invasor precisa das duas.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 14 · Fase 4 <span class="n">087</span></span>
