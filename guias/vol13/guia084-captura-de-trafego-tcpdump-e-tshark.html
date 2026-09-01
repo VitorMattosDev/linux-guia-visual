@@ -3,101 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 084 — Captura de tráfego: tcpdump e tshark</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: o que o TLS esconde ---- */
+  .pilha { display:flex; flex-direction:column; gap:3px; }
+  .pl { display:grid; grid-template-columns:1fr 104px; gap:8px; align-items:center;
+        border:1.5px solid; border-radius:var(--raio-sm); padding:4px 8px; }
+  .pl > div { font-size:8.4px; line-height:1.2; color:var(--tinta); }
+  .pl code { font-family:var(--fonte-mono); font-size:8.2px; font-weight:700; }
+  .pl > em { font-style:normal; font-family:var(--fonte-titulo); font-size:8.6px;
+             text-transform:uppercase; letter-spacing:.03em; text-align:right; }
+  .pl > em i { display:block; font-style:normal; font-family:var(--fonte-texto);
+               font-size:7px; font-weight:400; text-transform:none; letter-spacing:0; }
+  .pl.v { border-color:var(--verde); background:var(--verde-claro); }
+  .pl.v code, .pl.v > em { color:#1d7038; }
+  .pl.y { border-color:var(--laranja); background:var(--laranja-claro); }
+  .pl.y code, .pl.y > em { color:#a8530a; }
+  .pl.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .pl.r code, .pl.r > em { color:var(--vermelho); }
+
+  /* ---- figura 2: flags e os padrões ---- */
+  .flags { display:flex; gap:4px; flex-wrap:wrap; }
+  .fl { border:1px solid var(--linha); background:#fff; border-radius:4px; padding:2px 5px;
+        font-size:7.7px; color:var(--tinta-suave); line-height:1.2; }
+  .fl b { font-family:var(--fonte-mono); font-size:8.4px; color:var(--navy); }
+  .cen { display:grid; grid-template-columns:96px 1fr; gap:7px; align-items:center;
+         border-left:3px solid; border-radius:0 var(--raio-sm) var(--raio-sm) 0;
+         padding:3px 7px; margin-top:3px; }
+  .cen > b { font-family:var(--fonte-titulo); font-size:8.6px; text-transform:uppercase;
+             letter-spacing:.03em; line-height:1.15; }
+  .cen span { font-size:7.8px; line-height:1.22; color:var(--tinta-suave); }
+  .cen span code { font-family:var(--fonte-mono); font-size:8.4px; font-weight:700; color:var(--navy); }
+  .cen.v { border-color:var(--verde); background:var(--verde-claro); } .cen.v > b { color:#1d7038; }
+  .cen.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .cen.r > b { color:var(--vermelho); }
+  .cen.l { border-color:var(--laranja); background:var(--laranja-claro); } .cen.l > b { color:#a8530a; }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1.26fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.6px; line-height:1.28; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+          letter-spacing:.03em; color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:5px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:52px 1fr; gap:6px; align-items:baseline;
+              font-size:8.1px; line-height:1.22; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700;
+                font-size:8.1px; color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8px; color:var(--navy); font-weight:600; }
+
+  .guia { gap:5mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:11px; line-height:1.34; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:8.35px; line-height:1.26; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:3px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 084</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Captura de tráfego: tcpdump e tshark</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Captura de tráfego:<br>tcpdump e tshark</h1>
+      <div class="sub">O log da aplicação dizia "falha na requisição"; o da API não registrava requisição alguma. <b>As duas equipes estavam certas</b> — o problema estava no fio. Um <code class="inl">tcpdump</code> mostrou três <code class="inl">[S]</code> saindo e nenhum <code class="inl">[S.]</code> voltando: <b>quando os logs de ponta discordam, o tráfego é o árbitro que não mente.</b></div>
     </div>
     <div class="badge"><b>084</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O que a captura mostra — e a fronteira exata onde o TLS começa</div>
+    <div class="pilha" style="margin-top:4px">
+      <div class="pl v"><div><code>cab. Ethernet</code> — MAC de origem e destino</div><em>visível</em></div>
+      <div class="pl v"><div><code>cab. IP</code> — <b>quem fala com quem</b>, endereços de origem e destino</div><em>visível</em></div>
+      <div class="pl v"><div><code>cab. TCP</code> — portas, flags, número de sequência</div><em>visível</em></div>
+      <div class="pl y"><div><code>TLS ClientHello</code> — <b>SNI: o nome do site visitado</b>, ainda em claro</div><em>visível<i>metadado</i></em></div>
+      <div class="pl r"><div><code>dados HTTP</code> — URL, cabeçalhos, cookies, corpo, senha</div><em>cifrado</em></div>
+    </div>
+    <div class="regra"><b>O TLS protege o conteúdo, não a existência da conversa.</b> Sem quebrar cifra nenhuma, uma captura revela <b>quem</b> falou com <b>quem</b>, <b>quando</b>, <b>quanto</b> e — pelo SNI — <b>qual site</b>. Para mapear infraestrutura, detectar exfiltração ou identificar comunicação com um servidor de controle, o metadado basta. Conteúdo em claro só aparece em protocolo sem TLS (HTTP simples, FTP, Telnet, DNS tradicional) — daí o valor num diagnóstico e o risco numa rede hostil.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Ler as flags: o handshake e os dois padrões de falha</div>
+    <div class="flags" style="margin-top:4px">
+      <span class="fl"><b>[S]</b> SYN · abrindo</span>
+      <span class="fl"><b>[S.]</b> SYN-ACK · aceitando</span>
+      <span class="fl"><b>[.]</b> ACK · confirmação</span>
+      <span class="fl"><b>[P.]</b> PSH-ACK · dado entregue</span>
+      <span class="fl"><b>[F.]</b> FIN-ACK · fecha ordenado</span>
+      <span class="fl"><b>[R]</b> RST · recusa ou aborto</span>
+    </div>
+    <div class="cen v">
+      <b>saudável</b>
+      <span><code>[S] → [S.] → [.]</code> — o handshake de três vias completo. Depois vem <code>[P.]</code> (dados) e <code>[F.]</code> no fim. Handshake completo seguido de silêncio já <b>não é problema de rede</b>: é a aplicação.</span>
+    </div>
+    <div class="cen l">
+      <b>só SYN, repetido</b>
+      <span><code>[S] [S] [S]</code> sem nenhum <code>[S.]</code> — <b>ninguém respondeu</b>. Firewall descartando em silêncio ou destino fora do ar. Foi o caso da abertura.</span>
+    </div>
+    <div class="cen r">
+      <b>reset imediato</b>
+      <span><code>[S] → [R.]</code> — <b>recusa ativa</b>: a máquina está viva e respondeu dizendo que ninguém escuta naquela porta. Silêncio é firewall; <code>[R]</code> é porta fechada em host vivo.</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">tcpdump captura, tshark analisa</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> sudo tcpdump -i any -n 'host 10.0.0.80 and port 443'
+<span class="out">10.0.0.20.52014 &gt; 10.0.0.80.443: Flags [S], seq 998...
+10.0.0.20.52014 &gt; 10.0.0.80.443: Flags [S], seq 998...
+10.0.0.20.52014 &gt; 10.0.0.80.443: Flags [S], seq 998...</span>
+<span class="cmt"># -n NÃO resolve nomes: a resolução reversa gera tráfego DNS
+# que polui a própria captura e a deixa lentíssima.</span>
+<span class="prompt">$</span> sudo tcpdump -i any -n -w caso.pcap host 10.0.0.80
+<span class="cmt"># grava o tráfego bruto; analise depois, com calma</span>
+<span class="prompt">$</span> tshark -r caso.pcap -Y 'http.request.method == "POST"' \
+    -T fields -e ip.src -e http.host -e http.request.uri
+<span class="prompt">$</span> tshark -r caso.pcap -q -z conv,tcp   <span class="cmt"># conversas</span>
+<span class="prompt">$</span> tshark -r caso.pcap -q -z io,phs     <span class="cmt"># protocolos</span>
+<span class="cmt"># capturar no servidor e ver no desktop, num cano só:</span>
+<span class="prompt">$</span> ssh srv 'sudo tcpdump -i any -U -w - -n not port 22' \
+    | wireshark -k -i -</pre>
+      </section>
+      <div>
+        <p class="sub2">BPF: o filtro que salva a captura</p>
+        <ul class="lista">
+          <li><i>eixos</i><span><code>host</code>/<code>net</code> · <code>src</code>/<code>dst</code> · <code>tcp</code>/<code>udp port</code>, combinados com <code>and</code>, <code>or</code>, <code>not</code></span></li>
+          <li><i>exemplo</i><span><code>'tcp and not port 22'</code> — tudo menos o seu próprio SSH</span></li>
+          <li><i>só SYN</i><span><code>'tcp[tcpflags] &amp; (tcp-syn|tcp-ack) == tcp-syn'</code>: quem tenta conectar aonde</span></li>
+          <li><i>só RST</i><span><code>'tcp[tcpflags] &amp; tcp-rst != 0'</code>: conexões recusadas</span></li>
+        </ul>
+        <div class="regra"><b>Filtro de captura (BPF) e filtro de exibição são linguagens diferentes.</b> O BPF (<code>tcp port 443</code>, no <code>tcpdump</code> e no <code>tshark -f</code>) decide o que <b>entra</b> na captura, e roda no kernel — barato mesmo sob carga. O de exibição (<code>http.request.method == "POST"</code>, no <code>-Y</code>) filtra o que <b>já foi</b> capturado e é muito mais expressivo. Trocar um pelo outro é o erro mais comum, e a mensagem de erro não deixa óbvio qual foi.</div>
+      </div>
+    </div>
+    <div class="perigo"><b>Capture apenas em rede própria ou com autorização escrita.</b> Em rede de terceiros, o mesmo comando é interceptação de comunicação alheia — com o enquadramento da Lei 12.737/2012 e da legislação de sigilo das comunicações. A diferença entre auditoria e crime não está no binário, está na autorização. <b>E um <code class="inl">.pcap</code> é dado sensível de altíssimo valor:</b> tráfego sem TLS carrega senha, cookie de sessão e conteúdo privado em claro. Trate-o como um dump de credenciais — <code class="inl">umask 077</code>, cifra em repouso, <code class="inl">shred -u</code> ao descartar. Um <code class="inl">.pcap</code> esquecido em <code class="inl">/tmp</code> é vazamento.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Quando os logs das duas pontas discordam, a captura é o árbitro</b> — ela mostra o que de fato passou no fio.</li>
+        <li><b>O TLS esconde o conteúdo, não a conversa:</b> endereços, portas, tamanhos, tempos e o SNI ficam visíveis.</li>
+        <li><b><code class="inl">[S]</code> sem <code class="inl">[S.]</code> é firewall ou host morto; <code class="inl">[R]</code> é recusa ativa</b> num host vivo. Reconhecer os dois resolve a maioria dos casos.</li>
+        <li><b><code class="inl">-n</code> sempre:</b> resolver nomes polui a captura com o próprio DNS e a deixa lentíssima.</li>
+        <li><b><code class="inl">tcpdump -w</code> captura, Wireshark/<code class="inl">tshark</code> analisa</b> — e <code class="inl">-T fields -e</code> transforma a captura numa fonte tabular para <code class="inl">awk</code> e <code class="inl">sort</code>.</li>
+        <li><b>Filtro estreito desde o início:</b> arquivo pequeno, análise focada e nada capturado além do necessário.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>A captura é reconhecimento passivo puro:</b> em rede autorizada, o <code class="inl">tcpdump</code> mapeia hosts, serviços e padrões de comunicação <b>sem enviar um único pacote</b> — invisível para o alvo. A legalidade é definida pela rede, não pela ferramenta. <b>Modo promíscuo não vence a comutação:</b> numa rede com switch a interface só vê o que é dela e o broadcast, então capturar o tráfego de outra máquina exige espelhamento de porta, um <i>tap</i> ou um ataque ativo de camada 2 (ARP spoofing) — que é intrusivo e já não é passivo. Em Wi-Fi aberto o modo monitor vê tudo do ar; em Wi-Fi cifrado, só metadados de rádio. <b>A captura é a prova contra o host que mente:</b> um <code class="inl">ss</code> ou um <code class="inl">iptables -L</code> rodados numa máquina comprometida podem ter sido adulterados por um rootkit de espaço de usuário — a captura feita <b>de fora</b> vê o tráfego real, incluindo a conexão de saída para o servidor de controle que o host esconde. É por isso que investigação séria de comprometimento não confia só no que a máquina relata sobre si. <b>Filtro estreito é discrição, não só conveniência:</b> capturar tudo num engajamento gera arquivo gigante cheio de dados de terceiros possivelmente fora do escopo — um <code class="inl">host &lt;alvo&gt; and port &lt;serviço&gt;</code> coleta só o que o contrato permite. <b>RHEL:</b> o <code class="inl">tshark</code> vem em <code class="inl">wireshark-cli</code>, a captura sem root é gerida pelo grupo <code class="inl">wireshark</code>, e o SELinux pode negar a escrita do <code class="inl">.pcap</code> fora de <code class="inl">/tmp</code> ou do home sem dizer que é SELinux.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 13 · Fase 4 <span class="n">084</span></span>
