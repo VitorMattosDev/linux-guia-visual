@@ -3,101 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 067 — awk: processamento por campos e registros</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Registro dividido em campos */
+  .reg { display:grid;
+         grid-template-columns:1.7fr .4fr .4fr 3.2fr 1.1fr .85fr 1.8fr 1.5fr .7fr .9fr;
+         gap:3px; }
+  .cp { border:1.5px solid var(--azul); background:var(--azul-claro); color:var(--navy);
+        border-radius:4px; font-family:var(--fonte-mono); font-size:9px; font-weight:700;
+        text-align:center; padding:4px 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cp.al { border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); }
+  .cp.uf { border-color:var(--verde); background:var(--verde-claro); color:#1d7038; }
+  .vr { text-align:center; font-family:var(--fonte-mono); font-size:8.5px; font-weight:700;
+        color:var(--azul); padding-top:2px; }
+  .vr.al { color:var(--vermelho); } .vr.uf { color:#1d7038; }
+  .chave { border-top:1.5px solid #b9c6d6; margin-top:2px; padding-top:2px; text-align:center;
+           font-family:var(--fonte-mono); font-size:8.5px; color:var(--tinta-suave); }
+  .chave b { color:var(--navy); }
+
+  .vars { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:6px; }
+  .vv { border-left:3px solid var(--roxo); background:var(--roxo-claro); border-radius:3px;
+        padding:3px 6px; font-size:8.3px; line-height:1.3; color:var(--tinta-suave); }
+  .vv > b:first-child { display:block; font-family:var(--fonte-mono); font-size:9.5px; color:var(--roxo); }
+  .vv b { color:var(--navy); }
+
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+
+  .grade2 { display:grid; grid-template-columns:1.15fr 1fr; gap:9px; align-items:start; }
+
+  /* Agregação */
+  .agr { display:grid; grid-template-columns:1fr 14px 1fr; align-items:center; gap:0; }
+  .lin { display:flex; flex-direction:column; gap:2px; }
+  .lin span { border:1px solid #cdd8e4; background:var(--papel-tint); border-radius:3px;
+              font-family:var(--fonte-mono); font-size:7.6px; padding:2px 4px; color:var(--tinta-suave); }
+  .lin span b { color:var(--navy); }
+  .kv { display:grid; grid-template-columns:1.4fr 1fr; gap:2px; }
+  .kv i { font-family:var(--fonte-mono); font-style:normal; font-size:7.6px; padding:2px 4px;
+          border:1px solid var(--azul); background:var(--azul-claro); color:var(--navy);
+          border-radius:3px; text-align:center; }
+  .kv u { font-family:var(--fonte-mono); text-decoration:none; font-size:7.6px; padding:2px 4px;
+          border:1px solid var(--verde); background:var(--verde-claro); color:#1d7038;
+          border-radius:3px; text-align:center; font-weight:700; }
+  .regra { font-family:var(--fonte-mono); font-size:9.5px; font-weight:700; color:#1d7038;
+           text-align:center; background:var(--verde-claro); border:1.5px solid var(--verde);
+           border-radius:4px; padding:3px; margin:5px 0; }
+  .fim { font-family:var(--fonte-mono); font-size:9px; color:#a8530a; text-align:center;
+         background:var(--laranja-claro); border:1.5px solid var(--laranja); border-radius:4px;
+         padding:3px; margin-top:5px; }
+  .fim b { display:block; font-size:8.3px; color:var(--tinta-suave); font-family:var(--fonte-texto);
+           font-weight:400; margin-top:2px; }
+
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:124px 1fr; gap:6px; align-items:baseline;
+              font-size:8.4px; line-height:1.3; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:9px;
+                color:var(--azul); }
+  .lista li b { color:var(--navy); }
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .trapbox { border-left:4px solid var(--laranja); background:var(--laranja-claro);
+        border-radius:var(--raio-sm); padding:5px 8px; margin-top:6px;
+        font-size:8.6px; line-height:1.35; color:var(--tinta-suave); }
+  .trapbox b { color:#a8530a; }
+  .trapbox .fix { color:#1d7038; font-weight:700; font-family:var(--fonte-mono); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 067</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>awk: processamento por campos e registros</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>awk<br>campos e registros</h1>
+      <div class="sub">Quanto tráfego cada endereço consumiu no dia? O <code class="inl">cut -d' ' -f1,10</code> saiu <b>quase</b> certo — e "quase" é o problema: ele corta em <b>cada</b> espaço, então um espaço duplo desloca tudo, e a requisição entre aspas virou três campos. Pior: o <code class="inl">cut</code> extrai, mas <b>não soma</b>. O <code class="inl">awk</code> divide sozinho, tem aritmética, tem tabela associativa e tem um lugar para rodar <i>depois</i> da última linha. É a ferramenta entre <b>"o <code class="inl">grep</code> não dá conta"</b> e <b>"vou escrever em Python"</b>.</div>
     </div>
     <div class="badge"><b>067</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Registro, campo e o laço implícito</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="reg">
+      <span class="cp">10.0.0.14</span><span class="cp">-</span><span class="cp">-</span>
+      <span class="cp al">[14/Jul/2026:09:22:01</span><span class="cp al">-0300]</span>
+      <span class="cp al">"GET</span><span class="cp al">/index.html</span><span class="cp al">HTTP/1.1"</span>
+      <span class="cp">200</span><span class="cp uf">5120</span>
+      <span class="vr">$1</span><span class="vr">$2</span><span class="vr">$3</span>
+      <span class="vr al">$4</span><span class="vr al">$5</span><span class="vr al">$6</span>
+      <span class="vr al">$7</span><span class="vr al">$8</span><span class="vr">$9</span>
+      <span class="vr uf">$10 = $NF</span>
+    </div>
+    <div class="chave">│───────────────────&nbsp; <b>$0</b> &mdash; o registro inteiro &nbsp;────────────────────│</div>
+    <div class="vars">
+      <div class="vv"><b>NF · $NF</b>Quantos campos tem este registro, e o <b>último</b> campo — evita contar coluna na mão e sobrevive a um log com uma coluna a mais.</div>
+      <div class="vv"><b>NR · FNR</b>Número do registro desde o início; o <code class="inl">FNR</code> <b>reinicia a cada arquivo</b> (e <code class="inl">FILENAME</code> diz qual é).</div>
+      <div class="vv"><b>FS · OFS</b>Como dividir na entrada e como <b>juntar</b> na saída. <code class="inl">RS</code>/<code class="inl">ORS</code> fazem o mesmo para registros.</div>
+      <div class="vv"><b>padrão { ação }</b>Padrão sem ação → <code class="inl">print $0</code>. Ação sem padrão → <b>roda em toda linha</b>. Daí <code class="inl">awk '/ERRO/'</code> ser um <code class="inl">grep</code> e <code class="inl">awk '{print}'</code> ser um <code class="inl">cat</code>.</div>
+    </div>
+    <div class="nota"><b>Repare nos campos em vermelho.</b> A data entre colchetes tem um espaço antes do fuso, então ocupa <b>dois</b> campos — e a requisição entre aspas ocupa <b>três</b>. Nem o <code class="inl">awk</code> entende aspas ou colchetes por conta própria: ele divide por espaço em branco e mais nada. <b>A diferença para o <code class="inl">cut</code></b> é que o <code class="inl">awk</code> trata <i>qualquer sequência</i> de espaços como um separador só, enquanto o <code class="inl">cut</code> conta cada espaço. Para campos delimitados, mude o <code class="inl">FS</code> — ele aceita <b>expressão regular</b> quando tem mais de um caractere: <code class="inl">-F'[,;]'</code>, <code class="inl">-F'\t'</code>, <code class="inl">-F'" "</code>. Cuidado com um caso especial: <code class="inl">FS=" "</code> (o padrão) é "sequências de espaço, ignorando as das bordas"; <code class="inl">FS="[ ]"</code> é "exatamente um espaço". E o <code class="inl">OFS</code> <b>só entra em vigor quando <code class="inl">$0</code> é reconstruído</b> — daí o idioma obscuro <code class="inl">{ $1=$1; print }</code>, uma atribuição que não muda nada e força a reconstrução.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Agregação com array associativo — a razão de o awk existir</div>
+  <section class="grade2">
+    <div>
+      <div class="agr">
+        <div class="lin">
+          <span><b>10.0.0.14</b> … 200 5120</span>
+          <span><b>10.0.0.14</b> … 404 512</span>
+          <span><b>192.168.1.9</b> … 200 8192</span>
+          <span><b>10.0.0.14</b> … 200 1024</span>
+          <span><b>192.168.1.9</b> … 500 64</span>
+        </div>
+        <span style="text-align:center;color:#8fa3ba;font-weight:700">→</span>
+        <div class="kv">
+          <i>10.0.0.14</i><u>5120</u>
+          <i>10.0.0.14</i><u>5632</u>
+          <i>192.168.1.9</i><u>8192</u>
+          <i>10.0.0.14</i><u>6656</u>
+          <i>192.168.1.9</i><u>8256</u>
+        </div>
+      </div>
+      <div class="regra">{ soma[$1] += $NF }</div>
+      <div class="fim">END { for (ip in soma) print soma[ip], ip }<b>o mesmo par chave/valor sendo atualizado — não linhas novas</b></div>
+      <div class="nota" style="margin-top:5px">Três coisas são automáticas e é por isso que a agregação cabe em duas regras: <b>o array nasce sozinho</b>, <b>chave inexistente vale zero</b> na primeira soma e o <code class="inl">END</code> alcança tudo o que sobreviveu ao laço. O custo é <b>memória</b>: uma entrada por chave distinta — agregar por endereço num log de milhões de linhas é barato (poucos milhares de chaves); por URL completa com parâmetros pode consumir gigabytes. E <b>a ordem de <code class="inl">for (k in a)</code> é arbitrária</b>: ordene depois, com <code class="inl">sort -rn</code>.</div>
+      <div class="trapbox"><b><code class="inl">awk '!visto[$0]++'</code> deduplica preservando a ordem</b> — o que o <code class="inl">sort -u</code> não faz. É padrão sem ação (logo, imprime): <code class="inl">visto[$0]++</code> devolve o valor <b>antes</b> de incrementar — zero na primeira aparição (falso, negado vira verdadeiro, imprime) e ≥1 nas seguintes. <b>E um detalhe que morde:</b> <code class="inl">if (tab[k] == "")</code> <b>cria</b> a chave como efeito colateral do acesso; para testar sem criar, <span class="fix">if (k in tab)</span>. <code class="inl">length(arr)</code> dá o número de chaves e <code class="inl">delete tab[k]</code> remove uma.</div>
+    </div>
+    <div>
+      <p class="sub2">Padrões: quais registros interessam</p>
+      <ul class="lista">
+        <li><i>$3 ~ /^ERRO/</i><span>padrão sobre <b>um campo</b> (<code class="inl">!~</code> nega) — não sobre a linha toda</span></li>
+        <li><i>$9 &gt;= 400</i><span>comparação <b>numérica</b>: não confunde status com trecho de URL</span></li>
+        <li><i>NR &gt; 1</i><span>pula o cabeçalho · <code class="inl">NF == 0</code> pega linha vazia</span></li>
+        <li><i>BEGIN { }</i><span>antes da 1ª linha: separadores e cabeçalho. Só com <code class="inl">BEGIN</code>, nem lê a entrada — <code class="inl">awk 'BEGIN{print 3*7}'</code> é calculadora</span></li>
+        <li><i>END { }</i><span>depois da última: é onde sai o total</span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">Ações e funções</p>
+      <ul class="lista">
+        <li><i>total += $9</i><span>variável não se declara e <b>nova vale zero</b></span></li>
+        <li><i>print $1, $2</i><span>a vírgula insere o <code class="inl">OFS</code>; <b>sem vírgula, gruda</b> (justaposição é concatenação)</span></li>
+        <li><i>printf "%-15s\n"</i><span>o mesmo do shell, <b>sem quebra de linha automática</b></span></li>
+        <li><i>substr · split</i><span>índices começam em <b>1</b> — a pegadinha de quem alterna com array do Bash</span></li>
+        <li><i>sub · gsub</i><span>primeira · todas as ocorrências · <code class="inl">match</code> preenche <code class="inl">RSTART</code>/<code class="inl">RLENGTH</code></span></li>
+        <li><i>next · exit</i><span>pula o registro · encerra a leitura (<b>mas ainda roda o <code class="inl">END</code></b>)</span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">FNR==NR: junção de dois arquivos</p>
+      <div class="nota" style="margin-top:0"><code class="inl">awk 'FNR==NR { ioc[$1]=1; next } $1 in ioc { print "SUSPEITO:", $0 }' iocs.txt acesso.log</code> — o <code class="inl">FNR==NR</code> é verdadeiro <b>apenas durante o primeiro arquivo</b>, o que permite carregar uma tabela e depois consultá-la. É junção sem banco de dados, e resolve uma classe inteira de problemas que viraria laço aninhado com <code class="inl">grep</code>. <b>Qual <code class="inl">awk</code> está instalado importa:</b> no Kali/Debian costuma ser o <code class="inl">mawk</code> (rápido, enxuto); no RHEL é o <code class="inl">gawk</code>, que tem <code class="inl">gensub()</code>, <code class="inl">IGNORECASE</code>, <code class="inl">asort()</code> e <code class="inl">RS</code> como expressão regular. Confira com <code class="inl">awk --version</code>; se o script depende de extensão, o <i>shebang</i> é <code class="inl">#!/usr/bin/gawk -f</code>.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Nunca monte o programa <code class="inl">awk</code> por interpolação do shell — e cuidado com <code class="inl">system()</code>.</b> Escrever <code class="inl">awk "\$1 == \"$IP\""</code> funciona até o dia em que a variável tiver uma aspa: aí o valor <b>quebra a sintaxe</b>, e um valor hostil <b>executa o que quiser</b>. A forma segura existe para isso: <code class="inl">awk -v alvo="$IP" -v limite=400 '$1 == alvo &amp;&amp; $9 &gt;= limite'</code>. Pelo mesmo motivo, <code class="inl">system("…")</code> e <code class="inl">print | "comando"</code> montados a partir de dado vindo do alvo — nome de host, <i>banner</i> de serviço, cabeçalho HTTP — são <b>injeção de comando</b> com o privilégio de quem rodou o <code class="inl">awk</code>. Se precisa disparar comando por linha, <b>imprima a lista e passe para o <code class="inl">xargs</code></b>, que não interpreta o conteúdo como shell.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Lê registro a registro e divide em campos sozinho</b>, tratando sequências de espaço como um separador só — o que o <code class="inl">cut</code> não faz.</li>
+        <li><b>A estrutura é <code class="inl">padrão { ação }</code>.</b> Padrão sem ação imprime a linha; ação sem padrão roda em todas. <code class="inl">BEGIN</code> antes da primeira, <code class="inl">END</code> depois da última.</li>
+        <li><b><code class="inl">$0</code> é o registro inteiro, <code class="inl">$1..$NF</code> os campos, <code class="inl">NF</code> a quantidade, <code class="inl">NR</code> o número do registro</b> e <code class="inl">FNR</code> o número dentro do arquivo atual.</li>
+        <li><b><code class="inl">-F</code> define o separador e aceita expressão regular.</b> O <code class="inl">OFS</code> só vale quando <code class="inl">$0</code> é reconstruído — daí <code class="inl">$1=$1</code>.</li>
+        <li><b>Variável não se declara e vale zero quando nova</b>, o que faz de <code class="inl">soma[$1] += $NF</code> uma agregação completa.</li>
+        <li><b>Todo array é associativo.</b> <code class="inl">!visto[$0]++</code> deduplica na ordem original; <code class="inl">k in tab</code> testa sem criar a chave; a ordem de <code class="inl">for</code> é arbitrária.</li>
+        <li><b><code class="inl">FNR==NR</code> é o idioma de junção de dois arquivos.</b></li>
+        <li><b>Valor de fora entra com <code class="inl">-v</code></b>, nunca por interpolação. E <code class="inl">substr</code>/<code class="inl">split</code> contam a partir de <b>1</b>.</li>
+        <li><b>Quando precisar de array de arrays, pare:</b> a resposta é Python.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Somar e agrupar saída de varredura é o uso diário.</b> Depois de <code class="inl">nmap -oG - alvo/24 &gt; varredura.gnmap</code>, um <code class="inl">awk '{ portas[$NF]++ } END { for (p in portas) print portas[p], p }' | sort -rn</code> diz qual porta é a mais comum na rede — <b>contar antes de olhar economiza horas</b> de leitura de relatório. <b><code class="inl">FNR==NR</code> cruza escopo com resultado</b>, e essa é a aplicação que evita problema jurídico: com um arquivo de hosts autorizados pelo contrato e outro com o que a varredura encontrou, <code class="inl">awk 'FNR==NR{ok[$1]=1;next} !($1 in ok) { print "FORA DO ESCOPO:", $1 }' escopo.txt achados.txt</code> sinaliza cada host que não deveria ter sido tocado. <b>Rodar isso antes da varredura, sobre a lista de alvos, é melhor ainda</b> — varrer fora do escopo contratado é acesso não autorizado, com as consequências da <b>Lei 12.737/2012</b>. <b>Detecção de anomalia é agregação simples:</b> <code class="inl">awk '$6 ~ /Failed/ { falhas[$NF]++ } END { for (ip in falhas) if (falhas[ip] &gt; 20) print falhas[ip], ip }' /var/log/auth.log</code> lista os endereços com mais de vinte falhas de autenticação — a mesma lógica de um <code class="inl">fail2ban</code> rudimentar, útil tanto para defender o próprio host quanto para <b>documentar o ruído que o teste gerou no alvo</b>. <b>E o <code class="inl">awk</code> é o desempacotador de formato esquisito:</b> saída de <code class="inl">enum4linux</code>, de <code class="inl">smbclient</code> e de ferramenta antiga raramente é CSV ou JSON — um <code class="inl">-F</code> bem escolhido mais <code class="inl">split()</code> e <code class="inl">substr()</code> transformam aquilo em colunas que o <code class="inl">sort</code> e o <code class="inl">uniq</code> entendem. Num contêiner mínimo ou em firmware embarcado, o que existe é o <code class="inl">busybox awk</code>, ainda mais limitado: atenha-se ao POSIX (<code class="inl">sub</code>, <code class="inl">gsub</code>, <code class="inl">split</code>, <code class="inl">substr</code>, <code class="inl">printf</code>) e nada de <code class="inl">RS</code> multicaractere.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 11 · Fase 3 <span class="n">067</span></span>
