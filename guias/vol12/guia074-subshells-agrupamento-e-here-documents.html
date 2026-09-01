@@ -3,101 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 074 — Subshells, agrupamento e here-documents</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* A fronteira do subshell */
+  .fronteira { display:grid; grid-template-columns:1fr 92px 1fr; gap:0; align-items:center; }
+  .cx { border:1.5px solid; border-radius:var(--raio-sm); padding:6px 9px; }
+  .cx > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+            letter-spacing:.02em; margin-bottom:3px; }
+  .cx ul { list-style:none; }
+  .cx li { font-size:8.2px; line-height:1.32; color:var(--tinta-suave); font-family:var(--fonte-mono); }
+  .cx li span { font-family:var(--fonte-texto); }
+  .cx.pai { border-color:var(--azul); background:var(--azul-claro); } .cx.pai > b { color:var(--azul); }
+  .cx.sub { border-color:var(--laranja); background:var(--laranja-claro); } .cx.sub > b { color:#a8530a; }
+  .setas { display:flex; flex-direction:column; gap:8px; padding:0 4px; }
+  .st { text-align:center; font-size:7.6px; line-height:1.2; font-weight:700; }
+  .st .li { display:block; height:0; border-top:2px solid; margin:2px 0; position:relative; }
+  .st .li::after { content:""; position:absolute; top:-4px; width:0; height:0;
+                   border-top:4px solid transparent; border-bottom:4px solid transparent; }
+  .st.ida { color:#1d7038; } .st.ida .li { border-color:var(--verde); }
+  .st.ida .li::after { right:-1px; border-left:6px solid var(--verde); }
+  .st.volta { color:var(--vermelho); } .st.volta .li { border-color:var(--vermelho); }
+  .st.volta .li::after { left:-1px; border-right:6px solid var(--vermelho); }
+
+  /* ( ) x { } */
+  .vs { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:7px; }
+  .nota { font-size:8.5px; line-height:1.36; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.3px; color:var(--roxo); font-weight:600; }
+
+  /* Variantes de here-document */
+  .vars { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+  .vr { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 7px; position:relative; }
+  .vr > b { display:block; font-family:var(--fonte-mono); font-size:11px; font-weight:700; }
+  .vr .tag { position:absolute; top:-6px; right:6px; font-size:7px; font-weight:700; text-transform:uppercase;
+             letter-spacing:.04em; background:var(--papel); border:1px solid; border-radius:3px; padding:0 4px; }
+  .vr .ef { display:block; font-size:8.2px; font-weight:700; margin:2px 0 2px; }
+  .vr p { font-size:7.9px; line-height:1.28; color:var(--tinta-suave); }
+  .vr p code { font-family:var(--fonte-mono); font-size:7.9px; color:var(--navy); font-weight:600; }
+  .vr.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .vr.r > b, .vr.r .ef, .vr.r .tag { color:var(--vermelho); border-color:var(--vermelho); }
+  .vr.v { border-color:var(--verde); background:var(--verde-claro); }
+  .vr.v > b, .vr.v .ef, .vr.v .tag { color:#1d7038; border-color:var(--verde); }
+  .vr.a { border-color:var(--azul); background:var(--azul-claro); }
+  .vr.a > b, .vr.a .ef, .vr.a .tag { color:var(--azul); border-color:var(--azul); }
+  .vr.l { border-color:var(--laranja); background:var(--laranja-claro); }
+  .vr.l > b, .vr.l .ef, .vr.l .tag { color:#a8530a; border-color:var(--laranja); }
+
+  .grade2 { display:grid; grid-template-columns:1.2fr 1fr; gap:9px; align-items:start; margin-top:8px; }
+  .terminal pre { font-size:8.1px; line-height:1.42; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:6px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:74px 1fr; gap:6px; align-items:baseline;
+              font-size:8.2px; line-height:1.28; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.5px;
+                color:var(--roxo); word-break:break-all; }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8.1px; color:var(--navy); font-weight:600; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 074</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Subshells, agrupamento e here-documents</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Subshells, agrupamento<br>e here-documents</h1>
+      <div class="sub">O script de implantação tinha uma função com <code class="inl">cd "src/$1"</code> e <code class="inl">make</code>. O módulo <b>rede</b> compilou; <b>parser</b> e <b>interface</b> falharam com "diretório não encontrado". O <code class="inl">cd</code> dentro da função mudou o diretório do <b>script inteiro</b>, e a segunda chamada tentou entrar em <code class="inl">src/rede/src/parser</code>. A correção cabe em <b>dois caracteres</b>: <code class="inl">( cd "src/$1" &amp;&amp; make )</code>. Saber o que atravessa a fronteira de um subshell — e em que direção — separa quem escreve shell por hábito de quem escreve com intenção.</div>
     </div>
     <div class="badge"><b>074</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">A fronteira do subshell · e o agrupamento que não tem fronteira nenhuma</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="fronteira">
+      <div class="cx pai"><b>shell pai</b><ul>
+        <li>PWD=/projeto</li>
+        <li>contador=0</li>
+        <li>umask 022</li>
+        <li>trap limpar EXIT</li>
+        <li>opções: set -e</li>
+      </ul></div>
+      <div class="setas">
+        <div class="st ida">herda tudo<span class="li"></span>na entrada</div>
+        <div class="st volta">só o <b>código</b><span class="li"></span><b>de saída</b> volta</div>
+      </div>
+      <div class="cx sub"><b>subshell ( … )</b><ul>
+        <li><span>recebe <b>cópia</b> de tudo</span></li>
+        <li>cd /tmp <span>→ só aqui dentro</span></li>
+        <li>contador=99 <span>→ só aqui dentro</span></li>
+        <li>exit 1 <span>→ encerra só o subshell</span></li>
+        <li><span>traps de sinal voltam ao padrão</span></li>
+      </ul></div>
+    </div>
+
+    <div class="vs">
+      <div class="cx pai" style="border-color:var(--roxo); background:var(--roxo-claro)">
+        <b style="color:var(--roxo)">( comando1; comando2 ) — isola</b>
+        <ul><li><span>Use para <b>isolar <code>cd</code></b>, mudar <code>umask</code> ou opção do shell temporariamente, ou rodar algo em paralelo com <code>&amp;</code>. Cada um é um <b><code>fork</code></b>: custa.</span></li></ul>
+      </div>
+      <div class="cx pai" style="border-color:var(--verde); background:var(--verde-claro)">
+        <b style="color:#1d7038">{ comando1; comando2; } — agrupa</b>
+        <ul><li><span>Mesmo processo: <code>cd</code> e atribuição <b>persistem</b> e <code>exit</code> derruba o script. Exige <b>espaço depois do <code>{</code></b> e <b><code>;</code> antes do <code>}</code></b> — são palavras reservadas, não operadores.</span></li></ul>
+      </div>
+    </div>
+
+    <div class="nota"><b>Subshells nascem sem que você escreva parênteses:</b> em <b>cada estágio</b> de um pipeline (<code>a | b | c</code> são três), em toda substituição de comando <code>$(…)</code>, em todo comando posto em segundo plano com <code>&amp;</code> e em toda substituição de processo <code>&lt;(…)</code> / <code>&gt;(…)</code>. É a explicação de <code>n=0; seq 3 | while read x; do ((n++)); done; echo $n</code> imprimir <b><code>0</code></b>: o <code>while</code> rodou num processo que já morreu levando o <code>n</code> junto. <b>O uso legítimo do <code>{ }</code> é aplicar um redirecionamento, um <code>|</code> ou um <code>&amp;&amp;</code> a vários comandos de uma vez</b> — sem ele seria preciso repetir <code>&gt;&gt; relatorio.txt</code> em cada linha, e a primeira teria de ser <code>&gt;</code> para truncar, exatamente o tipo de assimetria que se erra. <b>E antes de abrir um subshell, verifique se existe uma expansão que faz o mesmo:</b> <code>$(&lt;arquivo)</code> é implementado internamente pelo Bash e não cria processo nenhum (contra dois em <code>$(cat arquivo)</code>); <code>${f%.log}</code> substitui <code>$(basename "$f" .log)</code>; <code>wc -l &lt; "$f"</code> substitui <code>cat "$f" | wc -l</code>. Num laço de dez mil iterações com três substituições cada, são <b>trinta mil processos</b> de diferença.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Here-documents e here-strings: as quatro variantes</div>
+  <section>
+    <div class="vars">
+      <div class="vr r"><span class="tag">expande</span><b>&lt;&lt;EOF</b>
+        <span class="ef">expande <code>$var</code>, <code>$(cmd)</code>, <code>\</code></span>
+        <p>Quando o bloco precisa de <b>valores do script</b>. Cuidado: um <code>$</code> literal no texto vira expansão sem aviso.</p></div>
+      <div class="vr v"><span class="tag">literal</span><b>&lt;&lt;'EOF'</b>
+        <span class="ef">não expande nada</span>
+        <p><b>O padrão</b> para gerar script, configuração e código. As aspas no delimitador são a única diferença visível.</p></div>
+      <div class="vr a"><span class="tag">indentável</span><b>&lt;&lt;-EOF</b>
+        <span class="ef">remove as tabulações iniciais</span>
+        <p>Permite indentar o bloco dentro de um <code>if</code>. Só <b>TAB</b>, nunca espaço — editor que converte TAB quebra em silêncio.</p></div>
+      <div class="vr l"><span class="tag">linha única</span><b>&lt;&lt;&lt; "texto"</b>
+        <span class="ef">here-string, sem pipe</span>
+        <p><code>read -r a b &lt;&lt;&lt; "$linha"</code> substitui <code>echo | read</code> e <b>evita o subshell</b>: as variáveis sobrevivem.</p></div>
+    </div>
+
+    <div class="grade2">
+      <div>
+        <section class="terminal">
+          <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-subshell</span></div>
+<pre><span class="cmt"># redirecionamento aplicado ao GRUPO: o uso legítimo do { }</span>
+<span class="prompt">$</span> { echo "=== $(date +%F) ==="; df -h; echo "=== fim ==="; } &gt; rel.txt
+<span class="cmt"># gerar arquivo: aspas no delimitador, SEMPRE, por padrão</span>
+<span class="prompt">$</span> cat &gt; /usr/local/bin/limpar.sh &lt;&lt;'EOF'
+<span class="out">#!/usr/bin/env bash
+set -euo pipefail
+for f in /var/tmp/*; do rm -rf -- "$f"; done
+EOF</span>
+<span class="cmt"># sem as aspas, $f expandiria AGORA: o disco receberia rm -rf -- ""</span>
+<span class="cmt"># escrever onde exige privilégio — sudo echo &gt; NÃO funciona</span>
+<span class="prompt">$</span> sudo tee /etc/systemd/system/coleta.service &gt;/dev/null &lt;&lt;'EOF'
+<span class="out">[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/coletar.sh
+EOF</span>
+<span class="cmt"># here-string: sem pipe, sem subshell — o read sobrevive</span>
+<span class="prompt">$</span> IFS=: read -r usuario _ uid _ &lt;&lt;&lt; "kali:x:1000:1000"
+<span class="prompt">$</span> echo "$usuario $uid"
+<span class="out">kali 1000</span>
+<span class="cmt"># isolar o ambiente de UMA invocação</span>
+<span class="prompt">$</span> ( export HTTP_PROXY=http://127.0.0.1:8080; ferramenta )</pre>
+        </section>
+      </div>
+      <div>
+        <p class="sub2">Aqui ou lá? o heredoc sobre ssh</p>
+        <ul class="lista">
+          <li><i>&lt;&lt;EOF</i><span>o bloco é expandido <b>localmente</b>: <code>$PARTICAO</code> chega já resolvido, e só o que você escapar com <code>\$</code> sobra para o remoto</span></li>
+          <li><i>&lt;&lt;'EOF'</i><span>o bloco vai <b>literal</b>: <code>$HOSTNAME</code> é resolvido <b>no remoto</b></span></li>
+          <li><i>teste antes</i><span>troque <code>ssh servidor</code> por <code>cat</code> e <b>olhe o bloco</b> — um <code>$(…)</code> que você achou que rodaria aqui e roda lá é execução não pretendida na máquina de outra pessoa</span></li>
+          <li><i>ssh -n</i><span>em laço, o <code>ssh</code> <b>engole o resto da entrada</b> e o laço acaba na primeira volta. <code>ssh -n</code> ou <code>&lt; /dev/null</code></span></li>
+        </ul>
+        <p class="sub2">Detalhes que travam o script</p>
+        <ul class="lista">
+          <li><i>delimitador</i><span>sozinho na linha, <b>sem espaço antes nem depois</b>. Um espaço invisível depois do fechamento é a causa nº 1 de <code>unexpected end of file</code>: o shell lê o resto do arquivo procurando um fim que não chega</span></li>
+          <li><i>&lt;&lt;-'EOF'</i><span>existe e junta as duas coisas — <b>literal e indentável</b>. É a forma de escolha para gerar arquivo de dentro de um bloco aninhado</span></li>
+          <li><i>em pipeline</i><span>o heredoc alimenta o <b>primeiro</b> comando: <code>sort &lt;&lt;'EOF' | uniq -c</code></span></li>
+          <li><i>coproc</i><span>subshell com quem se conversa, dois pipes já ligados. Nicho: mais que uma troca de linhas <b>trava em impasse</b> quando o buffer enche</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Gerar script com <code class="inl">&lt;&lt;EOF</code> sem aspas grava o comando destrutivo já expandido no disco.</b> No bloco <code class="inl">for f in /var/tmp/*; do rm -rf -- "$f"; done</code>, se o delimitador não estiver entre aspas o <code class="inl">$f</code> é resolvido <b>na hora de gerar o arquivo</b> — e como <code class="inl">f</code> não existe no script gerador, o que fica gravado é <code class="inl">rm -rf -- ""</code>. O defeito só aparece quando o script gerado roda, com o privilégio que ele tiver. <b>Use <code class="inl">&lt;&lt;'EOF'</code> por padrão</b> e tire as aspas apenas quando quiser mesmo a expansão. Depois de gerar, <b>leia o arquivo antes de torná-lo executável</b> (<code class="inl">cat</code>, <code class="inl">shellcheck</code>, e o <code class="inl">rm</code> trocado por <code class="inl">echo rm</code> num ensaio). Vale o mesmo cuidado em <code class="inl">/etc/sudoers.d</code>: valide com <code class="inl">visudo -cf arquivo</code> <b>antes</b> de movê-lo para o lugar definitivo — um arquivo malformado ali derruba o <code class="inl">sudo</code> da máquina inteira.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">( )</code> cria processo, <code class="inl">{ }</code> não.</b> Dentro de <code class="inl">( )</code>, <code class="inl">cd</code>, atribuição e mudança de opção morrem na saída; só o código de retorno atravessa a fronteira.</li>
+        <li><b><code class="inl">{ }</code> exige espaço depois da chave e <code class="inl">;</code> antes do fechamento</b> — são palavras reservadas, não operadores.</li>
+        <li><b>Subshells nascem sem parênteses:</b> em cada estágio de pipeline, em toda <code class="inl">$(…)</code>, em todo <code class="inl">&amp;</code> e em <code class="inl">&lt;(…)</code>. É a explicação do contador que continua zero depois do laço.</li>
+        <li><b><code class="inl">( cd dir &amp;&amp; comando )</code> é o idioma para isolar mudança de diretório</b> dentro de uma função — o defeito da abertura, corrigido com dois caracteres.</li>
+        <li><b>Cada subshell é um <code class="inl">fork</code>.</b> <code class="inl">$(&lt;arquivo)</code>, <code class="inl">${var%sufixo}</code> e <code class="inl">wc -l &lt; arquivo</code> fazem o mesmo trabalho sem criar processo.</li>
+        <li><b><code class="inl">&lt;&lt;'EOF'</code> é o padrão para gerar arquivos</b>; <code class="inl">&lt;&lt;EOF</code> é a exceção para quando o bloco precisa das variáveis do script. As aspas decidem se o <code class="inl">$</code> do texto é literal.</li>
+        <li><b><code class="inl">&lt;&lt;-</code> remove tabulação, nunca espaço.</b> Editor que converte TAB em espaço quebra o bloco de forma silenciosa.</li>
+        <li><b><code class="inl">&lt;&lt;&lt;</code> substitui <code class="inl">echo x | comando</code></b> e evita o subshell que faria as variáveis do <code class="inl">read</code> se perderem.</li>
+        <li><b><code class="inl">sudo echo x &gt; /etc/arquivo</code> não funciona</b> — quem redireciona é o seu shell, antes do <code class="inl">sudo</code> entrar em cena. A forma correta é <code class="inl">sudo tee arquivo &lt;&lt;'EOF'</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Gerar arquivo de configuração de ferramenta é caso de <code class="inl">&lt;&lt;'EOF'</code>, sem exceção.</b> Modelos de <code class="inl">proxychains</code>, <code class="inl">nuclei</code> e <code class="inl">msfconsole</code> são cheios de <code class="inl">$</code>, <code class="inl">%</code> e <code class="inl">\</code>: sem as aspas no delimitador o shell come metade da sintaxe e o arquivo sai <b>sutilmente errado</b> — o tipo de defeito que só se manifesta quando a ferramenta se comporta de um jeito inesperado no meio de um teste. <b>Subshell para isolar o ambiente de uma ferramenta:</b> <code class="inl">( export HTTP_PROXY=http://127.0.0.1:8080; export HTTPS_PROXY=$HTTP_PROXY; ferramenta )</code> faz o proxy valer <b>só naquela invocação</b> — sem os parênteses, o resto do script continua atravessando o proxy, inclusive comandos que você não pretendia interceptar. <b>No <code class="inl">ssh</code> com here-document, a pergunta "aqui ou lá?" tem consequência jurídica:</b> um <code class="inl">$(…)</code> que você achou que rodaria localmente e roda no remoto é <b>execução não pretendida numa máquina de outra pessoa</b> — em ambiente autorizado é um erro a corrigir; fora dele, é acesso não autorizado nos termos da Lei 12.737/2012. Teste o bloco com <code class="inl">cat</code> no lugar do <code class="inl">ssh</code> antes de disparar. <b><code class="inl">sudo tee</code> para instalar unidade ou regra</b> — unidade do systemd, regra de <code class="inl">udev</code>, arquivo em <code class="inl">/etc/sudoers.d</code> — e sempre <code class="inl">visudo -cf</code> antes de mover. <b>E o custo de <code class="inl">fork</code> aparece justo na triagem de resultado:</b> um laço sobre dez mil linhas com três substituições por iteração são trinta mil processos; trocar <code class="inl">$(cat "$f")</code> por <code class="inl">$(&lt;"$f")</code> e <code class="inl">$(basename "$f" .log)</code> por <code class="inl">${f%.log}</code> derruba o tempo de minutos para segundos. <b>Família RHEL:</b> subshell e heredoc são idênticos, mas em unidade do systemd com <code class="inl">ExecStart=</code> não há shell intermediário em nenhuma das duas famílias — redirecionamento e here-document escritos direto no <code class="inl">ExecStart=</code> não funcionam; aponte para um script ou use <code class="inl">/bin/bash -c '…'</code> explicitamente. E com SELinux em <code class="inl">enforcing</code>, script gerado em <code class="inl">/tmp</code> e executado dali costuma ser bloqueado por rótulo: gere em <code class="inl">/usr/local/bin</code> e rode <code class="inl">restorecon</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 12 · Fase 3 <span class="n">074</span></span>
