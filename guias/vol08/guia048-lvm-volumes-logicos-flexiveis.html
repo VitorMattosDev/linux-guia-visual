@@ -3,101 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 048 — LVM: volumes lógicos flexíveis</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* A pilha de três camadas do LVM */
+  .pilha { display:flex; flex-direction:column; gap:5px; }
+  .cam { display:flex; align-items:stretch; gap:8px; }
+  .cam > .et { flex:0 0 104px; text-align:right; font-family:var(--fonte-titulo); font-size:9.5px;
+               text-transform:uppercase; letter-spacing:.03em; line-height:1.2;
+               display:flex; flex-direction:column; justify-content:center; }
+  .cam > .et i { font-style:normal; font-size:8px; color:var(--tinta-suave); text-transform:none; letter-spacing:0; }
+  .cam .conteudo { flex:1; display:flex; gap:4px; }
+  .cx2 { border:1px solid; border-radius:5px; padding:5px 6px; text-align:center; font-size:8.5px;
+         line-height:1.25; display:flex; flex-direction:column; justify-content:center; gap:1px; }
+  .cx2 b { font-family:var(--fonte-mono); font-size:10.5px; color:var(--navy); }
+  .cx2 i { font-style:normal; color:var(--tinta-suave); }
+  .cam.lv > .et { color:var(--verde); }    .cam.lv .cx2 { border-color:var(--verde);   background:var(--verde-claro); }
+  .cam.vg > .et { color:#a8530a; }         .cam.vg .cx2 { border-color:var(--laranja); background:var(--laranja-claro); }
+  .cam.pv > .et { color:var(--azul); }     .cam.pv .cx2 { border-color:var(--azul);    background:var(--azul-claro); }
+  .cam.dk > .et { color:var(--tinta-suave); } .cam.dk .cx2 { border-color:var(--linha); background:var(--papel-tint); }
+  .nota-pilha { font-size:9px; line-height:1.4; color:var(--tinta-suave); padding-left:112px; }
+  .nota-pilha b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 048</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>LVM: volumes lógicos flexíveis</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>LVM<br>Volumes Lógicos</h1>
+      <div class="sub">A <code class="inl">/var</code> está em 95% e sobra espaço no disco — só que <b>depois</b> da <code class="inl">/home</code>. Sem LVM, crescer significa empurrar o vizinho.</div>
     </div>
     <div class="badge"><b>048</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- A PILHA -->
+  <div class="secao-titulo">As três camadas — um reservatório de <i>extents</i> de 4 MiB</div>
+  <section class="pilha">
+    <div class="cam lv">
+      <div class="et">volumes lógicos <i>LV — recebem o mkfs</i></div>
+      <div class="conteudo">
+        <div class="cx2" style="flex:0 0 150px"><b>raiz</b><i>20 GiB</i></div>
+        <div class="cx2" style="flex:0 0 110px"><b>troca</b><i>4 GiB</i></div>
+        <div class="cx2" style="flex:1"><b>dados</b><i>60 GiB — <b style="font-family:inherit;font-size:8.5px">atravessa os dois discos</b></i></div>
+      </div>
+    </div>
+    <div class="cam vg">
+      <div class="et">grupo de volumes <i>VG</i></div>
+      <div class="conteudo"><div class="cx2" style="flex:1"><b>vg0</b><i>um único reservatório de <i>extents</i> — sem exigir contiguidade nem mesmo disco</i></div></div>
+    </div>
+    <div class="cam pv">
+      <div class="et">volumes físicos <i>PV — pvcreate</i></div>
+      <div class="conteudo">
+        <div class="cx2" style="flex:1"><b>/dev/sda2</b></div>
+        <div class="cx2" style="flex:1"><b>/dev/sdb1</b></div>
+      </div>
+    </div>
+    <div class="cam dk">
+      <div class="et">discos</div>
+      <div class="conteudo">
+        <div class="cx2" style="flex:1"><i>disco 1 — 50 GiB</i></div>
+        <div class="cx2" style="flex:1"><i>disco 2 — 50 GiB</i></div>
+      </div>
+    </div>
+    <div class="nota-pilha">Crescer um LV é apenas <b>receber mais <i>extents</i></b>, venham de onde vierem: não existe vizinho a empurrar, e <code class="inl">dados</code> tem 60 GiB numa máquina em que nenhum disco chega a 60. O nome real é <code class="inl">/dev/mapper/vg0-dados</code> (<code class="inl">/dev/vg0/dados</code> é link) — <b>estável</b>, porque vem do nome que você escolheu. Em troca: <b>perder um PV derruba todos os LVs que o tocam</b>, mesmo os que estão em discos sadios — LVM não é redundância.</div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">Montar a pilha e crescer com o sistema no ar</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> sudo pvcreate /dev/sdb1 /dev/sdc1 &amp;&amp; sudo vgcreate vg0 /dev/sdb1 /dev/sdc1
+<span class="prompt">$</span> sudo lvcreate -L 20G -n raiz vg0   <span class="cmt"># -L tamanho absoluto · -l extents ou %</span>
+<span class="prompt">$</span> sudo lvcreate -l 80%FREE -n dados vg0  <span class="cmt"># %FREE = o que sobrou · %VG = o total</span>
+<span class="prompt">$</span> sudo mkfs.ext4 -L dados /dev/vg0/dados &amp;&amp; sudo mount /dev/vg0/dados /mnt/dados
+<span class="prompt">$</span> sudo lvextend -L +200G -r /dev/vg0/dados   <span class="cmt"># -r = resize2fs/xfs_growfs junto,</span>
+<span class="out">  Size of logical volume vg0/dados changed … Filesystem resized.  </span><span class="cmt"># na ordem certa</span>
+<span class="prompt">$</span> sudo pvcreate /dev/sdd1 &amp;&amp; sudo vgextend vg0 /dev/sdd1   <span class="cmt"># VG cheio? some um disco</span>
+<span class="prompt">$</span> sudo lvextend -l +100%FREE -r /dev/vg0/dados &amp;&amp; df -h /mnt/dados   <span class="cmt"># sem reiniciar</span>
+<span class="prompt">$</span> sudo pvs; sudo vgs; sudo lvs -o +devices,lv_attr   <span class="cmt"># o trio de diagnóstico</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+  <!-- INSTANTÂNEO x PVMOVE -->
+  <section class="duas-colunas">
+    <div class="coluna verde">
+      <h3>Instantâneo</h3>
+      <ul>
+        <li><code class="inl">lvcreate -L 5G -s -n snap /dev/vg0/dados</code> congela uma visão coerente <b>em um segundo</b>.</li>
+        <li>Uso clássico: <b>backup consistente</b> — monte o snap <code class="inl">-o ro</code>, rode o <code class="inl">tar</code> e remova; a aplicação nunca para.</li>
+        <li><code class="inl">lvconvert --merge</code> reverte o volume ao estado do instantâneo (aplica no próximo boot).</li>
+        <li><b>Tamanho fixo:</b> guarda os blocos do original antes de cada alteração — acompanhe <code class="inl">lvs -o +data_percent</code>.</li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>Trocar disco no ar</h3>
+      <ul>
+        <li><b>1.</b> SMART acusa setores realocados no <code class="inl">sdc1</code> — ele ainda funciona, mas vai falhar.</li>
+        <li><b>2.</b> <code class="inl">pvcreate /dev/sdd1</code> + <code class="inl">vgextend vg0 /dev/sdd1</code>.</li>
+        <li><b>3.</b> <code class="inl">pvmove -i 10 /dev/sdc1</code> — copia <i>extent</i> a <i>extent</i>, montado, e é <b>interrompível e retomável</b>.</li>
+        <li><b>4.</b> <code class="inl">vgreduce vg0 /dev/sdc1</code> + <code class="inl">pvremove</code>: o disco sai sem janela de manutenção.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>Reduzir continua perigoso, mesmo com LVM.</b> <code class="inl">lvreduce -r</code> coordena a ordem, mas exige desmontar, <code class="inl">e2fsck -f</code> antes e backup restaurável — e <b>em XFS simplesmente falha</b> (XFS não encolhe). Sem o <code class="inl">-r</code>, o <code class="inl">lvreduce</code> corta o volume por baixo do sistema de arquivos: perda imediata. Quando a pergunta de confirmação surpreender, a resposta é <code class="inl">n</code>. <b><i>Thin pool</i> que enche corrompe tudo que depende dele</b> — monitore <code class="inl">data_percent</code> <b>e</b> <code class="inl">metadata_percent</code> (este esgota antes com mais frequência) e configure o <code class="inl">thin_pool_autoextend_threshold</code>.</div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">-r</code> é a opção que importa.</b> Sem ela o LV cresce, o sistema de arquivos fica para trás e o <code class="inl">df</code> não muda — parece que o comando não funcionou.</li>
+        <li><b><code class="inl">-L</code> é tamanho absoluto; <code class="inl">-l</code> é <i>extent</i> ou porcentagem.</b> <code class="inl">100%FREE</code> ≠ <code class="inl">100%VG</code> — confundir os dois é o erro clássico no segundo volume.</li>
+        <li><b>Não aloque 100% do VG.</b> Sem espaço livre não há instantâneo nem extensão: reserve de 10 a 20% sem alocar.</li>
+        <li><b><code class="inl">vgcfgrestore</code> desfaz erro de operação:</b> cada alteração é arquivada em <code class="inl">/etc/lvm/archive/</code>, e um <code class="inl">lvremove</code> errado volta de lá — desde que nada tenha sido escrito por cima. Inclua <code class="inl">/etc/lvm/</code> no backup.</li>
+        <li><b>Ordem:</b> montar de baixo para cima (<code class="inl">pvcreate → vgcreate → lvcreate → mkfs</code>), desmontar de cima para baixo. Disco com LVM que recusa reparticionar quase sempre só precisa de <code class="inl">vgchange -an</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O instalador oferece <b>LVM criptografado</b>, e a ordem é sempre <b>LUKS embaixo, LVM em cima</b>: uma senha abre tudo e todo volume fica protegido. Num <i>rolling</i>, a <code class="inl">/var</code> cresce sem avisar (cache do APT, logs de ferramenta) e <code class="inl">lvextend -l +100%FREE -r</code> resolve em segundos, sem reiniciar. Instantâneo antes do <code class="inl">apt full-upgrade</code> é hábito barato — mas <b>dimensione pelo tamanho da atualização</b>: um <i>full-upgrade</i> grande enche um instantâneo pequeno e o <b>invalida no pior momento</b>. Em perícia, cuidado com a ativação automática: ao espetar mídia com metadados LVM o udev pode subir os volumes e alterar a evidência — <code class="inl">blockdev --setro</code> antes, exame por <code class="inl">losetup -rP</code>, <code class="inl">vgchange -an</code> no que subiu sozinho e um filtro em <code class="inl">/etc/lvm/lvm.conf</code> na estação de análise.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 08 · Fase 2 <span class="n">048</span></span>
