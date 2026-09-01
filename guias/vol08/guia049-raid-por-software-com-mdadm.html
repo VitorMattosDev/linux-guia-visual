@@ -3,101 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 049 — RAID por software com mdadm</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Os níveis de RAID: como os blocos caem nos discos */
+  .niveis { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .niv { border:1.5px solid; border-radius:8px; padding:6px 9px; display:flex; gap:9px; align-items:center; }
+  .niv .cab { flex:0 0 128px; }
+  .niv .cab h4 { font-family:var(--fonte-titulo); font-size:12px; text-transform:uppercase; letter-spacing:.02em; line-height:1.15; }
+  .niv .cab span { font-size:8.5px; color:var(--tinta-suave); }
+  .grade { display:flex; flex-direction:column; gap:3px; flex:0 0 auto; }
+  .lin { display:flex; gap:3px; }
+  .d { width:25px; height:17px; border-radius:3px; border:1px solid; font-family:var(--fonte-mono);
+       font-size:8.5px; display:flex; align-items:center; justify-content:center; }
+  .d.dado { border-color:var(--azul);     background:var(--azul-claro);     color:var(--navy); }
+  .d.esp  { border-color:var(--verde);    background:var(--verde-claro);    color:#1d6b36; }
+  .d.par  { border-color:var(--vermelho); background:var(--vermelho-claro); color:#a52c2c; }
+  .niv .info { flex:1; font-size:8.5px; line-height:1.3; color:var(--tinta-suave); }
+  .niv .info b { color:var(--navy); }
+  .niv.r0  { border-color:var(--azul);     background:#f7fafe; }  .niv.r0 h4  { color:var(--azul); }
+  .niv.r1  { border-color:var(--verde);    background:#f7fcf9; }  .niv.r1 h4  { color:var(--verde); }
+  .niv.r5  { border-color:var(--vermelho); background:#fdf8f8; }  .niv.r5 h4  { color:var(--vermelho); }
+  .niv.r10 { border-color:var(--roxo);     background:#faf8fd; }  .niv.r10 h4 { color:var(--roxo); }
+  .legenda { font-size:9px; color:var(--tinta-suave); text-align:center; }
+  .legenda b { color:var(--navy); }
+  /* Nota do ciclo de falha */
+  .nota-ciclo { font-size:9.5px; line-height:1.4; color:var(--tinta-suave); margin-top:6px; text-align:center; }
+  .nota-ciclo b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 049</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>RAID por software com mdadm</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>RAID por Software<br>mdadm</h1>
+      <div class="sub">Um disco falha no sábado e o serviço nem pisca. No mesmo arranjo, um <code class="inl">rm -rf</code> errado é replicado em todos os discos: <b>RAID é disponibilidade, não backup.</b></div>
     </div>
     <div class="badge"><b>049</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- NÍVEIS -->
+  <div class="secao-titulo">Os níveis — capacidade, tolerância e velocidade não somam</div>
+  <section class="niveis">
+    <div class="niv r0">
+      <div class="cab"><h4>RAID 0<br>distribuição</h4><span>mín. 2 discos · 100%</span></div>
+      <div class="grade"><div class="lin"><span class="d dado">A1</span><span class="d dado">A2</span><span class="d dado">A3</span><span class="d dado">A4</span></div></div>
+      <div class="info">Capacidade e velocidade totais, <b>zero tolerância</b>: um disco morre, tudo morre — e com 4 discos o risco é 4×. Só para dado recriável.</div>
+    </div>
+    <div class="niv r1">
+      <div class="cab"><h4>RAID 1<br>espelho</h4><span>mín. 2 discos · 50%</span></div>
+      <div class="grade"><div class="lin"><span class="d esp">A1</span><span class="d esp">A1</span><span class="d esp">A2</span><span class="d esp">A2</span></div></div>
+      <div class="info">Metade da capacidade; sobrevive a <b>um disco de cada par</b>. É o nível da raiz, da <code class="inl">/boot</code> e de arranjos pequenos.</div>
+    </div>
+    <div class="niv r5">
+      <div class="cab"><h4>RAID 5<br>paridade distribuída</h4><span>mín. 3 discos · (n−1)/n</span></div>
+      <div class="grade">
+        <div class="lin"><span class="d dado">A1</span><span class="d dado">A2</span><span class="d dado">A3</span><span class="d par">Ap</span></div>
+        <div class="lin"><span class="d dado">B1</span><span class="d dado">B2</span><span class="d par">Bp</span><span class="d dado">B4</span></div>
+      </div>
+      <div class="info"><b>Ap</b> é o ou-exclusivo da faixa: o bloco perdido é recalculado. Tolera <b>1 disco</b> gastando 1 — mas reconstruir <b>lê todos os outros</b> de ponta a ponta.</div>
+    </div>
+    <div class="niv r10">
+      <div class="cab"><h4>RAID 10<br>espelho + distribuição</h4><span>mín. 4 discos · 50%</span></div>
+      <div class="grade">
+        <div class="lin"><span class="d esp">A1</span><span class="d esp">A1</span><span class="d dado">A2</span><span class="d dado">A2</span></div>
+        <div class="lin"><span class="d esp">A3</span><span class="d esp">A3</span><span class="d dado">A4</span><span class="d dado">A4</span></div>
+      </div>
+      <div class="info">Metade da capacidade, rápido na escrita e <b>reconstrução curta</b>: lê só o disco espelhado, em horas, sem tocar no resto do arranjo.</div>
+    </div>
+  </section>
+  <div class="legenda"><b>RAID 6</b> (mín. 4 · (n−2)/n) tolera <b>duas</b> falhas — é o nível para arranjos grandes. <b>Acima de 2 TB por disco, RAID 6 ou 10, nunca RAID 5.</b></div>
+
+  <!-- CICLO DA FALHA -->
+  <div class="secao-titulo">O ciclo de uma falha — e a janela de risco</div>
+  <section>
+    <div class="fluxo">
+      <div class="passo verde"><span class="num">1</span><h3>clean [UUU]</h3><p>Redundância cheia. <code class="inl">/proc/mdstat</code> com um <code class="inl">U</code> por membro.</p></div>
+      <span class="seta">→</span>
+      <div class="passo laranja"><span class="num">2</span><h3>degraded [UU_]</h3><p>Disco fora. <b>Tudo funciona e nada protege</b> — o <code class="inl">_</code> é a marca do membro ausente.</p></div>
+      <span class="seta">→</span>
+      <div class="passo"><span class="num">3</span><h3>recovering</h3><p><code class="inl">--add</code> do disco novo (ou o <i>spare</i> entra sozinho) e a reconstrução começa.</p></div>
+      <span class="seta">→</span>
+      <div class="passo verde"><span class="num">4</span><h3>clean [UUU]</h3><p>Sincronização concluída; a redundância volta sem ninguém parar o serviço.</p></div>
+    </div>
+    <p class="nota-ciclo">Entre 2 e 4 está a <b>janela sem tolerância</b> — encurtá-la é o objetivo de tudo: um <b>disco reserva</b> (<code class="inl">--add-spare</code>) assume em segundos, o <code class="inl">mdmonitor</code> por correio evita descobrir dias depois, e <b>RAID 10 ou 6</b> impedem que a reconstrução dure dias em discos grandes.</p>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- NA PRÁTICA -->
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> sudo mdadm --create /dev/md0 --level=10 --raid-devices=4 /dev/sd{b,c,d,e}1
+<span class="prompt">$</span> sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf   <span class="cmt"># NÃO é opcional</span>
+<span class="prompt">$</span> sudo update-initramfs -u    <span class="cmt"># sem os dois, no reboot vira /dev/md127 — ou não sobe</span>
+<span class="prompt">$</span> sudo mkfs.ext4 -L arranjo /dev/md0   <span class="cmt"># md é bloco comum: mkfs, ou pvcreate p/ LVM</span>
+<span class="prompt">$</span> cat /proc/mdstat
+<span class="out">md0 : active raid10 sde1[3] sdd1[2] sdc1[1] sdb1[0]</span>
+<span class="out">      2094080 blocks super 1.2 512K chunk 2 near-copies [4/3] [UU_U]  </span><span class="cmt"># degradado!</span>
+<span class="prompt">$</span> sudo mdadm --manage /dev/md0 --fail /dev/sdd1 --remove /dev/sdd1   <span class="cmt"># retirada</span>
+<span class="prompt">$</span> sudo mdadm --manage /dev/md0 --add /dev/sdf1   <span class="cmt"># entra e reconstrói sozinho</span>
+<span class="prompt">$</span> sudo mdadm --examine /dev/sdb1   <span class="cmt"># --detail pergunta ao kernel; --examine lê o disco</span>
+<span class="prompt">$</span> grep -q "_" /proc/mdstat &amp;&amp; echo "ARRANJO DEGRADADO"   <span class="cmt"># o monitor de uma linha</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
+  <div class="perigo"><b>RAID não é backup</b> — exclusão acidental, corrupção de software e <i>ransomware</i> são replicados com perfeição em todos os membros. E há três armadilhas: <b>RAID 5 com discos grandes</b> lê todos os membros na reconstrução, justamente quando não há mais redundância, e um erro irrecuperável ali (≈1 setor a cada 12 TB lidos) mata o arranjo — some a isso discos do mesmo lote falhando na mesma janela. <b><code class="inl">mdadm --grow</code> reescreve o arranjo inteiro</b>, leva horas ou dias e é a operação com mais partes móveis: backup real antes. E ao desfazer um arranjo, <code class="inl">--stop</code> e <b><code class="inl">--zero-superblock</code></b> em cada disco — sem isso o kernel remonta um arranjo fantasma (<code class="inl">/dev/md127</code>) no próximo boot.</div>
 
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">[3/3] [UUU]</code> é saúde;</b> um <code class="inl">_</code> no lugar do <code class="inl">U</code> é membro ausente. <code class="inl">grep -q "_" /proc/mdstat</code> cabe em qualquer script.</li>
+        <li><b>Arranjo degradado funciona normalmente — e é por isso que é perigoso.</b> Sem monitoramento ele passa semanas sem redundância até o segundo disco cair.</li>
+        <li><b>RAID embaixo, LVM em cima:</b> o LVM enxerga um dispositivo já redundante e a falha de disco se resolve na camada de baixo.</li>
+        <li><b><i>Scrub</i> mensal</b> (<code class="inl">echo check &gt; /sys/block/md0/md/sync_action</code>) acha o bloco corrompido antes da reconstrução; no Debian e no Kali já vem no <code class="inl">/etc/cron.d/mdadm</code>.</li>
+        <li><b>Prefira o <code class="inl">md</code> ao “fake RAID” da placa-mãe:</b> um arranjo <code class="inl">md</code> remonta em qualquer Linux com <code class="inl">--assemble --scan</code>; o proprietário pode exigir a mesma controladora.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">RAID aqui é <b>nicho — e o nicho é guardar evidência</b>: imagens de disco de centenas de GB precisam de espaço e de tolerância, porque reimagear a mídia nem sempre é possível. Use <b>RAID 10</b>, não 5: reconstrói lendo só o espelho e mantém a escrita rápida enquanto você grava uma imagem de 4 TB. Em perícia, a <b>montagem automática é o risco</b>: discos apreendidos trazem superblocos <code class="inl">md</code> e um <i>assemble</i> automático escreve metadados de sincronização na evidência — <code class="inl">blockdev --setro</code> antes, e <code class="inl">mdadm --examine</code>, que só lê, para descobrir nível e ordem dos discos. <b>Reconstruir a partir das imagens</b> é procedimento real: <code class="inl">losetup -rP</code> em cada uma e <code class="inl">mdadm --assemble --readonly</code> sobre os <i>loop</i>. Num sistema sem correio configurado, ponha o <code class="inl">grep -q "_" /proc/mdstat</code> no <code class="inl">.bashrc</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 08 · Fase 2 <span class="n">049</span></span>

@@ -78,7 +78,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 046** - Particionamento com fdisk, parted e gdisk - `guias/vol08/guia046-particionamento-com-fdisk-parted-e-gdisk.html`
 - [x] **guia 047** - Sistemas de arquivos: ext4, Btrfs, XFS e formatação - `guias/vol08/guia047-sistemas-de-arquivos-ext4-btrfs-xfs-e-formatacao.html`
 - [x] **guia 048** - LVM: volumes lógicos flexíveis - `guias/vol08/guia048-lvm-volumes-logicos-flexiveis.html`
-- [ ] **guia 049** - RAID por software com mdadm - `guias/vol08/guia049-raid-por-software-com-mdadm.html`
+- [x] **guia 049** - RAID por software com mdadm - `guias/vol08/guia049-raid-por-software-com-mdadm.html`
 - [ ] **guia 050** - Criptografia de disco com LUKS e persistência no Kali - `guias/vol08/guia050-criptografia-de-disco-com-luks-e-persistencia-no.html`
 
 ## Fase 3 — Shell Scripting
