@@ -3,101 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 091 — Anonimato e privacidade: proxychains, Tor e VPN</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: a cadeia e quem observa cada trecho ---- */
+  .cadeia { display:flex; align-items:stretch; gap:4px; }
+  .no { flex:1; border:1.5px solid var(--linha); background:var(--papel-tint);
+        border-radius:var(--raio-sm); padding:3px 6px; text-align:center; }
+  .no > b { display:block; font-family:var(--fonte-titulo); font-size:8.8px; color:var(--navy);
+            text-transform:uppercase; letter-spacing:.02em; line-height:1.15; }
+  .no > i { font-style:normal; display:block; font-size:7.1px; color:var(--tinta-suave); }
+  .no > u { text-decoration:none; display:block; font-size:7.2px; line-height:1.16;
+            margin-top:3px; padding-top:2px; border-top:1px dashed var(--vermelho);
+            color:var(--vermelho); }
+  .no.eu { border-color:var(--azul); background:var(--azul-claro); } .no.eu > b { color:var(--azul); }
+  .no.fim { border-color:var(--verde); background:var(--verde-claro); } .no.fim > b { color:#1d7038; }
+  .sx { align-self:center; font-size:12px; color:var(--tinta-suave); }
+
+  .cobre { display:grid; grid-template-columns:64px 1fr; gap:8px; align-items:center;
+           border-left:3px solid; border-radius:0 var(--raio-sm) var(--raio-sm) 0;
+           padding:2px 8px; margin-top:3px; }
+  .cobre > b { font-family:var(--fonte-titulo); font-size:9.4px; text-transform:uppercase;
+               letter-spacing:.03em; }
+  .cobre > span { font-size:7.9px; line-height:1.2; color:var(--tinta-suave); }
+  .cobre > span b { color:var(--navy); }
+  .cobre.v { border-color:var(--verde); background:var(--verde-claro); } .cobre.v > b { color:#1d7038; }
+  .cobre.x { border-color:var(--roxo); background:var(--roxo-claro); } .cobre.x > b { color:var(--roxo); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- figura 2: os tres saltos ---- */
+  .saltos { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .sl { border:1.5px solid; border-radius:var(--raio-sm); padding:3px 8px; }
+  .sl > b { display:block; font-family:var(--fonte-titulo); font-size:9px; color:var(--navy);
+            text-transform:uppercase; letter-spacing:.02em; }
+  .sl dl { display:grid; grid-template-columns:14px 1fr; gap:2px 5px; margin-top:2px; }
+  .sl dt { font-size:8.6px; font-weight:700; text-align:center; line-height:1.2; }
+  .sl dd { font-size:7.6px; line-height:1.18; color:var(--tinta-suave); }
+  .sl dd b { color:var(--navy); }
+  .sl .si { color:var(--verde); } .sl .nao { color:var(--vermelho); }
+  .sl.e { border-color:var(--azul); background:var(--azul-claro); }
+  .sl.m { border-color:var(--linha); background:var(--papel-tint); }
+  .sl.s { border-color:var(--laranja); background:var(--laranja-claro); }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:0.94fr 1.16fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.4px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.5px 6px; line-height:1.18; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.5px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:3.3mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.8px; line-height:1.22; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 091</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Anonimato e privacidade: proxychains, Tor e VPN</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Anonimato e privacidade:<br>proxychains, Tor e VPN</h1>
+      <div class="sub">O jornalista rodava tudo por VPN, navegava em aba anônima e tinha fita sobre a webcam. A fonte foi identificada assim mesmo: no meio de uma sessão cuidadosa, o cliente de e-mail fez <b>uma</b> consulta DNS por fora do túnel, e ela ligou o horário ao alvo. Todo o resto da cadeia era sólido. <b>Bastou um elo vazar.</b></div>
     </div>
     <div class="badge"><b>091</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O modelo de ameaça decide tudo: quem observa qual trecho</div>
+    <div class="cadeia" style="margin-top:4px">
+      <div class="no eu"><b>você</b><i>a origem</i></div>
+      <span class="sx">→</span>
+      <div class="no"><b>rede local</b><i>Wi-Fi, roteador</i><u>vizinho de Wi-Fi, dono do roteador</u></div>
+      <span class="sx">→</span>
+      <div class="no"><b>provedor</b><i>o seu ISP</i><u>ISP, governo local</u></div>
+      <span class="sx">→</span>
+      <div class="no"><b>trânsito</b><i>a internet</i><u>trânsito global, estado-nação</u></div>
+      <span class="sx">→</span>
+      <div class="no fim"><b>destino</b><i>o servidor</i><u>dono do site, e quem o intima</u></div>
+    </div>
+    <div class="cobre v">
+      <b>VPN</b>
+      <span>Cobre de você até o servidor da VPN: tira a rede local e o ISP da jogada — e <b>entrega tudo ao provedor da VPN</b>. Você não removeu o observador; <b>trocou-o por um que escolheu confiar</b>. Inútil se o adversário é o próprio provedor, ou quem pode intimá-lo.</span>
+    </div>
+    <div class="cobre x">
+      <b>Tor</b>
+      <span>Separa <b>quem-você-é</b> de <b>para-onde-vai</b> por três saltos independentes. Mas não esconde do seu ISP <i>que você usa Tor</i> — para isso existem as <i>bridges</i> e o <code>obfs4</code>.</span>
+    </div>
+    <div class="regra"><b>Três palavras que não são sinônimas.</b> <b>Privacidade:</b> o <i>conteúdo</i> é secreto (é o que o HTTPS entrega). <b>Anonimato:</b> a <i>identidade</i> é secreta — há tráfego, mas ninguém o liga a você. <b>Não-rastreabilidade:</b> suas ações não podem ser ligadas <i>entre si</i>. Uma VPN dá privacidade perante o ISP e <b>desloca a confiança</b>; não dá anonimato, porque o provedor sabe exatamente quem você é. Confundir os dois é o erro conceitual mais caro da área — e a razão de "use uma VPN e fique anônimo" ser publicidade, não engenharia.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Como o Tor funciona: nenhum nó tem as duas pontas</div>
+    <div class="saltos" style="margin-top:4px">
+      <div class="sl e">
+        <b>1 · Entrada (guard)</b>
+        <dl>
+          <dt class="si">✓</dt><dd>sabe <b>quem você é</b> — vê o seu IP</dd>
+          <dt class="nao">✗</dt><dd>não sabe o destino: recebe tudo cifrado em três camadas</dd>
+        </dl>
+      </div>
+      <div class="sl m">
+        <b>2 · Meio</b>
+        <dl>
+          <dt class="nao">✗</dt><dd>não sabe quem você é</dd>
+          <dt class="nao">✗</dt><dd>não sabe para onde vai — <b>só repassa de um relé ao outro</b></dd>
+        </dl>
+      </div>
+      <div class="sl s">
+        <b>3 · Saída (exit)</b>
+        <dl>
+          <dt class="si">✓</dt><dd>sabe o <b>destino</b> e <b>vê o tráfego</b> como ele entra na internet</dd>
+          <dt class="nao">✗</dt><dd>não sabe quem você é: recebe do nó do meio</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="regra"><b>É a separação, não a cifragem, que dá o anonimato</b> — nenhum nó sozinho tem as duas pontas. Daí duas consequências que se ignora por conta própria: <b>o nó de saída lê o que não estiver cifrado de ponta a ponta</b> (uma senha por HTTP simples é lida em claro por quem opera aquele nó — que pode ser alguém que o subiu só para isso), então <b>HTTPS continua obrigatório dentro do Tor</b>; e a <b>correlação de tempo</b> é o limite teórico de todo sistema de baixa latência — quem observa as duas pontas liga entrada e saída pelo horário e pelo volume, e contra esse adversário global o próprio projeto não promete proteção.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — e os vazamentos que anulam tudo</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> sudo systemctl start tor  <span class="cmt"># SOCKS5 em :9050</span>
+<span class="prompt">$</span> curl -s https://check.torproject.org/api/ip
+<span class="out">{"IsTor":false,"IP":"189.x.x.x"}   ← o seu, real</span>
+<span class="cmt"># --socks5-hostname manda TAMBÉM o DNS pelo proxy.</span>
+<span class="cmt"># Com --socks5 apenas, o curl resolve o nome ANTES —</span>
+<span class="cmt"># e essa consulta vaza. Foi o erro do caso da abertura.</span>
+<span class="prompt">$</span> curl -s --socks5-hostname 127.0.0.1:9050 \
+       https://check.torproject.org/api/ip
+<span class="out">{"IsTor":true,"IP":"185.x.x.x"}</span>
+<span class="cmt"># proxychains força QUALQUER programa pela cadeia</span>
+<span class="out">/etc/proxychains4.conf:
+  dynamic_chain
+  proxy_dns              # CRUCIAL: DNS pela cadeia
+  socks5  127.0.0.1 9050</span>
+<span class="prompt">$</span> proxychains4 -q nmap -sT -Pn alvo-autorizado
+<span class="cmt"># -sT obrigatório: SYN cru não passa por SOCKS</span>
+<span class="prompt">$</span> mat2 --show foto.jpg <span class="cmt"># GPS, câmera, autor</span>
+<span class="prompt">$</span> mat2 foto.jpg        <span class="cmt"># gera foto.cleaned.jpg</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Vazamento</th><th>O que revela · como fechar</th></tr></thead>
+          <tbody>
+            <tr><td>DNS</td><td>os domínios que você visita · <code>proxy_dns</code>, <code>--socks5-hostname</code></td></tr>
+            <tr><td>WebRTC</td><td>seu IP real, mesmo com VPN · desabilitar no navegador</td></tr>
+            <tr><td>IPv6</td><td>escapa de VPN só-IPv4 · desligar ou cobrir no túnel</td></tr>
+            <tr><td>ICMP / SYN cru</td><td>a origem real, fora do <code>proxychains</code> · não usar</td></tr>
+            <tr><td>Metadados</td><td>autor, GPS, software no arquivo · <code>mat2</code> antes de publicar</td></tr>
+            <tr><td><i>Fingerprint</i></td><td>identifica sem cookie · Tor Browser, que uniformiza</td></tr>
+            <tr><td><b>Login</b></td><td><b>destrói tudo: você se identificou</b> · não misturar identidades</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="perigo"><b><code class="inl">proxychains</code> cobre conexões TCP via <code class="inl">connect()</code>, e nada mais.</b> Ele intercepta o que passa pela <code class="inl">libc</code> dinâmica: binário estático escapa e — o mais perigoso — <b>tráfego fora da pilha TCP normal vaza a origem real</b>. O <code class="inl">ping</code> (ICMP) e o <code class="inl">nmap -sS</code> montam pacotes por baixo do SOCKS e saem do seu IP verdadeiro; daí <code class="inl">proxychains nmap</code> só fazer sentido com <code class="inl">-sT</code>. Supor cobertura total é o erro que expõe quem se acha protegido. <b>E anonimato não é escudo legal:</b> rotear por Tor uma ação não autorizada é o mesmo crime da Lei 12.737/2012, agora com a agravante de tentativa de ocultação. Estas ferramentas existem para proteger comunicação legítima — a fonte, o jornalista, o <i>pentester</i> que respeita seu escopo —, não para dar cobertura a quem age fora da lei.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Anonimato é propriedade da cadeia inteira</b>, e ela tem a força do elo mais fraco. Uma consulta DNS bastou.</li>
+        <li><b>Privacidade ≠ anonimato ≠ não-rastreabilidade.</b> VPN desloca a confiança do ISP para o provedor da VPN — não anonimiza.</li>
+        <li><b>O modelo de ameaça precede a ferramenta:</b> nomeie o adversário e o que ele observa antes de escolher qualquer coisa.</li>
+        <li><b>O Tor separa quem-você-é de para-onde-vai em três saltos</b>, mas o nó de saída vê o tráfego não cifrado — HTTPS continua obrigatório.</li>
+        <li><b><code class="inl">--socks5-hostname</code>, não <code class="inl">--socks5</code></b>; e <code class="inl">proxy_dns</code> no <code class="inl">proxychains</code>. É a palavra que separa a cadeia fechada da vazada.</li>
+        <li><b>Testar o próprio vazamento importa mais que configurar a ferramenta.</b> Ferramenta que parece pronta e vaza é pior que nenhuma.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Kali traz o ferramental, mas para anonimato de verdade a ferramenta é o Tails, não o Kali.</b> O Tails roda da RAM, força <b>todo</b> o tráfego pelo Tor, não deixa rastro no disco e esquece tudo ao desligar — foi projetado para o modelo de ameaça do jornalista da abertura. O Kali foi projetado para <i>testar</i> segurança: não força o tráfego pelo Tor e guarda estado no disco, o oposto do que anonimato exige. <b><code class="inl">proxychains</code> na frente de ferramenta ofensiva é rotina em teste autorizado — e tem pegadinha:</b> rotear uma varredura por proxy tem uso legítimo (ver como o alvo enxerga tráfego de outra origem, cumprir regra de engajamento que exige origem específica), mas o <code class="inl">nmap -sS</code>, o mais comum, <b>não passa</b> e vaza sua origem real. Em teste autorizado isso falseia o resultado; fora dele, é a diferença entre achar-se anônimo e não estar. Sempre <code class="inl">-sT</code>, e sempre confira o IP de saída antes de confiar na cadeia. <b>Testar o próprio vazamento é o exercício que importa mais do que configurar:</b> <code class="inl">check.torproject.org</code>, um teste de vazamento de DNS e um de WebRTC dizem se a configuração realmente funciona — e a resposta surpreende quem confiava nela. Uma ferramenta que parece configurada e vaza DNS é <b>pior do que nenhuma</b>, porque induz o comportamento arriscado que a pessoa não teria sem a falsa confiança. <b>O modo <i>undercover</i> é privacidade de outra natureza:</b> privacidade <i>visual</i>, contra o observador humano ao seu lado, não contra o observador de rede. Disfarçar a tela não protege o tráfego, e proteger o tráfego não disfarça a tela — modelos de ameaça diferentes, camadas ortogonais, e é útil não confundi-los. <b>Fora do Debian:</b> Tor, WireGuard e <code class="inl">proxychains</code> são software de rede e funcionam igual em qualquer distribuição — o WireGuard é nativo no kernel moderno e o NetworkManager integra ambos pela interface gráfica nas duas famílias. O raciocínio de modelo de ameaça e a lista de vazamentos independem por completo do sistema operacional: são propriedades da rede e da criptografia.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 14 · Fase 4 <span class="n">091</span></span>
