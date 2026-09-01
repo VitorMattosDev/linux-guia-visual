@@ -3,101 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 051 — Do comando ao script: o primeiro script Bash</title>
+<title>GUIA 051 — Do comando ao script</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Cadeia "do Enter ao processo": 5 elos coloridos por ator */
+  .cadeia { display:flex; align-items:stretch; gap:5px; }
+  .elo { flex:1; border:1.5px solid; border-radius:var(--raio); padding:7px 8px;
+         display:flex; flex-direction:column; gap:3px; background:#fff; }
+  .elo .ator { font-family:var(--fonte-titulo); font-size:8.5px; font-weight:700;
+               text-transform:uppercase; letter-spacing:.05em; }
+  .elo > b { font-family:var(--fonte-mono); font-size:10.5px; color:var(--navy); line-height:1.25;
+           word-break:break-all; }
+  .elo p { font-size:9px; color:var(--tinta-suave); line-height:1.3; }
+  .elo.u { border-color:#9aa7b6; } .elo.u  .ator { color:#5b6b7d; }
+  .elo.s { border-color:var(--azul);     background:var(--azul-claro); }    .elo.s .ator { color:var(--azul); }
+  .elo.k { border-color:var(--vermelho); background:var(--vermelho-claro); }.elo.k .ator { color:var(--vermelho); }
+  .elo.b { border-color:var(--verde);    background:var(--verde-claro); }   .elo.b .ator { color:var(--verde); }
+  .cadeia .sep { align-self:center; color:var(--azul); font-size:15px; font-weight:700; flex:none; }
+  .nota-cadeia { font-size:9.5px; line-height:1.4; color:var(--tinta-suave); margin-top:5px; }
+  .nota-cadeia b { color:var(--navy); }
+
+  /* Grade shebang + erros */
+  .grade2 { display:grid; grid-template-columns: 1.35fr 1fr; gap:10px; align-items:start; }
+  .erros { display:flex; flex-direction:column; gap:5px; }
+  .err { border-left:4px solid; border-radius:var(--raio-sm); padding:5px 9px;
+         font-size:10px; line-height:1.35; color:var(--tinta); }
+  .err > b { display:block; font-family:var(--fonte-mono); font-size:10.5px; }
+  .err.a { border-color:var(--laranja); background:var(--laranja-claro); } .err.a > b { color:#a8530a; }
+  .err.c { border-color:var(--roxo);    background:var(--roxo-claro); }    .err.c > b { color:var(--roxo); }
+  .err.d { border-color:var(--vermelho);background:var(--vermelho-claro); }.err.d > b { color:var(--vermelho); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 051</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Do comando ao script: o primeiro script Bash</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Do Comando<br>ao Script</h1>
+      <div class="sub">Seis comandos toda manhã, sempre na mesma ordem. Enquanto a sequência só existe nos dedos de quem digita, ela é um <b>hábito</b> — não um procedimento. O script é o terminal <i>gravado</i>.</div>
     </div>
     <div class="badge"><b>051</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Do Enter ao processo — o que acontece em <code class="inl">./rotina.sh</code></div>
   <section>
+    <div class="cadeia">
+      <div class="elo u"><span class="ator">1 · você</span><b>./rotina.sh</b><p>digita e tecla Enter.</p></div>
+      <span class="sep">→</span>
+      <div class="elo s"><span class="ator">2 · shell</span><b>fork() + execve()</b><p>cria o filho e pede ao kernel para executar o arquivo.</p></div>
+      <span class="sep">→</span>
+      <div class="elo k"><span class="ator">3 · kernel</span><b>#!</b><p>lê os <b>dois primeiros bytes</b>. Não é binário: é <i>shebang</i>.</p></div>
+      <span class="sep">→</span>
+      <div class="elo k"><span class="ator">4 · kernel</span><b>/bin/bash</b><p>carrega o interpretador da linha e lhe entrega o arquivo.</p></div>
+      <span class="sep">→</span>
+      <div class="elo b"><span class="ator">5 · bash</span><b>linha a linha</b><p>lê <i>enquanto</i> executa — não valida o arquivo antes.</p></div>
+    </div>
+    <div class="nota-cadeia">O passo 3 é a razão de o bit <code class="inl">x</code> ser obrigatório: sem ele o <code class="inl">execve()</code> falha <b>antes</b> de qualquer leitura. Sem <i>shebang</i> algum, o kernel devolve <code class="inl">Exec format error</code> e o Bash interpreta por cortesia histórica — cortesia que o <code class="inl">cron</code> e o <code class="inl">systemd</code> não têm. E, como o passo 5 lê por posição de byte, <b>erro de sintaxe na linha 50 não impede as linhas 1 a 49 de rodarem</b>: valide com <code class="inl">bash -n</code> antes da primeira execução.</div>
+  </section>
+
+  <div class="secao-titulo">Executar × <code class="inl">source</code> — a diferença que explica o <code class="inl">.bashrc</code></div>
+  <section class="duas-colunas">
+    <div class="coluna verde">
+      <h3>./script.sh</h3>
+      <ul>
+        <li><b>Processo novo.</b> O filho recebe uma <i>cópia</i> do ambiente; ao terminar, a cópia é descartada.</li>
+        <li>Exige bit <code class="inl">x</code> e <i>shebang</i>. <code class="inl">bash script.sh</code> dispensa os dois.</li>
+        <li><code class="inl">cd</code>, <code class="inl">export</code> e funções <b>não sobrevivem</b>: o shell que chamou fica como estava.</li>
+        <li>Depurar: <code class="inl">bash -x script.sh</code> mostra cada linha expandida.</li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>source script.sh</h3>
+      <ul>
+        <li><b>Mesmo processo.</b> As linhas são lidas como se tivessem sido digitadas — <code class="inl">$$</code> não muda.</li>
+        <li>Forma POSIX: <code class="inl">. script.sh</code>. Não exige bit <code class="inl">x</code>.</li>
+        <li>Altera a sessão em curso: PWD, variáveis e funções passam a valer.</li>
+        <li>É o mecanismo do <code class="inl">.bashrc</code> e do <code class="inl">/etc/profile.d/</code>. Por isso <code class="inl">bash ~/.bashrc</code> "não faz nada".</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="secao-titulo">O <i>shebang</i> certo e os três erros clássicos</div>
+  <section class="grade2">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Primeira linha</th><th>O que significa</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>#!/usr/bin/env bash</code></td><td>Procura o <code>bash</code> no <code>PATH</code>. <b>Padrão portável</b> — roda em Debian, macOS, BSD.</td></tr>
+        <tr><td><code>#!/bin/bash</code></td><td>Caminho fixo e absoluto. Use quando você controla o sistema e quer garantia de qual binário roda.</td></tr>
+        <tr><td><code>#!/bin/sh</code></td><td>No Debian/Kali é o <b>dash</b>: sem <code>[[ ]]</code>, arrays ou <code>local</code>. Em RHEL é o Bash em modo POSIX — o mesmo arquivo funciona lá e falha aqui.</td></tr>
       </tbody>
     </table>
+    <div class="erros">
+      <div class="err a"><b>Permission denied</b>Achou o arquivo, falta o bit <code class="inl">x</code>. → <code class="inl">chmod +x</code></div>
+      <div class="err c"><b>command not found</b>O arquivo está fora do <code class="inl">PATH</code>. → <code class="inl">./</code> na frente, ou instale em <code class="inl">~/bin</code>.</div>
+      <div class="err d"><b>/usr/bin/env^M: bad interpreter</b>Editado no Windows: fim de linha <b>CRLF</b>. → <code class="inl">dos2unix</code> ou <code class="inl">sed -i 's/\r$//'</code></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-scripts</span></div>
+<pre><span class="prompt">$</span> cat &gt; rotina.sh &lt;&lt;'FIM'      <span class="cmt"># aspas em FIM: nada é expandido agora</span>
+#!/usr/bin/env bash            <span class="cmt"># 1. quem interpreta</span>
+# rotina.sh - conferencia diaria | Uso: ./rotina.sh   <span class="cmt"># 2. o que faz e como usar</span>
+set -euo pipefail              <span class="cmt"># 3. -e para no 1o erro · -u variavel indefinida · pipefail</span>
+DESTINO="$HOME/relatorios"     <span class="cmt"># 4. config no topo, SEMPRE entre aspas</span>
+mkdir -p "$DESTINO"
+df -h /  &gt;  "$DESTINO/sis.txt" <span class="cmt"># 5. &gt; cria/zera · &gt;&gt; acrescenta</span>
+free -h  &gt;&gt; "$DESTINO/sis.txt"
+FIM
+<span class="prompt">$</span> bash -n rotina.sh              <span class="cmt"># valida a sintaxe sem executar NADA</span>
+<span class="prompt">$</span> chmod +x rotina.sh &amp;&amp; ./rotina.sh</pre>
+  </section>
+
+  <div class="perigo"><b>Nunca acrescente <code class="inl">.</code> ao <code class="inl">PATH</code>.</b> O <code class="inl">PATH="$PATH:."</code> no <code class="inl">.bashrc</code> troca segurança por conveniência: basta plantar um arquivo chamado <code class="inl">ls</code>, <code class="inl">git</code> ou <code class="inl">sudo</code> num diretório compartilhado para que o próximo comando digitado ali execute código alheio. A solução correta é <code class="inl">mkdir -p ~/bin</code> — o <code class="inl">.profile</code> do Debian/Kali já o acrescenta ao <code class="inl">PATH</code> se ele existir. E <b>nunca edite um script longo enquanto ele roda</b>: o Bash lê por posição de byte e continuará a partir do deslocamento antigo, agora no meio de outra linha. Edite uma cópia e troque com <code class="inl">mv</code>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Script é o terminal gravado.</b> Mesma sintaxe, mesmo interpretador — monte o pipeline no terminal, confira a saída, e só então copie para o arquivo (<code class="inl">history 20 | cut -c 8-</code> é o rascunho).</li>
+        <li><b>O <i>shebang</i> diz quem interpreta</b>, e o bit <code class="inl">x</code> autoriza o kernel a sequer olhar o arquivo. São dois requisitos, não um.</li>
+        <li><b>Executar cria processo; <code class="inl">source</code> não.</b> Só <code class="inl">source</code> muda a sessão atual.</li>
+        <li><b>Esqueleto decente em 5 itens:</b> <i>shebang</i> · cabeçalho de comentário · <code class="inl">set -euo pipefail</code> · variáveis de config no topo · toda expansão entre aspas.</li>
+        <li><code class="inl">bash -n</code> antes da primeira execução. Custa nada e o shell não valida sozinho.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O <code class="inl">~/bin</code> já está previsto — mas só se você criá-lo.</b> O <code class="inl">.profile</code> só o acrescenta ao <code class="inl">PATH</code> <i>se o diretório existir</i>, e a checagem roda no login: você cria a pasta, põe o script lá e nada acontece até <code class="inl">source ~/.profile</code>. Para ferramenta própria de uso geral, a convenção é <code class="inl">sudo install -m 755 meu.sh /usr/local/bin/meu</code> — diretório que nenhum pacote do APT toca. <b>O shell padrão do Kali é o Zsh desde 2020</b>, mas isso não muda nada em script: com <code class="inl">#!/usr/bin/env bash</code> no topo ele roda em Bash. O erro é testar a linha no Zsh interativo, ver funcionar e supor que valerá no script — confira com <code class="inl">bash -c '...'</code>. Script que embrulha ferramenta ofensiva precisa ser <b>mais</b> explícito: valide a lista de alvos, exiba-a e exija confirmação antes de agir — agir fora do escopo autorizado é crime (Lei 12.737/2012) e "o script leu o arquivo errado" não é defesa. Para aprender convenção lendo gente experiente: <code class="inl">less $(which kali-tweaks)</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 09 · Fase 3 <span class="n">051</span></span>
