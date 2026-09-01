@@ -3,101 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 060 — Arrays indexados e associativos</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Matriz das quatro expansões */
+  .expans { display:flex; flex-direction:column; gap:4px; }
+  .ex { display:grid; grid-template-columns:106px 250px 1fr; gap:8px; align-items:center;
+        border:1.5px solid; border-radius:var(--raio-sm); padding:4px 8px; }
+  .ex .fo { font-family:var(--fonte-mono); font-size:9.5px; }
+  .ex .toks { display:flex; flex-wrap:wrap; gap:3px; }
+  .ex .tk { font-family:var(--fonte-mono); font-size:8.5px; border-radius:3px; padding:2px 5px; color:#fff; }
+  .ex p { font-size:8.5px; line-height:1.3; color:var(--tinta-suave); }
+  .ex p b { color:var(--navy); }
+  .ex.ok { border-color:var(--verde); background:var(--verde-claro); }
+  .ex.ok .fo { color:#1d7038; } .ex.ok .tk { background:var(--verde); }
+  .ex.inf { border-color:var(--azul); background:var(--azul-claro); }
+  .ex.inf .fo { color:var(--azul); } .ex.inf .tk { background:var(--azul); }
+  .ex.ru { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .ex.ru .fo { color:var(--vermelho); } .ex.ru .tk { background:var(--vermelho); }
+  .fonte-arr { font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); margin-bottom:4px; }
+  .fonte-arr b { color:var(--azul); }
+
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start; }
+  .subt { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+          letter-spacing:.04em; color:var(--navy); margin-bottom:4px; }
+  .subt span { color:var(--tinta-suave); text-transform:none; letter-spacing:0; font-weight:400; }
+  .subt code { text-transform:none; font-family:var(--fonte-mono); font-size:11px; }
+
+  /* Tabela chave → valor */
+  .kv { display:flex; flex-direction:column; gap:3px; }
+  .par { display:grid; grid-template-columns:82px 12px 1fr 1fr; gap:5px; align-items:center; }
+  .par .k { font-family:var(--fonte-mono); font-size:9px; text-align:center; border-radius:4px;
+            padding:2px 4px; border:1.5px solid var(--azul); background:var(--azul-claro); color:var(--azul); }
+  .par .s { text-align:center; color:var(--tinta-suave); font-size:9px; }
+  .par .v { font-family:var(--fonte-mono); font-size:9px; text-align:center; border-radius:4px;
+            padding:2px 4px; border:1.5px solid var(--verde); background:var(--verde-claro); color:#1d7038; }
+  .par .obs { font-size:8px; color:var(--vermelho); line-height:1.2; }
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:5px; }
+  .nota b { color:var(--navy); }
+  .aviso { border-left:4px solid var(--laranja); background:var(--laranja-claro); border-radius:var(--raio-sm);
+           padding:5px 8px; font-size:8.8px; line-height:1.32; color:var(--tinta-suave); margin-top:5px; }
+  .aviso b { color:#a8530a; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 060</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Arrays indexados e associativos</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Arrays<br>indexados e associativos</h1>
+      <div class="sub">O backup guardava as exclusões numa variável de texto. Funcionou meses, até alguém acrescentar <code class="inl">/home/kali/Meus Documentos</code>: o <code class="inl">rsync</code> recebeu <code class="inl">--exclude=/home/kali/Meus</code> e, à parte, <code class="inl">Documentos</code> — que virou <b>mais uma origem</b>. Pôr aspas piora: tudo vira um argumento gigante. <b>Cadeia de texto não guarda onde um item termina.</b></div>
     </div>
     <div class="badge"><b>060</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">As quatro expansões de um array inteiro</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="fonte-arr"><b>arr=(um "dois com espaco" tres)</b> — a pergunta é sempre a mesma: o resultado vira <b>vários argumentos</b> ou <b>um texto</b>?</div>
+    <div class="expans">
+      <div class="ex ok">
+        <div class="fo">"${arr[@]}"</div>
+        <div class="toks"><span class="tk">um</span><span class="tk">dois com espaco</span><span class="tk">tres</span></div>
+        <p><b>3 palavras.</b> Um argumento por item, espaços preservados. <b>É a forma correta</b> para passar a comando, iterar num <code class="inl">for</code> ou copiar para outro array. Array vazio → zero argumentos.</p>
+      </div>
+      <div class="ex inf">
+        <div class="fo">"${arr[*]}"</div>
+        <div class="toks"><span class="tk">um dois com espaco tres</span></div>
+        <p><b>1 palavra.</b> Itens unidos pelo <b>primeiro caractere do <code class="inl">IFS</code></b>. Só para exibir ou registrar em log. Outro separador: <code class="inl">( IFS=,; echo "${arr[*]}" )</code> num subshell.</p>
+      </div>
+      <div class="ex ru">
+        <div class="fo">${arr[@]}</div>
+        <div class="toks"><span class="tk">um</span><span class="tk">dois</span><span class="tk">com</span><span class="tk">espaco</span><span class="tk">tres</span></div>
+        <p><b>4 palavras.</b> Sem aspas, o <code class="inl">IFS</code> recorta de novo — o bug da abertura, agora com array.</p>
+      </div>
+      <div class="ex ru">
+        <div class="fo">${arr[*]}</div>
+        <div class="toks"><span class="tk">um</span><span class="tk">dois</span><span class="tk">com</span><span class="tk">espaco</span><span class="tk">tres</span></div>
+        <p><b>4 palavras</b>, idênticas às de cima: <b>sem aspas, <code class="inl">[@]</code> e <code class="inl">[*]</code> são indistinguíveis</b> — e ambos desfazem a estrutura que motivou o array.</p>
+      </div>
+    </div>
+    <div class="nota"><code class="inl">${#arr[@]}</code> conta <b>elementos</b> · <code class="inl">${#arr[0]}</code> conta <b>caracteres do primeiro</b> · <code class="inl">${!arr[@]}</code> lista os <b>índices existentes</b> · <code class="inl">${arr[-1]}</code> é o último · <code class="inl">${arr[@]:1:3}</code> fatia (o <b>espaço</b> em <code class="inl">${arr[@]: -2}</code> é obrigatório, senão o <code class="inl">:-</code> vira valor padrão). O par <code class="inl">@</code>/<code class="inl">*</code> é o mesmo de <code class="inl">"$@"</code>/<code class="inl">"$*"</code> — não é coincidência: os posicionais <b>são</b> um array.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">A mesma tabela de chaves — muda só o tipo da chave</div>
+  <section class="grade2">
+    <div>
+      <div class="subt"><code>declare -a</code> <span>· chave = inteiro · <b>esparso</b></span></div>
+      <div class="kv">
+        <div class="par"><span class="k">[0]</span><span class="s">→</span><span class="v">a</span><span class="obs"></span></div>
+        <div class="par"><span class="k">[2]</span><span class="s">→</span><span class="v">c</span><span class="obs">índice 1 apagado</span></div>
+        <div class="par"><span class="k">[3]</span><span class="s">→</span><span class="v">d</span><span class="obs"></span></div>
+        <div class="par"><span class="k">[9]</span><span class="s">→</span><span class="v">j</span><span class="obs">saltou de 3 para 9</span></div>
+      </div>
+      <div class="nota"><code class="inl">${#arr[@]}</code> vale <b>4</b>, mas o maior índice é <b>9</b>. Um <code class="inl">for (( i=0; i&lt;${#arr[@]}; i++ ))</code> perderia o <code class="inl">j</code> e leria dois índices vazios. <code class="inl">arr[100]=x</code> não aloca 97 posições — só acrescenta uma chave.</div>
+      <div class="aviso"><b>Percorra pelos valores ou pelos índices que existem:</b> <code class="inl">for v in "${arr[@]}"</code> ou <code class="inl">for i in "${!arr[@]}"</code>. Reindexe com <code class="inl">arr=("${arr[@]}")</code>. Cite o <code class="inl">unset 'arr[1]'</code> — sem aspas o <code class="inl">[1]</code> pode virar glob.</div>
+    </div>
+    <div>
+      <div class="subt"><code>declare -A</code> <span>· chave = texto qualquer</span></div>
+      <div class="kv">
+        <div class="par"><span class="k">[ssh]</span><span class="s">→</span><span class="v">22</span><span class="obs"></span></div>
+        <div class="par"><span class="k">[http]</span><span class="s">→</span><span class="v">80</span><span class="obs"></span></div>
+        <div class="par"><span class="k">[https]</span><span class="s">→</span><span class="v">443</span><span class="obs"></span></div>
+        <div class="par"><span class="k">[dns rev]</span><span class="s">→</span><span class="v">53</span><span class="obs">chave com espaço, citada</span></div>
+      </div>
+      <div class="nota">A ordem de <code class="inl">${!mapa[@]}</code> é a da tabela <i>hash</i>: <b>nem a de inserção, nem a alfabética</b>, e pode mudar entre versões do Bash. Relatório sai por <code class="inl">printf '%s\n' "${!mapa[@]}" | sort</code>.</div>
+      <div class="aviso"><b>Sem <code class="inl">declare -A</code>, o Bash trata como array indexado</b> e avalia a chave como <i>aritmética</i>: <code class="inl">ssh</code> e <code class="inl">http</code> valem zero, tudo vai para o índice 0 sobrescrevendo-se — <b>e nenhum erro é emitido</b>. Dentro de função, <code class="inl">declare -A</code> cria variável local: use <code class="inl">declare -gA</code> para global.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="subt">Criar, carregar e montar a linha de comando</div>
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>o padrão que resolve o problema da abertura em qualquer contexto</span></div>
+<pre>arr=(um dois tres)   arr+=(quatro)   arr[9]=dez   <span class="cmt"># literal, append, por indice</span>
+logs=( /var/log/*.log )               <span class="cmt"># do glob: cada arquivo e um item</span>
+mapfile -t linhas &lt; arquivo.txt       <span class="cmt"># -t tira o \n; mais rapido e seguro que while read +=</span>
+mapfile -t users &lt; &lt;(cut -d: -f1 /etc/passwd)
+IFS=: read -ra caminhos &lt;&lt;&lt; "$PATH"   <span class="cmt"># de uma cadeia, com separador escolhido</span>
+
+<span class="cmt"># flags condicionais + caminho com espaco, sem eval e sem depender do IFS</span>
+argumentos=( -a --delete )
+[[ -n ${VERBOSE:-} ]] &amp;&amp; argumentos+=( -v )
+[[ -n ${LIMITE:-}  ]] &amp;&amp; argumentos+=( --bwlimit="$LIMITE" )
+for dir in "${EXCLUSOES[@]}"; do argumentos+=( --exclude="$dir" ); done
+<span class="prompt">$</span> printf 'rsync'; printf ' %q' "${argumentos[@]}"   <span class="cmt"># confira ANTES de executar</span>
+<span class="out">rsync -a --delete -v --bwlimit=2000 --exclude=/home/Meus\ Documentos</span>
+<span class="prompt">$</span> rsync "${argumentos[@]}" "$ORIGEM/" "$DESTINO/"</pre>
+    </div>
+    <div class="nota"><b>O que arrays não fazem:</b> não aninham — o shell tem uma dimensão só (as saídas são chave composta <code class="inl">m["2,3"]</code>, ou aceitar que o problema pede <code class="inl">awk</code> ou Python) — e <b>não são passados nem devolvidos por funções</b>: expanda com <code class="inl">"${arr[@]}"</code> e reconstrua dentro (<code class="inl">local -a itens=( "$@" )</code>), ou use <code class="inl">local -n ref="$1"</code> quando a função precisa <i>modificar</i> o array do chamador. E <b>arrays não são POSIX</b>: <code class="inl">arr=(...)</code> falha no <code class="inl">dash</code> com <code class="inl">Syntax error: "(" unexpected</code> — se o script usa array, o <i>shebang</i> é <code class="inl">#!/usr/bin/env bash</code>, sem exceção.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Lista de caminhos, alvos ou opções é array, nunca texto.</b> A cadeia depende do <code class="inl">IFS</code> e quebra no primeiro item com espaço; pôr aspas na cadeia só troca um defeito por outro.</li>
+        <li><b><code class="inl">"${arr[@]}"</code> com aspas</b> produz um argumento por elemento — a forma certa em quase todo uso. <code class="inl">"${arr[*]}"</code> junta numa palavra só e serve para exibir. <b>Sem aspas, as duas viram a mesma coisa</b> e desfazem o array.</li>
+        <li><b><code class="inl">${#arr[@]}</code> conta elementos; <code class="inl">${#arr[0]}</code> conta caracteres.</b> Os índices que existem estão em <code class="inl">${!arr[@]}</code>.</li>
+        <li><b>Arrays do shell são esparsos:</b> <code class="inl">unset</code> deixa buraco, e iterar por índice numérico pula elementos.</li>
+        <li><b>Associativo exige <code class="inl">declare -A</code> antes do primeiro uso</b> — sem isso a chave de texto vira aritmética, vale zero, e tudo se sobrescreve no índice 0 em silêncio.</li>
+        <li><b><code class="inl">mapfile -t</code> carrega arquivo ou saída de comando</b> em array, uma linha por item — mais rápido e mais seguro que acumular com <code class="inl">+=</code> num <code class="inl">while read</code>.</li>
+        <li><b>Monte a linha com <code class="inl">argumentos+=( … )</code> e chame <code class="inl">cmd "${argumentos[@]}"</code>.</b> Resolve flag condicional e caminho com espaço sem <code class="inl">eval</code> — e o <code class="inl">eval</code> reintroduz injeção de comando sem resolver nada.</li>
+        <li>Sob <code class="inl">set -u</code>, array vazio em <code class="inl">"${arr[@]}"</code> era fatal <b>até o Bash 4.3</b>; do 4.4 em diante (todo Kali atual) expande para nada, corretamente.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Lista de alvos autorizados é array, nunca cadeia de texto.</b> <code class="inl">ALVOS=( 10.10.10.5 "servidor de teste.lab" )</code> sobrevive a nome com espaço e a lista vazia; <code class="inl">ALVOS="10.10.10.5 10.10.10.7"</code> depende do <code class="inl">IFS</code> e falha em silêncio no primeiro item atípico. Como o laço sobre alvos é justamente onde o filtro de escopo se aplica, o tipo de dado errado aqui vira <b>alvo varrido fora do escopo contratado</b> — crime pela Lei 12.737/2012. <b>Opções de <code class="inl">nmap</code>, <code class="inl">gobuster</code> e <code class="inl">hydra</code> montadas condicionalmente pedem array:</b> o <i>wrapper</i> que escolhe entre <code class="inl">-sS</code> e <code class="inl">-sT</code> conforme o privilégio, acrescenta <code class="inl">--max-rate</code> quando há limite contratado e insere o arquivo de saída só às vezes é exatamente o caso do <code class="inl">argumentos+=( … )</code> — com <i>string</i> e <code class="inl">eval</code>, uma senha ou um caminho com aspas na lista vira execução de comando. <b>Associativo é a estrutura natural para agregar resultados:</b> <code class="inl">achados["$ip:$porta"]="$banner"</code> dá deduplicação de graça e consulta direta, sem reprocessar arquivo — lembrando de ordenar na hora do relatório. <b><code class="inl">mapfile -t</code> sobre arquivo de alvos é mais seguro que <code class="inl">for alvo in $(cat alvos.txt)</code></b>, que divide por espaço e ainda expande glob numa linha de comentário; filtre com <code class="inl">[[ $alvo =~ ^[[:space:]]*(#|$) ]] &amp;&amp; continue</code> dentro do laço. <b>Mas wordlist não cabe em array:</b> o <code class="inl">rockyou.txt</code> tem mais de 14 milhões de linhas e o <code class="inl">mapfile</code> carregaria tudo na memória do shell, com dezenas de bytes de sobrecarga por item. Wordlist se processa em fluxo com <code class="inl">while IFS= read -r</code>, ou vai direto para a ferramenta. <b>Array é para dezenas ou milhares de itens, não para milhões.</b></div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 10 · Fase 3 <span class="n">060</span></span>
