@@ -166,7 +166,7 @@ Decisão do Vitor sobre quando encarar: pode ser antes do Volume 14 ou depois do
 - [x] **guia 094** - Automatizando tarefas com cron e scripts agendados - `guias/vol15/guia094-automatizando-tarefas-com-cron-e-scripts-agendad.html`
 - [x] **guia 095** - Controle de versão com Git na linha de comando - `guias/vol15/guia095-controle-de-versao-com-git-na-linha-de-comando.html`
 - [x] **guia 096** - Editores no terminal: vim e nano - `guias/vol15/guia096-editores-no-terminal-vim-e-nano.html`
-- [ ] **guia 097** - Dotfiles e ambientes reproduzíveis - `guias/vol15/guia097-dotfiles-e-ambientes-reproduziveis.html`
+- [x] **guia 097** - Dotfiles e ambientes reproduzíveis - `guias/vol15/guia097-dotfiles-e-ambientes-reproduziveis.html`
 
 ## Fase 5 — Fronteira e Aprofundamento
 

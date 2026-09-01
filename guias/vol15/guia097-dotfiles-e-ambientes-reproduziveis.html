@@ -3,101 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 097 — Dotfiles e ambientes reproduzíveis</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: a escada da reprodutibilidade ---- */
+  .escada { display:grid; grid-template-columns:14px repeat(5,1fr); gap:0 5px; align-items:end;
+            border-left:1.6px solid var(--linha); border-bottom:1.6px solid var(--linha);
+            padding:0 0 2px 4px; }
+  .eixoy { writing-mode:vertical-rl; transform:rotate(180deg); font-size:7px; letter-spacing:.04em;
+           color:var(--tinta-suave); text-transform:uppercase; text-align:center; align-self:center; }
+  .dg { border:1.6px solid; border-radius:var(--raio-sm); padding:3px 6px; text-align:center; }
+  .dg > b { display:block; font-family:var(--fonte-titulo); font-size:8.8px; text-transform:uppercase;
+            letter-spacing:.02em; line-height:1.1; }
+  .dg > span { display:block; font-size:7.1px; line-height:1.16; color:var(--tinta-suave); margin-top:1px; }
+  .dg.d1 { border-color:var(--azul); background:var(--azul-claro); margin-bottom:0; }
+  .dg.d2 { border-color:var(--azul); background:var(--azul-claro); margin-bottom:14px; }
+  .dg.d3 { border-color:var(--verde); background:var(--verde-claro); margin-bottom:28px; }
+  .dg.d4 { border-color:var(--laranja); background:var(--laranja-claro); margin-bottom:42px; }
+  .dg.d5 { border-color:var(--vermelho); background:var(--vermelho-claro); margin-bottom:56px; }
+  .dg.d1 > b, .dg.d2 > b { color:var(--azul); }
+  .dg.d3 > b { color:#1d7038; } .dg.d4 > b { color:var(--laranja); } .dg.d5 > b { color:var(--vermelho); }
+  .eixox { text-align:right; font-size:7px; letter-spacing:.04em; color:var(--tinta-suave);
+           text-transform:uppercase; margin-top:1px; }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.05px; line-height:1.25;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:7.9px; color:var(--roxo); font-weight:600; }
+
+  /* ---- categorias do home ---- */
+  .cat { display:grid; grid-template-columns:1fr; gap:4px; }
+  .ct { display:grid; grid-template-columns:1fr 52px; align-items:center;
+        border:1.5px solid; border-radius:var(--raio-sm); padding:3px 8px; }
+  .ct > div > b { display:block; font-family:var(--fonte-titulo); font-size:8.6px; text-transform:uppercase;
+                  letter-spacing:.02em; line-height:1.1; }
+  .ct > div > span { display:block; font-family:var(--fonte-mono); font-size:7.2px; line-height:1.2;
+                     color:var(--tinta-suave); }
+  .ct > u { text-decoration:none; text-align:center; font-family:var(--fonte-titulo); font-size:8.4px;
+            font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
+  .ct.sim { border-color:var(--verde); background:var(--verde-claro); }
+  .ct.sim > div > b, .ct.sim > u { color:#1d7038; }
+  .ct.nao { border-color:var(--linha); background:var(--papel-tint); }
+  .ct.nao > div > b { color:var(--tinta-suave); } .ct.nao > u { color:var(--tinta-suave); }
+  .ct.nunca { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .ct.nunca > div > b, .ct.nunca > u { color:var(--vermelho); }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.2px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.6px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.4px 6px; line-height:1.16; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.4px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:2.1mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.05px; line-height:1.25; padding:5px 10px; }
+  .bloco .corpo { font-size:7.7px; line-height:1.21; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 097</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Dotfiles e ambientes reproduzíveis</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Dotfiles e ambientes<br>reproduzíveis</h1>
+      <div class="sub">A VM tinha três anos: quarenta aliases refinados um a um, um <code class="inl">.vimrc</code> lapidado em dezenas de sessões, scripts em <code class="inl">~/bin</code> que ninguém mais entendia e funcionavam. O disco do hospedeiro falhou numa terça; o snapshot era de quatro meses antes. <b>Reinstalar o Kali leva vinte minutos — três anos de decisões invisíveis, não.</b></div>
     </div>
     <div class="badge"><b>097</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O espectro de reprodutibilidade: cada degrau reproduz mais e custa mais</div>
+    <div class="escada" style="margin-top:4px">
+      <div class="eixoy">fidelidade →</div>
+      <div class="dg d1"><b>dotfiles no Git</b><span>a sua configuração pessoal</span></div>
+      <div class="dg d2"><b>+ script de bootstrap</b><span>e os pacotes que você instalou</span></div>
+      <div class="dg d3"><b>+ chezmoi / stow</b><span>variação por máquina · segredos referenciados</span></div>
+      <div class="dg d4"><b>+ Ansible</b><span>várias máquinas · idempotência</span></div>
+      <div class="dg d5"><b>+ imagem ou contêiner</b><span>o sistema inteiro</span></div>
+    </div>
+    <div class="eixox">esforço de manutenção e rigidez →</div>
+    <div class="regra"><b>O erro comum é pular direto para o topo.</b> Uma imagem de contêiner reproduz o ambiente perfeitamente e é <i>péssima</i> para configuração que você ajusta todo dia. <b>Para uma estação de trabalho pessoal, o equilíbrio fica entre o segundo e o terceiro degrau</b> — dotfiles versionados mais um script que instala os pacotes; Ansible e imagens entram quando as máquinas passam a ser várias. <b>E o segundo degrau é barato:</b> <code>apt-mark showmanual</code> lista só o que <i>você</i> decidiu instalar, ignorando as dependências — a diferença entre uma lista útil de 120 linhas e um despejo de 2.000 pacotes.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">O que entra no repositório — e por qual estratégia</div>
+    <div class="grade2" style="margin-top:4px">
+      <div class="cat">
+        <div class="ct sim">
+          <div><b>configuração escrita por você</b><span>.zshrc · .vimrc · .tmux.conf · .gitconfig · ~/bin</span></div>
+          <u>sim</u>
+        </div>
+        <div class="ct nao">
+          <div><b>estado gerado pelo programa</b><span>.zsh_history · .cache/ · .local/state/</span></div>
+          <u>não</u>
+        </div>
+        <div class="ct nunca">
+          <div><b>segredo</b><span>.ssh/id_* · .gnupg/ · .netrc · tokens</span></div>
+          <u>nunca</u>
+        </div>
+        <div class="ct nao">
+          <div><b>dados de aplicação</b><span>.mozilla/ · .msf4/ · .local/share/</span></div>
+          <u>não</u>
+        </div>
+        <div class="regra" style="margin-top:1px"><b>Segredo não entra nem em repositório privado</b> — privado vira público por engano com frequência incômoda, e commit é permanente mesmo depois de removido. A ponte de melhor custo-benefício resolve 90% dos casos: <code>[[ -r ~/.zshrc.local ]] &amp;&amp; source ~/.zshrc.local</code> — o repositório guarda a <b>estrutura</b>, a máquina guarda o <b>segredo</b>. Para o resto, <code>pass</code> e <code>age</code>.</div>
+      </div>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Estratégia</th><th>Melhor para · o que custa</th></tr></thead>
+          <tbody>
+            <tr><td>links + script</td><td>começar, com controle total · você escreve o script (ou usa o <b>GNU Stow</b>, que dispensa escrevê-lo em troca de uma estrutura rígida). Editar o arquivo no home <b>é</b> editar o repositório</td></tr>
+            <tr><td>repositório <i>bare</i></td><td>não gostar de links: o <code>.git</code> fica à parte, a árvore é o home · <code>git</code> sem o alias, no home, confunde</td></tr>
+            <tr><td>chezmoi / yadm</td><td>várias máquinas e segredos referenciados, com modelos por host · aprender a ferramenta</td></tr>
+          </tbody>
+        </table>
+        <div class="regra"><b>Máquina-específico sem duplicar arquivo:</b> ramifique por <code>ID</code> do <code>/etc/os-release</code> (<code>apt</code> × <code>dnf</code>, caminhos, serviços) e <b>teste se a ferramenta existe antes de criar o alias</b>: <code>command -v bat &gt;/dev/null &amp;&amp; alias cat='bat'</code>. Um <code>.zshrc</code> que assume ferramenta presente cospe erro em cada terminal da máquina que não a tem.</div>
+      </div>
+    </div>
+    <div class="perigo"><b>A regra é lista de <i>inclusão</i>, nunca lista de exclusão.</b> Dar <code class="inl">git init</code> no home e ir acrescentando ao <code class="inl">.gitignore</code> conforme os problemas aparecem é o caminho garantido para vazar <code class="inl">.ssh/id_ed25519</code> ou um <code class="inl">.zsh_history</code> cheio de comandos com senha: o <code class="inl">.gitignore</code> protege apenas do que você <i>lembrou</i> de listar, e você não vai lembrar de tudo. Faça o inverso — <code class="inl">.gitignore</code> com <code class="inl">*</code> na primeira linha e cada arquivo entrando com <code class="inl">git add -f</code>. Assim o padrão é "não versionado" e a exceção é deliberada, o que inverte quem paga o preço do esquecimento.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — construir, e depois <i>provar</i> que funciona</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/.dotfiles</span></div>
+<pre><span class="prompt">$</span> git init
+<span class="prompt">$</span> printf '*\n!*/\n!.gitignore\n' &gt; .gitignore
+<span class="cmt"># padrão: NADA entra. Cada arquivo, deliberado:</span>
+<span class="prompt">$</span> git add -f zsh/.zshrc vim/.vimrc git/.gitconfig
+<span class="prompt">$</span> git ls-files  <span class="cmt"># confira o que está rastreado</span>
+<span class="cmt"># o que os dotfiles NÃO capturam: os pacotes</span>
+<span class="prompt">$</span> apt-mark showmanual &gt; pacotes-manuais.txt
+<span class="prompt">$</span> xargs -a pacotes-manuais.txt sudo apt install -y
+<span class="cmt"># o instalador educado guarda o que já existia:</span>
+<span class="out">[[ -e $destino &amp;&amp; ! -L $destino ]] \
+  &amp;&amp; mv -- "$destino" "$destino.pre-dotfiles"
+ln -sfn -- "$origem" "$destino"</span>
+<span class="prompt">$</span> git log -p --all | grep -iE 'BEGIN .*PRIVATE|token='
+<span class="cmt"># a última checagem ANTES de qualquer git push</span></pre>
+      </section>
+      <div>
+        <div class="regra" style="margin-top:0"><b>Um repositório de dotfiles que nunca foi aplicado numa máquina limpa é uma <i>hipótese</i>, não um backup.</b> O teste real leva dois minutos: um contêiner descartável (<code>docker run --rm -it kalilinux/kali-rolling bash</code>) ou um usuário novo na própria máquina — <code>useradd -m teste-dot</code>, aplicar o instalador como ele, <code>userdel -r</code> no fim. <b>O que esse teste sempre revela na primeira vez:</b> uma dependência que você tinha e esqueceu de listar, um caminho absoluto com o <i>seu</i> nome de usuário dentro, e uma linha que assume uma ferramenta presente. É muito melhor descobrir isso num contêiner de teste do que na máquina nova, no dia em que a antiga morreu.</div>
+        <div class="regra"><b>Um bootstrap completo tem quatro partes, nesta ordem:</b> <b>1)</b> pacotes (<code>xargs -a pacotes-manuais.txt sudo apt install -y</code>); <b>2)</b> dotfiles (<code>git clone</code> + <code>instalar.sh</code>); <b>3)</b> ajustes do sistema que não são dotfile (fuso, teclado, serviços); <b>4)</b> <b>verificação</b> — <code>command -v vim tmux git zsh</code> e falha explícita se faltar algo. Sem ela você não sabe se deu certo — só que o script terminou.</div>
+      </div>
+    </div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O ambiente de trabalho costuma ser a única parte da infraestrutura que não é reproduzível</b> — e três anos de ajustes invisíveis somem com um disco.</li>
+        <li><b>Lista de inclusão, nunca de exclusão:</b> <code class="inl">*</code> na primeira linha do <code class="inl">.gitignore</code> e cada arquivo entrando com <code class="inl">git add -f</code>.</li>
+        <li><b>Três estratégias:</b> links com script (ou <code class="inl">stow</code>), repositório <i>bare</i> no home, ou <code class="inl">chezmoi</code> quando há várias máquinas e segredos.</li>
+        <li><b>Segredo não entra no repositório, nem no privado</b> — <code class="inl">~/.zshrc.local</code> carregado se existir resolve a maioria dos casos.</li>
+        <li><b><code class="inl">apt-mark showmanual</code> captura o que os dotfiles não capturam:</b> os pacotes que você instalou por decisão própria.</li>
+        <li><b>Nunca aplicado numa máquina limpa = hipótese.</b> Teste num contêiner descartável ou num usuário novo — é sempre na primeira vez que aparece o caminho com o seu nome dentro.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>A VM do Kali é descartável por natureza, e isso é uma vantagem — se os dotfiles estiverem fora dela.</b> Trate a VM como algo que se joga fora e recria: <code class="inl">git clone</code> dos dotfiles, bootstrap, e em quinze minutos o ambiente volta. Quem não tem isso acumula anos numa VM que <i>não pode morrer</i> — o cenário da abertura. O snapshot cobre o <b>estado</b>; os dotfiles cobrem a <b>intenção</b>, que é o que se leva para a máquina seguinte. <b>O home do Kali contém material que nunca pode ir para um repositório:</b> <code class="inl">~/.msf4/</code> guarda o banco do Metasploit, com hosts e credenciais de engajamentos; <code class="inl">~/.ssh/</code> tem chaves; <code class="inl">~/.zsh_history</code> tem comandos com senhas e endereços de alvos. Um <code class="inl">git init</code> no home do Kali é, potencialmente, <b>publicar dados de cliente</b> — risco técnico e problema contratual, e o argumento mais forte para a lista de inclusão: aqui, o custo de um esquecimento é maior que numa máquina comum. <b>Os metapacotes substituem metade do bootstrap:</b> em vez de duzentas ferramentas, <code class="inl">kali-linux-headless</code> ou <code class="inl">kali-tools-top10</code> reconstroem conjuntos coerentes com um comando — e o <code class="inl">apt-mark showmanual</code> lista o <i>metapacote</i>, não o que há dentro dele, que é o desejado. <b>Versione também os scripts de <code class="inl">~/bin</code></b> — as ferramentas pequenas que você escreve são o que mais se perde e mais custa reescrever. <b>E pense antes de publicar dotfiles em repositório público:</b> um <code class="inl">.zshrc</code> revela suas ferramentas, os nomes das suas máquinas e caminhos internos — reconhecimento gratuito para quem se interessar. <b>Fora do Debian:</b> o equivalente do <code class="inl">apt-mark showmanual</code> é <code class="inl">dnf history userinstalled</code>, e o <code class="inl">chezmoi</code> expõe <code class="inl">.chezmoi.osRelease.id</code> como variável de modelo — ramificação declarativa em vez de condicional espalhada.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 15 · Fase 4 <span class="n">097</span></span>
