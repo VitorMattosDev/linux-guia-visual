@@ -3,101 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 040 — systemd: units, targets e o modelo de serviços</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Anatomia do arquivo .service: três seções lado a lado */
+  .anat { display:grid; grid-template-columns:1fr 1.15fr 1fr; gap:10px; }
+  .sec3 { border-radius:8px; padding:8px 10px; border:1.5px solid; }
+  .sec3 > b { display:block; font-family:var(--fonte-mono); font-size:12.5px; margin-bottom:4px; }
+  .sec3 code { font-family:var(--fonte-mono); font-size:10px; display:block; line-height:1.5; color:var(--tinta); }
+  .sec3 .papel { display:block; margin-top:5px; font-size:9.5px; font-style:italic; color:var(--tinta-suave); line-height:1.3; }
+  .sec3.u { border-color:var(--azul);   background:#e8f1fd; } .sec3.u > b { color:var(--azul); }
+  .sec3.s { border-color:var(--verde);  background:var(--verde-claro); } .sec3.s > b { color:var(--verde); }
+  .sec3.i { border-color:var(--laranja);background:#fdf1e4; } .sec3.i > b { color:var(--laranja); }
+  /* Tira de tipos de unit */
+  .tipos { display:flex; flex-wrap:wrap; gap:5px; align-items:center; justify-content:center; }
+  .tipos .rot { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+    letter-spacing:.04em; color:var(--tinta-suave); margin-right:2px; }
+  .tipos span.t { font-family:var(--fonte-mono); font-size:10px; background:#eef2f8;
+    color:var(--navy); border-radius:999px; padding:2px 8px; }
+  .tipos span.t b { color:var(--azul); font-weight:700; }
+  /* Pilha de precedência dos diretórios */
+  .pilha { display:flex; flex-direction:column; gap:5px; }
+  .niv { border-radius:6px; padding:5px 9px; font-size:10px; line-height:1.35; border-left:4px solid; }
+  .niv b { font-family:var(--fonte-mono); font-size:10.5px; display:block; }
+  .niv.a { border-color:var(--vermelho); background:var(--vermelho-claro); } .niv.a b { color:var(--vermelho); }
+  .niv.b { border-color:var(--laranja);  background:#fdf1e4; } .niv.b b { color:var(--laranja); }
+  .niv.c { border-color:#8a94a6; background:#f1f3f7; } .niv.c b { color:#5b6b7d; }
+  .niv.d { border-color:var(--verde); background:var(--verde-claro); } .niv.d b { color:var(--verde); }
+  .lado { display:grid; grid-template-columns:1.05fr 1fr; gap:10px; align-items:start; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 040</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>systemd: units, targets e o modelo de serviços</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>systemd: Units<br>e Targets</h1>
+      <div class="sub">Em vez de um script que <i>faz</i>, um arquivo que <i>descreve</i> — e o PID 1 supervisiona.</div>
     </div>
     <div class="badge"><b>040</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- ANATOMIA DO .SERVICE -->
+  <div class="secao-titulo">Anatomia de um arquivo <code class="inl">.service</code></div>
+  <section class="anat">
+    <div class="sec3 u">
+      <b>[Unit]</b>
+      <code>Description=Coletor</code>
+      <code>After=network.target</code>
+      <code>Wants=network.target</code>
+      <span class="papel">Quem sou e de quem dependo. Vale para todo tipo de unit.</span>
+    </div>
+    <div class="sec3 s">
+      <b>[Service]</b>
+      <code>Type=simple</code>
+      <code>ExecStart=/usr/bin/coletor</code>
+      <code>User=coletor</code>
+      <code>Restart=on-failure</code>
+      <code>RestartSec=5s</code>
+      <span class="papel">Como executar e supervisionar. Só existe em <b>.service</b>.</span>
+    </div>
+    <div class="sec3 i">
+      <b>[Install]</b>
+      <code>WantedBy=multi-user.target</code>
+      <span class="papel">Lida <b>só</b> no <b>enable</b>: diz onde criar o link que faz o serviço subir no boot. Sem ela: <i>No installation config specified</i>.</span>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <section class="tipos">
+    <span class="rot">Tudo é unit:</span>
+    <span class="t"><b>.service</b> processo</span>
+    <span class="t"><b>.target</b> marco</span>
+    <span class="t"><b>.socket</b> ativa sob conexão</span>
+    <span class="t"><b>.timer</b> agenda</span>
+    <span class="t"><b>.mount</b> montagem</span>
+    <span class="t"><b>.path</b> vigia caminho</span>
+    <span class="t"><b>.device</b> udev</span>
+    <span class="t"><b>.slice</b> cgroup</span>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <!-- OS DOIS EIXOS -->
+  <div class="secao-titulo">Requisito × ordem — dois eixos independentes</div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna azul">
+      <h3>"B precisa de A?" — requisito</h3>
+      <ul>
+        <li><code class="inl">Wants=</code> puxa A; se A falhar, B sobe assim mesmo. <b>O padrão sensato.</b></li>
+        <li><code class="inl">Requires=</code> puxa A; se A falhar ao iniciar, B é desativado.</li>
+        <li><code class="inl">BindsTo=</code> se A parar <i>a qualquer momento</i>, B para junto.</li>
+        <li><code class="inl">Conflicts=</code> iniciar B para A.</li>
+      </ul>
+    </div>
+    <div class="coluna verde">
+      <h3>"B começa depois de A?" — ordem</h3>
+      <ul>
+        <li><code class="inl">After=</code> / <code class="inl">Before=</code> — e nada mais.</li>
+        <li>Sozinho, <code class="inl">Requires=</code> <b>não ordena</b>: os dois sobem em paralelo.</li>
+        <li>Erro clássico: funciona na máquina lenta, quebra na rápida.</li>
+        <li>Quase sempre se quer o par: <code class="inl">Requires=db.service</code> + <code class="inl">After=db.service</code>.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- TARGETS + PRECEDÊNCIA -->
+  <div class="secao-titulo">Targets são marcos · e quem vence entre os diretórios</div>
+  <section class="lado">
+    <table class="comparacao">
+      <thead><tr><th>Target</th><th>Marco que representa</th></tr></thead>
+      <tbody>
+        <tr><td><code>sysinit</code></td><td>FS, dispositivos, <code>/tmp</code></td></tr>
+        <tr><td><code>basic</code></td><td>Mínimo pronto; sockets e timers ativos</td></tr>
+        <tr><td><code>network</code></td><td>Rede configurada — <b>não</b> é "tem internet"</td></tr>
+        <tr><td><code>network-online</code></td><td>Conectividade de fato (custa boot)</td></tr>
+        <tr><td><code>multi-user</code></td><td>Sistema completo em modo texto</td></tr>
+        <tr><td><code>graphical</code></td><td>Inclui o multi-user + login gráfico</td></tr>
+        <tr><td><code>rescue</code> / <code>emergency</code></td><td>Shell mínimo / só a raiz somente leitura</td></tr>
+      </tbody>
+    </table>
+    <div class="pilha">
+      <div class="niv a"><b>/run/systemd/system/ ↑ vence</b>tempo de execução — some no reboot</div>
+      <div class="niv b"><b>/etc/systemd/system/</b>do administrador — o seu lugar</div>
+      <div class="niv c"><b>/lib/systemd/system/</b>dos pacotes — o APT sobrescreve</div>
+      <div class="niv d"><b>…service.d/override.conf</b>o <i>drop-in</i>: muda só a chave desejada e continua recebendo as correções do pacote. Crie com <code class="inl">systemctl edit</code> — evite o <code class="inl">--full</code>.</div>
+    </div>
+  </section>
+
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> systemctl cat ssh.service      <span class="cmt"># o arquivo + todos os drop-ins</span>
+<span class="prompt">$</span> systemctl show ssh -p Type -p Restart   <span class="cmt"># config efetiva, com os padroes</span>
+<span class="prompt">$</span> systemd-delta                  <span class="cmt"># o que neste sistema foge do padrao</span>
+<span class="prompt">$</span> sudo systemctl edit ssh.service         <span class="cmt"># cria o drop-in no lugar certo</span>
+<span class="prompt">$</span> sudo systemctl daemon-reload   <span class="cmt"># OBRIGATORIO apos editar unit na mao</span>
+<span class="prompt">$</span> sudo systemctl start tunel@servidor1    <span class="cmt"># template: %i = servidor1</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">Type=</code> diz <b>como o systemd sabe que subiu</b>: <code class="inl">simple</code> (primeiro plano), <code class="inl">forking</code> + <code class="inl">PIDFile=</code> (daemon clássico), <code class="inl">oneshot</code> (roda e acaba).</li>
+        <li>Sem <code class="inl">daemon-reload</code>, a edição "não faz efeito" — o systemd opera com a versão em memória.</li>
+        <li><i>start repeated too quickly</i> é sintoma, não causa: o serviço falha na partida por outro motivo.</li>
+        <li>Units de usuário em <code class="inl">~/.config/systemd/user/</code> dispensam <code class="inl">sudo</code> — substituem o <code class="inl">@reboot</code> do crontab.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Serviços de rede vêm instalados e <b>desabilitados</b> de propósito — máquina de teste vive em rede hostil. Habilitar é ato consciente: <code class="inl">systemctl enable --now ssh</code>. O par <code class="inl">Requires=</code>+<code class="inl">After=postgresql.service</code> é o caso do Metasploit. E <code class="inl">Type=forking</code> sem <code class="inl">PIDFile=</code> é o erro nº 1 ao empacotar ferramenta: se ela tiver <code class="inl">--no-daemon</code>, use-a com <code class="inl">Type=simple</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 07 · Fase 2 <span class="n">040</span></span>
