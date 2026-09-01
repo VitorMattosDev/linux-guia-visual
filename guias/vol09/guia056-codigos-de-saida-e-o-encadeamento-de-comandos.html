@@ -3,101 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 056 — Códigos de saída e o encadeamento de comandos</title>
+<title>GUIA 056 — Códigos de saída e encadeamento</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* As faixas dos 256 códigos */
+  .faixas { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
+  .fx { border:1.5px solid; border-radius:var(--raio); padding:5px 6px; text-align:center;
+        display:flex; flex-direction:column; justify-content:center; gap:1px; }
+  .fx b { font-family:var(--fonte-mono); font-size:13px; line-height:1.1; }
+  .fx span { font-size:8.5px; line-height:1.2; color:var(--tinta-suave); }
+  .fx.ok { border-color:var(--verde);    background:var(--verde-claro); }    .fx.ok b { color:var(--verde); }
+  .fx.er { border-color:var(--vermelho); background:var(--vermelho-claro); } .fx.er b { color:var(--vermelho); }
+  .fx.am { border-color:var(--laranja);  background:var(--laranja-claro); }  .fx.am b { color:#a8530a; }
+  .fx.cz { border-color:var(--linha);    background:var(--papel-tint); }     .fx.cz b { color:#5b6b7d; }
+  .fx.az { border-color:var(--azul);     background:var(--azul-claro); }     .fx.az b { color:var(--azul); }
+
+  /* Curto-circuito */
+  .cc { display:flex; flex-direction:column; gap:6px; }
+  .lin3 { display:flex; align-items:stretch; gap:5px; }
+  .lin3 .cab { flex:0 0 176px; display:flex; flex-direction:column; justify-content:center; }
+  .lin3 .cab b { font-family:var(--fonte-mono); font-size:11px; }
+  .lin3 .cab i { font-style:normal; font-size:8.5px; color:var(--tinta-suave); line-height:1.2; }
+  .lin3 .cx { flex:1; border:1.5px solid; border-radius:var(--raio); padding:5px 7px; text-align:center;
+              font-size:9.5px; line-height:1.25; display:flex; flex-direction:column; justify-content:center; }
+  .lin3 .cx b { font-family:var(--fonte-mono); font-size:11px; }
+  .lin3 .sa { align-self:center; font-size:14px; font-weight:700; flex:none; }
+  .cx.g { border-color:var(--verde);    background:var(--verde-claro); }    .cx.g b { color:var(--verde); }
+  .cx.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .cx.r b { color:var(--vermelho); }
+  .cx.n { border-color:var(--linha);    background:#fff; }                  .cx.n b { color:var(--navy); }
+  .certo { border:1.5px dashed var(--azul); background:var(--azul-claro); border-radius:var(--raio);
+           padding:5px 9px; font-size:9.5px; color:var(--navy); }
+  .certo code { font-family:var(--fonte-mono); }
+
+  .grade2 { display:grid; grid-template-columns:1.45fr 1fr; gap:10px; align-items:start; }
+  .excs { border:1.5px solid var(--laranja); border-radius:var(--raio); background:var(--laranja-claro);
+          padding:7px 9px; }
+  .excs > h4 { font-family:var(--fonte-titulo); font-size:10.5px; text-transform:uppercase;
+               letter-spacing:.04em; color:#a8530a; margin-bottom:4px; }
+  .excs .e { font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); line-height:1.5; }
+  .excs .obs { font-size:8.5px; line-height:1.35; color:var(--tinta-suave); margin-top:5px;
+               border-top:1px solid rgba(232,114,12,.35); padding-top:4px; }
+  .nota { font-size:9.5px; line-height:1.4; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 056</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Códigos de saída e o encadeamento de comandos</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Códigos<br>de Saída</h1>
+      <div class="sub">Duas linhas corretas isoladamente: <code class="inl">cd /var/www/releases/atual</code> e <code class="inl">rm -rf *</code>. No dia em que <code class="inl">atual</code> virou link quebrado, o <code class="inl">cd</code> falhou — e o <code class="inl">rm</code> rodou no diretório em que o script tinha começado. Faltava um <code class="inl">&amp;&amp;</code>.</div>
     </div>
     <div class="badge"><b>056</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">O mapa dos 256 valores — <b>0 é sucesso</b>, o resto diz <i>qual</i> falha</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="faixas">
+      <div class="fx ok"><b>0</b><span>sucesso</span></div>
+      <div class="fx er"><b>1</b><span>erro genérico</span></div>
+      <div class="fx er"><b>2</b><span>uso incorreto — sintaxe, opção inválida</span></div>
+      <div class="fx am"><b>64–78</b><span>convenção do <code>sysexits.h</code></span></div>
+      <div class="fx cz"><b>126</b><span>achou, mas não é executável</span></div>
+      <div class="fx cz"><b>127</b><span>comando não encontrado</span></div>
+      <div class="fx az"><b>128+N</b><span>morto pelo sinal N</span></div>
+      <div class="fx az"><b>130</b><span>Ctrl+C — SIGINT (2)</span></div>
+      <div class="fx az"><b>137</b><span>SIGKILL (9) — o OOM killer</span></div>
+      <div class="fx az"><b>143</b><span>SIGTERM (15) — parada de serviço</span></div>
+      <div class="fx cz"><b>255</b><span>fora de faixa, ou erro do <code>ssh</code></span></div>
+      <div class="fx cz"><b>$?</b><span>o último — sobrescrito a cada comando</span></div>
+    </div>
+    <div class="nota">A faixa de 126 a 143 é a que mais economiza diagnóstico: um serviço que sai com <b>137</b> não tem defeito de lógica — foi morto pelo kernel, quase sempre por falta de memória (procure no <code class="inl">dmesg</code>, não no código). Um <b>127</b> é o <code class="inl">PATH</code> sem o diretório certo; um <b>126</b> é bit <code class="inl">x</code> ausente ou <i>shebang</i> errado. <b>O código é um byte:</b> <code class="inl">exit 256</code> vira <b>0</b> e <code class="inl">exit -1</code> vira <b>255</b> — contador de erros não serve como código de saída. E <code class="inl">$?</code> é sobrescrito pelo comando seguinte, <i>inclusive pelo <code class="inl">echo</code> que o imprime</i>: guarde em <code class="inl">rc=$?</code> se for usar duas vezes. Já <code class="inl">exit</code> sem argumento propaga o <code class="inl">$?</code> do último comando — o comportamento certo no fim de um bloco de tratamento de erro.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Curto-circuito · e a armadilha do falso ternário</div>
+  <section>
+    <div class="cc">
+      <div class="lin3">
+        <div class="cab"><b style="color:var(--verde)">A &amp;&amp; B || C</b><i>o caso feliz: <b>A falha</b></i></div>
+        <div class="cx n"><b>A</b>falhou</div><span class="sa" style="color:var(--vermelho)">→</span>
+        <div class="cx r"><b>B</b>pulado pelo <code>&amp;&amp;</code></div><span class="sa" style="color:var(--verde)">→</span>
+        <div class="cx g"><b>C</b>executa — o <code>||</code> viu a falha ✔</div>
+      </div>
+      <div class="lin3">
+        <div class="cab"><b style="color:var(--vermelho)">A &amp;&amp; B || C</b><i>a armadilha: <b>A passa e B falha</b></i></div>
+        <div class="cx n"><b>A</b>sucesso</div><span class="sa" style="color:var(--verde)">→</span>
+        <div class="cx n"><b>B</b>executa <b style="color:var(--vermelho)">e falha</b></div><span class="sa" style="color:var(--vermelho)">→</span>
+        <div class="cx r"><b>C</b>executa <b>também</b> ✘</div>
+      </div>
+      <div class="certo"><b>A forma correta quando <code>B</code> pode falhar:</b> <code>if A; then B; else C; fi</code>. O <code>||</code> não faz ideia de que o <code>&amp;&amp;</code> existiu — ele só observa o código do que veio <i>imediatamente</i> antes. Enquanto <code>B</code> for algo que não falha (<code>echo</code>, atribuição, <code>true</code>), a cadeia é idiomática e segura.</div>
+    </div>
+    <div class="nota"><code class="inl">;</code> e a <b>quebra de linha</b> significam a mesma coisa: <i>execute o próximo, aconteça o que acontecer</i>. Para agrupar, <code class="inl">cmd || { erro "falhou"; exit 1; }</code> roda no <b>shell atual</b> (espaço depois de <code class="inl">{</code> e <code class="inl">;</code> antes de <code class="inl">}</code> são obrigatórios); já <code class="inl">cmd || ( erro; exit 1 )</code> cria <b>subshell</b> — o <code class="inl">exit</code> encerra só o subshell e <b>o script segue</b>, com o erro que deveria abortá-lo não abortando nada.</div>
+  </section>
+
+  <div class="secao-titulo">O <i>pipeline</i> mente · o <code class="inl">set -e</code> tem exceções</div>
+  <section class="grade2">
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-exit</span></div>
+<pre><span class="prompt">$</span> tar czf - /naoexiste | gzip &gt; b.gz; echo $?
+<span class="out">0</span> <span class="cmt"># o backup "deu certo" e saiu vazio</span>
+<span class="prompt">$</span> set -o pipefail       <span class="cmt"># devolve o 1o que falhou</span>
+<span class="prompt">$</span> false | true; echo $?         <span class="out">1</span>
+<span class="prompt">$</span> false | true | false
+<span class="prompt">$</span> echo "${PIPESTATUS[@]}"       <span class="out">1 0 1</span>
+<span class="cmt"># PIPESTATUS tambem e sobrescrito: copie antes de usar</span>
+<span class="prompt">$</span> readonly EX_USO=2 EX_DEP=3 EX_PERM=4
+<span class="prompt">$</span> command -v jq &gt;/dev/null || exit "$EX_DEP"</pre>
+    </div>
+    <div class="excs">
+      <h4>set -e ignora a falha em…</h4>
+      <div class="e">if <b>cmd</b>; then … fi<br>
+      while <b>cmd</b>; do … done<br>
+      <b>cmd</b> || true<br>
+      <b>cmd</b> &amp;&amp; outro<br>
+      ! <b>cmd</b></div>
+      <div class="obs">Não são caprichos: em todas elas a falha <b>faz parte da lógica escrita</b>. Duas consequências pegam quase todo mundo: <b>1.</b> uma função chamada dentro de <code class="inl">if</code> roda <b>inteira</b> sem <code class="inl">errexit</code> — só o retorno final é avaliado; <b>2.</b> o <b>último</b> comando de uma função vira o retorno dela, e um <code class="inl">(( n ))</code> com <code class="inl">n=0</code> reporta falha que nunca houve. Termine toda função com <code class="inl">return 0</code> explícito.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Uma quebra de linha entre dois comandos é um <code class="inl">;</code> — e num script de limpeza isso é o desastre inteiro.</b> <code class="inl">cd "$DIR"</code> numa linha e <code class="inl">rm -rf ./*</code> na seguinte apaga o diretório <i>atual</i> se o <code class="inl">cd</code> falhar. A correção cabe em dois caracteres: <code class="inl">cd "$DIR" &amp;&amp; rm -rf ./*</code> — melhor ainda com <code class="inl">set -euo pipefail</code> no topo e <code class="inl">echo</code> na frente no primeiro ensaio. Prefira <code class="inl">./*</code> a <code class="inl">*</code>: um arquivo chamado <code class="inl">-rf</code> ou <code class="inl">--no-preserve-root</code> deixa de virar opção. E <code class="inl">rm -f</code> engole o erro sem avisar — foi ele que fez o script do cenário de abertura terminar com cara de sucesso.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>0 é sucesso, o resto diz qual falha.</b> <code class="inl">$?</code> guarda só o último — copie em <code class="inl">rc=$?</code> antes de reusar.</li>
+        <li><b>As faixas têm significado:</b> 126 achou/não executa · 127 não achou · <code class="inl">128+N</code> morte por sinal (130 Ctrl+C, 143 SIGTERM, 137 SIGKILL/OOM).</li>
+        <li><b><code class="inl">&amp;&amp;</code> e <code class="inl">||</code> são curto-circuito</b>, e <code class="inl">A &amp;&amp; B || C</code> <b>não</b> é um ternário: se <code class="inl">B</code> falhar, <code class="inl">C</code> roda também.</li>
+        <li><b><code class="inl">{ …; }</code> agrupa no shell atual; <code class="inl">( … )</code> cria subshell</b> — e o <code class="inl">exit</code> lá dentro não encerra o script.</li>
+        <li><b>Um <i>pipeline</i> devolve o código do último.</b> <code class="inl">set -o pipefail</code> ou <code class="inl">PIPESTATUS</code>; sem um dos dois, um <code class="inl">tar | gzip</code> com o <code class="inl">tar</code> quebrado reporta sucesso.</li>
+        <li><b>Dê nome aos seus códigos</b> (<code class="inl">EX_USO=2</code>, <code class="inl">EX_DEP=3</code>): quem chama distingue "faltou dependência" de "argumento errado".</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Muita ferramenta usa código ≠ 0 para "não encontrei nada" — e isso não é erro.</b> O <code class="inl">grep</code> devolve <b>1</b> quando não casa e <b>2</b> quando houve erro de verdade; o <code class="inl">diff</code> devolve 1 para "arquivos diferentes"; o <code class="inl">find</code> devolve 0 mesmo sem achar nada. Sob <code class="inl">set -e</code>, um <code class="inl">grep</code> que não casa <b>aborta o script</b> — corrija com <code class="inl">|| true</code> ou teste com <code class="inl">if</code>. <b>O <code class="inl">nmap</code> sai com 0 mesmo quando o alvo não responde</b>: para ele, "varri e não achei porta aberta" é sucesso, então decidir o próximo passo pelo código de saída decide errado — use a saída estruturada (<code class="inl">-oX</code>, <code class="inl">-oG</code>) analisada depois; o mesmo para <code class="inl">nikto</code>, <code class="inl">gobuster</code> e <code class="inl">hydra</code>, cujos códigos variam entre versões num <i>rolling</i>. <b><code class="inl">systemctl is-active --quiet ssh</code></b> foi feito para ser usado por código, não por texto — a palavra pode mudar de idioma e existe o estado <code class="inl">activating</code>. <b>O <code class="inl">ssh</code> devolve o código do comando remoto, mas usa 255 para os próprios erros</b> (autenticação, host inalcançável): num laço sobre hosts, trate 255 como problema de conexão, registre e siga. E registrar comando, horário e código por alvo é parte da <b>trilha de auditoria</b> — é o que sustenta depois a demonstração de que o trabalho ficou dentro do escopo contratado (Lei 12.737/2012 vista pelo lado de quem tem autorização e precisa comprová-la).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 09 · Fase 3 <span class="n">056</span></span>
