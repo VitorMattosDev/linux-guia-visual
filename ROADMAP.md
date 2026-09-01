@@ -131,7 +131,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 080** - Diagnóstico: ping, traceroute, ss, dig e mtr - `guias/vol13/guia080-diagnostico-ping-traceroute-ss-dig-e-mtr.html`
 - [x] **guia 081** - Acesso remoto: SSH, scp e rsync - `guias/vol13/guia081-acesso-remoto-ssh-scp-e-rsync.html`
 - [x] **guia 082** - HTTP na linha de comando: curl, wget e netcat - `guias/vol13/guia082-http-na-linha-de-comando-curl-wget-e-netcat.html`
-- [ ] **guia 083** - Firewall no Linux: nftables e iptables - `guias/vol13/guia083-firewall-no-linux-nftables-e-iptables.html`
+- [x] **guia 083** - Firewall no Linux: nftables e iptables - `guias/vol13/guia083-firewall-no-linux-nftables-e-iptables.html`
 - [ ] **guia 084** - Captura de tráfego: tcpdump e tshark - `guias/vol13/guia084-captura-de-trafego-tcpdump-e-tshark.html`
 
 ### Volume 14 — Segurança e o Ambiente Kali

@@ -3,101 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 083 — Firewall no Linux: nftables e iptables</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: o caminho do pacote pelos ganchos ---- */
+  .net { display:grid; grid-template-columns:132px 1fr 132px; gap:8px; align-items:center; }
+  .col { display:flex; flex-direction:column; gap:3px; align-items:stretch; }
+  .nf { border:1.5px solid; border-radius:var(--raio-sm); padding:3px 5px; text-align:center;
+        font-family:var(--fonte-mono); font-size:8px; font-weight:700; line-height:1.15; }
+  .nf i { display:block; font-style:normal; font-family:var(--fonte-texto); font-weight:400;
+          font-size:6.8px; color:var(--tinta-suave); }
+  .nf.g { border-color:#8496a8; background:#f2f5f9; color:var(--navy); }
+  .nf.y { border-color:var(--laranja); background:var(--laranja-claro); color:#a8530a; }
+  .nf.r { border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); }
+  .nf.v { border-color:var(--verde); background:var(--verde-claro); color:#1d7038; }
+  .nf.a { border-color:var(--azul); background:var(--azul-claro); color:var(--azul); }
+  .nf.p { border-color:var(--roxo); background:var(--roxo-claro); color:var(--roxo); }
+  .dn { text-align:center; font-size:9px; color:var(--tinta-suave); line-height:1; }
+  .ramos { display:flex; flex-direction:column; gap:5px; }
+  .ramo { border:1.5px dashed; border-radius:var(--raio-sm); padding:3px 6px; }
+  .ramo.v { border-color:var(--verde); } .ramo.a { border-color:var(--azul); }
+  .ramo > em { display:block; font-style:normal; font-family:var(--fonte-titulo); font-size:7.6px;
+               text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px; }
+  .ramo.v > em { color:#1d7038; } .ramo.a > em { color:var(--azul); }
+  .fila { display:flex; align-items:center; gap:4px; }
+  .fila .nf { flex:1; }
+  .fila .ar { font-size:9px; color:var(--tinta-suave); }
+
+  /* ---- figura 2: a ordem decide ---- */
+  .cadeia { display:flex; flex-direction:column; gap:3px; }
+  .rg { display:grid; grid-template-columns:20px 1fr; gap:6px; align-items:center;
+        border-left:3px solid; border-radius:0 var(--raio-sm) var(--raio-sm) 0; padding:3px 6px; }
+  .rg .n { width:18px; height:15px; line-height:15px; text-align:center; border-radius:3px;
+           color:#fff; font-family:var(--fonte-mono); font-size:8px; font-weight:700; }
+  .rg code { font-family:var(--fonte-mono); font-size:7.9px; color:var(--navy); font-weight:600; }
+  .rg span { display:block; font-size:7.6px; line-height:1.2; color:var(--tinta-suave); }
+  .rg.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .rg.r .n { background:var(--vermelho); }
+  .rg.x { border-color:var(--linha); background:#f4f6f9; opacity:.72; } .rg.x .n { background:#8496a8; }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1.2fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.6px; line-height:1.28; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+          letter-spacing:.03em; color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:5px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:74px 1fr; gap:6px; align-items:baseline;
+              font-size:8.1px; line-height:1.22; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700;
+                font-size:8.1px; color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8px; color:var(--navy); font-weight:600; }
+  .lista.est li i { color:var(--verde); }
+
+  .guia { gap:5mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:11px; line-height:1.34; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:8.35px; line-height:1.26; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:3px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 083</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Firewall no Linux: nftables e iptables</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Firewall no Linux:<br>nftables e iptables</h1>
+      <div class="sub">O administrador digitou de memória <code class="inl">iptables -A INPUT -p tcp --dport 80 -j ACCEPT</code> e a porta continuou fechada. A primeira regra da cadeia, posta meses antes por outra pessoa, era um <code class="inl">-j DROP</code> genérico: a liberação entrou <b>depois</b> do descarte, num ponto que o pacote nunca alcançava.</div>
     </div>
     <div class="badge"><b>083</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Um motor (Netfilter), e o caminho que o pacote faz por ele</div>
+    <div class="net" style="margin-top:4px">
+      <div class="col">
+        <span class="nf g">entra na placa</span>
+        <span class="dn">↓</span>
+        <span class="nf r">prerouting<i>DNAT · antes da rota</i></span>
+        <span class="dn">↓</span>
+        <span class="nf y">roteamento<i>para quem é este pacote?</i></span>
+      </div>
+      <div class="ramos">
+        <div class="ramo v">
+          <em>para a própria máquina</em>
+          <div class="fila">
+            <span class="nf v">input</span><span class="ar">→</span>
+            <span class="nf p">processo local<i>sshd, nginx…</i></span><span class="ar">→</span>
+            <span class="nf v">output</span>
+          </div>
+        </div>
+        <div class="ramo a">
+          <em>de passagem — a máquina roteando</em>
+          <div class="fila">
+            <span class="nf a">forward<i>e <b>nunca</b> toca o input</i></span>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <span class="nf y">roteamento</span>
+        <span class="dn">↓</span>
+        <span class="nf r">postrouting<i>SNAT · masquerade</i></span>
+        <span class="dn">↓</span>
+        <span class="nf g">sai na placa</span>
+      </div>
+    </div>
+    <div class="regra"><b>A decisão de rota parte o fluxo em dois, e é ela que determina qual gancho o pacote vê</b> — o erro clássico de quem monta um gateway ou VPN é escrever a regra em <code>input</code> quando o pacote está em <code>forward</code>. <b>Um motor, duas interfaces:</b> o <code>iptables</code> (1998) é o que você vai <b>encontrar</b> em sistema legado e em tutorial; o <code>nftables</code> é o que você vai <b>escrever</b> — e no Kali atual o próprio <code>iptables</code> já é um invólucro que fala <code>nftables</code> por baixo.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">A ordem decide · e o estado é o que torna o firewall usável</div>
+    <div class="grade2" style="margin-top:4px">
+      <div>
+        <div class="cadeia">
+          <div class="rg r">
+            <span class="n">1</span>
+            <div><code>-j DROP</code><span>posta meses antes por outra pessoa — <b>o pacote para aqui</b></span></div>
+          </div>
+          <div class="rg x">
+            <span class="n">2</span>
+            <div><code>-p tcp --dport 80 -j ACCEPT</code><span>acrescentada com <code>-A</code>, ao fim: <b>nunca alcançada</b></span></div>
+          </div>
+        </div>
+        <div class="regra"><b>Lista ordenada, avaliada de cima para baixo, e a primeira que casa decide.</b> Não há "a regra mais específica vence": há <b>posição na fila</b>. Quase todo erro de firewall é erro de ordem, não de sintaxe — e o diagnóstico é uma linha: <code>iptables -L INPUT -n -v --line-numbers</code>. A coluna <code>pkts</code> é ouro: regra que devia pegar tráfego e mostra <b>0 packets</b> não está sendo alcançada.</div>
+      </div>
+      <div>
+        <p class="sub2">Estado da conexão (conntrack)</p>
+        <ul class="lista est">
+          <li><i>new</i><span>o primeiro pacote, tentando abrir conexão — <b>é só isto que você precisa decidir</b></span></li>
+          <li><i>established</i><span>pertence a uma conexão já aceita: <b>a resposta vem de graça</b></span></li>
+          <li><i>related</i><span>nova, mas ligada a outra (erro ICMP, canal de dados do FTP)</span></li>
+          <li><i>invalid</i><span>não casa com estado nenhum — quase sempre lixo, a descartar</span></li>
+        </ul>
+        <div class="regra"><b>Sem estado, permitir navegação exigiria abrir todas as portas altas por onde as respostas voltam</b> — impossível de prever, e abriria a máquina inteira. E <code>iif lo accept</code> não é opcional: incontáveis serviços conversam consigo mesmos por <code>127.0.0.1</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática: a base que toda política sensata tem</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: /etc/nftables.conf</span></div>
+<pre><span class="out">flush ruleset   </span><span class="cmt"># após o #!/usr/sbin/nft -f; idempotente</span>
+<span class="out">table inet filter {    </span><span class="cmt"># inet = IPv4 e IPv6 juntos</span>
+<span class="out">  chain input {
+    type filter hook input priority 0; policy drop;
+    ct state established,related accept
+    ct state invalid drop
+    iif lo accept
+    ip protocol icmp accept
+    ip6 nexthdr icmpv6 accept   </span><span class="cmt"># NDP é essencial</span>
+<span class="out">    tcp dport 22 ct state new limit rate 4/minute accept
+    tcp dport { 80, 443 } ct state new accept
+  }
+  chain forward { type filter hook forward priority 0; policy drop; }
+}</span>
+<span class="prompt">$</span> sudo nft -f /etc/nftables.conf   <span class="cmt"># troca TUDO, atômico</span>
+<span class="prompt">$</span> sudo systemctl enable nftables   <span class="cmt"># e só isto persiste</span></pre>
+      </section>
+      <div>
+        <p class="sub2">iptables: onde cada opção morde</p>
+        <ul class="lista">
+          <li><i>-A</i><span><b>A</b>crescenta ao fim — vai <b>depois</b> de um <code>DROP</code> existente e nunca é alcançada</span></li>
+          <li><i>-I [n]</i><span><b>I</b>nsere no topo (ou na posição <code>n</code>): a forma de pôr uma regra antes das outras</span></li>
+          <li><i>-P</i><span>define a <b>política padrão</b> da cadeia</span></li>
+          <li><i>-F</i><span>esvazia a cadeia — com política <code>DROP</code>, corta todo o acesso na hora</span></li>
+        </ul>
+        <p class="sub2">Gateway: encaminhar e mascarar</p>
+        <ul class="lista">
+          <li><i>1</i><span><code>sysctl -w net.ipv4.ip_forward=1</code></span></li>
+          <li><i>2</i><span><code>nft add rule ip nat postrouting oifname "enp0s3" masquerade</code> — o SNAT que o roteador doméstico faz</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="perigo"><b>Política padrão <code class="inl">DROP</code> na cadeia <code class="inl">INPUT</code> corta a sessão SSH atual no mesmo instante</b>, se a regra que libera o SSH ainda não estiver no lugar. Em máquina remota a ordem é inegociável: insira <code class="inl">established,related</code> e o SSH, <b>confirme numa segunda conexão</b>, e só então mude a política. Melhor ainda, agende o resgate antes: <code class="inl">echo 'nft flush ruleset' | sudo at now + 5 minutes</code> — <code class="inl">atrm</code> cancela se tudo der certo. <b>E persistir é passo separado, sempre.</b></div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Lista ordenada, primeira que casa decide.</b> Não existe "mais específica vence" — existe posição na fila.</li>
+        <li><b>A decisão de rota escolhe o gancho:</b> para a máquina é <code class="inl">input</code>, de passagem é <code class="inl">forward</code>, e um nunca vê o outro.</li>
+        <li><b>Com <code class="inl">conntrack</code> você só decide o que é <code class="inl">new</code></b> — a resposta entra por <code class="inl">established,related</code>. E <code class="inl">iif lo accept</code> não é opcional.</li>
+        <li><b><code class="inl">-A</code> acrescenta ao fim, <code class="inl">-I</code> insere no topo</b> — e <code class="inl">-L -n -v --line-numbers</code> mostra a ordem real e os contadores.</li>
+        <li><b>Regra na memória some no reboot:</b> <code class="inl">nftables.service</code> ou <code class="inl">iptables-persistent</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Kali não vem com firewall carregado, de propósito:</b> <code class="inl">nft list ruleset</code> numa instalação nova volta vazio e as cadeias do <code class="inl">iptables</code> estão em <code class="inl">ACCEPT</code>. Não é falha — uma máquina de teste precisa que o tráfego flua sem obstáculo para não confundir "o firewall bloqueou" com "o alvo não respondeu". A contrapartida é que <b>a proteção é responsabilidade sua</b>. <b>Firewall de saída é o que contém o shell reverso, e quase ninguém configura:</b> todo mundo filtra o que entra, poucos filtram o que sai — mas o padrão de um comprometimento é uma conexão de <b>saída</b>, iniciada pela máquina invadida, para porta alta num servidor de controle. Uma política <code class="inl">output</code> restrita transforma isso numa tentativa frustrada e visível no log: melhor custo-benefício, e a mais negligenciada. <b><code class="inl">conntrack -L</code> é análise, não só firewall:</b> lista o que o kernel rastreia agora — mais difícil de falsear que o <code class="inl">ss</code>, porque vive no kernel. <b>Limitar conexão nova contém força bruta na origem</b> (<code class="inl">limit rate 4/minute</code>), antes de o <code class="inl">sshd</code> gastar um ciclo. <b>Regra escrita não é regra testada:</b> dispare <code class="inl">nc -zv</code> e <code class="inl">ping</code> de um namespace e confira os contadores. <b>RHEL:</b> o <code class="inl">firewalld</code> vem ativo e restritivo, com <b>zonas</b> e <code class="inl">firewall-cmd --add-service=https --permanent</code> — mexer no <code class="inl">nft</code> por baixo dele gera conflito.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 13 · Fase 4 <span class="n">083</span></span>
