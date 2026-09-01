@@ -3,101 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 047 — Sistemas de arquivos: ext4, Btrfs, XFS e formatação</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Anatomia: as estruturas dentro da partição */
+  .anat-fs { display:flex; flex-direction:column; gap:6px; }
+  .fila { display:flex; gap:4px; align-items:stretch; }
+  .est { border:1px solid; border-radius:5px; padding:5px 4px; text-align:center;
+         font-size:9px; line-height:1.2; display:flex; flex-direction:column; justify-content:center; gap:2px; }
+  .est b { font-family:var(--fonte-titulo); font-size:10px; color:var(--navy); }
+  .est i { font-style:normal; font-size:8px; color:var(--tinta-suave); }
+  .est.sb  { border-color:var(--vermelho); background:var(--vermelho-claro); flex:0 0 92px; }
+  .est.gd  { border-color:var(--laranja);  background:var(--laranja-claro);  flex:0 0 82px; }
+  .est.mp  { border-color:var(--azul);     background:var(--azul-claro);     flex:0 0 70px; }
+  .est.ino { border-color:var(--azul);     background:#dce9fa;               flex:0 0 120px; }
+  .est.dd  { border-color:var(--linha);    background:var(--papel-tint);     flex:1; }
+  .jrn { display:flex; gap:8px; align-items:center; border:1px solid var(--verde);
+         background:var(--verde-claro); border-radius:5px; padding:5px 8px; }
+  .jrn > b { flex:0 0 92px; font-family:var(--fonte-titulo); font-size:10px; color:var(--verde);
+             text-transform:uppercase; text-align:center; }
+  .jrn > span { font-size:9.5px; line-height:1.35; color:var(--tinta-suave); }
+  .jrn > span b { color:var(--navy); }
+  /* Três candidatos */
+  .tres { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .fs { border:1.5px solid; border-radius:8px; padding:6px 8px; }
+  .fs > h4 { font-family:var(--fonte-titulo); font-size:13px; text-transform:uppercase; letter-spacing:.02em; }
+  .fs > .quando { font-size:8.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--tinta-suave); margin-bottom:4px; }
+  .fs ul { list-style:none; display:flex; flex-direction:column; gap:3px; }
+  .fs li { font-size:9px; line-height:1.3; color:var(--tinta-suave); padding-left:11px; position:relative; }
+  .fs li::before { content:"▸"; position:absolute; left:0; }
+  .fs li b { color:var(--navy); }
+  .fs.e4 { border-color:var(--azul); background:var(--azul-claro); }    .fs.e4 > h4, .fs.e4 li::before { color:var(--azul); }
+  .fs.xf { border-color:var(--laranja); background:var(--laranja-claro);}.fs.xf > h4, .fs.xf li::before { color:#a8530a; }
+  .fs.bt { border-color:var(--roxo); background:var(--roxo-claro); }     .fs.bt > h4, .fs.bt li::before { color:var(--roxo); }
+  /* Cópia-na-escrita */
+  .cow { display:flex; gap:12px; align-items:center; border:1px dashed var(--linha);
+         background:var(--papel-tint); border-radius:8px; padding:6px 10px; }
+  .cow-linhas { display:flex; flex-direction:column; gap:4px; flex:0 0 auto; }
+  .cl { display:flex; align-items:center; gap:5px; }
+  .cl > .rt { flex:0 0 108px; font-size:8.5px; text-align:right; color:var(--tinta-suave); line-height:1.15; }
+  .blk { width:30px; height:22px; border-radius:4px; border:1px solid; display:flex; align-items:center;
+         justify-content:center; font-family:var(--fonte-mono); font-size:11px; }
+  .blk.velho { border-color:var(--linha); background:#fff; color:var(--tinta-suave); }
+  .blk.novo  { border-color:var(--verde); background:var(--verde-claro); color:#1d6b36; font-weight:700; }
+  .blk.some  { border-style:dashed; opacity:.45; }
+  .cow > p { flex:1; font-size:9.5px; line-height:1.35; color:var(--tinta-suave); }
+  .cow > p b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 047</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Sistemas de arquivos: ext4, Btrfs, XFS e formatação</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Sistemas de Arquivos<br>ext4 · XFS · Btrfs</h1>
+      <div class="sub">Depois do apagão o sistema sobe em segundos, mas o documento salvo há pouco voltou vazio: <b>o <i>journal</i> protege a estrutura, não o conteúdo.</b></div>
     </div>
     <div class="badge"><b>047</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- ANATOMIA -->
+  <div class="secao-titulo">Dentro da partição — de bloco numerado a arquivo</div>
+  <section class="anat-fs">
+    <div class="fila">
+      <div class="est sb"><b>superbloco</b><i>tamanho, UUID, rótulo, estado — com cópias espalhadas</i></div>
+      <div class="est gd"><b>descritores</b><i>de grupo</i></div>
+      <div class="est mp"><b>mapa</b><i>de blocos</i></div>
+      <div class="est mp"><b>mapa</b><i>de inodes</i></div>
+      <div class="est ino"><b>tabela de inodes</b><i>dono, permissões, datas e ponteiros — <b>menos o nome</b></i></div>
+      <div class="est dd"><b>blocos de dados</b><i>o conteúdo dos arquivos</i></div>
+    </div>
+    <div class="jrn">
+      <b>journal</b>
+      <span>Registra a <b>intenção</b> de alterar metadados antes de aplicá-la: após uma queda o kernel refaz ou descarta o que ficou pela metade, em segundos, sem varrer o disco. <b>O padrão <code class="inl">data=ordered</code> grava os dados antes dos metadados</b> — nenhum arquivo aponta para lixo, mas a última escrita pode ter se perdido (alocação atrasada). Só <code class="inl">fsync()</code> garante dado no disco.</span>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- TRÊS CANDIDATOS -->
+  <div class="secao-titulo">Três candidatos — e a decisão</div>
+  <section class="tres">
+    <div class="fs e4">
+      <h4>ext4</h4>
+      <div class="quando">padrão do Debian e do Kali</div>
+      <ul>
+        <li><b>Maduro e previsível</b>, com o melhor ferramental de recuperação.</li>
+        <li><i>Extents</i>: intervalos contíguos no lugar de ponteiro por bloco.</li>
+        <li><b>Inodes fixos na formatação</b> — dá para acabar com o disco pela metade; o diagnóstico é <code class="inl">df -i</code>.</li>
+        <li><b>5% reservados ao root</b> mantêm a máquina administrável com a raiz cheia. Em disco de dados, <code class="inl">-m 1</code>.</li>
+      </ul>
+    </div>
+    <div class="fs xf">
+      <h4>XFS</h4>
+      <div class="quando">padrão da família RHEL</div>
+      <ul>
+        <li>Grupos de alocação independentes: <b>escrita concorrente em paralelo</b>.</li>
+        <li>Dezenas de TB, arquivos grandes; inodes alocados dinamicamente.</li>
+        <li><b>Só cresce</b> — e com o volume <b>montado</b>: <code class="inl">xfs_growfs /ponto</code>.</li>
+        <li><b>Não encolhe.</b> Reduzir = <code class="inl">xfsdump</code>, recriar, <code class="inl">xfsrestore</code>. Dimensione por baixo com LVM.</li>
+      </ul>
+    </div>
+    <div class="fs bt">
+      <h4>Btrfs</h4>
+      <div class="quando">instantâneos e integridade</div>
+      <ul>
+        <li><b>Instantâneos</b> quase gratuitos, subvolumes e compressão <code class="inl">zstd</code>.</li>
+        <li><b>Soma de verificação nos dados</b>: detecta corrupção silenciosa (ext4 e XFS não).</li>
+        <li><code class="inl">df</code> mente aqui — use <code class="inl">btrfs filesystem usage</code>.</li>
+        <li><b>RAID 5/6 ainda instável</b> (<i>write hole</i>): use <code class="inl">mdadm</code> por baixo ou fique no 1 e 10.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+  <section class="cow">
+    <div class="cow-linhas">
+      <div class="cl"><span class="rt">instantâneo<br>(antes)</span><span class="blk velho">A</span><span class="blk velho">B</span><span class="blk velho">C</span></div>
+      <div class="cl"><span class="rt">subvolume<br>(agora)</span><span class="blk velho">A</span><span class="blk velho some">B</span><span class="blk velho">C</span><span class="blk novo">B'</span></div>
+    </div>
+    <p><b>Cópia-na-escrita:</b> alterar B não sobrescreve B — grava <b>B'</b> em outro lugar e move o ponteiro do subvolume. O B original continua íntegro, e é para ele que o instantâneo aponta. <b>O instantâneo não copia nada</b>: é um segundo conjunto de ponteiros para blocos que já existem — criar leva segundos e custa quase zero, e o consumo só cresce conforme os dados divergem. O preço é fragmentação em carga de banco (daí o atributo <code class="inl">nodatacow</code>).</p>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- NA PRÁTICA -->
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> lsblk -f /dev/sdb1 &amp;&amp; sudo wipefs /dev/sdb1   <span class="cmt"># 1. o que já existe ali? (só lista)</span>
+<span class="prompt">$</span> sudo mkfs.ext4 -n /dev/sdb1                    <span class="cmt"># 2. SIMULA: imprime o layout e as</span>
+<span class="out">Backup superblock at 32768, 98304, 163840, …   </span><span class="cmt">#    cópias do superbloco. Não formata.</span>
+<span class="prompt">$</span> sudo mkfs.ext4 -L dados -m 1 /dev/sdb1         <span class="cmt"># 3. formata e rotula</span>
+<span class="prompt">$</span> sudo blkid /dev/sdb1                           <span class="cmt"># 4. confirma UUID e tipo</span>
+<span class="prompt">$</span> sudo tune2fs -l /dev/sdb1 | grep -i state      <span class="cmt"># clean = desmontado direito</span>
+<span class="out">Filesystem state:         clean</span>
+<span class="prompt">$</span> sudo umount /dev/sdb1 &amp;&amp; sudo e2fsck -b 32768 -y /dev/sdb1  <span class="cmt"># superbloco danificado</span>
+<span class="prompt">$</span> sudo fstrim -av   <span class="cmt"># TRIM periódico pelo fstrim.timer — nunca 'discard' contínuo</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
+  <div class="perigo"><b>O <code class="inl">mkfs</code> não pergunta se você tem certeza</b> — destrói o conteúdo sem confirmação, e a única proteção embutida (recusar volume montado) some justamente quando você desmonta para trabalhar. Antes: <code class="inl">lsblk -f</code> e leia a saída, <code class="inl">mkfs.ext4 -n</code> para simular, e em disco real refira-se por <code class="inl">/dev/disk/by-id/</code>. E <b>nunca rode <code class="inl">fsck</code> num volume montado com escrita</b>: ele altera estruturas que o kernel tem em cache e produz exatamente a corrupção que se queria evitar. No Btrfs, <code class="inl">check --repair</code> é último recurso — tente <code class="inl">-o ro,rescue=all</code> e copie os dados para fora primeiro.</div>
 
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O <i>journal</i> protege metadados, não conteúdo.</b> Arquivo com o tamanho certo e cheio de zeros é o custo da alocação atrasada, não bug.</li>
+        <li><b>Disco cheio sem estar cheio:</b> <code class="inl">df -h</code> mostra espaço e o sistema recusa criar arquivo → acabaram os <b>inodes</b>, veja <code class="inl">df -i</code>.</li>
+        <li><b>ext4</b> para quase tudo · <b>XFS</b> para volume enorme (não encolhe) · <b>Btrfs</b> para instantâneo e integridade · <b>FAT32</b> na EFI (obrigatório) · <b>exFAT</b> só para trocar com Windows/macOS.</li>
+        <li><code class="inl">mkfs.ext4 -n</code> num volume existente imprime <b>onde estão as cópias do superbloco</b>; <code class="inl">e2fsck -b &lt;bloco&gt;</code> recupera a partir de uma delas.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">O instalador usa <b>ext4</b>, e para trabalho de laboratório é a escolha certa. Mas <b>Btrfs num sistema <i>rolling</i> é apólice barata</b>: um <code class="inl">btrfs subvolume snapshot</code> antes do <code class="inl">apt full-upgrade</code> leva segundos e evita reinstalar quando a atualização quebra o vídeo (<code class="inl">snapper</code>/<code class="inl">timeshift</code> automatizam). Em perícia, monte <b>sempre</b> <code class="inl">-o ro,noatime,noexec,nodev,nosuid</code>: preserva as datas de acesso, que são evidência, e impede que binário ou bit SUID da mídia examinada tenha efeito na sua máquina. <b>exFAT no pendrive de trabalho, ext4 no de persistência</b> — o exFAT não guarda dono nem permissão, e a persistência formatada nele não sobe. E não zere os 5% da raiz: uma captura longa de <code class="inl">tcpdump</code> enche a <code class="inl">/</code> e é a reserva que mantém a máquina administrável.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 08 · Fase 2 <span class="n">047</span></span>
