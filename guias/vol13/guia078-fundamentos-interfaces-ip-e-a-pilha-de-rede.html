@@ -3,101 +3,236 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 078 — Fundamentos: interfaces, IP e a pilha de rede</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: pilha TCP/IP + encapsulamento ---- */
+  .pilha { display:flex; flex-direction:column; gap:3px; }
+  .cabs { display:grid; grid-template-columns:60px 150px 1fr; gap:6px;
+          font-family:var(--fonte-titulo); font-size:8.5px; text-transform:uppercase;
+          letter-spacing:.05em; color:var(--tinta-suave); }
+  .lin { display:grid; grid-template-columns:60px 150px 1fr; gap:6px; align-items:center; }
+  .osi { display:flex; flex-direction:column; gap:1px; }
+  .osi span { border:1px solid var(--linha); background:#f4f7fb; border-radius:3px;
+              font-size:7px; color:var(--tinta-suave); text-align:center; padding:0 0 1px; }
+  .cam { border:1.5px solid; border-radius:var(--raio-sm); padding:3px 7px; }
+  .cam b { display:block; font-family:var(--fonte-titulo); font-size:10.5px; text-transform:uppercase; }
+  .cam i { display:block; font-style:normal; font-family:var(--fonte-mono); font-size:7.6px;
+           color:var(--tinta-suave); }
+  .cam.a { border-color:var(--azul); background:var(--azul-claro); } .cam.a b { color:var(--azul); }
+  .cam.v { border-color:var(--verde); background:var(--verde-claro); } .cam.v b { color:#1d7038; }
+  .cam.l { border-color:var(--laranja); background:var(--laranja-claro); } .cam.l b { color:#a8530a; }
+  .cam.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .cam.r b { color:var(--vermelho); }
+
+  .enc { display:flex; justify-content:flex-end; gap:2px; padding-right:38px; }
+  .enc.fim { padding-right:0; }
+  .hb { border:1px solid; border-radius:3px; font-family:var(--fonte-mono); font-size:7.6px;
+        text-align:center; padding:2px 0; }
+  .hb.d { width:150px; border-color:var(--azul); background:var(--azul-claro); color:var(--azul); }
+  .hb.t { width:66px; border-color:var(--verde); background:var(--verde-claro); color:#1d7038; }
+  .hb.i { width:66px; border-color:var(--laranja); background:var(--laranja-claro); color:#a8530a; }
+  .hb.e { width:66px; border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); }
+  .hb.f { width:36px; border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); }
+
+  /* ---- figura 2: anatomia do CIDR ---- */
+  .cidr { display:flex; flex-direction:column; gap:3px; }
+  .oct-lin, .bit-lin { display:grid; grid-template-columns:58px repeat(4, 1fr) 30px; gap:5px; align-items:center; }
+  .rot { font-family:var(--fonte-titulo); font-size:8px; text-transform:uppercase;
+         color:var(--tinta-suave); text-align:right; letter-spacing:.03em; }
+  .oct { border:1px solid var(--linha); background:#f4f7fb; border-radius:4px; text-align:center;
+         font-family:var(--fonte-mono); font-size:11px; font-weight:700; color:var(--navy); padding:2px 0; }
+  .pref { font-family:var(--fonte-mono); font-size:12px; font-weight:700; color:var(--azul); }
+  .grp { display:flex; gap:1px; justify-content:center; }
+  .b { flex:1; text-align:center; font-family:var(--fonte-mono); font-size:8px; padding:2px 0;
+       border-radius:2px; color:#fff; }
+  .b.n { background:var(--azul); } .b.h { background:var(--verde); }
+  .chaves { display:grid; grid-template-columns:58px 1fr 30px; gap:5px; }
+  /* a chave acompanha EXATAMENTE a grade dos bits: 4 octetos, corte 2/8 no último */
+  .ch { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+  .ch div { border-radius:3px; text-align:center; font-size:8px; color:#fff;
+            padding:2px 3px; line-height:1.2; }
+  .ch .cn { background:var(--azul); } .ch .chh { background:var(--verde); }
+  .ch .u4 { display:grid; grid-template-columns:2fr 6fr; gap:1px; padding:0; }
+
+  .quatro { display:grid; grid-template-columns:1fr 1fr; gap:4px 10px; margin-top:2px; }
+  .quatro div { display:grid; grid-template-columns:80px 1fr; gap:5px; font-size:8.2px;
+                color:var(--tinta-suave); align-items:baseline; }
+  .quatro b { font-family:var(--fonte-mono); font-size:8.6px; }
+  .quatro span { line-height:1.25; }
+
+  /* ---- geral ---- */
+  .nota { font-size:8.4px; line-height:1.38; color:var(--tinta-suave); }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.2px; color:var(--roxo); font-weight:600; }
+
+  .grade2 { display:grid; grid-template-columns:1.18fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.05px; line-height:1.36; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+          letter-spacing:.03em; color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:6px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:60px 1fr; gap:6px; align-items:baseline;
+              font-size:8.2px; line-height:1.28; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700;
+                font-size:8.2px; color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8px; color:var(--navy); font-weight:600; }
+
+  table.comparacao.mini { font-size:8.2px; box-shadow:none; }
+  table.comparacao.mini thead th { padding:3px 6px; font-size:8px; }
+  table.comparacao.mini tbody td { padding:2.5px 6px; }
+  table.comparacao.mini code { font-size:8px; padding:0 3px; }
+
+  .guia { gap:5mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:11px; line-height:1.34; }
+  .bloco .corpo { font-size:8.6px; line-height:1.33; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:3px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 078</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Fundamentos: interfaces, IP e a pilha de rede</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Fundamentos de rede:<br>interfaces, IP e a pilha</h1>
+      <div class="sub">"A internet caiu." Antes de reiniciar o roteador, três comandos: <code class="inl">ping -c1 8.8.8.8</code> responde em 14 ms, <code class="inl">ping google.com</code> devolve <i>Temporary failure in name resolution</i>, <code class="inl">ip route</code> mostra a rota padrão intacta. <b>Nada caiu</b> — quebrou a tradução de nome para endereço, uma camada acima.</div>
     </div>
     <div class="badge"><b>078</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">A pilha de camadas · e o que de fato vai no fio</div>
+    <div class="pilha" style="margin-top:4px">
+      <div class="cabs"><span style="text-align:center">OSI</span><span>o que roda</span><span style="text-align:right">o que vai no fio</span></div>
+
+      <div class="lin">
+        <div class="osi"><span>7 aplicação</span><span>6 apresent.</span><span>5 sessão</span></div>
+        <div class="cam a"><b>aplicação</b><i>HTTP, SSH, DNS</i></div>
+        <div class="enc"><span class="hb d">dados</span></div>
+      </div>
+
+      <div class="lin">
+        <div class="osi"><span>4 transporte</span></div>
+        <div class="cam v"><b>transporte</b><i>TCP, UDP — portas</i></div>
+        <div class="enc"><span class="hb t">cab. TCP</span><span class="hb d">dados</span></div>
+      </div>
+
+      <div class="lin">
+        <div class="osi"><span>3 rede</span></div>
+        <div class="cam l"><b>rede</b><i>IPv4, IPv6, ICMP</i></div>
+        <div class="enc"><span class="hb i">cab. IP</span><span class="hb t">cab. TCP</span><span class="hb d">dados</span></div>
+      </div>
+
+      <div class="lin">
+        <div class="osi"><span>2 enlace</span><span>1 física</span></div>
+        <div class="cam r"><b>enlace + física</b><i>Ethernet, Wi-Fi, ARP</i></div>
+        <div class="enc fim"><span class="hb e">cab. Eth</span><span class="hb i">cab. IP</span><span class="hb t">cab. TCP</span><span class="hb d">dados</span><span class="hb f">FCS</span></div>
+      </div>
+    </div>
+    <div class="nota" style="margin-top:5px"><b>Cada camada envelopa a de cima e acrescenta o próprio cabeçalho</b> — 14 (Eth) + 20 (IPv4) + 20 (TCP) = <b>54 bytes de overhead por pacote</b>. No destino, o inverso. A unidade muda de nome em cada andar (segmento, datagrama, pacote, quadro) e o quadro tem tamanho máximo — a <b>MTU</b>, 1500 em Ethernet. Pacote IP que chega mas não sobe é <b>porta ou firewall</b>, nunca cabo.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">A máscara: a única pergunta que ela responde</div>
+    <div class="cidr" style="margin-top:4px">
+      <div class="oct-lin">
+        <span class="rot">endereço</span>
+        <span class="oct">192</span><span class="oct">168</span><span class="oct">1</span><span class="oct">200</span>
+        <span class="pref">/26</span>
+      </div>
+      <div class="bit-lin">
+        <span class="rot">32 bits</span>
+        <span class="grp"><i class="b n">1</i><i class="b n">1</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i></span>
+        <span class="grp"><i class="b n">1</i><i class="b n">0</i><i class="b n">1</i><i class="b n">0</i><i class="b n">1</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i></span>
+        <span class="grp"><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i><i class="b n">0</i><i class="b n">1</i></span>
+        <span class="grp"><i class="b n">1</i><i class="b n">1</i><i class="b h">0</i><i class="b h">0</i><i class="b h">1</i><i class="b h">0</i><i class="b h">0</i><i class="b h">0</i></span>
+        <span></span>
+      </div>
+      <div class="chaves">
+        <span></span>
+        <div class="ch">
+          <div class="cn" style="grid-column:1/4">26 bits de rede — idênticos em toda a sub-rede</div>
+          <div class="u4"><div class="cn"></div><div class="chh">6 de host · 2⁶=64</div></div>
+        </div>
+        <span></span>
+      </div>
+      <div class="quatro">
+        <div><b style="color:var(--azul)">192.168.1.192</b><span><b style="color:var(--tinta-suave)">rede</b> — bits de host em 0, não se atribui</span></div>
+        <div><b>192.168.1.193</b><span><b style="color:var(--tinta-suave)">1º válido</b> — costuma ser o gateway, por convenção</span></div>
+        <div><b>192.168.1.254</b><span><b style="color:var(--tinta-suave)">último válido</b> — 62 utilizáveis, não 64</span></div>
+        <div><b style="color:var(--vermelho)">192.168.1.255</b><span><b style="color:var(--tinta-suave)">broadcast</b> — bits de host em 1</span></div>
+      </div>
+    </div>
+    <div class="nota" style="margin-top:5px"><b>Prefixos iguais, entrega direta por ARP; diferentes, vai para o gateway.</b> É só isso — e por isso máscara errada produz o clássico "pingo o roteador mas não pingo o vizinho". <b>Cada bit a menos dobra a faixa:</b> /24 = 256, /25 = 128, /26 = 64, /27 = 32, /30 = 4, /32 = um. O corte não respeita octeto: <code>10.20.30.40/12</code> → rede <code>10.16.0.0</code>. <b>Privadas (RFC 1918):</b> <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code> (Docker: <code>172.17.0.0/16</code>), <code>192.168.0.0/16</code>; e <code>169.254.0.0/16</code> link-local, cujo aparecimento significa <b>o DHCP não respondeu</b>. <b>IPv6</b> troca ARP e broadcast por NDP e multicast, usa <code>/64</code> na rede de acesso, exige zona no link-local (<code>ping fe80::1%enp0s3</code>) e <b>não tem NAT</b> — o firewall de host deixa de ser opcional.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática: separar as camadas antes de mexer em qualquer coisa</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> ip -brief link show
+<span class="out">lo      UNKNOWN 00:00:00:00:00:00 &lt;LOOPBACK,UP,LOWER_UP&gt;
+enp0s3  UP      08:00:27:a1:b2:c3 &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;
+wlan0   DOWN    dc:a6:32:11:22:33 &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt;</span>
+<span class="cmt"># UP = você habilitou · LOWER_UP = há sinal do outro lado</span>
+<span class="prompt">$</span> ip route get 1.1.1.1   <span class="cmt"># a decisão, sem enviar pacote</span>
+<span class="out">1.1.1.1 via 192.168.1.1 dev enp0s3 src 192.168.1.10</span>
+<span class="cmt"># responde 3 perguntas: gateway, interface e IP de ORIGEM</span>
+<span class="prompt">$</span> ip neigh show
+<span class="out">192.168.1.1 dev enp0s3 lladdr c0:56:27:aa:bb:cc REACHABLE</span>
+<span class="cmt"># INCOMPLETE persistente no gateway = cabo/switch/VLAN, jamais DNS</span>
+<span class="prompt">$</span> ping -c1 8.8.8.8 <span class="cmt"># camadas 3 e 4 →</span> <span class="out">64 bytes ... 14 ms</span>
+<span class="prompt">$</span> dig +short google.com <span class="cmt"># resolução →</span> <span class="out">(vazio)</span>
+<span class="cmt"># um passa, o outro falha: é DNS e só DNS</span></pre>
+      </section>
+      <div>
+        <p class="sub2">Onde o problema mora</p>
+        <ul class="lista">
+          <li><i>camada 1-2</i><span><code>ip link</code>, <code>ip neigh</code> — falta <b><code>LOWER_UP</code></b> ou ARP <code>INCOMPLETE</code>. O OUI do MAC entrega o virtualizador</span></li>
+          <li><i>camada 3</i><span><code>ip route get</code> — <b>prefixo mais longo vence</b>; <code>default</code> = <code>0.0.0.0/0</code>, o mais curto, logo o último recurso. <code>metric</code> desempata</span></li>
+          <li><i>camada 4</i><span><code>ss -tulpn</code> — a <b>5-tupla</b> identifica a conexão; por isso mil abas falam com a mesma :443</span></li>
+          <li><i>nomes</i><span><code>/etc/nsswitch.conf</code> manda: <code>files</code> (o <code>/etc/hosts</code>, sempre vencedor) antes de <code>dns</code> (<code>/etc/resolv.conf</code>, <b>gerado</b>)</span></li>
+        </ul>
+        <p class="sub2">TCP × UDP</p>
+        <table class="comparacao mini">
+          <tbody>
+            <tr><td><b>TCP</b></td><td>handshake, entrega confirmada e ordenada, 20 B — HTTP, SSH</td></tr>
+            <tr><td><b>UDP</b></td><td>envia e esquece, sem ordem nem garantia, 8 B — DNS, DHCP, QUIC</td></tr>
+            <tr><td>porta</td><td>&lt; 1024 exige privilégio; o nº é <b>convenção</b>, nada põe SSH na 22</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>A rede é uma pilha de camadas independentes.</b> <code class="inl">ping</code> num IP testa 3 e 4; <code class="inl">dig</code> testa nomes. Falham por motivos sem relação — identifique o andar <b>antes</b> de mexer.</li>
+        <li><b><code class="inl">UP</code> sem <code class="inl">LOWER_UP</code></b> é placa habilitada sem sinal do outro lado: cabo solto ou Wi-Fi não associado.</li>
+        <li><b>A máscara responde a uma pergunta só:</b> o destino está na minha sub-rede? Se sim, ARP e entrega direta; se não, gateway.</li>
+        <li><b>Prefixo mais longo vence</b> na tabela de rotas. <code class="inl">ip route get</code> mostra gateway, interface e IP de origem sem enviar pacote.</li>
+        <li><b>ARP não tem autenticação</b> — por isso filtro por MAC não é controle de acesso, é inventário.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O modo de rede da VM decide o que o laboratório consegue fazer.</b> Em <b>NAT</b> a VM alcança a internet mas ninguém alcança a VM — mata todo exercício com conexão de retorno; em <b>bridge</b> ela pega IP do DHCP real e fica visível para todos, inclusive para quem você não pretendia; <b>host-only</b> é o modo certo. <code class="inl">ip route get 1.1.1.1</code> com gateway <code class="inl">10.0.2.2</code> é o NAT do VirtualBox. <b>Kali não sobe serviço de rede, de propósito</b> — <code class="inl">ss -tulpn</code> em instalação limpa devolve quase nada, e o que estiver ali você habilitou. <b>Modo monitor não é interface IP:</b> a placa recebe todo quadro 802.11 sem se associar e derruba a conexão — esperado, não defeito. <b>MAC muda em um comando</b> (<code class="inl">ip link set enp0s3 address …</code>): serve para testar o <i>seu</i> controle de acesso; contornar o de rede alheia é crime (Lei 12.737/2012). <b>Privado ≠ protegido:</b> dentro do perímetro raramente há firewall entre pares. <b>RHEL:</b> mesmo <code class="inl">iproute2</code>, mas <code class="inl">rp_filter</code> estrito (descarta rota assimétrica em silêncio) e <code class="inl">firewalld</code> ativo de fábrica.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 13 · Fase 4 <span class="n">078</span></span>
