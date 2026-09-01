@@ -3,101 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 075 — Sinais, processos filhos e execução em paralelo</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .grade-topo { display:grid; grid-template-columns:1.32fr 1fr; gap:9px; align-items:start; }
+
+  /* Ciclo de vida do filho */
+  .ciclo { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+  .et { border:1.5px solid; border-radius:var(--raio-sm); padding:4px 5px; text-align:center; }
+  .et b { display:block; font-family:var(--fonte-titulo); font-size:8.8px; text-transform:uppercase;
+          letter-spacing:.02em; }
+  .et span { display:block; font-size:7.7px; line-height:1.24; color:var(--tinta-suave); margin-top:1px; }
+  .et.a { border-color:var(--azul); background:var(--azul-claro); } .et.a b { color:var(--azul); }
+  .et.g { border-color:var(--linha); background:#f2f5f9; } .et.g b { color:var(--navy); }
+  .et.v { border-color:var(--verde); background:var(--verde-claro); } .et.v b { color:#1d7038; }
+  .et.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .et.r b { color:var(--vermelho); }
+  .desvios { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-top:4px; }
+  .desvios .lbl { grid-column:span 1; font-size:7.4px; color:var(--vermelho); text-align:center;
+                  font-weight:700; align-self:center; line-height:1.2; }
+
+  /* Sinais */
+  .sinais { list-style:none; display:flex; flex-direction:column; gap:1px; }
+  .sinais li { display:grid; grid-template-columns:56px 20px 1fr; gap:4px; align-items:baseline;
+               font-size:8px; line-height:1.26; color:var(--tinta-suave); }
+  .sinais li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.4px;
+                 color:var(--navy); }
+  .sinais li em { font-style:normal; font-family:var(--fonte-mono); font-size:8.4px; text-align:right;
+                  color:var(--roxo); font-weight:700; }
+  .sinais li.no i, .sinais li.no em { color:var(--vermelho); }
+  .sinais li b { color:var(--navy); }
+
+  /* Concorrência */
+  .conc { margin-top:7px; }
+  .cl { display:grid; grid-template-columns:132px 1fr; gap:6px; align-items:center; margin-bottom:4px; }
+  .cl .rot { font-family:var(--fonte-mono); font-size:8.1px; font-weight:700; line-height:1.18; }
+  .cl.err .rot { color:var(--vermelho); }
+  .cl.ok  .rot { color:#1d7038; }
+  .pp { display:flex; gap:3px; flex-wrap:nowrap; align-items:center; }
+  .p { border:1px solid; border-radius:2px; font-family:var(--fonte-mono); font-size:7.4px;
+       padding:1px 0; text-align:center; width:26px; }
+  .p.r { border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); }
+  .p.v { border-color:var(--verde); background:var(--verde-claro); color:#1d7038; font-weight:700; }
+  .p.g { border-color:var(--linha); background:#f2f5f9; color:var(--tinta-suave); }
+  .pp .obs { font-size:7.6px; color:var(--tinta-suave); margin-left:4px; }
+  .pp .sep { font-size:9px; color:var(--tinta-suave); margin:0 2px; }
+
+  .nota { font-size:8.5px; line-height:1.36; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.3px; color:var(--roxo); font-weight:600; }
+
+  .grade2 { display:grid; grid-template-columns:1.2fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.1px; line-height:1.42; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:6px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:72px 1fr; gap:6px; align-items:baseline;
+              font-size:8.2px; line-height:1.28; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.5px;
+                color:var(--roxo); word-break:break-all; }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8.1px; color:var(--navy); font-weight:600; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 075</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Sinais, processos filhos e execução em paralelo</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Sinais, processos filhos<br>e execução em paralelo</h1>
+      <div class="sub">O operador apertou <b>Ctrl-C</b>. O script parou de imprimir e o prompt voltou. <b>Trinta segundos depois, o roteador do laboratório caiu.</b> O script havia lançado doze processos com <code class="inl">&amp;</code>; o <code class="inl">SIGINT</code> foi ao grupo do primeiro plano e o shell morreu, mas alguns filhos já haviam trocado de grupo e outros ignoravam <code class="inl">SIGINT</code>. O tráfego continuou saindo por meia hora até alguém rodar <code class="inl">pkill</code>. <b>Um script que cria processos assume a responsabilidade por eles</b> — "parece que parou" não é "parou".</div>
     </div>
     <div class="badge"><b>075</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Ciclo de vida do filho · os sinais que importam · o teto de concorrência</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="grade-topo">
+      <div>
+        <div class="ciclo">
+          <div class="et a"><b>pai lança</b><span>comando &amp;</span></div>
+          <div class="et g"><b>filho executando</b><span>$! guarda o PID</span></div>
+          <div class="et g"><b>filho terminou</b><span>devolveu um status</span></div>
+          <div class="et v"><b>pai fez wait</b><span>status colhido</span></div>
+        </div>
+        <div class="desvios">
+          <div class="lbl">pai morreu ↓</div>
+          <div class="et r"><b>órfão</b><span>continua rodando, adotado pelo <code>init</code> — <b>fora do alcance do seu Ctrl-C</b></span></div>
+          <div class="et r"><b>zumbi</b><span>terminou, mas ninguém leu o status: ocupa entrada na tabela de processos</span></div>
+          <div class="lbl">↑ sem wait</div>
+        </div>
+        <div class="nota" style="margin-top:5px">Num laço que lança milhares de filhos sem <code>wait</code>, os zumbis <b>esgotam o limite de processos do usuário</b>. As duas curas são a mesma disciplina: <b>todo filho lançado tem um <code>wait</code> correspondente</b>, e todo script que lança filhos tem um <code>trap</code> que os mata antes de sair.</div>
+      </div>
+      <div>
+        <p class="sub2">Sinais em script · interceptável?</p>
+        <ul class="sinais">
+          <li><i>SIGINT</i><em>2</em><span>sim — <code>Ctrl-C</code> no terminal</span></li>
+          <li><i>SIGTERM</i><em>15</em><span>sim — <b>o pedido educado</b>: <code>kill</code> sem argumento, <code>systemctl stop</code></span></li>
+          <li class="no"><i>SIGKILL</i><em>9</em><span><b>NÃO</b> — nenhum trap roda, nenhuma limpeza acontece</span></li>
+          <li><i>SIGHUP</i><em>1</em><span>sim — terminal fechado; recarga de configuração</span></li>
+          <li><i>SIGPIPE</i><em>13</em><span>sim — escreveu num pipe sem leitor</span></li>
+          <li><i>SIGQUIT</i><em>3</em><span>sim — <code>Ctrl-\</code></span></li>
+          <li><i>SIGCHLD</i><em>17</em><span>sim — um filho terminou (padrão: ignora)</span></li>
+        </ul>
+        <div class="nota" style="margin-top:5px"><b>Morte por sinal devolve <code>128 + N</code>:</b> <b>130</b> é Ctrl-C, <b>143</b> é <code>SIGTERM</code>, <b>137</b> é <code>SIGKILL</code>. Reconhecer esses números no log poupa investigação.</div>
+      </div>
+    </div>
+
+    <div class="conc">
+      <div class="cl err">
+        <div class="rot">for …; do cmd &amp; done</div>
+        <div class="pp">
+          <span class="p r">p1</span><span class="p r">p2</span><span class="p r">p3</span><span class="p r">p4</span><span class="p r">p5</span><span class="p r">p6</span><span class="p r">p7</span><span class="p r">p8</span><span class="p r">p9</span><span class="p r">p10</span><span class="p r">p11</span><span class="p r">p12</span>
+          <span class="obs">12 processos disputando 4 núcleos e uma placa de rede</span>
+        </div>
+      </div>
+      <div class="cl ok">
+        <div class="rot">xargs -P 4 · wait -n</div>
+        <div class="pp">
+          <span class="p v">p1</span><span class="p v">p2</span><span class="p v">p3</span><span class="p v">p4</span>
+          <span class="sep">◀</span>
+          <span class="p g">p5</span><span class="p g">p6</span><span class="p g">p7</span><span class="p g">p8</span><span class="p g">p9</span><span class="p g">p10</span><span class="p g">p11</span><span class="p g">p12</span>
+          <span class="obs">4 executando · 8 na fila, entram quando um sai</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nota"><b>O teto certo vem do gargalo, não da sua vontade.</b> Trabalho de <b>CPU</b>: perto do número de núcleos (<code>nproc</code>). Trabalho de <b>disco</b> em HD mecânico: 1 ou 2 — mais que isso faz o cabeçote passar o tempo se deslocando, e fica <b>mais lento que sequencial</b>. Trabalho de <b>rede</b>: o número combinado com quem opera o alvo, e não o que a sua máquina aguenta. E a etapa final de agregação é <b>sempre sequencial</b> — é o gargalo que sobra depois de paralelizar tudo o que dava. As três formas de impor o teto: <code>xargs -P 4 -n 1</code> (nada a instalar, mas <b>intercala a saída</b> — cada processo escreve no próprio arquivo, a junção vem no fim); <code>parallel -j 4 --halt now,fail=1 --joblog t.log</code> (serializa a saída, registra, retoma o que falhou, para no primeiro erro — custa uma dependência); e a fila em Bash puro, <code>while (( $(jobs -rp | wc -l) &gt;= MAX )); do wait -n; done</code>, que não depende de nada além do Bash 5.1.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Lançar, colher o status, e matar junto</div>
+  <section class="grade2">
+    <div>
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-paralelo</span></div>
+<pre><span class="cmt"># o esqueleto de qualquer paralelismo em Bash: PID → unidade</span>
+<span class="prompt">$</span> declare -A pid_de
+<span class="prompt">$</span> for alvo in "${alvos[@]}"; do
+    processar "$alvo" &gt; "saida-$alvo.txt" &amp;
+    pid_de[$!]="$alvo"   <span class="cmt"># $! muda a cada &amp;: capture já</span>
+  done
+<span class="prompt">$</span> for pid in "${!pid_de[@]}"; do
+    wait "$pid" || { echo "falhou: ${pid_de[$pid]}" &gt;&amp;2; ((falhas++)); }
+  done
+<span class="cmt"># o trap que faz o Ctrl-C parar DE VERDADE</span>
+<span class="prompt">$</span> encerrar() {
+    trap - INT TERM      <span class="cmt"># evita reentrar no 2º Ctrl-C</span>
+    kill -TERM "${filhos[@]}" 2&gt;/dev/null || true
+    sleep 2
+    kill -KILL "${filhos[@]}" 2&gt;/dev/null || true
+    wait 2&gt;/dev/null; exit 130
+  }
+<span class="prompt">$</span> trap encerrar INT TERM
+<span class="cmt"># prazo: 124 = estourou; -k mata quem ignora o TERM</span>
+<span class="prompt">$</span> timeout -k 5 30 varrer "$alvo"; echo $?
+<span class="out">124</span>
+<span class="prompt">$</span> pgrep -af 'varrer' || echo "nenhum orfao -- correto"
+<span class="out">nenhum orfao -- correto</span></pre>
+      </section>
+    </div>
+    <div>
+      <p class="sub2">O trap que não dispara</p>
+      <div class="nota" style="margin-top:0">Se o script espera um <b>comando externo em primeiro plano</b>, o trap <b>fica pendente até esse comando retornar</b>: um script parado em <code>sleep 300</code> que recebe <code>SIGTERM</code> só executa o handler depois dos 300 segundos. A cura é pôr o comando longo em segundo plano e usar <code>wait</code>, que <b>é</b> interrompível — <code>sleep 300 &amp; filho=$!; wait "$filho"</code>. É exatamente a diferença entre um serviço que para no <code>systemctl stop</code> e um que estoura o <code>TimeoutStopSec</code> e leva <code>SIGKILL</code>.</div>
+      <p class="sub2">Matar os filhos: três formas</p>
+      <ul class="lista">
+        <li><i>filhos=()</i><span><b>registre os PIDs e mate no trap</b> — previsível, resolve a esmagadora maioria dos casos. É a que se deve preferir</span></li>
+        <li><i>kill -TERM -$$</i><span>PID <b>negativo</b> = o grupo inteiro. Só funciona se o script for líder do próprio grupo; chamado de dentro de outro script, <b>mata o chamador junto</b>. Confira com <code>ps -o pid,pgid,comm -p $$</code></span></li>
+        <li><i>setsid --wait</i><span>lança num grupo novo e mata só esse grupo — isolamento garantido, ao custo de uma camada a mais</span></li>
+        <li><i>TERM &rarr; KILL</i><span>nunca <code>-9</code> de primeira: com <code>SIGKILL</code> o filho <b>não remove os próprios temporários</b> nem fecha os arquivos</span></li>
+      </ul>
+      <p class="sub2">Sobreviver ao terminal</p>
+      <ul class="lista">
+        <li><i>nohup</i><span>imune ao <code>SIGHUP</code> desde o lançamento</span></li>
+        <li><i>disown -h</i><span>protege um job <b>já lançado</b></span></li>
+        <li><i>setsid</i><span>sessão própria, desligado do terminal</span></li>
+        <li><i>systemd</i><span><b>a resposta certa para trabalho longo:</b> registro no <code>journald</code>, reinício automático e <code>KillMode=control-group</code>, que mata o cgroup inteiro — a garantia que o script sozinho não tem. <code>tmux</code> quando for preciso <b>voltar a interagir</b></span></li>
+      </ul>
+      <p class="sub2">A armadilha do &gt;( ) com wait</p>
+      <div class="nota" style="margin-top:0">O shell <b>não considera</b> o processo de <code>&gt;(…)</code> um filho a esperar. Em <code>gerar | tee &gt;(lento &gt; r.txt) &gt;/dev/null</code>, o <code>r.txt</code> pode estar vazio na linha seguinte. Quando a ordem importa, use PID explícito: <code>lento &lt; &lt;(gerar) &gt; r.txt &amp; pid=$!; wait "$pid"</code>.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Um script que lança filhos e não tem <code class="inl">trap INT TERM</code> continua trabalhando depois que o operador mandou parar.</b> É o pior caso deste assunto: a tela para, o prompt volta, e o tráfego continua saindo — foi assim que o roteador da abertura caiu meia hora depois do <code class="inl">Ctrl-C</code>. Registre os PIDs (<code class="inl">filhos+=("$!")</code>), mate com <code class="inl">TERM</code>, espere, e só então <code class="inl">KILL</code> no que sobrou. <b>Cuidado redobrado com <code class="inl">kill -TERM -$$</code></b> (PID negativo = grupo inteiro): se o script não for líder do próprio grupo, ele mata <b>o shell que o chamou e tudo o que estiver junto</b> — confirme com <code class="inl">ps -o pid,pgid,comm -p $$</code> antes, e prefira a lista explícita de PIDs. E <b>nunca use <code class="inl">pkill -f</code> com padrão curto</b> para limpar a bagunça: <code class="inl">pkill -f python</code> derruba serviços que nada tinham a ver. Ensaie o encerramento com <code class="inl">echo kill</code> no lugar do <code class="inl">kill</code>, em VM descartável, antes de confiar no handler.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">SIGKILL</code> não pode ser interceptado</b> — nenhum trap roda, nenhuma limpeza acontece. Sempre <code class="inl">TERM</code>, pausa, e <code class="inl">KILL</code> só no que sobrou.</li>
+        <li><b>Morte por sinal devolve <code class="inl">128 + N</code>:</b> 130 é Ctrl-C, 143 é <code class="inl">SIGTERM</code>, 137 é <code class="inl">SIGKILL</code>.</li>
+        <li><b>Trap não dispara enquanto um comando externo está em primeiro plano.</b> Ponha o comando longo em segundo plano e use <code class="inl">wait</code>, que é interrompível.</li>
+        <li><b>Capture <code class="inl">$!</code> na linha seguinte ao <code class="inl">&amp;</code></b>, porque ele muda a cada lançamento. Um array associativo de PID para unidade de trabalho é o esqueleto de qualquer paralelismo em Bash.</li>
+        <li><b><code class="inl">wait</code> sozinho não revela qual filho falhou</b> — colha os status um a um se o resultado importar. Num relatório de cobertura, sempre importa.</li>
+        <li><b>Todo script que lança filhos precisa de um <code class="inl">trap INT TERM</code> que os mate.</b> Sem isso, o Ctrl-C para a tela e não para o trabalho.</li>
+        <li><b>Imponha teto de concorrência</b> com <code class="inl">xargs -P</code>, <code class="inl">parallel -j</code> ou fila com <code class="inl">wait -n</code>. O número vem do gargalo: núcleos para CPU, 1 ou 2 para disco mecânico, o combinado para rede.</li>
+        <li><b><code class="inl">timeout -k</code> em toda ferramenta externa.</b> Sem <code class="inl">-k</code>, quem ignora o <code class="inl">TERM</code> sobrevive ao prazo; o status <b>124</b> identifica o estouro.</li>
+        <li><b>Para trabalho longo de verdade, uma unidade do systemd vence o <code class="inl">nohup</code>:</b> registro, reinício e encerramento do cgroup inteiro.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Paralelismo contra alvo externo é decisão de contrato, não de máquina.</b> <code class="inl">-P 8</code> multiplica por oito o tráfego que você gera: o teto vem do que foi combinado com quem opera o alvo — taxa máxima, janela de execução, limite de conexões simultâneas. Estourá-lo por acidente é <b>indisponibilidade provocada</b>, e a autorização para testar não cobre negar o serviço. <code class="inl">parallel --delay 0.5</code> e <code class="inl">--jobs</code> explícito documentam a intenção no próprio comando. <b>O Ctrl-C tem de parar de verdade</b> — é o ponto mais importante deste assunto em contexto ofensivo: sem o <code class="inl">trap</code> que mata os filhos, o script "para" na tela e <b>continua atacando por baixo</b>, o que num teste com janela combinada coloca a atividade <b>fora da janela autorizada</b>, com o enquadramento da Lei 12.737/2012. <b><code class="inl">timeout -k</code> em toda ferramenta externa:</b> varredura contra host que descarta pacotes fica pendurada indefinidamente, e uma fila de oito processos com quatro travados não anda — prazo explícito, <code class="inl">-k</code> para o caso de a ferramenta ignorar o <code class="inl">TERM</code>, e status 124 tratado como "sem resposta", não como "erro". <b>Registre PID e alvo, e confira o status um a um:</b> o <code class="inl">pid_de[$!]="$alvo"</code> é o que permite dizer no relatório quais alvos foram efetivamente testados e quais falharam — um <code class="inl">wait</code> sozinho devolve zero e produz relatório que <b>afirma cobertura que não houve</b>, o pior tipo de erro num teste de segurança. E <b>interrupção deixa evidência parcial:</b> ao encerrar por sinal, marque no arquivo de resultado que a execução foi interrompida e em que ponto — arquivo truncado sem marca parece completo, e alguém vai concluir que os alvos restantes estavam limpos. <b>Família RHEL:</b> sinais e controle de processos são do kernel e idênticos; a diferença é de operação — <code class="inl">KillMode=control-group</code> nas unidades do systemd mata todos os processos do cgroup no <code class="inl">systemctl stop</code>, que é justamente a garantia que o script sozinho não tem, mais um argumento para empacotar trabalho longo como serviço. E o <code class="inl">parallel</code> exige EPEL no RHEL, enquanto <code class="inl">xargs -P</code> e <code class="inl">timeout</code> estão nas duas famílias sem instalar nada.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 12 · Fase 3 <span class="n">075</span></span>
