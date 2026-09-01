@@ -3,101 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 062 — Expansão de parâmetros avançada</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .subt { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+          letter-spacing:.04em; color:var(--navy); margin-bottom:4px; }
+  .subt code { text-transform:none; font-family:var(--fonte-mono); font-size:11px; }
+
+  /* Dissecação do caminho */
+  .caminho { display:flex; align-items:stretch; justify-content:center; height:34px; margin:2px 0 8px; }
+  .caminho .sg { display:flex; align-items:flex-end; padding-bottom:4px; font-family:var(--fonte-mono);
+                 font-size:16px; color:var(--navy); letter-spacing:.02em; }
+  .caminho .mk { display:flex; flex-direction:column; align-items:center; width:16px; }
+  .caminho .mk b { font-size:8.5px; color:var(--vermelho); font-family:var(--fonte-titulo); line-height:1; }
+  .caminho .mk i { flex:1; width:0; border-left:2px dashed var(--vermelho); margin-top:2px; }
+
+  .cortes { display:grid; grid-template-columns:1fr 1fr; gap:4px 10px; }
+  .co { display:grid; grid-template-columns:74px 132px 1fr; gap:5px; align-items:center;
+        border-left:3px solid var(--verde); background:var(--verde-claro); border-radius:var(--raio-sm);
+        padding:3px 7px; }
+  .co .op { font-family:var(--fonte-mono); font-size:9.5px; color:#1d7038; }
+  .co .rs { font-family:var(--fonte-mono); font-size:9px; color:var(--navy); word-break:break-all; }
+  .co .cm { font-size:8.2px; line-height:1.2; color:var(--tinta-suave); }
+  .co .cm b { color:var(--navy); }
+  .co.zero { border-left-color:var(--tinta-suave); background:var(--papel-tint); }
+  .co.zero .op { color:var(--tinta-suave); }
+
+  .grade2 { display:grid; grid-template-columns:1.06fr 1fr; gap:9px; align-items:start; }
+  .comparacao td.d { color:var(--verde); font-weight:700; text-align:center; font-family:var(--fonte-mono); font-size:10px; }
+  .comparacao td.z { color:var(--tinta-suave); text-align:center; font-size:9.5px; }
+  .comparacao td.e { color:var(--vermelho); font-weight:700; text-align:center; }
+  .comparacao td.op { font-family:var(--fonte-mono); font-size:10px; color:var(--navy); }
+  .comparacao th small { display:block; font-weight:400; font-size:8px; opacity:.8; text-transform:none; }
+
+  /* Cheatsheet de substituição */
+  .chs { display:flex; flex-direction:column; gap:3px; }
+  .ch { display:grid; grid-template-columns:132px 1fr; gap:7px; align-items:center;
+        border:1px solid var(--linha); border-left:3px solid; border-radius:var(--raio-sm); padding:3px 7px; }
+  .ch b { font-family:var(--fonte-mono); font-size:9.5px; }
+  .ch p { font-size:8.3px; line-height:1.25; color:var(--tinta-suave); }
+  .ch p b { font-family:var(--fonte-texto); font-size:8.3px; color:var(--navy); }
+  .ch.a { border-left-color:var(--azul); }    .ch.a > b { color:var(--azul); }
+  .ch.l { border-left-color:var(--laranja); } .ch.l > b { color:#a8530a; }
+  .ch.x { border-left-color:var(--roxo); }    .ch.x > b { color:var(--roxo); }
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:5px; }
+  .nota b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 062</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Expansão de parâmetros avançada</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Expansão de<br>parâmetros</h1>
+      <div class="sub">O laço sobre 12 mil arquivos levava <b>34 minutos</b>. Ninguém suspeitou do <code class="inl">mv</code> — o custo eram as outras cinco linhas: <code class="inl">dirname</code>, <code class="inl">basename</code>, <code class="inl">echo|sed</code> e <code class="inl">echo|cut</code> somam <b>seis processos por arquivo</b>. Setenta e dois mil <i>forks</i>, dois milissegundos cada. Trocados por expansão de parâmetros: <b>seis segundos</b>.</div>
     </div>
     <div class="badge"><b>062</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Onde cada operador corta um caminho</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="caminho">
+      <span class="mk"><b>A</b><i></i></span>
+      <span class="sg">/</span>
+      <span class="mk"><b>B</b><i></i></span>
+      <span class="sg">var/log/apt</span>
+      <span class="mk"><b>C</b><i></i></span>
+      <span class="sg">/</span>
+      <span class="mk"><b>D</b><i></i></span>
+      <span class="sg">history</span>
+      <span class="mk"><b>E</b><i></i></span>
+      <span class="sg">.log</span>
+    </div>
+    <div class="cortes">
+      <div class="co"><span class="op">${p#*/}</span><span class="rs">var/log/apt/history.log</span><span class="cm">menor prefixo até a <b>1ª</b> barra — corte <b>B</b></span></div>
+      <div class="co"><span class="op">${p%/*}</span><span class="rs">/var/log/apt</span><span class="cm">menor sufixo desde a última barra — corte <b>C</b> · é o <code class="inl">dirname</code></span></div>
+      <div class="co"><span class="op">${p##*/}</span><span class="rs">history.log</span><span class="cm">maior prefixo até a <b>última</b> barra — corte <b>D</b> · é o <code class="inl">basename</code></span></div>
+      <div class="co zero"><span class="op">${p%%/*}</span><span class="rs">(vazio)</span><span class="cm">maior sufixo desde a <b>1ª</b> barra — corte <b>A</b></span></div>
+      <div class="co"><span class="op">${arq%.*}</span><span class="rs">history</span><span class="cm">tira a extensão — corte <b>E</b></span></div>
+      <div class="co"><span class="op">${arq##*.}</span><span class="rs">log</span><span class="cm">só a extensão</span></div>
+    </div>
+    <div class="nota"><b>Dobrar o símbolo torna o corte guloso</b>, e o padrão é <b>glob</b>, não expressão regular: <code class="inl">*</code>, <code class="inl">?</code> e <code class="inl">[abc]</code> existem; <code class="inl">+</code> e grupos de captura, não. <b>Os casos-limite divergem dos comandos externos:</b> sem barra, <code class="inl">${p%/*}</code> devolve o caminho inteiro (o <code class="inl">dirname</code> diria <code class="inl">.</code>); terminando em barra, <code class="inl">${p##*/}</code> devolve vazio (o <code class="inl">basename</code> diria <code class="inl">log</code>); sem ponto, <code class="inl">${p##*.}</code> devolve tudo. E <code class="inl">${var}</code> só precisa das chaves para <b>delimitar o nome</b>: <code class="inl">$nome_final</code> é outra variável, <code class="inl">${nome}_final</code> é o valor mais o sufixo.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Valor padrão · substituição · fatia · caixa</div>
+  <section class="grade2">
+    <div>
+      <table class="comparacao">
+        <thead><tr><th>Operador</th><th>unset var<small>não definida</small></th><th>var=""<small>definida, vazia</small></th><th>var="x"<small>com valor</small></th></tr></thead>
+        <tbody>
+          <tr><td class="op">${var:-p}</td><td class="d">p</td><td class="d">p</td><td class="z">x</td></tr>
+          <tr><td class="op">${var-p}</td><td class="d">p</td><td class="z">vazio</td><td class="z">x</td></tr>
+          <tr><td class="op">${var:=p}</td><td class="d">p · atribui</td><td class="d">p · atribui</td><td class="z">x</td></tr>
+          <tr><td class="op">${var:+a}</td><td class="z">vazio</td><td class="z">vazio</td><td class="d">a</td></tr>
+          <tr><td class="op">${var+a}</td><td class="z">vazio</td><td class="d">a</td><td class="d">a</td></tr>
+          <tr><td class="op">${var:?msg}</td><td class="e">aborta</td><td class="e">aborta</td><td class="z">x</td></tr>
+        </tbody>
+      </table>
+      <div class="nota"><b>A coluna do meio é a única em que o dois-pontos muda algo:</b> com ele, definida-e-vazia conta como ausente. Na dúvida use a forma com <code class="inl">:</code> — variável vazia costuma ser tão inútil quanto inexistente. O <code class="inl">:?</code> é o único que <b>interrompe</b>. E o <code class="inl">:+</code> resolve o "acrescente só se existir" sem <code class="inl">if</code>: <code class="inl">comando+="${PORTA:+ -p $PORTA}"</code>.</div>
+    </div>
+    <div>
+      <div class="chs">
+        <div class="ch a"><b>${v/a/b}</b><p>troca a <b>primeira</b> ocorrência · <code class="inl">${v//a/b}</code> troca <b>todas</b> · <code class="inl">${v//a}</code> remove</p></div>
+        <div class="ch a"><b>${v/#a/b} ${v/%a/b}</b><p>ancora no <b>início</b> / no <b>fim</b>. <code class="inl">${ip//./-}</code> → <code class="inl">10-0-0-1</code>; a barra precisa de escape: <code class="inl">${c//\//-}</code></p></div>
+        <div class="ch l"><b>shopt -s extglob</b><p>acrescenta <code class="inl">+(x)</code>, <code class="inl">*(x)</code>, <code class="inl">@(x|y)</code>, <code class="inl">!(x)</code> ao glob — ligue <b>no topo</b>, nunca no meio: o Bash analisa a sintaxe antes de executar</p></div>
+        <div class="ch l"><b>${#s} ${s:0:5} ${s: -5}</b><p>comprimento e fatia — <b>espaço antes do menos</b>, como nos arrays. <code class="inl">${s:0:-4}</code> corta do fim</p></div>
+        <div class="ch x"><b>${n,,} ${n^^} ${n^}</b><p>caixa sem chamar <code class="inl">tr</code> (Bash 4) — o jeito certo de comparar resposta: <code class="inl">case "${resposta,,}" in s|sim)</code></p></div>
+        <div class="ch x"><b>${!nome} ${!PREFIXO@}</b><p>indireção e listagem por prefixo. <b>Perigosa com entrada externa</b> — para tabela, <code class="inl">declare -A</code></p></div>
+        <div class="ch x"><b>${v@Q}</b><p>o valor <b>citado</b>, com as fronteiras visíveis (Bash 4.4): <code class="inl">processando 'meu arquivo.txt'</code> — o formato certo para log</p></div>
+      </div>
+      <div class="nota"><b>Onde a expansão para e o <code class="inl">awk</code> começa:</b> ela opera sobre <b>uma</b> variável com padrões de glob. Texto com campos e registros, regex de verdade (grupos, quantificadores) ou transformação que dependa do contexto entre linhas são trabalho de <code class="inl">grep</code>, <code class="inl">sed</code> e <code class="inl">awk</code> — e aí <b>chame o programa uma vez sobre o conjunto inteiro</b>, nunca uma vez por item.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b><code class="inl">: "${DESTINO:?variavel DESTINO nao definida}"</code> no topo do script é a linha mais barata que existe.</b> Sem ela, um <code class="inl">DESTINO</code> vazio por erro de digitação transforma <code class="inl">rm -rf -- "${DESTINO}/cache"</code> em <code class="inl">rm -rf -- /cache</code>. O <code class="inl">:</code> inicial é o comando nulo — não faz nada além de <b>forçar a avaliação</b> da expansão; a mensagem vai para <code class="inl">stderr</code> e o shell sai com código 1, encerrando o script não interativo ali mesmo. Ponha uma linha dessas para <b>cada</b> variável obrigatória, antes de qualquer comando com efeito colateral, e mantenha o <code class="inl">--</code> na chamada.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Expansão de parâmetros roda dentro do processo do shell.</b> Trocar <code class="inl">basename</code>, <code class="inl">dirname</code>, <code class="inl">sed</code> e <code class="inl">cut</code> por <code class="inl">${v##*/}</code> e companhia elimina um <i>fork</i> por chamada — a diferença entre segundos e dezenas de minutos num laço grande.</li>
+        <li><b><code class="inl">#</code> corta do começo, <code class="inl">%</code> corta do fim; dobrado, o corte é guloso.</b> <code class="inl">${p##*/}</code> é o <code class="inl">basename</code>, <code class="inl">${p%/*}</code> é o <code class="inl">dirname</code> — com casos-limite diferentes.</li>
+        <li><b><code class="inl">:-</code> usa · <code class="inl">:=</code> usa e atribui · <code class="inl">:+</code> usa só se houver valor · <code class="inl">:?</code> aborta.</b> O dois-pontos decide se "definida mas vazia" conta como ausente.</li>
+        <li><b>Os padrões são glob, não regex.</b> <code class="inl">shopt -s extglob</code> acrescenta <code class="inl">+(…)</code>, <code class="inl">@(…)</code> e <code class="inl">!(…)</code>; o resto é do <code class="inl">sed</code> e do <code class="inl">awk</code>.</li>
+        <li><b><code class="inl">${v//a/b}</code> troca todas as ocorrências</b>, com <code class="inl">/#</code> e <code class="inl">/%</code> ancorando início e fim.</li>
+        <li><b><code class="inl">${v,,}</code> e <code class="inl">${v^^}</code> normalizam caixa sem chamar <code class="inl">tr</code></b> — o jeito certo de comparar resposta do usuário.</li>
+        <li><b>Portabilidade:</b> <code class="inl">:-</code>, <code class="inl">:=</code>, <code class="inl">:+</code>, <code class="inl">:?</code>, <code class="inl">#</code>, <code class="inl">##</code>, <code class="inl">%</code>, <code class="inl">%%</code> e <code class="inl">${#v}</code> são <b>POSIX</b>; fatia e substituição são Bash 2, caixa é Bash 4, <code class="inl">@Q</code> é Bash 4.4. <code class="inl">${v,,}</code> num <code class="inl">#!/bin/sh</code> falha no <code class="inl">dash</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O caso mais comum de varredura fora do escopo não é malícia: é variável vazia.</b> Um <code class="inl">ALVO</code> em branco faz <code class="inl">nmap "$REDE/24"</code> virar <code class="inl">nmap /24</code> e, dependendo do <i>wrapper</i>, faz uma faixa padrão entrar no lugar — <code class="inl">: "${ALVO:?informe o alvo}"</code> transforma configuração ausente em parada imediata, com mensagem, em vez de comportamento inventado. Varrer fora do escopo autorizado é crime pela Lei 12.737/2012. <b>Nome de saída de ferramenta se monta com expansão, não com <code class="inl">sed</code>:</b> <code class="inl">nmap -oA "${ALVO//[^a-zA-Z0-9._-]/_}-$(date +%F)"</code> normaliza o alvo para um nome de arquivo seguro numa linha só, sem <code class="inl">/</code>, <code class="inl">:</code>, <code class="inl">?</code> ou espaço — a mesma técnica que sanitiza URL vinda do <code class="inl">gobuster</code>. <b>Laço sobre <i>wordlist</i> ou sobre saída de varredura é onde o custo do <i>fork</i> explode:</b> cem mil linhas com dois <code class="inl">$(basename …)</code> cada dão duzentos mil processos, e esse tempo compete com a janela contratada do teste. Use <code class="inl">${v##*/}</code> e <code class="inl">${v%.*}</code>; quando a transformação for mesmo complexa, passe o conjunto inteiro por <b>um</b> <code class="inl">awk</code>. <b><code class="inl">${var@Q}</code> no log evita ambiguidade no relatório:</b> <code class="inl">alvo: 10.10.10.5</code> não distingue um alvo com espaço no fim; <code class="inl">alvo: '10.10.10.5 '</code> distingue — e em teste autorizado o registro do que foi tocado é parte da entrega. <b>Cuidado com <code class="inl">${!var}</code> sobre dado vindo de arquivo de alvos:</b> deixar conteúdo de terceiro escolher qual variável do seu script será lida é uma primitiva de leitura arbitrária dentro do processo. Se a intenção é uma tabela, <code class="inl">declare -A</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 10 · Fase 3 <span class="n">062</span></span>
