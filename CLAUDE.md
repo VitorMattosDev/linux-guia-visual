@@ -314,6 +314,53 @@ escada de diagnóstico em seis degraus (080), senha × chave pública e os três
 decodificador do `curl -v` (082), o caminho do pacote pelos ganchos do Netfilter (083),
 o que o TLS esconde (084). Tudo em SVG/CSS — `assets/img/` segue vazio.
 
+## Aprendizados de produção (Volume 14)
+
+### O laço de aperto que funciona (e a ordem certa dos cortes)
+
+Toda ficha do Volume 14 nasceu entre 1100 e 1220 px e teve de cair para ~1075. O laço que
+custou menos rodadas, **nesta ordem**:
+
+1. **Equilibre o `.grade2` primeiro.** A coluna mais alta manda: cortar da mais baixa não
+   muda um pixel. Duas alavancas, nesta ordem — mudar a proporção do `grid-template-columns`
+   (alargar a coluna de tabela costuma tirar uma linha por linha da tabela) e, só depois,
+   **tirar da coluna alta um bloco inteiro para a largura toda**. Mover o `.regra` de dentro
+   da coluna para debaixo do grid encolheu-o de ~60 px para ~30 px e ainda equilibrou as
+   colunas: sozinho valeu 30–60 px em 089, 090 e 085. É o corte de maior retorno do volume.
+2. **Corte o bloco 🐉 No Kali.** Ele nasce como o mais alto do `.rodape-blocos` em toda ficha
+   — o capítulo tem cinco marcadores densos e a tentação é levar todos. Como Resumo e Dica
+   compartilham a altura, **encolher a Dica é o único corte que muda o bloco**; o Resumo
+   ganha as linhas de graça. Uma reescrita mais enxuta do Kali vale 40–90 px.
+3. **Depois `--gap-blocos`.** 4 mm foi o padrão do volume; 3.2 mm ainda imprime bem (089).
+   Abaixo disso não testei. Cada 0,2 mm vale ~7 px em 6 gaps.
+4. **Por último, tipografia:** `.bloco .corpo` a 7.8–8.1 px, `td { padding:1.5px }`,
+   `.cam/.ps/.pc { padding:2px }`. Cada um vale 8–15 px, e mais de dois juntos apertam.
+
+**Reescrever frase por frase continua não entregando px** (lição do Vol 13 confirmada):
+mexa em número de blocos, número de linhas de tabela/terminal e proporção de grid.
+
+### Detalhes que morderam
+
+- **`.componente b { }` vaza para os `<b>` do texto** — o aviso do Vol 1, de novo (ficha 090:
+  o `<b>exatos</b>` dentro de um `<span>` saiu em caixa-alta do tamanho do título). Escopo
+  sempre com filho direto: `.it > b`, e um `.it span b { color:var(--navy) }` para o negrito
+  normal.
+- **`paginacao.py NNN --blocos` é o instrumento certo entre uma edição e outra** — barato,
+  não gasta contexto com imagem e diz exatamente qual filho direto está estourando. A
+  miniatura só no fim, para conferir cor e alinhamento.
+- **Editar a ficha com a ferramenta Edit, não com script Python via heredoc.** O heredoc
+  quebra o parser do Git Bash (`unexpected EOF`) com qualquer aspas do HTML. Para o ROADMAP,
+  um script curto salvo em arquivo (não heredoc) e chamado com o número da ficha resolve.
+
+### Densidade do Volume 14
+
+Sete fichas, sete visuais distintos, todos tradução da figura TikZ do capítulo: as cinco
+camadas da superfície de ataque com o comando que mede cada uma (085), a escada do
+desafio-resposta do login por chave (086), `root` monolítico se abrindo em peças nomeadas
+(087), os dois portões DAC e MAC em série (088), o pipeline de detecção com a custódia
+externa (089), o ciclo de seis fases do teste (090), a cadeia de observadores com o trecho
+que cada ferramenta cobre (091). Tudo em SVG/CSS — `assets/img/` segue vazio.
+
 ## Estratégia de produção
 
 Uma sessão = um volume, do Volume 1 ao 16, em ordem (fecha a Fase antes de avançar).
