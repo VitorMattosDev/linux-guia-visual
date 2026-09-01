@@ -74,7 +74,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 
 ### Volume 8 — Armazenamento e Sistemas de Arquivos
 
-- [ ] **guia 045** - Discos, partições e a nomenclatura de dispositivos - `guias/vol08/guia045-discos-particoes-e-a-nomenclatura-de-dispositivo.html`
+- [x] **guia 045** - Discos, partições e a nomenclatura de dispositivos - `guias/vol08/guia045-discos-particoes-e-a-nomenclatura-de-dispositivo.html`
 - [ ] **guia 046** - Particionamento com fdisk, parted e gdisk - `guias/vol08/guia046-particionamento-com-fdisk-parted-e-gdisk.html`
 - [ ] **guia 047** - Sistemas de arquivos: ext4, Btrfs, XFS e formatação - `guias/vol08/guia047-sistemas-de-arquivos-ext4-btrfs-xfs-e-formatacao.html`
 - [ ] **guia 048** - LVM: volumes lógicos flexíveis - `guias/vol08/guia048-lvm-volumes-logicos-flexiveis.html`

@@ -3,101 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 045 — Discos, partições e a nomenclatura de dispositivos</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Decomposição de um nome de dispositivo em segmentos */
+  .anat { display:flex; flex-direction:column; gap:8px; }
+  .nome { display:flex; align-items:flex-start; gap:8px; }
+  .nome > .fam { flex:0 0 96px; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+                 letter-spacing:.04em; color:var(--navy); line-height:1.25; padding-top:7px; }
+  .segs { display:flex; gap:5px; align-items:flex-start; }
+  .sg { display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .sg .cx { font-family:var(--fonte-mono); font-size:14px; font-weight:600; border-radius:5px;
+            border:1.5px solid; padding:4px 10px; line-height:1.1; }
+  .sg .lb { font-size:8.5px; color:var(--tinta-suave); text-align:center; line-height:1.2; }
+  .sg.a .cx { border-color:var(--azul);     background:var(--azul-claro);   color:var(--navy); }
+  .sg.b .cx { border-color:var(--verde);    background:var(--verde-claro);  color:#1d6b36; }
+  .sg.c .cx { border-color:var(--vermelho); background:var(--vermelho-claro);color:#a52c2c; }
+  .sg.d .cx { border-color:var(--laranja);  background:var(--laranja-claro);color:#a8530a; }
+  .nome .obs { flex:1; font-size:9.5px; color:var(--tinta-suave); line-height:1.35; padding-top:4px; }
+  .nome .obs b { color:var(--navy); }
+  /* Tira de famílias de nomes */
+  .fams { display:flex; flex-wrap:wrap; gap:5px; align-items:center; justify-content:center; margin-top:2px; }
+  .fams span { font-size:9.5px; background:#eef2f8; color:var(--tinta-suave); border-radius:999px; padding:2px 8px; }
+  .fams span b { font-family:var(--fonte-mono); color:var(--navy); }
+  /* Layout do disco: MBR × GPT */
+  .disco { display:flex; flex-direction:column; gap:7px; }
+  .faixa { display:flex; align-items:stretch; gap:8px; }
+  .faixa > .rot { flex:0 0 92px; font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+                  letter-spacing:.03em; display:flex; flex-direction:column; justify-content:center; line-height:1.2; }
+  .faixa > .rot i { font-style:normal; font-size:8.5px; color:var(--tinta-suave); text-transform:none; letter-spacing:0; }
+  .faixa.mbr > .rot { color:var(--vermelho); }
+  .faixa.gpt > .rot { color:var(--verde); }
+  .barra-d { flex:1; display:flex; gap:3px; }
+  .barra-d .bl { border:1px solid; border-radius:4px; font-size:8.5px; line-height:1.15; text-align:center;
+                 padding:5px 3px; display:flex; align-items:center; justify-content:center; }
+  .bl.boot { border-color:var(--azul); background:var(--azul-claro); color:var(--navy); flex:0 0 58px; }
+  .bl.tab  { border-color:var(--vermelho); background:var(--vermelho-claro); color:#a52c2c; flex:0 0 78px; }
+  .bl.dad  { border-color:var(--linha); background:var(--papel-tint); color:var(--tinta-suave); flex:1; }
+  .bl.cop  { border-color:var(--verde); background:var(--verde-claro); color:#1d6b36; flex:0 0 74px; }
+  .lim { font-size:8.5px; line-height:1.4; color:var(--tinta-suave); padding-left:100px; }
+  .lim b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 045</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Discos, partições e a nomenclatura de dispositivos</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Discos, Partições e<br>Nomes de Dispositivo</h1>
+      <div class="sub">A VM migrou de hipervisor e o boot para em <code class="inl">Cannot open root device "sda2"</code>. O disco está intacto — o que mudou foi o <b>nome</b>.</div>
     </div>
     <div class="badge"><b>045</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- ANATOMIA DO NOME -->
+  <div class="secao-titulo">Anatomia de um nome — quem batiza é o kernel, não o disco</div>
+  <section class="anat">
+    <div class="nome">
+      <div class="fam">SATA · SAS<br>USB · SCSI</div>
+      <div class="segs">
+        <div class="sg a"><span class="cx">sd</span><span class="lb">família<br>do driver</span></div>
+        <div class="sg b"><span class="cx">a</span><span class="lb">disco<br>(a, b, c…)</span></div>
+        <div class="sg c"><span class="cx">1</span><span class="lb">partição<br>(1, 2, 3…)</span></div>
+      </div>
+      <div class="obs"><b>sd</b> não é “SATA disk”: vem de <b>SCSI disk</b> — SATA, SAS e USB passam todos pela mesma camada de tradução. O <code class="inl">/dev/hdX</code> do IDE não existe mais desde o kernel 2.6.19.</div>
+    </div>
+    <div class="nome">
+      <div class="fam">NVMe</div>
+      <div class="segs">
+        <div class="sg a"><span class="cx">nvme</span><span class="lb">família</span></div>
+        <div class="sg d"><span class="cx">0</span><span class="lb">controladora<br>(o chip)</span></div>
+        <div class="sg b"><span class="cx">n1</span><span class="lb"><i>namespace</i><br>(o “disco”)</span></div>
+        <div class="sg c"><span class="cx">p2</span><span class="lb">partição</span></div>
+      </div>
+      <div class="obs">Um nível a mais: a controladora expõe vários <i>namespaces</i>. Daí o prefixo <b>p</b> — sem ele <code class="inl">nvme0n11</code> seria ambíguo. Mesma regra em <code class="inl">mmcblk0p1</code> e <code class="inl">loop0p1</code>.</div>
+    </div>
+    <div class="fams">
+      <span><b>vdX</b> virtio (KVM/nuvem)</span>
+      <span><b>xvdX</b> Xen</span>
+      <span><b>mmcblkXpY</b> SD/eMMC</span>
+      <span><b>loopX</b> arquivo como disco</span>
+      <span><b>mdX</b> RAID</span>
+      <span><b>mapper/nome</b> LVM e LUKS</span>
+      <span><b>srX</b> óptico</span>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- MBR x GPT -->
+  <div class="secao-titulo">A tabela de partição: MBR × GPT</div>
+  <section class="disco">
+    <div class="faixa mbr">
+      <div class="rot">MBR <i>1983 · setor 0</i></div>
+      <div class="barra-d">
+        <div class="bl boot">código<br>de boot</div>
+        <div class="bl tab">tabela<br>4 entradas</div>
+        <div class="bl dad">dados das partições</div>
+      </div>
+    </div>
+    <div class="lim"><b>2 TiB</b> por disco (setor de 32 bits) · <b>4 primárias</b> (mais que isso exige a estendida encadeada) · <b>sem cópia de segurança</b>: 512 bytes são ponto único de falha.</div>
+    <div class="faixa gpt">
+      <div class="rot">GPT <i>2000 · GUID</i></div>
+      <div class="barra-d">
+        <div class="bl boot">MBR<br>protetora</div>
+        <div class="bl tab">cabeç. +<br>128 entradas</div>
+        <div class="bl dad">dados das partições</div>
+        <div class="bl cop">cópia da<br>tabela</div>
+        <div class="bl cop">cópia do<br>cabeçalho</div>
+      </div>
+    </div>
+    <div class="lim">Endereços de <b>64 bits</b> · <b>128 partições</b> equivalentes, cada uma com GUID e rótulo · <b>cópia integral no fim do disco</b>, conferida por CRC32 — é ela que o <code class="inl">gdisk</code> usa para recuperar a tabela. <b>Disco novo, GPT sempre.</b></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <!-- IDENTIFICADORES -->
+  <div class="secao-titulo">Identificadores persistentes: <code class="inl">/dev/disk/by-*</code></div>
   <section>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Diretório</th><th>O que identifica</th><th>Sobrevive a</th><th>Use para</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>by-uuid</code></td><td>o <b>sistema de arquivos</b> dentro da partição</td><td>trocar de porta, mover o disco de máquina</td><td>montar — é o que o instalador põe no <code>fstab</code></td></tr>
+        <tr><td><code>by-id</code></td><td>o <b>hardware</b>: modelo + número de série</td><td>reparticionar, reformatar, trocar de porta</td><td>operar sobre o disco inteiro em script</td></tr>
+        <tr><td><code>by-partuuid</code></td><td>a <b>partição</b> na tabela GPT</td><td>reformatar o sistema de arquivos</td><td>apontar uma partição que será reformatada</td></tr>
+        <tr><td><code>by-label</code></td><td>o rótulo do sistema de arquivos</td><td>mover o disco; some se o rótulo mudar</td><td>mídia removível (a persistência do Kali)</td></tr>
+        <tr><td><code>by-path</code></td><td>a <b>posição física</b>: a porta do barramento</td><td>trocar o disco por outro na mesma porta</td><td>“qual disco está na baia 3”, em servidor</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- NA PRÁTICA -->
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> lsblk -o NAME,MAJ:MIN,SIZE,ROTA,PARTTYPENAME,FSTYPE,MOUNTPOINT
+<span class="out">NAME   MAJ:MIN  SIZE ROTA PARTTYPENAME      FSTYPE MOUNTPOINT</span>
+<span class="out">sda      8:0    100G    0                             </span><span class="cmt"># ROTA 0 = SSD, 1 = mecânico</span>
+<span class="out">├─sda1   8:1     512M   0 EFI System        vfat   /boot/efi</span>
+<span class="out">├─sda2   8:2    97,5G   0 Linux filesystem  ext4   /</span>
+<span class="out">└─sda3   8:3       2G   0 Linux swap               </span><span class="cmt"># declarado, mas ainda sem mkfs</span>
+<span class="prompt">$</span> sudo fdisk -l /dev/sda | grep -iE 'disklabel|sector'   <span class="cmt"># gpt ou dos? 512e?</span>
+<span class="prompt">$</span> ls -l /dev/disk/by-id/ &amp;&amp; sudo smartctl -H /dev/sda    <span class="cmt"># série + saúde</span></pre>
+  </section>
+
+  <div class="perigo"><b>Nunca escreva <code class="inl">/dev/sdX</code> em fstab, crypttab, linha do kernel ou script.</b> A letra vem da ordem de detecção no boot: trocar de porta SATA, somar um disco ou esquecer um pendrive espetado reordena tudo. O melhor caso é um volume que não monta; o pior é um <code class="inl">mkfs</code> no disco errado porque as letras trocaram entre o <code class="inl">lsblk</code> e a execução. Use <code class="inl">UUID=</code> para montar e <code class="inl">by-id</code> para operar. E lembre: <b>clonar com <code class="inl">dd</code> duplica o UUID</b> — no clone, <code class="inl">tune2fs -U random</code> (ext4) ou <code class="inl">xfs_admin -U generate</code>.</div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Tudo que guarda dado é <b>dispositivo de bloco</b> (o <code class="inl">b</code> do <code class="inl">ls -l</code>), roteado pelo par <i>major/minor</i> — por isso disco, RAID, LVM e LUKS se empilham.</li>
+        <li><b><code class="inl">by-uuid</code> para montar, <code class="inl">by-id</code> para operar</b> sobre o disco inteiro.</li>
+        <li><b>Código de tipo é declaração, não formatação:</b> <code class="inl">PARTTYPENAME</code> é o que a tabela diz, <code class="inl">FSTYPE</code> é o que existe. Só <code class="inl">EF00</code> (boot UEFI) e <code class="inl">8E00</code>/<code class="inl">FD00</code> (varredura de LVM/RAID) mudam comportamento.</li>
+        <li><b>Primeira partição no setor 2048 = 1 MiB.</b> Fora do alinhamento, o disco 512e faz ler-modificar-escrever e a escrita cai várias vezes — sem aparecer em log nenhum.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>No live USB a nomenclatura é outra</b>: o próprio pendrive costuma pegar o <code class="inl">sda</code> e empurrar o disco interno para <code class="inl">sdb</code>. Antes de qualquer escrita, confirme por <b>modelo e número de série</b> (<code class="inl">lsblk -o NAME,SIZE,MODEL,SERIAL</code>), nunca pela letra. Em perícia, primeiro <code class="inl">blockdev --setro /dev/sdX</code> e confira com <code class="inl">--getro</code>: montar em leitura-e-escrita já altera <i>timestamps</i> e o <i>journal</i>. A persistência do Kali é achada pelo <b>rótulo</b> <code class="inl">persistence</code> — imune à reordenação. E todo o laboratório do Vol 8 roda em <code class="inl">losetup</code> sobre um arquivo de 1 GiB: erro custa um <code class="inl">rm</code>, não os seus dados.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 08 · Fase 2 <span class="n">045</span></span>
