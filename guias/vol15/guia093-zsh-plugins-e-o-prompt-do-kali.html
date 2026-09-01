@@ -3,101 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 093 — Zsh, plugins e o prompt do Kali</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: a linha do prompt dissecada ---- */
+  .linha-prompt { display:flex; align-items:center; gap:3px; background:#101822;
+                  border-radius:var(--raio-sm); padding:7px 10px; font-family:var(--fonte-mono); }
+  .sg { border:1.4px solid; border-radius:3px; padding:1px 6px; font-size:11px; font-weight:600; }
+  .sg.u { border-color:#4aa3ff; background:rgba(74,163,255,.18); color:#8fc7ff; }
+  .sg.h { border-color:#4ccf6d; background:rgba(76,207,109,.18); color:#8ee9a4; }
+  .sg.d { border-color:#f0a43a; background:rgba(240,164,58,.18); color:#f7cd8a; }
+  .sg.p { border-color:#ef5f5f; background:rgba(239,95,95,.18); color:#ff9b9b; }
+  .sg.r { border-color:#8f9bab; background:rgba(143,155,171,.16); color:#c3ccd8; }
+  .lp-sep { color:#7d8896; font-size:11px; }
+  .lp-cursor { color:#5d6673; font-size:9px; font-style:italic; flex:1; padding-left:5px; }
+
+  .leg { display:grid; grid-template-columns:repeat(2,1fr); gap:4px 11px; margin-top:6px; }
+  .lg { font-size:7.6px; line-height:1.22; color:var(--tinta-suave); }
+  .lg i { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:4px;
+          vertical-align:0; }
+  .lg > code { font-family:var(--fonte-mono); font-size:8.2px; font-weight:700; color:var(--navy);
+               margin-right:3px; }
+  .lg > span { display:inline; }
+  .lg > span b { color:var(--navy); }
+  .lg.u i { background:var(--azul-claro); border:1.4px solid var(--azul); }
+  .lg.h i { background:var(--verde-claro); border:1.4px solid var(--verde); }
+  .lg.d i { background:var(--laranja-claro); border:1.4px solid var(--laranja); }
+  .lg.p i { background:var(--vermelho-claro); border:1.4px solid var(--vermelho); }
+  .lg.r i { background:var(--papel-tint); border:1.4px solid var(--tinta-suave); }
+
+  /* ---- o que o Zsh acrescenta ---- */
+  .ganhos { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+  .gh { border:1.5px solid; border-radius:var(--raio-sm); padding:3px 8px; }
+  .gh > b { display:block; font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+            letter-spacing:.02em; }
+  .gh > span { display:block; font-size:7.6px; line-height:1.2; color:var(--tinta-suave); }
+  .gh > span b { color:var(--navy); }
+  .gh code { font-family:var(--fonte-mono); font-size:7.4px; color:var(--roxo); font-weight:600; }
+  .gh.c1 { border-color:var(--azul); background:var(--azul-claro); } .gh.c1 > b { color:var(--azul); }
+  .gh.c2 { border-color:var(--roxo); background:var(--roxo-claro); } .gh.c2 > b { color:var(--roxo); }
+  .gh.c3 { border-color:var(--laranja); background:var(--laranja-claro); } .gh.c3 > b { color:var(--laranja); }
+  .gh.c4 { border-color:var(--verde); background:var(--verde-claro); } .gh.c4 > b { color:#1d7038; }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.4px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.2px 6px; line-height:1.17; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.4px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:2.2mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.8px; line-height:1.22; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 093</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Zsh, plugins e o prompt do Kali</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Zsh, plugins e<br>o prompt do Kali</h1>
+      <div class="sub">Quatro abas abertas: duas locais, uma no laboratório, uma no servidor de produção que ninguém deveria estar tocando. O prompt das quatro dizia <code class="inl">$</code>. A pessoa digitou <code class="inl">systemctl stop nginx</code>, apertou Enter — e <b>só então</b> olhou o título da janela. <b>O prompt não é enfeite: é a instrumentação permanente da sessão.</b></div>
     </div>
     <div class="badge"><b>093</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Anatomia do prompt: a linha mais lida do terminal</div>
+    <div class="linha-prompt" style="margin-top:4px">
+      <span class="sg u">kali</span><span class="lp-sep">@</span><span class="sg h">kali</span><span class="lp-sep">:</span><span class="sg d">~/lab-zsh</span><span class="sg p">$</span>
+      <span class="lp-cursor">… o comando que você digita …</span>
+      <span class="sg r">1&nbsp;&nbsp;12:04</span>
+    </div>
+    <div class="leg">
+      <div class="lg u"><i></i><code>%n</code><span><b>usuário</b> — quem você é <i>agora</i>. Muda sob <code>sudo -i</code>: é o primeiro campo a conferir antes de um comando destrutivo.</span></div>
+      <div class="lg h"><i></i><code>%m</code><span><b>máquina</b> — nome curto do host. É o campo que teria evitado o <code>systemctl stop</code> na máquina errada.</span></div>
+      <div class="lg d"><i></i><code>%~</code><span><b>diretório atual</b>, com o home como til. <code>%(4~|.../%3~|%~)</code> trunca caminho longo.</span></div>
+      <div class="lg p"><i></i><code>%#</code><span><b>privilégio</b> — <code>%</code> para usuário comum, <code>#</code> para root. Sinal de que dali em diante não há rede de proteção.</span></div>
+      <div class="lg r"><i></i><code>RPROMPT</code><span><b>à direita, e some sozinho</b> quando o comando cresce: <code>%?</code> (código de saída) e <code>%*</code> (hora). O <code>%(?..)</code> só o mostra quando algo falhou.</span></div>
+    </div>
+    <div class="regra"><b>Dois detalhes decidem se o prompt funciona.</b> <b>1.</b> <code>setopt prompt_subst</code> reavalia a expansão a cada redesenho — sem ele, o código de saída e o ramo do Git <i>congelam</i> no valor que tinham quando o <code>.zshrc</code> foi lido. <b>2.</b> Todo byte não imprimível precisa ser marcado como tal: <code>%{ %}</code> no Zsh, <code>\[ \]</code> no Bash. Sem ela o shell conta os bytes invisíveis da cor como largura, erra o cursor e <b>a linha se sobrescreve</b> quando você navega no histórico — a causa nº 1 do "meu prompt embaralha na seta para cima". Com <code>%F{cor}</code>/<code>%f</code> em vez de escape cru, o Zsh cuida disso sozinho.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">O que o Zsh acrescenta — e quanto custa cada caminho</div>
+    <div class="grade2" style="margin-top:4px">
+      <div class="ganhos">
+        <div class="gh c1">
+          <b>Completação com menu</b>
+          <span>O <code>compsys</code> lê a página de manual: entende subcomando, navega com as setas e descreve cada candidato. <code>autoload -Uz compinit &amp;&amp; compinit</code> + <code>zstyle ':completion:*' menu select</code>.</span>
+        </div>
+        <div class="gh c2">
+          <b>Qualificadores de glob</b>
+          <span><code>**/*.log(.)</code> só arquivos regulares · <code>(.mh-2)</code> últimas 2 h · <code>(.Lm+10)</code> maiores que 10 MB · <code>*(/)</code> só diretórios. Substitui muito <code>find</code> <b>no uso interativo</b>; em script, <code>find</code> continua a escolha portável.</span>
+        </div>
+        <div class="gh c3">
+          <b>Histórico de verdade compartilhado</b>
+          <span><code>setopt share_history</code> — o comando digitado numa aba já está na seta-para-cima de outra aba <b>aberta</b>. Junto: <code>hist_ignore_all_dups</code>, <code>hist_ignore_space</code>, <code>hist_verify</code>, <code>extended_history</code>.</span>
+        </div>
+        <div class="gh c4">
+          <b>Os dois plugins que valem sozinhos</b>
+          <span><code>zsh-autosuggestions</code> completa em cinza pelo histórico (→ aceita). <code>zsh-syntax-highlighting</code> colore <b>enquanto você digita</b>: comando inexistente em vermelho <i>antes</i> do Enter.</span>
+        </div>
+      </div>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Caminho</th><th>O que dá · o que custa</th></tr></thead>
+          <tbody>
+            <tr><td>o .zshrc do Kali</td><td>prompt, menu, histórico e os 2 plugins · <b>nada: é o padrão</b></td></tr>
+            <tr><td>2 plugins por apt</td><td>autosuggestions + highlighting · duas linhas de <code>source</code></td></tr>
+            <tr><td>zinit / antidote</td><td>gerenciador com carga preguiçosa · aprender a ferramenta</td></tr>
+            <tr><td>Oh My Zsh</td><td>ecossistema pronto · <b>inicialização lenta</b>, muito que não se usa</td></tr>
+            <tr><td>starship</td><td>um prompt só para Bash, Zsh e Fish · binário externo</td></tr>
+          </tbody>
+        </table>
+        
+      </div>
+    </div>
+    <div class="regra"><b>Meça antes de otimizar:</b> <code>time zsh -i -c exit</code>. Abaixo de <b>200 ms</b> ninguém percebe; acima de <b>500 ms</b> incomoda, multiplicado por dezenas de aberturas por dia. O culpado costuma ser <code>compinit</code> sem cache — ou um prompt que roda <code>git status</code> a cada Enter, o que trava o terminal em repositório grande.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — o prompt do Kali e a migração do Bash</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~ — ~/.zshrc</span></div>
+<pre><span class="cmt"># o Kali nao usa framework: o prompt vem do</span>
+<span class="cmt"># pacote kali-defaults, ligado por uma variavel</span>
+<span class="out">PROMPT_ALTERNATIVE=twoline   # oneline | backtrack</span>
+<span class="out">NEWLINE_BEFORE_PROMPT=yes</span>
+<span class="cmt"># prompt proprio, com codigo de saida a direita</span>
+<span class="out">setopt prompt_subst
+PROMPT='%F{cyan}%n%f@%F{green}%m%f:%F{yellow}%~%f %# '
+RPROMPT='%(?..%F{red}[%?]%f )%F{8}%*%f'</span>
+<span class="cmt"># a ORDEM importa: highlighting SEMPRE por ultimo</span>
+<span class="out">source /usr/share/zsh-autosuggestions/…zsh
+source /usr/share/zsh-syntax-highlighting/…zsh</span>
+<span class="prompt">$</span> exec zsh   <span class="cmt"># recarrega sem abrir processo novo</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Variante / armadilha</th><th>O que muda de fato</th></tr></thead>
+          <tbody>
+            <tr><td><code>twoline</code></td><td>padrão do Kali: o comando <b>sempre começa na coluna 1</b> — caminho longo não empurra o cursor. As outras: <code>oneline</code> e <code>backtrack</code></td></tr>
+            <tr><td>migrar do Bash</td><td>o <code>.bashrc</code> não é lido: alias e função vão <b>movidos</b>; <code>shopt</code> vira <code>setopt</code> e array começa em <b>1</b>, não em 0</td></tr>
+            <tr><td>Nerd Font</td><td>o ícone de ramo/pasta só existe nela — e instala-se no <b>cliente</b>, não no servidor</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="regra"><b>O <code>zsh-syntax-highlighting</code> tem de ser o último <code>source</code> do arquivo.</b> Ele instala ganchos no widget de edição de linha do Zsh, e qualquer plugin carregado <i>depois</i> pode substituí-los, desligando o realce <b>em silêncio</b>: não há mensagem de erro, a cor simplesmente não aparece e você passa meia hora procurando um pacote que já estava instalado. <b>E o shell interativo não afeta script: o shebang manda.</b> Um arquivo com <code>#!/bin/bash</code> roda em Bash mesmo que o seu terminal seja Zsh — desde que você não confie em nada do <code>.zshrc</code> lá dentro.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O prompt é instrumentação, não decoração.</b> <code class="inl">%n %m %~ %#</code> respondem quem-você-é, onde-está e com-qual-privilégio — as três perguntas cuja resposta errada custa caro.</li>
+        <li><b>O código de saída no <code class="inl">RPROMPT</code> é a informação mais útil que o prompt padrão omite</b> — e o <code class="inl">%(?..)</code> só a mostra quando algo falhou.</li>
+        <li><b>Escape de cor não marcado embaralha a linha:</b> <code class="inl">%F{}</code>/<code class="inl">%f</code> no Zsh, <code class="inl">\[ \]</code> no Bash. E <code class="inl">prompt_subst</code>, ou o valor congela.</li>
+        <li><b>Dois plugins valem mais que qualquer framework</b> — e o <code class="inl">syntax-highlighting</code> sempre como <b>último</b> <code class="inl">source</code>, ou o realce some sem aviso.</li>
+        <li><b>Framework tem custo mensurável:</b> <code class="inl">time zsh -i -c exit</code>. Acima de 500 ms incomoda; o culpado é <code class="inl">compinit</code> sem cache ou prompt que consulta o Git a cada Enter.</li>
+        <li><b>O shebang manda no script.</b> Mas alias e função do <code class="inl">.bashrc</code> não migram sozinhos, e array no Zsh começa em 1.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Zsh é padrão desde o Kali 2020.4, e a migração foi feita com cuidado:</b> o <code class="inl">~/.zshrc</code> do <code class="inl">kali-defaults</code> já traz completação com menu, histórico compartilhado, os dois plugins essenciais e o prompt de duas linhas — você não precisa configurar <i>nada</i> para ter uma boa experiência. Vale lê-lo inteiro uma vez: é um exemplo bem escrito de configuração defensiva. <b>O <code class="inl">kali-tweaks</code> é o caminho oficial para trocar o prompt</b>, alterando <code class="inl">PROMPT_ALTERNATIVE</code> nos arquivos gerenciados pelo pacote; edição manual ali é sobrescrita na próxima atualização — o lugar seguro para o que é seu é o fim do seu <code class="inl">~/.zshrc</code>. <b>O prompt de root é visualmente distinto de propósito, e isso é decisão de segurança:</b> sob <code class="inl">sudo -i</code> o <code class="inl">%#</code> vira <code class="inl">#</code> e a cor muda. Num sistema em que quase toda ferramenta roda com privilégio, esse sinal permanente é a diferença entre apagar <i>o seu</i> diretório de testes e apagar <i>o do sistema</i> — não remova a distinção ao personalizar. <b>Em trabalho autorizado, informação vale mais que estética:</b> com várias sessões simultâneas — máquina local, pivô, alvo — <code class="inl">%m</code> e o código de saída no <code class="inl">RPROMPT</code> são o que impede confundir uma com a outra; pôr o nome do engajamento no prompt é o raciocínio de rastreabilidade da auditoria aplicado à própria sessão, e gravar tudo com <code class="inl">script</code> ou pelo <code class="inl">tmux</code> é hábito da casa. <b>Fora do Debian:</b> Zsh é Zsh (<code class="inl">dnf install zsh</code>); muda o caminho dos plugins — <code class="inl">/usr/share/zsh-&lt;plugin&gt;/</code> aqui, <code class="inl">/usr/share/zsh/site-functions/</code> no Fedora —, então dotfile portável testa <code class="inl">[[ -r caminho ]]</code> antes do <code class="inl">source</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 15 · Fase 4 <span class="n">093</span></span>
