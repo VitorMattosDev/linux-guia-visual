@@ -3,101 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 081 — Acesso remoto: SSH, scp e rsync</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: senha × chave pública ---- */
+  .aut { border-left:3px solid; border-radius:0 var(--raio-sm) var(--raio-sm) 0;
+         padding:4px 8px; margin-bottom:4px; }
+  .aut.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .aut.v { border-color:var(--verde); background:var(--verde-claro); }
+  .aut > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px;
+             text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px; }
+  .aut.r > b { color:var(--vermelho); } .aut.v > b { color:#1d7038; }
+  .cena { display:grid; grid-template-columns:1fr 1.35fr 1fr; gap:8px; align-items:center; }
+  .mq { border:1.5px solid var(--linha); background:#fff; border-radius:var(--raio-sm);
+        padding:3px 5px; text-align:center; }
+  .mq em { display:block; font-style:normal; font-family:var(--fonte-titulo); font-size:9px;
+           color:var(--navy); text-transform:uppercase; }
+  .mq code { display:block; font-family:var(--fonte-mono); font-size:7px; color:var(--roxo); }
+  .mq span { display:block; font-size:7.2px; color:var(--tinta-suave); line-height:1.2; }
+  .setas { display:flex; flex-direction:column; gap:3px; }
+  .st { font-size:7.4px; line-height:1.15; text-align:center; border-radius:3px; padding:2px 3px; }
+  .st.r { background:var(--vermelho); color:#fff; }
+  .st.g { background:#e2e8f0; color:var(--navy); }
+  .st.v { background:var(--verde); color:#fff; }
+  .apos { font-size:7.6px; line-height:1.25; color:var(--tinta-suave); margin-top:3px; }
+  .apos b { color:var(--navy); }
+
+  /* ---- figura 2: os três túneis ---- */
+  .tun { display:grid; grid-template-columns:186px 1fr; gap:9px; align-items:center;
+         border-left:3px solid; border-radius:0 var(--raio-sm) var(--raio-sm) 0;
+         padding:2px 7px; margin-bottom:2px; }
+  .tun.a { border-color:var(--azul); background:var(--azul-claro); }
+  .tun.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .tun.v { border-color:var(--verde); background:var(--verde-claro); }
+  .tun .t { }
+  .tun .t b { display:block; font-family:var(--fonte-titulo); font-size:9.3px; line-height:1.15; }
+  .tun.a .t b { color:var(--azul); } .tun.r .t b { color:var(--vermelho); } .tun.v .t b { color:#1d7038; }
+  .tun .t code { display:block; font-family:var(--fonte-mono); font-size:7.1px; color:var(--navy); margin-top:1px; }
+  .rota { display:grid; grid-template-columns:1fr 62px 1fr 62px 1fr; gap:3px; align-items:center; }
+  .no { border:1px solid var(--linha); background:#fff; border-radius:4px; padding:2px 3px;
+        text-align:center; font-size:7.1px; line-height:1.2; color:var(--navy); }
+  .no i { font-style:normal; font-family:var(--fonte-mono); color:var(--roxo); }
+  .lig { text-align:center; font-size:6.6px; line-height:1.1; color:var(--tinta-suave); }
+  .lig b { display:block; border-top:1.5px dashed var(--azul); margin:2px 0 1px; }
+  .lig.s b { border-top:1.5px solid var(--tinta-suave); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8.2px; color:var(--roxo); font-weight:600; }
+  .regra.v { border-color:var(--verde); background:var(--verde-claro); color:#2b5c3a; }
+  .regra.v b { color:#1d7038; }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:1.28fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.6px; line-height:1.28; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9px; text-transform:uppercase;
+          letter-spacing:.03em; color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:5px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:62px 1fr; gap:6px; align-items:baseline;
+              font-size:8.1px; line-height:1.22; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700;
+                font-size:8.1px; color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8px; color:var(--navy); font-weight:600; }
+
+  .guia { gap:5mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:11px; line-height:1.34; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:8.35px; line-height:1.26; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:3px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 081</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Acesso remoto: SSH, scp e rsync</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Acesso remoto:<br>SSH, scp e rsync</h1>
+      <div class="sub">Um servidor ficou exposto com SSH na porta 22 e senha habilitada. No primeiro dia, <code class="inl">journalctl -u ssh | grep -c "Failed password"</code> devolveu <b>41027</b> — centenas de endereços testando <code class="inl">root</code>, <code class="inl">admin</code>, <code class="inl">git</code>. Nenhuma acertou, mas a conta é simples: <b>bastava uma</b>.</div>
     </div>
     <div class="badge"><b>081</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O segredo que trafega × o segredo que fica parado</div>
+    <div style="margin-top:4px">
+      <div class="aut r">
+        <b>autenticação por senha</b>
+        <div class="cena">
+          <div class="mq"><em>cliente</em></div>
+          <div class="setas"><span class="st r">a senha atravessa o canal cifrado →</span></div>
+          <div class="mq"><em>servidor</em><span>compara com o hash</span></div>
+        </div>
+        <div class="apos"><b>Qualquer um</b> pode tentar adivinhar, indefinidamente.</div>
+      </div>
+      <div class="aut v">
+        <b>autenticação por chave pública</b>
+        <div class="cena">
+          <div class="mq"><em>cliente</em><code>~/.ssh/id_ed25519</code><span><b>privada — nunca sai daqui</b></span></div>
+          <div class="setas">
+            <span class="st g">← 1. desafio aleatório</span>
+            <span class="st v">2. assinatura do desafio →</span>
+          </div>
+          <div class="mq"><em>servidor</em><code>~/.ssh/authorized_keys</code><span>pública — pode ser divulgada</span></div>
+        </div>
+        <div class="apos">3. O servidor verifica a assinatura com a chave pública. Confere? Entra.</div>
+      </div>
+    </div>
+    <div class="regra v"><b>Por que isso encerra a força bruta:</b> não há segredo compartilhado para adivinhar — o atacante teria de <b>forjar uma assinatura</b> sem a chave privada. <b>Antes disso vem o TOFU:</b> na 1ª conexão o SSH mostra a impressão digital e a grava em <code>known_hosts</code>; digitar <code>yes</code> sem conferir por outro canal (<code>ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code>) abre a janela do ataque de intermediário.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Os três túneis: <code class="inl">-L</code> puxa, <code class="inl">-R</code> empurra, <code class="inl">-D</code> abre a rede</div>
+    <div style="margin-top:4px">
+      <div class="tun a">
+        <div class="t"><b>-L local: trago um serviço remoto para cá</b><code>ssh -L 8080:127.0.0.1:80 servidor</code></div>
+        <div class="rota">
+          <span class="no">sua máquina<br><i>:8080</i></span>
+          <span class="lig">túnel SSH<b></b></span>
+          <span class="no">servidor SSH</span>
+          <span class="lig s">conexão local<b></b></span>
+          <span class="no">serviço<br><i>127.0.0.1:80</i></span>
+        </div>
+      </div>
+      <div class="tun r">
+        <div class="t"><b>-R remoto: exponho um serviço meu lá</b><code>ssh -R 9000:127.0.0.1:3000 servidor</code></div>
+        <div class="rota">
+          <span class="no">serviço local<br><i>127.0.0.1:3000</i></span>
+          <span class="lig">túnel SSH<b></b></span>
+          <span class="no">servidor SSH<br><i>:9000</i></span>
+          <span class="lig s">conecta na 9000<b></b></span>
+          <span class="no">quem usa<br>o servidor</span>
+        </div>
+      </div>
+      <div class="tun v">
+        <div class="t"><b>-D dinâmico: proxy SOCKS pela rede do servidor</b><code>ssh -D 1080 servidor</code></div>
+        <div class="rota">
+          <span class="no">navegador<br><i>SOCKS :1080</i></span>
+          <span class="lig">túnel SSH<b></b></span>
+          <span class="no">servidor SSH</span>
+          <span class="lig s">sai pelo servidor<b></b></span>
+          <span class="no">qualquer destino</span>
+        </div>
+      </div>
+    </div>
+    <div class="regra"><b>A porta que você digita primeiro é sempre a que passa a existir</b>; o <code>host:porta</code> seguinte é resolvido <b>na perspectiva do outro lado</b> — daí <code>127.0.0.1:80</code> em <code>-L</code> ser o loopback <i>do servidor</i>, não o seu. O <code>-R</code> atravessa NAT e firewall de entrada e por padrão só escuta no loopback remoto: <code>GatewayPorts yes</code> abre para a rede — e aí você publicou um serviço interno. Túnel sem sessão: <code>ssh -fN -L …</code>.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática: chave, config, endurecimento e sincronização</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> ssh-keygen -t ed25519 -C "vitor@notebook-2026"
+<span class="prompt">$</span> ssh-copy-id -i ~/.ssh/id_ed25519.pub vitor@servidor
+<span class="cmt"># ele ajusta a permissão — causa nº1 de "copiei e ainda pede
+# senha": o sshd recusa em SILÊNCIO; o motivo sai em `ssh -vvv`</span>
+<span class="prompt">$</span> cat ~/.ssh/config
+<span class="out">Host lab
+    HostName 10.0.0.50
+    IdentityFile ~/.ssh/id_ed25519_lab
+    IdentitiesOnly yes    </span><span class="cmt"># ofereça SÓ esta chave</span>
+<span class="out">Host interno
+    ProxyJump lab         </span><span class="cmt"># substituto seguro do -A</span>
+<span class="prompt">$</span> sudo sshd -t &amp;&amp; sudo systemctl reload ssh
+<span class="cmt"># PasswordAuthentication no + PermitRootLogin no = 41027 → 0</span></pre>
+      </section>
+      <div>
+        <p class="sub2">rsync: as opções de todo comando</p>
+        <ul class="lista">
+          <li><i>-a</i><span>modo arquivo: recursivo, preserva permissão, dono, tempo e links</span></li>
+          <li><i>-z · -P</i><span>comprime · barra de progresso e <b>retomada</b> do interrompido</span></li>
+          <li><i>-n</i><span><b>ensaio</b>: mostra o que faria, sem fazer</span></li>
+          <li><i>--delete</i><span>apaga no destino o que sumiu da origem</span></li>
+          <li><i>--link-dest</i><span>backup incremental com hard links: cada dia parece cópia completa, só o novo ocupa espaço</span></li>
+        </ul>
+        <p class="sub2">Por que rsync e não scp</p>
+        <ul class="lista">
+          <li><i>diferença</i><span>transfere <b>só o que mudou</b>: 10 GB com 1 MB alterado movem ~1 MB</span></li>
+          <li><i>scp</i><span>aposentado (CVE-2018-20685); sem os <code>:</code> copia local→local <b>em silêncio</b></span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="perigo"><b>A barra final na origem muda tudo:</b> <code class="inl">rsync -a /origem/ /destino/</code> copia o <b>conteúdo</b>; sem a barra, cria <code class="inl">/destino/origem/</code>. Com <code class="inl">--delete</code>, errar a barra <b>apaga o conteúdo legítimo do destino</b> — rode com <code class="inl">-n</code> antes. E <b>nunca feche a sessão atual depois de mexer no <code class="inl">sshd_config</code></b>: o <code class="inl">sshd -t</code> pega sintaxe, não lógica — um <code class="inl">AllowUsers</code> com typo tranca você para fora.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>A chave privada nunca trafega:</b> o servidor manda um desafio, o cliente assina, o servidor confere com a pública.</li>
+        <li><b>Permissão errada = "ainda pede senha":</b> <code class="inl">700</code> no <code class="inl">~/.ssh</code>, <code class="inl">600</code> na chave e no <code class="inl">authorized_keys</code>. A recusa é silenciosa.</li>
+        <li><b><code class="inl">IdentitiesOnly yes</code></b> evita a desconexão por excesso de tentativas quando o agente oferece todas as chaves.</li>
+        <li><b><code class="inl">ProxyJump</code> substitui o <code class="inl">-A</code>:</b> quem tem root no salto se apropria do agente encaminhado.</li>
+        <li><b>Trocar a porta 22 é conforto de log, não segurança;</b> o que protege é chave em vez de senha.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O <code class="inl">ssh</code> do Kali vem desabilitado de propósito.</b> Habilitá-lo numa máquina que vive em Wi-Fi público, sem antes desligar a senha, é o cenário da abertura. E em imagens antigas as <b>chaves de host vinham idênticas em toda instalação</b>: <code class="inl">rm /etc/ssh/ssh_host_* &amp;&amp; dpkg-reconfigure openssh-server</code> é passo obrigatório em imagem que você não gerou. <b><code class="inl">ProxyJump</code> é a forma limpa de trabalhar em rede segmentada:</b> com um salto acordado em contrato, <code class="inl">ssh -J salto interno</code> chega à rede interna <b>sem deixar chave nem agente no intermediário</b>. <b><code class="inl">-D 1080</code> + <code class="inl">proxychains</code> é o pivô mais simples que existe</b> — e o ponto em que "alcancei um host" vira "alcancei a rede dele": atravessar para sub-rede fora do escopo ultrapassa a autorização (Lei 12.737/2012). <b>Chave privada é o segredo mais valioso da máquina:</b> use <i>passphrase</i>, prefira <code class="inl">ssh-add -t</code>, e trate <code class="inl">authorized_keys</code> como inventário — quase sempre há uma chave que devia ter saído há meses. <b><code class="inl">rsync</code> é a exfiltração mais discreta que existe</b>, na porta 22, no meio do tráfego administrativo. <b>RHEL:</b> o serviço é <code class="inl">sshd</code> e trocar a porta exige <code class="inl">semanage port</code> (SELinux).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 13 · Fase 4 <span class="n">081</span></span>
