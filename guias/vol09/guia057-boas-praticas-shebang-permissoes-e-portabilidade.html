@@ -3,101 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 057 — Boas práticas: shebang, permissões e portabilidade</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Anotações do molde */
+  .porques { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:7px; }
+  .pq { border-top:3px solid; border-left:1px solid var(--linha); border-right:1px solid var(--linha);
+        border-bottom:1px solid var(--linha); border-radius:var(--raio); padding:6px 8px; background:#fff; }
+  .pq > b { display:block; font-family:var(--fonte-mono); font-size:9.5px; margin-bottom:2px; }
+  .pq p { font-size:9px; line-height:1.3; color:var(--tinta-suave); }
+  .pq.a { border-top-color:var(--azul); }    .pq.a > b { color:var(--azul); }
+  .pq.v { border-top-color:var(--verde); }   .pq.v > b { color:var(--verde); }
+  .pq.l { border-top-color:var(--laranja); } .pq.l > b { color:#a8530a; }
+  .pq.x { border-top-color:var(--roxo); }    .pq.x > b { color:var(--roxo); }
+
+  .grade2 { display:grid; grid-template-columns:1fr 1.15fr; gap:10px; align-items:start; }
+
+  /* Permissão: vulnerável x correto */
+  .perm { display:flex; flex-direction:column; gap:7px; }
+  .pm { border:1.5px solid; border-radius:var(--raio); padding:6px 8px; }
+  .pm > h4 { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+             letter-spacing:.04em; margin-bottom:2px; }
+  .pm .mo { font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); line-height:1.3;
+            word-break:break-all; }
+  .pm ol { margin:3px 0 0 14px; }
+  .pm li { font-size:9px; line-height:1.3; color:var(--tinta-suave); }
+  .pm.mau { border-color:var(--vermelho); background:var(--vermelho-claro); } .pm.mau > h4 { color:var(--vermelho); }
+  .pm.bom { border-color:var(--verde);    background:var(--verde-claro); }    .pm.bom > h4 { color:var(--verde); }
+
+  /* Camadas de portabilidade */
+  .camadas { display:flex; flex-direction:column; gap:4px; }
+  .cm { border-left:5px solid; border-radius:var(--raio-sm); padding:5px 8px; font-size:9px;
+        line-height:1.35; color:var(--tinta-suave); }
+  .cm > b { display:block; font-family:var(--fonte-mono); font-size:10px; margin-bottom:1px; }
+  .cm.c1 { border-color:#5b6b7d;        background:#eef2f8; }             .cm.c1 > b { color:#5b6b7d; }
+  .cm.c2 { border-color:var(--azul);    background:var(--azul-claro); }   .cm.c2 > b { color:var(--azul); }
+  .cm.c3 { border-color:var(--verde);   background:var(--verde-claro); }  .cm.c3 > b { color:var(--verde); }
+  .cm.c4 { border-color:var(--laranja); background:var(--laranja-claro); }.cm.c4 > b { color:#a8530a; }
+  .escala { display:flex; justify-content:space-between; font-size:8px; color:var(--tinta-suave);
+            text-transform:uppercase; letter-spacing:.05em; font-family:var(--fonte-titulo); margin-bottom:2px; }
+  .nota { font-size:9.5px; line-height:1.4; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 057</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Boas práticas: shebang, permissões e portabilidade</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Boas Práticas<br>do Script</h1>
+      <div class="sub"><code class="inl">limpa.sh</code>: dezenove linhas escritas numa tarde de 2023, sem <i>shebang</i>, sem comentário, com <code class="inl">777</code> num diretório do grupo <code class="inl">devs</code> — e rodando às 4h no <i>crontab</i> do root de três servidores. Este capítulo é sobre não escrever esse arquivo.</div>
     </div>
     <div class="badge"><b>057</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">O molde — comece todo script daqui</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="terminal">
+      <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>comprime — o esqueleto que vale adotar no primeiro dia</span></div>
+<pre>#!/usr/bin/env bash
+# comprime - resumo em uma linha | Uso: comprime [-v] [-n] ARQUIVO...
+# Saidas: 0 ok | 1 erro | 2 uso incorreto | 3 dependencia ausente | Versao: 1.2.0
+set -euo pipefail
+readonly PROGRAMA="${0##*/}"        <span class="cmt"># nome sem chamar basename</span>
+readonly AQUI="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &amp;&amp; pwd -P)"
+DESTINO="${DESTINO:-/var/backups}"  <span class="cmt"># ajustavel pelo ambiente, padrao seguro</span>
+erro() { printf '%s: %s\n' "$PROGRAMA" "$*" &gt;&amp;2; }
+main() {
+  command -v gzip &gt;/dev/null || { erro "gzip ausente"; exit 3; }
+  (( $# )) || { uso &gt;&amp;2; exit 2; }
+  for a in "$@"; do
+    (( SIMULAR )) &amp;&amp; { printf 'SIMULACAO: gzip -- %q\n' "$a"; continue; }
+    gzip -- "$a"                    <span class="cmt"># o -- protege nome iniciado por hifen</span>
+  done
+}
+main "$@"</pre>
+    </div>
+    <div class="porques">
+      <div class="pq a"><b>main "$@"</b><p>O shell lê o arquivo <i>enquanto</i> executa: com tudo em funções e a chamada no fim, ele precisa ter lido o arquivo <b>inteiro</b> antes de rodar qualquer coisa — imune a edição em execução e a <i>download</i> truncado.</p></div>
+      <div class="pq v"><b>$BASH_SOURCE</b><p>O diretório do <b>script</b>, não o seu: <code class="inl">$PWD</code> depende de onde o usuário estava e <code class="inl">$0</code> falha sob <code class="inl">source</code>. O <code class="inl">pwd -P</code> ainda resolve os links.</p></div>
+      <div class="pq l"><b>mktemp + trap</b><p><code class="inl">tmp="$(mktemp -d)"</code> e <code class="inl">trap 'rm -rf -- "$tmp"' EXIT INT TERM</code>: limpa na saída normal, no erro sob <code class="inl">set -e</code> e no sinal. Execução única: <code class="inl">flock -n 9</code>.</p></div>
+      <div class="pq x"><b>-n · idempotência</b><p>Todo script destrutivo merece <b>simulação barata de digitar</b>, e o <code class="inl">%q</code> mostra o nome escapado como o shell o vê. Rodar duas vezes não pode estragar: <code class="inl">mkdir -p</code>, <code class="inl">rm -f</code>, <code class="inl">ln -sfn</code>, <code class="inl">install -d</code>.</p></div>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Quem pode <b>reescrever</b>? · e em que camada você está</div>
+  <section class="grade2">
+    <div class="perm">
+      <div class="pm mau">
+        <h4>✘ Vulnerável</h4>
+        <div class="mo">-rwxrwxr-x root:devs /opt/limpa.sh</div>
+        <ol>
+          <li>O <i>crontab</i> do root executa o script às 4h.</li>
+          <li>Qualquer membro de <code class="inl">devs</code> reescreve o arquivo.</li>
+          <li>Às 4h01, o que esse membro escreveu roda <b>como root</b>.</li>
+        </ol>
+      </div>
+      <div class="pm bom">
+        <h4>✔ Correto</h4>
+        <div class="mo">-rwxr-xr-x root:root /usr/local/bin/limpa</div>
+        <ol>
+          <li>Instalado com <code class="inl">sudo install -o root -g root -m 755</code>.</li>
+          <li>Só o root grava; os demais leem e executam.</li>
+          <li>Às 4h01, roda o que o root aprovou.</li>
+        </ol>
+      </div>
+    </div>
+    <div>
+      <div class="escala"><span>↑ mais portátil</span><span>mais recursos ↓</span></div>
+      <div class="camadas">
+        <div class="cm c1"><b>#!/bin/sh — POSIX puro</b>dash, busybox ash, Alpine, <i>initramfs</i>, contêiner mínimo. <strong>Sem</strong> <code class="inl">[[ ]]</code>, arrays, <code class="inl">local</code>, <code class="inl">${var,,}</code>, <code class="inl">$RANDOM</code>, <code class="inl">{1..10}</code>.</div>
+        <div class="cm c2"><b>#!/usr/bin/env bash — Bash 3</b>Linux, macOS (que ainda traz o 3.2), BSD com Bash. Ganha <code class="inl">[[ ]]</code>, <code class="inl">=~</code>, arrays indexados, <code class="inl">local</code>, <code class="inl">(( ))</code>. <strong>É a camada certa para administração de Linux.</strong></div>
+        <div class="cm c3"><b>Bash 4+</b><code class="inl">declare -A</code>, <code class="inl">${var,,}</code>, <code class="inl">mapfile</code>, <code class="inl">globstar</code>. Ausente no macOS de fábrica.</div>
+        <div class="cm c4"><b>+ utilitários GNU</b><code class="inl">sed -i</code>, <code class="inl">date -d</code>, <code class="inl">readlink -f</code>, <code class="inl">sort -V</code>, <code class="inl">find -printf</code>. Sintaxe diferente no BSD/macOS, ausentes no busybox.</div>
+      </div>
+      <div class="nota" style="margin-top:5px">Ao descer para POSIX: <code class="inl">[[ $a == b* ]]</code>→<code class="inl">case</code> · <code class="inl">(( n &gt; 10 ))</code>→<code class="inl">[ "$n" -gt 10 ]</code> · <code class="inl">arr=(a b c)</code>→<code class="inl">set -- a b c</code> · <code class="inl">source</code>→<code class="inl">.</code> · <code class="inl">echo -e</code>→<code class="inl">printf</code>. Verifique com <code class="inl">checkbashisms</code>, <code class="inl">shellcheck -s sh</code> e uma execução real sob <code class="inl">dash script.sh</code>.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>SUID em script de shell não funciona — e a tentação de contornar isso é o buraco.</b> O kernel <b>ignora</b> o bit SUID em arquivo com <i>shebang</i> (seria explorável por corrida entre a leitura do <i>shebang</i> e a abertura pelo interpretador). A saída legítima é uma regra específica no <code class="inl">sudoers</code>, criada com <code class="inl">visudo -f /etc/sudoers.d/…</code> — e aí a permissão do arquivo vira o ponto crítico: com um <code class="inl">NOPASSWD</code> apontando para um script <b>gravável pelo grupo</b>, quem grava tem root sem senha. Evite curinga na regra (<code class="inl">/usr/local/bin/*</code>) e <code class="inl">sudo</code> de interpretador — <code class="inl">sudo python3</code>, <code class="inl">perl</code>, <code class="inl">awk</code>, <code class="inl">vim</code> equivalem a <code class="inl">sudo su</code>. <b><code class="inl">chmod 777</code> não tem caso de uso legítimo.</b> Audite com <code class="inl">namei -l /usr/local/bin/cmd</code> (o caminho <i>inteiro</i>) e <code class="inl">sudo find /usr/local/bin /opt -type f -perm -o+w -ls</code>: a resposta esperada é vazia. A regra em uma frase — <b>tudo que um processo privilegiado executa ou carrega deve ser gravável apenas por quem já tem esse privilégio</b>: o arquivo, o diretório que o contém, todos os diretórios acima, o <code class="inl">.conf</code> que ele lê e a biblioteca que ele carrega com <code class="inl">source</code>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Sempre o mesmo molde:</b> <i>shebang</i> · comentário com uso e códigos de saída · <code class="inl">set -euo pipefail</code> · constantes <code class="inl">readonly</code> · funções de mensagem · <code class="inl">main "$@"</code> na última linha.</li>
+        <li><b>A pergunta da permissão é "quem pode reescrever?"</b>, não "quem executa". <code class="inl">install -o root -g root -m 755</code> em <code class="inl">/usr/local/bin</code> — diretório que nenhum pacote toca.</li>
+        <li><b>Escolha a camada de portabilidade uma vez</b>, declare-a no <i>shebang</i> e verifique com ferramenta. "Portabilidade que não se testa é portabilidade imaginária."</li>
+        <li><b><code class="inl">shellcheck</code> não é opcional</b> em código que outra pessoa executa. Silencie por <i>ocorrência</i> e com justificativa (<code class="inl"># shellcheck disable=SC2016</code>), nunca por arquivo — e ponha num <i>hook</i> de pré-commit.</li>
+        <li>Os campeões: <b>SC2086</b> aspas · <b>SC2046</b> <code class="inl">$( )</code> sem aspas · <b>SC2006</b> crase · <b>SC2045</b> <code class="inl">ls</code> em laço · <b>SC2164</b> <code class="inl">cd</code> sem tratar falha · <b>SC2181</b> testar <code class="inl">$?</code> em vez do comando no <code class="inl">if</code>.</li>
+        <li><b>Não use <code class="inl">IFS=$'\n\t'</code></b> como "modo estrito": muda comportamento global para compensar defeito local, e quebra <code class="inl">read</code>, <code class="inl">set --</code> e código de terceiros. Aspas em toda expansão resolve sem efeito colateral.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Num <i>rolling</i>, script é código vivo.</b> Uma ferramenta muda de opção ou de formato de saída entre duas execuções do mesmo script — as três defesas: <code class="inl">command -v</code> antes de usar, <b>saída estruturada</b> (<code class="inl">-oX</code>, <code class="inl">--json</code>) em vez de analisar texto de tela, e uma linha de versão para saber com o que ele foi testado. <b>Regra <code class="inl">NOPASSWD</code> apontando para script é a escalada mais encontrada em máquina de laboratório</b>: se você monta ambiente de treino, está criando o vetor de propósito; se administra a sua máquina, rode <code class="inl">sudo -l</code> e trate cada linha que aponte para arquivo gravável por não-root como root disponível. <b>Script de live USB ou de <i>initramfs</i> está na camada cinza</b>: ali o shell é o <code class="inl">busybox ash</code> e <code class="inl">[[ ]]</code> e arrays simplesmente não existem — escreva em POSIX desde o início e teste com <code class="inl">dash script.sh</code>, porque descobrir isso durante uma recuperação real é o pior momento possível. E <b>automação de ferramenta de segurança merece registro e simulação por padrão</b>: valide o alvo contra a lista do escopo autorizado, exiba o que fará, exija confirmação (ou um <code class="inl">--sim</code> explícito) e registre horário, comando e código de saída. Serve para depurar e serve para demonstrar depois que o trabalho ficou dentro do contratado — uso não autorizado, ainda que por erro de script, é crime pela Lei 12.737/2012.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 09 · Fase 3 <span class="n">057</span></span>

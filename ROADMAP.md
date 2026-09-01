@@ -91,7 +91,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 054** - Entrada e saída: read, echo e printf - `guias/vol09/guia054-entrada-e-saida-read-echo-e-printf.html`
 - [x] **guia 055** - Condicionais: test, colchetes duplos e if - `guias/vol09/guia055-condicionais-test-colchetes-duplos-e-if.html`
 - [x] **guia 056** - Códigos de saída e o encadeamento de comandos - `guias/vol09/guia056-codigos-de-saida-e-o-encadeamento-de-comandos.html`
-- [ ] **guia 057** - Boas práticas: shebang, permissões e portabilidade - `guias/vol09/guia057-boas-praticas-shebang-permissoes-e-portabilidade.html`
+- [x] **guia 057** - Boas práticas: shebang, permissões e portabilidade - `guias/vol09/guia057-boas-praticas-shebang-permissoes-e-portabilidade.html`
 
 ### Volume 10 — Scripting Intermediário
 
