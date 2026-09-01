@@ -3,6 +3,21 @@
 Fila autoritativa. Status: `[ ]` pendente · `[~]` em andamento · `[x]` concluído.
 Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 
+## Dívida técnica em aberto — reequilíbrio de página (Vols 1 a 6)
+
+Desde o Volume 13 a ficha **flui pelas páginas que precisar** e nada mais é cortado do PDF
+(ver `template/estilo.css`, bloco `@media print`, e `scripts/paginacao.py`). Ficaram, porém,
+**17 fichas íntegras mas mal equilibradas**: a segunda página leva só o Resumo e a Dica,
+com menos de 20% de ocupação. Elas precisam de 100 a 210 px — já não sai do respiro
+(`--gap-blocos`), é redistribuição editorial: dar mais corpo à página 2, ou passar um bloco
+da 1 para a 2 e deixar as duas cheias.
+
+    001 010 011 016 017 019 020 022 023 027 028 029 030 033 038 042 043
+
+A lista se regenera sozinha com `python scripts/paginacao.py` (elas saem na seção
+PROBLEMAS). **Não é urgente e não bloqueia volume nenhum** — o livro já está completo.
+Decisão do Vitor sobre quando encarar: pode ser antes do Volume 14 ou depois do 16.
+
 ## Fase 1 — Fundamentos do Linux
 
 ### Volume 1 — Primeiros Passos: Linux e Kali
