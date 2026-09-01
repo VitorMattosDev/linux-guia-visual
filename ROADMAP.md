@@ -120,7 +120,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 074** - Subshells, agrupamento e here-documents - `guias/vol12/guia074-subshells-agrupamento-e-here-documents.html`
 - [x] **guia 075** - Sinais, processos filhos e execução em paralelo - `guias/vol12/guia075-sinais-processos-filhos-e-execucao-em-paralelo.html`
 - [x] **guia 076** - Interação: menus, cores e caixas de diálogo - `guias/vol12/guia076-interacao-menus-cores-e-caixas-de-dialogo.html`
-- [ ] **guia 077** - Estruturando scripts grandes e bibliotecas - `guias/vol12/guia077-estruturando-scripts-grandes-e-bibliotecas.html`
+- [x] **guia 077** - Estruturando scripts grandes e bibliotecas - `guias/vol12/guia077-estruturando-scripts-grandes-e-bibliotecas.html`
 
 ## Fase 4 — Redes, Segurança e Automação
 

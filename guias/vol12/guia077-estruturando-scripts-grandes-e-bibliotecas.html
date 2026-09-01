@@ -3,101 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 077 — Estruturando scripts grandes e bibliotecas</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .grade-topo { display:grid; grid-template-columns:1.32fr 1fr; gap:10px; align-items:start; }
+
+  /* As oito camadas */
+  .camadas { display:flex; flex-direction:column; gap:2px; }
+  .cam { display:grid; grid-template-columns:15px 1fr 1.02fr; gap:5px; align-items:center;
+         border-left:3px solid; border-radius:0 var(--raio-sm) var(--raio-sm) 0; padding:3px 6px; }
+  .cam .n { width:15px; height:14px; line-height:14px; text-align:center; border-radius:3px;
+            color:#fff; font-family:var(--fonte-mono); font-size:8.4px; font-weight:700; }
+  .cam .q { font-family:var(--fonte-mono); font-size:8.4px; font-weight:700; line-height:1.2; }
+  .cam .o { font-size:7.7px; line-height:1.22; color:var(--tinta-suave); }
+  .cam.g { border-color:#8496a8; background:#f2f5f9; } .cam.g .n { background:#8496a8; } .cam.g .q { color:var(--navy); }
+  .cam.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .cam.r .n { background:var(--vermelho); } .cam.r .q { color:var(--vermelho); }
+  .cam.a { border-color:var(--azul); background:var(--azul-claro); } .cam.a .n { background:var(--azul); } .cam.a .q { color:var(--azul); }
+  .cam.l { border-color:var(--laranja); background:var(--laranja-claro); } .cam.l .n { background:var(--laranja); } .cam.l .q { color:#a8530a; }
+  .cam.v { border-color:var(--verde); background:var(--verde-claro); } .cam.v .n { background:var(--verde); } .cam.v .q { color:#1d7038; }
+
+  /* bin / lib / tests */
+  .proj { display:grid; grid-template-columns:1fr 26px 1fr; gap:4px; align-items:center; }
+  .dir { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 6px; text-align:center; }
+  .dir > b { display:block; font-family:var(--fonte-mono); font-size:10px; font-weight:700; }
+  .dir i { display:block; font-family:var(--fonte-mono); font-style:normal; font-size:7.4px;
+           color:var(--tinta-suave); line-height:1.28; }
+  .dir em { display:block; font-style:normal; font-size:7.6px; margin-top:2px; font-weight:700; }
+  .dir.v { border-color:var(--verde); background:var(--verde-claro); } .dir.v > b, .dir.v em { color:#1d7038; }
+  .dir.a { border-color:var(--azul); background:var(--azul-claro); } .dir.a > b, .dir.a em { color:var(--azul); }
+  .dir.l { border-color:var(--laranja); background:var(--laranja-claro); } .dir.l > b, .dir.l em { color:#a8530a; }
+  .fseta { text-align:center; font-size:7px; color:var(--tinta-suave); font-family:var(--fonte-mono);
+           line-height:1.15; font-weight:700; }
+
+  .nota { font-size:8.5px; line-height:1.36; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.3px; color:var(--roxo); font-weight:600; }
+
+  .grade2 { display:grid; grid-template-columns:1.3fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.1px; line-height:1.42; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:6px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:1.5px; }
+  .lista li { display:grid; grid-template-columns:64px 1fr; gap:6px; align-items:baseline;
+              font-size:8.2px; line-height:1.27; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.4px;
+                color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8.1px; color:var(--navy); font-weight:600; }
+  .lista.prec li { grid-template-columns:14px 1fr; }
+  .lista.prec li i { color:var(--laranja); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 077</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Estruturando scripts grandes e bibliotecas</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Estruturando scripts<br>grandes e bibliotecas</h1>
+      <div class="sub">O <code class="inl">deploy.sh</code> tinha 1.400 linhas. Ninguém o escreveu: ele <b>cresceu</b> — trinta linhas em 2021 e um trecho novo a cada incidente, sempre colado no fim, sempre por alguém com pressa. Quatro funções de log com nomes diferentes, dezenove <code class="inl">curl</code> ligeiramente distintos, e no meio uma linha que ninguém ousava tocar: <code class="inl"># NAO REMOVER -- quebra a producao (nao sabemos por que)</code>. <b>Cada acréscimo isolado era razoável; ninguém parou para reorganizar.</b></div>
     </div>
     <div class="badge"><b>077</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">As oito camadas de um script sério · e a direção da dependência</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="grade-topo">
+      <div class="camadas">
+        <div class="cam g"><span class="n">1</span><span class="q">shebang + cabeçalho de uso</span><span class="o">a ajuda sai daqui por <code>sed</code> — nunca dessincroniza</span></div>
+        <div class="cam r"><span class="n">2</span><span class="q">set -Eeuo pipefail<br>shopt -s inherit_errexit</span><span class="o">antes de qualquer comando que possa falhar — nem a leitura da biblioteca escapa</span></div>
+        <div class="cam a"><span class="n">3</span><span class="q">constantes readonly</span><span class="o">caminhos, códigos de saída, versão. Atribuição acidental vira erro</span></div>
+        <div class="cam a"><span class="n">4</span><span class="q">estado global mutável</span><span class="o">o mínimo possível: tudo o mais é <code>local</code> dentro de função</span></div>
+        <div class="cam l"><span class="n">5</span><span class="q">source das bibliotecas</span><span class="o"><b>depois</b> das constantes — a biblioteca pode usá-las</span></div>
+        <div class="cam l"><span class="n">6</span><span class="q">funções: genéricas → específicas</span><span class="o">uma responsabilidade cada, nome <code>verbo_substantivo</code></span></div>
+        <div class="cam v"><span class="n">7</span><span class="q">principal()</span><span class="o">só orquestra; não contém lógica de negócio</span></div>
+        <div class="cam v"><span class="n">8</span><span class="q">guarda do ponto de entrada</span><span class="o"><code>[[ "${BASH_SOURCE[0]}" == "$0" ]]</code> — é o que torna o arquivo testável</span></div>
+      </div>
+      <div>
+        <div class="proj">
+          <div class="dir v"><b>bin/</b><i>implantar.sh<br>reverter.sh<br>coletar.sh</i><em>executáveis</em></div>
+          <div class="fseta">source<br>→</div>
+          <div class="dir a"><b>lib/</b><i>log.sh<br>http.sh<br>validacao.sh</i><em>só definem funções</em></div>
+        </div>
+        <div class="proj" style="margin-top:4px">
+          <div class="dir l" style="grid-column:1/4"><b>tests/</b><i>log.bats · validacao.bats</i><em>carregam a lib e executam o bin com <code>run</code></em></div>
+        </div>
+        <div class="nota" style="margin-top:5px"><b>A dependência aponta numa direção só:</b> <code>bin/</code> usa <code>lib/</code>; <code>lib/</code> não conhece <code>bin/</code>. Uma biblioteca que chama função definida no executável cria um <b>ciclo</b> que impede testar qualquer um dos dois isoladamente — e é o começo do arquivo de 1.400 linhas, porque a única forma de fazer funcionar passa a ser juntar tudo.</div>
+      </div>
+    </div>
+
+    <div class="nota">A ordem das camadas não é estética: <b>cada uma depende só das anteriores.</b> E o <code>RAIZ</code> merece atenção própria — <code>RAIZ="$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")/.." &amp;&amp; pwd)"</code>. O <code>BASH_SOURCE</code> é o caminho <b>do arquivo</b>, não o do processo, então funciona igual quando o script é chamado por caminho relativo, por link simbólico no <code>PATH</code> ou por outro script; o <code>readlink -f</code> resolve o link. Usar <code>$0</code> ou <code>$PWD</code> aqui é o defeito que só aparece quando alguém chama de outro diretório — e aí a mensagem é obscura. <b>As cinco propriedades de uma biblioteca bem comportada:</b> (1) <b>não executa nada</b> ao ser carregada — <code>source</code> que dispara ação é armadilha, porque quem carrega não espera efeito colateral; (2) protege-se contra <b>carregamento duplo</b> com <code>[[ -n "${_LIB_X_CARREGADA:-}" ]] &amp;&amp; return 0</code>, sem o que duas bibliotecas que carregam uma terceira redefinem tudo e o <code>readonly</code> explode; (3) <b>prefixa os nomes</b> (<code>log_info</code>, <code>http_get</code>), porque o Bash tem um espaço de nomes só; (4) <b>não tem shebang</b>, e sim <code># shellcheck shell=bash</code> para o analisador saber o dialeto; (5) é carregada por <b>caminho absoluto calculado</b>, com verificação explícita de existência.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Funções, bibliotecas e configuração na prática</div>
+  <section>
+    <div class="grade2">
+      <div>
+        <section class="terminal">
+          <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-estrutura</span></div>
+<pre><span class="cmt"># a guarda que faz o mesmo arquivo ser programa E biblioteca</span>
+<span class="prompt">$</span> if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then principal "$@"; fi
+<span class="cmt"># a ajuda sai do próprio cabeçalho — nunca dessincroniza</span>
+<span class="prompt">$</span> uso() { sed -n '2,9p' "${BASH_SOURCE[0]}" | sed 's/^# \?//'; }
+<span class="cmt"># carregar com mensagem clara em vez de erro obscuro do set -e</span>
+<span class="prompt">$</span> carregar() {
+    local arq="$RAIZ/lib/$1"
+    [[ -r "$arq" ]] || { printf '%s: biblioteca ausente: %s\n' \
+        "$PROGRAMA" "$arq" &gt;&amp;2; exit 70; }
+    <span class="cmt"># shellcheck source=/dev/null</span>
+    source "$arq"
+  }
+<span class="prompt">$</span> head -3 lib/log.sh
+<span class="out"># shellcheck shell=bash
+[[ -n "${_LIB_LOG_CARREGADA:-}" ]] && return 0
+readonly _LIB_LOG_CARREGADA=1</span>
+<span class="cmt"># devolver ESTRUTURA sem subshell e sem serializar em texto</span>
+<span class="prompt">$</span> carregar_config() { local -n _ref=$1; _ref[host]='exemplo.local'; }
+<span class="prompt">$</span> declare -A cfg; carregar_config cfg; echo "${cfg[host]}"
+<span class="out">exemplo.local</span>
+<span class="cmt"># o teste carrega a lib e executa o bin — a seta da figura, na prática</span>
+<span class="prompt">$</span> bats tests/
+<span class="out">6 tests, 0 failures</span></pre>
+        </section>
+      </div>
+      <div>
+        <p class="sub2">Funções: as regras</p>
+        <ul class="lista">
+          <li><i>local</i><span><b>toda</b> variável de dentro. Sem isso o <code>i</code> do laço interno destrói o <code>i</code> do chamador, e o sintoma aparece <b>longe da causa</b>. <code>local -r</code> constante, <code>-a</code> array, <code>-i</code> inteiro</span></li>
+          <li><i>_prefixo</i><span>função interna de biblioteca — sinaliza que não é interface pública</span></li>
+          <li><i>status</i><span>devolver <b>sim ou não</b>: <code>eh_valido "$v" || die …</code></span></li>
+          <li><i>stdout</i><span>devolver <b>um valor</b>, capturado com <code>$( )</code></span></li>
+          <li><i>local -n</i><span>devolver <b>estrutura</b>: cria referência ao array do chamador, sem <code>fork</code>. Prefixe o parâmetro (<code>_ref</code>) ou colide com o nome de fora</span></li>
+          <li><i>contrato</i><span>três linhas de comentário: assinatura, o que faz, e <b>quais status devolve</b></span></li>
+        </ul>
+        <p class="sub2">Configuração: da menor à maior prioridade</p>
+        <ul class="lista prec">
+          <li><i>1</i><span>padrões no próprio script</span></li>
+          <li><i>2</i><span><code>/etc/meuprog/config</code></span></li>
+          <li><i>3</i><span><code>${XDG_CONFIG_HOME:-$HOME/.config}/meuprog/config</code></span></li>
+          <li><i>4</i><span>variáveis de ambiente (<code>MEUPROG_DESTINO</code>)</span></li>
+          <li><i>5</i><span><b>opções de linha de comando</b> — analisadas por último, sobrepõem tudo</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="nota"><b>Saiba quando parar de usar shell — é o ponto que teria salvado o <code>deploy.sh</code>.</b> O shell é excelente em orquestrar processos, encadear ferramentas e manipular arquivos, e ruim em tudo o mais. Os sinais de que o limite foi ultrapassado: <b>estrutura de dados aninhada</b> (simular objeto dentro de lista com nomes de variáveis concatenados é o sinal mais claro de todos); <b>aritmética não inteira</b>, que obriga a chamar <code>bc</code> ou <code>awk</code> a cada operação; <b>tratamento de erro por item</b> com retentativa e registro, que sai com três vezes o tamanho do equivalente em Python; <b>concorrência com estado compartilhado</b>; <b>passar de 300 ou 400 linhas</b> sem que a maior parte seja invocação de comando externo; e <b>precisar de testes de unidade extensos</b>. A migração não é total: mantenha o shell como <b>casca</b> — analisar opções, verificar dependências, orquestrar — e delegue a lógica com <code>exec python3 "$RAIZ/lib/processar.py" --ambiente "$AMBIENTE"</code>. O <code>exec</code> <b>substitui</b> o processo do shell, então sinais e códigos de saída se propagam sem uma camada no meio. <b>E se você herdou o arquivo de 1.400 linhas, refatorar vence reescrever</b>, nesta ordem: (1) controle de versão; (2) <code>shellcheck</code>, corrigindo só a severidade alta; (3) acrescentar <code>set -Eeuo pipefail</code> e rodar — <b>cada quebra é um bug que já existia e estava sendo engolido</b>; (4) escrever um <b>teste de caracterização</b> em <code>bats</code> que registre a saída atual, correta ou não, como rede de segurança; (5) extrair funções <b>uma por vez</b>, rodando o teste a cada extração; (6) só então unificar as quatro funções de log e descobrir o que o <code>sleep 3</code> escondia (quase sempre uma condição de corrida que deveria ser um laço de espera com verificação). <b>Reescrever do zero não funciona:</b> o arquivo contém anos de correções de casos particulares que ninguém documentou, e a reescrita as perde todas — para redescobri-las uma a uma, em produção.</div>
+  </section>
+
+  <div class="perigo"><b><code class="inl">source</code> de arquivo de configuração é execução de código arbitrário.</b> Um <code class="inl">config</code> gravável por outro usuário — ou que veio do cliente por e-mail — roda <b>com o privilégio de quem executa o script</b>, no instante do <code class="inl">source</code>, e nada no arquivo precisa parecer suspeito para isso acontecer. Se a origem não é totalmente confiável, ou verifique dono e permissão antes — <code class="inl">[[ "$(stat -c '%U %a' "$arq")" == "root 600" ]] || die 70 "config com permissao insegura: $arq"</code> — ou <b>leia como dados</b>, com <code class="inl">jq</code> ou um laço de <code class="inl">chave=valor</code> validado, em vez de <code class="inl">source</code>. Pelo mesmo motivo, marque os caminhos de saída como <code class="inl">readonly</code> logo depois da análise de opções: com <code class="inl">SAIDA</code> mutável, um trecho posterior pode sobrescrevê-la e o relatório vai parar no lugar errado — ou <b>por cima do de outro alvo</b>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Script grande tem forma reconhecível:</b> cabeçalho de uso, <code class="inl">set -Eeuo pipefail</code>, constantes <code class="inl">readonly</code>, estado mínimo, <code class="inl">source</code> das bibliotecas, funções, <code class="inl">principal()</code> e a guarda do ponto de entrada.</li>
+        <li><b><code class="inl">RAIZ</code> calculado a partir de <code class="inl">BASH_SOURCE</code></b>, não de <code class="inl">$0</code> nem de <code class="inl">pwd</code> — e com <code class="inl">readlink -f</code> se o script puder ser chamado por link simbólico.</li>
+        <li><b>A guarda <code class="inl">[[ "${BASH_SOURCE[0]}" == "$0" ]]</code> é o que torna o arquivo testável:</b> executado roda o programa, carregado só define as funções.</li>
+        <li><b>Toda variável de função é <code class="inl">local</code>.</b> Sem isso o <code class="inl">i</code> de dentro destrói o <code class="inl">i</code> de fora, e o sintoma aparece longe da causa.</li>
+        <li><b>Três formas de devolver valor:</b> status para sim ou não, <code class="inl">stdout</code> capturado para um valor, <code class="inl">local -n</code> para estrutura sem subshell.</li>
+        <li><b>Biblioteca não executa nada ao ser carregada</b>, protege-se contra carregamento duplo, prefixa os nomes e é carregada por caminho absoluto com verificação explícita.</li>
+        <li><b>A dependência aponta numa direção só:</b> <code class="inl">bin/</code> usa <code class="inl">lib/</code>, nunca o contrário. O ciclo é o começo do arquivo de 1.400 linhas.</li>
+        <li><b>Saiba quando parar:</b> estrutura aninhada, ponto flutuante, erro por item, mais de 300 linhas de lógica própria. A saída é o shell como casca e o motor em outra linguagem, entregue com <code class="inl">exec</code>.</li>
+        <li><b>Refatorar vence reescrever</b> — versão, <code class="inl">shellcheck</code>, <code class="inl">set -Eeuo pipefail</code>, teste de caracterização, extração função a função, nessa ordem.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>A caixa de ferramentas da equipe é uma biblioteca, não vinte scripts com o mesmo <code class="inl">log()</code> copiado.</b> Padronizar <code class="inl">lib/log.sh</code>, <code class="inl">lib/escopo.sh</code> e <code class="inl">lib/relatorio.sh</code> faz com que a verificação de escopo e o formato do relatório sejam idênticos em todo utilitário — e uma correção na verificação passa a valer <b>para todos de uma vez</b>, em vez de ser replicada em vinte arquivos, onde inevitavelmente um fica para trás. <b>A validação de escopo pertence à biblioteca e é chamada por todo executável:</b> uma função <code class="inl">escopo_validar "$alvo" || die "$EX_USO" "fora do escopo"</code> centralizada e testada com <code class="inl">bats</code> contra casos de borda (CIDR, nome de host, IPv6) é o que evita que um utilitário novo escrito às pressas dispare contra alvo não autorizado — o que caracteriza acesso não autorizado nos termos da Lei 12.737/2012 <b>independentemente de haver contrato para os demais alvos</b>. <b><code class="inl">source</code> de configuração é execução de código:</b> arquivo que veio do cliente por e-mail, ou que está em diretório gravável por outros, executa com o seu privilégio — verifique dono e permissão, ou leia como dados. <b><code class="inl">readonly</code> nos caminhos de saída</b> num utilitário que grava evidência: deixar <code class="inl">SAIDA</code> mutável permite que um trecho posterior a sobrescreva e o relatório vá para o lugar errado, ou por cima do de outro alvo. <b>E a divisão que funciona é casca de shell, motor em Python:</b> correlacionar resultados de varredura, deduplicar achados e gerar relatório são exatamente o trabalho com estrutura aninhada que o shell faz mal — shell para invocar as ferramentas e organizar os arquivos, Python para ler os resultados e produzir o documento final. <b>Família RHEL:</b> a estrutura de projeto independe de distribuição, e <code class="inl">/usr/local/bin</code> + <code class="inl">/usr/local/lib/&lt;programa&gt;/</code> + <code class="inl">/etc/&lt;programa&gt;/</code> valem nas duas famílias — mas com SELinux o executável fora de <code class="inl">/usr/bin</code> precisa do rótulo correto (<code class="inl">restorecon -Rv /usr/local/bin</code>), sob pena de funcionar chamado à mão e falhar quando invocado por um serviço. Nas duas famílias, empacotar como <code class="inl">.deb</code> ou <code class="inl">.rpm</code> é preferível a copiar arquivos: o gerenciador registra o que está instalado e permite remover sem deixar resto.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 12 · Fase 3 <span class="n">077</span></span>
