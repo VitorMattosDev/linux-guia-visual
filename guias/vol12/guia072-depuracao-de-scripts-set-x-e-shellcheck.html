@@ -3,101 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 072 — Depuração de scripts: set -x e ShellCheck</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Funil: as quatro camadas */
+  .camadas { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+  .cam { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 7px; }
+  .cam .custo { float:right; font-family:var(--fonte-mono); font-size:7.6px; font-weight:700;
+                text-transform:uppercase; letter-spacing:.04em; opacity:.85; }
+  .cam > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+             letter-spacing:.02em; margin-bottom:2px; }
+  .cam p { font-size:8px; line-height:1.28; color:var(--tinta-suave); }
+  .cam i { display:block; font-family:var(--fonte-mono); font-style:normal; font-size:8px; font-weight:700;
+           margin-top:3px; padding-top:3px; border-top:1px dashed #ccd6e2; }
+  .cam.v { border-color:var(--verde); background:var(--verde-claro); }
+  .cam.v > b, .cam.v i, .cam.v .custo { color:#1d7038; }
+  .cam.a { border-color:var(--azul); background:var(--azul-claro); }
+  .cam.a > b, .cam.a i, .cam.a .custo { color:var(--azul); }
+  .cam.l { border-color:var(--laranja); background:var(--laranja-claro); }
+  .cam.l > b, .cam.l i, .cam.l .custo { color:#a8530a; }
+  .cam.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .cam.r > b, .cam.r i, .cam.r .custo { color:var(--vermelho); }
+
+  /* Ambiente: terminal x cron */
+  .amb { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:7px; }
+  .pnl { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 8px; }
+  .pnl > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+             letter-spacing:.02em; margin-bottom:3px; }
+  .pnl ul { list-style:none; }
+  .pnl li { font-size:8.1px; line-height:1.3; color:var(--tinta-suave); padding-left:9px;
+            position:relative; margin-bottom:1px; }
+  .pnl li::before { content:"•"; position:absolute; left:0; font-weight:700; }
+  .pnl li code { font-family:var(--fonte-mono); font-size:8.1px; color:var(--navy); font-weight:600; }
+  .pnl.v { border-color:var(--verde); background:var(--verde-claro); }
+  .pnl.v > b, .pnl.v li::before { color:#1d7038; }
+  .pnl.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .pnl.r > b, .pnl.r li::before { color:var(--vermelho); }
+
+  .nota { font-size:8.5px; line-height:1.36; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.3px; color:var(--roxo); font-weight:600; }
+
+  .grade2 { display:grid; grid-template-columns:1.14fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.1px; line-height:1.42; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:6px; }
+
+  /* Avisos do ShellCheck */
+  .sc { list-style:none; display:flex; flex-direction:column; gap:1.5px; }
+  .sc li { display:grid; grid-template-columns:48px 1fr; gap:6px; align-items:baseline;
+           font-size:8.2px; line-height:1.28; color:var(--tinta-suave); }
+  .sc li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.4px;
+             color:var(--roxo); }
+  .sc li b { color:var(--navy); }
+  .sc li code { font-family:var(--fonte-mono); font-size:8.1px; color:var(--navy); font-weight:600; }
+  .sc li.dest i { color:var(--vermelho); }
+
+  .par { border-left:4px solid var(--laranja); background:var(--laranja-claro); border-radius:var(--raio-sm);
+         padding:5px 8px; margin-top:6px; font-size:8.3px; line-height:1.34; color:var(--tinta-suave); }
+  .par b { color:#a8530a; }
+  .par code { font-family:var(--fonte-mono); font-size:8.2px; color:var(--navy); font-weight:600; }
+  .par .ok { color:#1d7038; font-weight:700; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 072</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Depuração de scripts: set -x e ShellCheck</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Depuração de scripts<br>set -x e ShellCheck</h1>
+      <div class="sub">"Funciona quando eu rodo na mão." O script de rotação de logs foi testado dezenas de vezes e sempre terminou certo. Posto no <code class="inl">cron</code> para as 3h, falhou na primeira noite: <code class="inl">line 14: jq: command not found</code>. O <code class="inl">jq</code> <b>estava</b> instalado — o <code class="inl">which</code> respondia <code class="inl">/usr/local/bin/jq</code>. O que mudou não foi o script: foi o <b>ambiente</b>. Depurar shell é quase sempre isto — descobrir <b>qual suposição silenciosa</b> deixou de valer.</div>
     </div>
     <div class="badge"><b>072</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">As quatro camadas · e o ambiente que derrubou o script da abertura</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="camadas">
+      <div class="cam v"><span class="custo">segundos</span><b>1 · não executa</b>
+        <p>erro de sintaxe, aspas faltando, variável atribuída e nunca usada</p>
+        <i>shellcheck · bash -n · shfmt</i></div>
+      <div class="cam a"><span class="custo">minutos</span><b>2 · executa e vê</b>
+        <p>expansão inesperada, argumento partido, caminho errado</p>
+        <i>set -x · PS4 · bash -x</i></div>
+      <div class="cam l"><span class="custo">horas</span><b>3 · registra</b>
+        <p>falha intermitente, erro só em produção, ordem dos eventos</p>
+        <i>log em arquivo · BASH_XTRACEFD</i></div>
+      <div class="cam r"><span class="custo">dias</span><b>4 · isola</b>
+        <p>bug que só aparece com dados reais ou sob concorrência</p>
+        <i>bisseção · bats · trap DEBUG</i></div>
+    </div>
+
+    <div class="amb">
+      <div class="pnl v"><b>seu terminal — interativo, de login</b><ul>
+        <li><code>PATH</code> completo, com <code>/usr/local/bin</code> e <code>/opt</code></li>
+        <li>lê <code>/etc/profile</code> e o perfil do usuário: <b>aliases e funções existem</b></li>
+        <li><b>TTY presente</b> — cor faz sentido; <code>stdin</code> é o teclado</li>
+        <li><code>LANG=pt_BR.UTF-8</code>; <code>HOME</code> e <code>USER</code> são os seus</li>
+      </ul></div>
+      <div class="pnl r"><b>sob cron ou temporizador do systemd</b><ul>
+        <li><code>PATH</code> mínimo: <code>/usr/bin:/bin</code> — e o <code>jq</code> some</li>
+        <li><b>não lê nenhum arquivo de perfil</b>: alias não existe, função só se o script definir ou fizer <code>source</code></li>
+        <li><b>sem TTY</b>: nada de cor nem de prompt; <code>stdin</code> fechado ou <code>/dev/null</code></li>
+        <li><code>LANG=C</code> ou vazio; <code>HOME</code> pode ser <code>/</code> ou o do serviço</li>
+      </ul></div>
+    </div>
+
+    <div class="nota"><b>A regra do funil: suba de camada só quando a de baixo não resolveu.</b> Pular direto para o rastro de um script de 400 linhas quando o ShellCheck acharia o defeito em dois segundos é o desperdício mais comum de tempo em depuração de shell. A passagem da camada 2 para a 3 é a mais importante: um defeito que <b>não reproduz</b> no terminal não vai ser resolvido olhando mais forte para o terminal — ele precisa de <b>registro persistente do ambiente em que acontece</b>. <b>As cinco defesas contra o "funciona na minha máquina":</b> (1) caminho absoluto, ou <code>PATH</code> declarado no topo do script; (2) nada de alias — e função só existe se o próprio script a carregar; (3) <code>[[ -t 1 ]]</code> antes de emitir cor, para não encher o log de sequências de escape; (4) <code>export LC_ALL=C</code> quando a saída for ordenada ou comparada; (5) <b>reproduza o ambiente antes de acusar o script</b>. Fora do funil ainda existe o clássico do arquivo vindo do Windows: <code>line 2: $'\r': command not found</code>, diagnosticado com <code>file script.sh</code> ("with CRLF line terminators") ou <code>cat -A</code>, e curado com <code>dos2unix</code> ou <code>sed -i 's/\r$//'</code>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">ShellCheck antes de rodar · set -x durante</div>
+  <section class="grade2">
+    <div>
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-depuracao</span></div>
+<pre><span class="prompt">$</span> shellcheck rotacionar.sh
+<span class="out">In rotacionar.sh line 8:
+for arq in $(ls /var/log/*.log); do
+           ^-- SC2045: Iterating over ls output is fragile.
+               ^-- SC2046: Quote this to prevent word splitting.</span>
+<span class="cmt"># o rastro mostra o que o SHELL entendeu, não o que você escreveu</span>
+<span class="prompt">$</span> bash -x -c 'arq="meu relatorio.txt"; rm -f $arq'
+<span class="out">+ arq='meu relatorio.txt'
++ rm -f meu relatorio.txt</span>   <span class="cmt"># DOIS argumentos!</span>
+<span class="cmt"># PS4 diz onde cada linha do rastro aconteceu</span>
+<span class="prompt">$</span> export PS4='+ ${BASH_SOURCE##*/}:${LINENO}:${FUNCNAME[0]:-main}(): '
+<span class="out">+ backup.sh:24:validar(): mountpoint -q /mnt/backup</span>
+<span class="cmt"># rastro fora da saída, para ler com calma depois</span>
+<span class="prompt">$</span> exec 9&gt;&gt;/tmp/rastro.log; export BASH_XTRACEFD=9; set -x
+<span class="cmt"># reproduza o cron sem esperar até as 3h da manhã</span>
+<span class="prompt">$</span> env -i HOME="$HOME" PATH=/usr/bin:/bin \
+    /bin/bash --noprofile --norc ./script.sh &lt;/dev/null
+<span class="out">shellcheck NAO encontrado neste PATH</span></pre>
+      </section>
+      <div class="par"><b>Ligue o rastro só onde ele serve.</b> No script inteiro produz rastro demais para ler: use <code>set -x; trecho; set +x</code> em volta do bloco suspeito, ou deixe uma chave de ambiente — <span class="ok">[[ -n "${DEBUG:-}" ]] &amp;&amp; set -x</span> — e rode <code>DEBUG=1 ./script.sh</code> <b>sem editar nada</b>. Para o defeito que resiste: <b>bisseção</b> (um <code>exit</code> no meio; funcionou? está na outra metade — cinco iterações localizam num script de 300 linhas), <code>trap DEBUG</code> como passo a passo, ou <code>bats</code> para virar teste. E <b>escreva o teste que reproduz o defeito antes de corrigi-lo</b>: é o que impede que ele volte.</div>
+    </div>
+    <div>
+      <p class="sub2">Os avisos que são correção, não estilo</p>
+      <ul class="sc">
+        <li><i>SC2086</i><span>expansão <b>sem aspas</b> — quebra em espaços e sofre globbing</span></li>
+        <li><i>SC2046</i><span>substituição de comando sem aspas — mesma coisa, forma mais perigosa</span></li>
+        <li><i>SC2164</i><span><code>cd</code> sem tratar falha; use <code>cd x || exit</code></span></li>
+        <li class="dest"><i>SC2155</i><span><code>local v=$(cmd)</code> — o status é o do <b><code>local</code></b>, sempre 0, e a falha de <code>cmd</code> <b>some</b>. Declare numa linha, atribua na seguinte</span></li>
+        <li class="dest"><i>SC2181</i><span><code>if [ $? -eq 0 ]</code> é frágil: qualquer comando entre as duas linhas destrói o <code>$?</code>. Teste o comando direto: <code>if grep -q p arq; then</code></span></li>
+        <li class="dest"><i>SC2115</i><span><code>rm -rf "$DIR/build"</code> sem garantia de que <code>DIR</code> tem valor. Use <code>"${DIR:?DIR nao definida}"</code></span></li>
+        <li><i>SC2034</i><span>variável atribuída e nunca usada — quase sempre erro de digitação</span></li>
+        <li><i>SC2064</i><span>aspas <b>duplas</b> no <code>trap</code>: a expansão acontece no registro, não no disparo</span></li>
+        <li><i>SC1090</i><span><code>source "$arq"</code> com caminho variável não pode ser analisado</span></li>
+      </ul>
+      <p class="sub2">Silenciar com responsabilidade</p>
+      <div class="nota" style="margin-top:0">A diretiva vai <b>na linha imediatamente anterior</b> e <b>com justificativa</b>: <code># shellcheck disable=SC2086 &nbsp;# a expansão sem aspas é intencional: OPCOES é lista de flags</code>. No topo do arquivo ela vale para o arquivo inteiro — raramente o que se quer. <b><code>disable</code> sem comentário é dívida:</b> seis meses depois ninguém sabe se era intencional ou se alguém só queria calar o analisador. Úteis também: <code># shellcheck shell=bash</code> (biblioteca sem shebang) e <code># shellcheck source=lib/comum.sh</code> (resolve o <code>SC1090</code>).</div>
+      <p class="sub2">Plugue no fluxo</p>
+      <div class="nota" style="margin-top:0"><code>shellcheck -S warning $(find . -name '*.sh')</code> varre o repositório; <code>-f gcc</code> dá <code>arquivo:linha:coluna:</code> para a integração contínua; e o gancho de pré-commit é <code>git diff --cached --name-only --diff-filter=ACM | grep '\.sh$' | xargs -r shellcheck</code>. Companheiro natural é o <code>shfmt -d -i 4 -ci</code> (mostra o diff) / <code>-w</code> (aplica): <b>com indentação regular, um <code>fi</code> no lugar errado salta aos olhos</b>. E antes de qualquer script que apague, formate ou reinicie algo, <code>bash -n</code> — um <code>fi</code> faltando em 300 linhas só aparece quando a execução chega lá, e aí metade do estrago já foi feita.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>O <code class="inl">SC2115</code> é o aviso que evita apagar o sistema.</b> <code class="inl">rm -rf "$DIR/build"</code> parece seguro por ter aspas — mas se <code class="inl">DIR</code> estiver vazia (nome digitado errado, ou variável definida só num ramo do <code class="inl">if</code>), o comando executado é <code class="inl">rm -rf "/build"</code>, e com privilégio suficiente ele apaga o que encontrar na raiz. A forma que <b>falha em vez de destruir</b> é <code class="inl">rm -rf "${DIR:?DIR nao definida}/build"</code>. Antes de rodar qualquer script novo que apague coisas, use as três camadas baratas na ordem: <code class="inl">shellcheck</code>, <code class="inl">bash -n</code> e <b>o rastro com o <code class="inl">rm</code> trocado por <code class="inl">echo rm</code></b> — o <code class="inl">set -x</code> mostra o caminho <b>já expandido</b>, que é exatamente a informação que faltava. E ensaie em VM descartável, nunca na máquina de trabalho.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>A causa mais comum de "funciona na minha máquina" é o ambiente</b>, não o código: <code class="inl">PATH</code> mínimo, nenhum perfil lido, sem TTY e localidade <code class="inl">C</code> sob <code class="inl">cron</code> e systemd.</li>
+        <li><b>Reproduza antes de acusar o script:</b> <code class="inl">env -i HOME="$HOME" PATH=/usr/bin:/bin /bin/bash --noprofile --norc ./script.sh</code>.</li>
+        <li><b>O ShellCheck é a ferramenta de melhor retorno por segundo investido.</b> <code class="inl">SC2086</code>, <code class="inl">SC2155</code>, <code class="inl">SC2181</code> e <code class="inl">SC2115</code> descrevem defeitos reais, não estilo.</li>
+        <li><b><code class="inl">local x=$(cmd)</code> esconde a falha de <code class="inl">cmd</code></b> — o status é o do <code class="inl">local</code>. Declare numa linha, atribua na seguinte.</li>
+        <li><b><code class="inl">set -x</code> mostra o comando depois das expansões</b>: é assim que se enxerga o argumento partido pela falta de aspas. Em volta do trecho suspeito, não no script inteiro.</li>
+        <li><b><code class="inl">PS4</code> transforma o rastro em diagnóstico</b> — arquivo, linha e função em cada linha — e <code class="inl">BASH_XTRACEFD</code> tira o rastro da saída, mantendo o <code class="inl">stdout</code> limpo para quem consome o resultado.</li>
+        <li><b>Silenciar aviso exige justificativa escrita</b> na linha anterior; <code class="inl">disable</code> sem comentário é dívida.</li>
+        <li><b>Suba de camada só quando a de baixo não resolveu</b> — estática, rastro, registro, isolamento — e escreva o teste que reproduz o defeito antes de corrigi-lo.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Ferramenta de segurança em script quase sempre roda sob <code class="inl">cron</code> ou temporizador do systemd</b> — coleta periódica, varredura agendada, verificação de integridade caem exatamente na armadilha da abertura. <b>Declarar <code class="inl">PATH</code> no topo do script é obrigatório no Kali</b>, onde muita ferramenta vive em <code class="inl">/usr/share/&lt;ferramenta&gt;</code> com um invólucro em <code class="inl">/usr/bin</code>, e o que se instala à mão fica em <code class="inl">/opt</code>. <b>Cuidado: o rastro do <code class="inl">set -x</code> vaza segredo.</b> Se o script manipula senha, token ou chave, o rastro imprime o <b>valor já expandido</b> — e se ele vai para log persistente, a credencial fica gravada em claro. Desligue em volta do trecho sensível (<code class="inl">set +x</code> antes, <code class="inl">set -x</code> depois) e nunca passe segredo por linha de comando, onde ele também apareceria no <code class="inl">ps</code>. <b>Um <code class="inl">SC2086</code> num script que monta a lista de alvos é a diferença entre varrer <code class="inl">10.0.0.1</code> e varrer dois hosts</b> porque a variável trazia dois valores: estourar o escopo por falta de aspas não é atenuante nenhum diante da Lei 12.737/2012, e a conferência estática é barata. <b><code class="inl">[[ -t 1 ]]</code> antes de colorir:</b> ferramenta do Kali produz muita saída colorida, e um script que a captura com <code class="inl">$( )</code> recebe as sequências de escape junto — a comparação de string falha por um motivo invisível. Desligue a cor na origem (<code class="inl">--no-color</code>, <code class="inl">NO_COLOR=1</code>) ou limpe com <code class="inl">sed -r 's/\x1b\[[0-9;]*m//g'</code>. E <b>log com marca de tempo é evidência</b>: num teste autorizado, o registro de quando cada comando foi disparado é o que separa a sua atividade da de terceiros no mesmo período — <code class="inl">PS4</code> com <code class="inl">\D{%F %T}</code> e rastro em arquivo dedicado viram auditoria da própria execução. <b>Família RHEL:</b> o <code class="inl">shellcheck</code> está no EPEL (<code class="inl">dnf install epel-release</code> antes); o <code class="inl">cron</code> do usuário pode rodar com <code class="inl">SHELL=/bin/sh</code>, fazendo <code class="inl">[[ ]]</code> e arrays falharem com mensagens confusas (declare <code class="inl">SHELL=/bin/bash</code> no topo do <code class="inl">crontab</code>); e o SELinux em <code class="inl">enforcing</code> produz "Permission denied" com permissões POSIX corretas — esse diagnóstico está no <code class="inl">ausearch -m avc -ts recent</code>, não no <code class="inl">set -x</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 12 · Fase 3 <span class="n">072</span></span>
