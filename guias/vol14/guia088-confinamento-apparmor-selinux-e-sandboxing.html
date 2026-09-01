@@ -3,101 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 088 — Confinamento: AppArmor, SELinux e sandboxing</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: os dois portoes em serie ---- */
+  .portoes { display:flex; align-items:stretch; gap:5px; }
+  .pg { flex:1; border:1.5px solid; border-radius:var(--raio-sm); padding:4px 7px; }
+  .pg b { display:block; font-family:var(--fonte-titulo); font-size:9.2px;
+          text-transform:uppercase; letter-spacing:.03em; line-height:1.15; }
+  .pg i { font-style:normal; display:block; font-size:7.5px; line-height:1.2;
+          color:var(--tinta-suave); margin-top:1px; }
+  .pg em { font-style:italic; display:block; font-size:8.2px; margin-top:2px; font-weight:600; }
+  .pg u { text-decoration:none; display:block; font-size:7.2px; margin-top:3px;
+          padding-top:2px; border-top:1px dashed var(--vermelho); color:var(--vermelho);
+          font-family:var(--fonte-mono); }
+  .pg code { font-family:var(--fonte-mono); font-size:7.6px; color:var(--navy);
+             word-break:break-all; }
+  .pg.p { border-color:var(--azul); background:var(--azul-claro); } .pg.p b { color:var(--azul); }
+  .pg.d { border-color:var(--laranja); background:var(--laranja-claro); }
+  .pg.d b, .pg.d em { color:#a8530a; }
+  .pg.m { border-color:var(--verde); background:var(--verde-claro); }
+  .pg.m b, .pg.m em { color:#1d7038; }
+  .pg.r { border-color:var(--linha); background:var(--papel-tint); } .pg.r b { color:var(--navy); }
+  .sx { align-self:center; font-size:13px; color:var(--tinta-suave); }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- tabela AppArmor x SELinux ---- */
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 7px; }
+  table.comparacao td { padding:1.5px 7px; line-height:1.18; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.6px; }
+  table.comparacao td:first-child { font-family:var(--fonte-titulo); font-size:7.9px;
+                                    text-transform:uppercase; letter-spacing:.02em; color:var(--navy); }
+
+  /* ---- decodificador da negacao ---- */
+  .grade2 { display:grid; grid-template-columns:1fr 1.02fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.4px; line-height:1.26; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  .dec > b { display:block; font-family:var(--fonte-titulo); font-size:9px; color:var(--navy);
+             text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px; }
+  .linha-log { border:1px solid var(--vermelho); background:var(--vermelho-claro);
+               border-radius:var(--raio-sm); padding:4px 7px; font-family:var(--fonte-mono);
+               font-size:7.5px; line-height:1.34; color:var(--tinta); word-break:break-all; }
+  .linha-log s { text-decoration:none; color:var(--vermelho); font-weight:700; }
+  .tok { list-style:none; display:flex; flex-direction:column; gap:2px; margin-top:4px; }
+  .tok li { display:grid; grid-template-columns:88px 1fr; gap:6px; align-items:baseline;
+            font-size:7.9px; line-height:1.2; color:var(--tinta-suave); }
+  .tok li > i { font-style:normal; font-family:var(--fonte-mono); font-size:7.9px;
+                font-weight:700; color:var(--roxo); }
+  .tok li b { color:var(--navy); }
+  .tok li code { font-family:var(--fonte-mono); font-size:7.7px; color:var(--navy); font-weight:600; }
+
+  .guia { --gap-blocos:3.5mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.8px; line-height:1.22; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 088</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Confinamento: AppArmor, SELinux e sandboxing</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Confinamento: AppArmor,<br>SELinux e sandboxing</h1>
+      <div class="sub">Às 3h47 o invasor executou código dentro do <code class="inl">nginx</code>. O roteiro é sempre o mesmo: ler <code class="inl">/etc/passwd</code>, achar chave privada em <code class="inl">/home</code>, abrir conexão de saída. <b>As permissões Unix teriam deixado passar</b> — o processo era o dono. Barrou um perfil que listava, arquivo por arquivo, o que aquele programa podia tocar.</div>
     </div>
     <div class="badge"><b>088</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+    <div class="secao-titulo">Dois portões em série — e basta um negar</div>
+    <div class="portoes" style="margin-top:4px">
+      <div class="pg p"><b>processo</b><i>o pedido ao kernel</i><code>open("/home/x/.ssh/id_rsa")</code></div>
+      <span class="sx">→</span>
+      <div class="pg d"><b>portão DAC</b><i>dono, grupo, outros · ACL · SUID. <b>Discricionário:</b> o dono decide, e <code>chmod 777</code> abre.</i><em>"quem você é?"</em><u>nega → EACCES</u></div>
+      <span class="sx">→</span>
+      <div class="pg m"><b>portão MAC</b><i>perfil AppArmor ou tipo SELinux. <b>Obrigatório:</b> política do administrador; nem <code>root</code> afrouxa em execução.</i><em>"o que você é?"</em><u>nega → EACCES + registro</u></div>
+      <span class="sx">→</span>
+      <div class="pg r"><b>recurso</b><i>arquivo, socket, capability</i></div>
+    </div>
+    <div class="regra"><b>Os dois portões são verificados em série e de forma independente:</b> a chamada só chega ao recurso se <b>ambos</b> permitirem. Afrouxar o DAC não abre o MAC, e ser <code>root</code> não abre nenhum dos dois quando há política. O invasor que ganhou execução no processo herda a identidade dele — e portanto o DAC —, mas <b>não escapa do perfil: o perfil descreve o programa, não o usuário</b>. E a negação do MAC <b>deixa registro</b> — é bloqueio e detecção ao mesmo tempo.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">A mesma ideia, duas escolhas opostas de projeto</div>
+    <table class="comparacao" style="margin-top:4px">
+      <thead><tr><th>Aspecto</th><th>AppArmor</th><th>SELinux</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td>Identifica por</td><td><b>caminho</b> do arquivo</td><td><b>rótulo</b> no atributo estendido</td></tr>
+        <tr><td>Padrão em</td><td>Debian, Ubuntu, <b>Kali</b>, SUSE</td><td>RHEL, Fedora, CentOS, Android</td></tr>
+        <tr><td>Política em</td><td>texto legível, parecido com shell</td><td>linguagem própria, compilada</td></tr>
+        <tr><td>Aprender leva</td><td>horas</td><td>semanas</td></tr>
+        <tr><td>Ponto forte</td><td>confinar um programa, rápido</td><td>política do sistema inteiro</td></tr>
+        <tr><td>Ponto fraco</td><td>cópia ou link com outro caminho escapa</td><td>diagnóstico difícil no início</td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Na prática — e como se lê uma negação</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="cmt"># AppArmor — no Kali pode estar instalado e NÃO ativo</span>
+<span class="prompt">$</span> sudo aa-status
+<span class="out">apparmor module is not loaded  ← perfil em disco
+não é política em vigor</span>
+<span class="prompt">$</span> sudo aa-genprof /usr/local/bin/servico <span class="cmt"># esqueleto</span>
+<span class="prompt">$</span> sudo aa-complain ...; sudo aa-logprof <span class="cmt"># aprende</span>
+<span class="prompt">$</span> sudo aa-enforce ...   <span class="cmt"># só então, aplica</span>
+<span class="prompt">$</span> sudo dmesg | grep 'apparmor="DENIED"'
+<span class="cmt"># SELinux (RHEL) — o mesmo, porém por rótulo</span>
+<span class="prompt">$</span> getenforce; ls -Z /var/www/html; id -Z
+<span class="prompt">$</span> sudo ausearch -m AVC -ts recent   <span class="cmt"># as negações</span>
+<span class="prompt">$</span> sudo restorecon -Rv /var/www/html <span class="cmt"># rótulo certo</span>
+<span class="prompt">$</span> firejail --net=none --private ./binario-desconhecido</pre>
+      </section>
+      <div class="dec">
+        <b>A linha que denunciou o incidente das 3h47</b>
+        <div class="linha-log">apparmor=<s>"DENIED"</s> operation="open"
+<s>profile</s>="/usr/sbin/nginx"
+<s>name</s>="/home/deploy/.ssh/id_rsa"
+<s>requested_mask</s>="r" pid=4711 comm="nginx"</div>
+        <ul class="tok">
+          <li><i>profile</i><span><b>quem</b> foi barrado — o <b>programa</b>, não o usuário</span></li>
+          <li><i>name</i><span><b>o que</b> ele tentou tocar</span></li>
+          <li><i>requested_mask</i><span>com <b>qual</b> permissão (<code>r</code>, <code>w</code>, <code>x</code>)</span></li>
+        </ul>
+        <div class="regra"><b>Um <code>nginx</code> não tem motivo nenhum para procurar chave privada em <code>/home</code>.</b> Perfil bem construído gera <b>zero</b> negações em operação normal — o que torna <i>qualquer</i> negação um evento a investigar. Perfil ruidoso treina o operador a ignorar o log.</div>
+      </div>
+    </div>
+    <div class="perigo"><b>Sandbox não é ambiente de análise de <i>malware</i>.</b> <code class="inl">firejail</code>, <code class="inl">bubblewrap</code> e contêineres <b>compartilham o kernel</b> com o hospedeiro, e uma falha de kernel escapa de todos eles. Sandbox serve para reduzir o dano de um programa que você <i>espera</i> ser bem-intencionado; para executar código que você <b>sabe</b> ser hostil, o isolamento correto é <b>VM descartável, em rede isolada, com snapshot e sem pasta compartilhada</b>. Confundir os dois transforma uma análise de amostra num incidente na sua estação.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>DAC: o dono decide</b> — e o processo comprometido herda toda a autoridade do usuário. <b>MAC: o administrador decide</b> o que cada <i>programa</i> pode fazer, e nem <code class="inl">root</code> afrouxa isso em execução.</li>
+        <li><b>Os dois portões são independentes:</b> <code class="inl">chmod 777</code> não abre o MAC. O invasor precisa vencer os dois.</li>
+        <li><b>AppArmor identifica por caminho; SELinux, por rótulo.</b> Caminho é fácil de escrever e contornável por cópia; rótulo viaja com o arquivo, ao custo de uma curva bem maior.</li>
+        <li><b>Modo <code class="inl">complain</code> constrói perfil sem quebrar serviço</b> — registra tudo, bloqueia nada. O caminho de código que você não exercitou vai quebrar depois, às 3h da manhã.</li>
+        <li><b><code class="inl">Permission denied</code> com permissões corretas</b> é o sintoma clássico: <code class="inl">dmesg | grep DENIED</code> no AppArmor, <code class="inl">ausearch -m AVC</code> no SELinux.</li>
+        <li><b>Sandbox reduz dano de programa falho; VM isola código hostil.</b> Não são intercambiáveis.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O AppArmor vem instalado no Kali, mas nem sempre ativo — confira antes de supor.</b> Um <code class="inl">aa-status</code> pode responder <code class="inl">apparmor module is not loaded</code>; ativar exige <code class="inl">apparmor=1 security=apparmor</code> em <code class="inl">GRUB_CMDLINE_LINUX_DEFAULT</code>, <code class="inl">update-grub</code> e reboot. Sem isso, os perfis em <code class="inl">/etc/apparmor.d/</code> estão em disco e não valem nada — <b>a situação mais enganosa possível, porque a configuração parece feita</b>. <b>Confinar a ferramenta ofensiva é tão legítimo quanto confinar o serviço:</b> boa parte do que roda num Kali processa entrada não confiável da rede — <code class="inl">tcpdump</code> decodifica pacote de terceiro, o Wireshark tem uma superfície enorme de decodificadores, <code class="inl">sqlmap</code> e <code class="inl">nikto</code> consomem resposta de servidor alheio —, fontes historicamente generosas de CVEs. O perfil <code class="inl">usr.sbin.tcpdump</code> já vem pronto e mostra por que perfil + capability é a defesa completa: a capability dá só o privilégio necessário, o perfil limita o alcance se o processo for explorado. <b><code class="inl">aa-complain</code> é a resposta certa</b> para "o AppArmor está quebrando meu serviço" — mantém o registro e para de bloquear, permitindo diagnosticar sem desligar a proteção do resto do sistema; <code class="inl">aa-disable</code> por um perfil problemático é jogar a camada fora por um caso pontual. <b>RHEL inverte o padrão:</b> SELinux em <i>Enforcing</i> desde a instalação, e quem vem do Debian tropeça uma dezena de vezes no mesmo sintoma — serviço com permissão perfeita e comportamento inexplicável — antes de criar o reflexo: <b>antes de investigar permissão, <code class="inl">ausearch -m AVC -ts recent</code></b>. Havendo AVC, o problema é rótulo, e <code class="inl">restorecon -Rv</code> ou um booleano resolve numa linha. <code class="inl">setenforce 0</code> "só para testar" vale se vier seguido de <code class="inl">setenforce 1</code>; <code class="inl">SELINUX=disabled</code> no arquivo, nunca. E <code class="inl">audit2allow</code> é diagnóstico, não solução: transforma <b>toda</b> negação em permissão — inclusive a que era o ataque.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 14 · Fase 4 <span class="n">088</span></span>

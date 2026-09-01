@@ -154,7 +154,7 @@ Decisão do Vitor sobre quando encarar: pode ser antes do Volume 14 ou depois do
 - [x] **guia 085** - Hardening do Linux: superfície de ataque e princípios - `guias/vol14/guia085-hardening-do-linux-superficie-de-ataque-e-princi.html`
 - [x] **guia 086** - Gerenciamento de segredos: chaves SSH e GPG - `guias/vol14/guia086-gerenciamento-de-segredos-chaves-ssh-e-gpg.html`
 - [x] **guia 087** - Capabilities, isolamento e menor privilégio - `guias/vol14/guia087-capabilities-isolamento-e-menor-privilegio.html`
-- [ ] **guia 088** - Confinamento: AppArmor, SELinux e sandboxing - `guias/vol14/guia088-confinamento-apparmor-selinux-e-sandboxing.html`
+- [x] **guia 088** - Confinamento: AppArmor, SELinux e sandboxing - `guias/vol14/guia088-confinamento-apparmor-selinux-e-sandboxing.html`
 - [ ] **guia 089** - Auditoria, integridade e detecção de alterações - `guias/vol14/guia089-auditoria-integridade-e-deteccao-de-alteracoes.html`
 - [ ] **guia 090** - O ecossistema de ferramentas do Kali: categorias e fluxos - `guias/vol14/guia090-o-ecossistema-de-ferramentas-do-kali-categorias-.html`
 - [ ] **guia 091** - Anonimato e privacidade: proxychains, Tor e VPN - `guias/vol14/guia091-anonimato-e-privacidade-proxychains-tor-e-vpn.html`
