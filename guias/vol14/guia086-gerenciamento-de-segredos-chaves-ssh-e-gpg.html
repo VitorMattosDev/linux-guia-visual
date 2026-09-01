@@ -3,101 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 086 — Gerenciamento de segredos: chaves SSH e GPG</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: o desafio-resposta do login por chave ---- */
+  .pontas { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .pt { border:1.5px solid; border-radius:var(--raio-sm); padding:2px 8px; }
+  .pt b { font-family:var(--fonte-titulo); font-size:9.4px; text-transform:uppercase;
+          letter-spacing:.03em; }
+  .pt code { font-family:var(--fonte-mono); font-size:8.2px; font-weight:700; }
+  .pt i { font-style:normal; display:block; font-size:7.4px; color:var(--tinta-suave); }
+  .pt.c { border-color:var(--azul); background:var(--azul-claro); }
+  .pt.c b, .pt.c code { color:var(--azul); }
+  .pt.s { border-color:var(--verde); background:var(--verde-claro); }
+  .pt.s b, .pt.s code { color:#1d7038; }
+
+  .escada { display:flex; flex-direction:column; gap:1.5px; margin-top:4px; }
+  .ps { display:grid; grid-template-columns:15px 1fr 88px; gap:7px; align-items:center;
+        border:1px solid var(--linha); border-left:3px solid var(--linha);
+        border-radius:var(--raio-sm); background:#fff; padding:1.5px 8px; }
+  .ps > span { font-family:var(--fonte-titulo); font-size:9.5px; color:var(--navy); text-align:center; }
+  .ps > div { font-size:8.3px; line-height:1.2; color:var(--tinta); }
+  .ps > div code { font-family:var(--fonte-mono); font-size:8px; font-weight:700; color:var(--navy); }
+  .ps > em { font-style:normal; font-size:7.3px; line-height:1.1; text-align:right;
+             color:var(--tinta-suave); font-family:var(--fonte-mono); }
+  .ps.on { border-color:var(--vermelho); border-left-color:var(--vermelho);
+           background:var(--vermelho-claro); }
+  .ps.on > span, .ps.on > em { color:var(--vermelho); }
+  .ps.ok { border-color:var(--verde); border-left-color:var(--verde); background:var(--verde-claro); }
+  .ps.ok > span, .ps.ok > em { color:#1d7038; }
+
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.1px; line-height:1.26;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:8px; color:var(--roxo); font-weight:600; }
+
+  /* ---- figura 2: SSH x GPG ---- */
+  .dois { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .cx { border:1px solid var(--linha); border-top:3px solid; border-radius:var(--raio-sm);
+        background:#fff; padding:4px 8px; }
+  .cx > b { display:block; font-family:var(--fonte-titulo); font-size:9.4px;
+            text-transform:uppercase; letter-spacing:.03em; }
+  .cx > i { font-style:normal; display:block; font-size:7.6px; color:var(--tinta-suave);
+            line-height:1.2; margin-bottom:3px; }
+  .cx ul { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .cx li { font-size:7.75px; line-height:1.19; color:var(--tinta-suave);
+           padding-left:8px; position:relative; }
+  .cx li::before { content:"›"; position:absolute; left:0; font-weight:700; }
+  .cx li b { color:var(--navy); }
+  .cx li code { font-family:var(--fonte-mono); font-size:7.8px; font-weight:600; color:var(--navy); }
+  .cx.a { border-top-color:var(--azul); } .cx.a > b, .cx.a li::before { color:var(--azul); }
+  .cx.x { border-top-color:var(--roxo); } .cx.x > b, .cx.x li::before { color:var(--roxo); }
+
+  /* ---- geral ---- */
+  .grade2 { display:grid; grid-template-columns:0.95fr 1.13fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.4px; line-height:1.26; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.7px; }
+  table.comparacao th { font-size:8.1px; padding:2px 6px; }
+  table.comparacao td { padding:1.5px 6px; line-height:1.18; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.5px; }
+
+  .guia { --gap-blocos:3.6mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.6px; line-height:1.32; }
+  .perigo { font-size:8.1px; line-height:1.26; padding:5px 10px; }
+  .bloco .corpo { font-size:7.95px; line-height:1.23; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 086</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Gerenciamento de segredos: chaves SSH e GPG</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Gerenciamento de segredos:<br>chaves SSH e GPG</h1>
+      <div class="sub">Um robô que varre o GitHub achou, num commit de dois anos antes, uma <code class="inl">deploy_key</code> privada sem senha. O commit fora revertido no dia seguinte — mas <b>reverter não apaga o objeto do histórico</b>, e a chave ficou recuperável por 730 dias. Ninguém rotacionou nada porque ninguém sabia que havia algo a rotacionar.</div>
     </div>
     <div class="badge"><b>086</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Por que a chave vence a senha: a privada assina, e nunca trafega</div>
+    <div class="pontas" style="margin-top:4px">
+      <div class="pt c"><b>Cliente</b> <code>~/.ssh/id_ed25519</code><i>a chave <b>privada</b>, protegida por senha — nunca sai desta máquina</i></div>
+      <div class="pt s"><b>Servidor</b> <code>~/.ssh/authorized_keys</code><i>guarda <b>só a pública</b>; comprometê-lo não entrega sua credencial</i></div>
+    </div>
+    <div class="escada">
+      <div class="ps"><span>1</span><div>O cliente anuncia <b>qual</b> chave pública pretende usar.</div><em>cliente →</em></div>
+      <div class="ps"><span>2</span><div>O servidor confere se ela consta do <code>authorized_keys</code>.</div><em>← servidor</em></div>
+      <div class="ps"><span>3</span><div>O servidor devolve um <b>desafio aleatório</b>, novo a cada conexão.</div><em>← servidor</em></div>
+      <div class="ps on"><span>4</span><div>O cliente <b>assina o desafio</b> com a privada — e envia a assinatura, não a chave.</div><em>cliente →</em></div>
+      <div class="ps ok"><span>5</span><div>O servidor verifica a assinatura com a pública. <b>Sessão aberta.</b></div><em>servidor</em></div>
+    </div>
+    <div class="regra"><b>Tudo muda no passo 4.</b> A senha precisa ser <i>entregue</i> para ser verificada: quem verifica passa a conhecê-la, ela trafega e é reutilizável em outro serviço. A privada só <b>assina</b>, e é a assinatura que viaja — o servidor nunca vê o segredo, e um desafio capturado não serve para a conexão seguinte.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Dois formatos, dois problemas diferentes</div>
+    <div class="dois" style="margin-top:4px">
+      <div class="cx a">
+        <b>SSH — autenticar uma sessão</b>
+        <i>"sou eu que estou conectando, agora"</i>
+        <ul>
+          <li><code>ssh-keygen -t ed25519 -C "vitor@estacao"</code> é o padrão hoje: curta, rápida, sem parâmetro para errar. RSA 4096 só para servidor velho; <b>DSA nunca</b>.</li>
+          <li><b>Senha na chave não é opcional</b> — sem ela o arquivo <i>é</i> o acesso. O <code>ssh-agent</code> pede uma vez por sessão; <code>ssh-add -t 3600</code> faz ele esquecer.</li>
+          <li><b>Chave de automação vem restrita:</b> <code>restrict</code> desliga tudo, <code>command=</code> fixa o programa, <code>from=</code> fixa a origem. Mesmo vazada, faz uma coisa só.</li>
+          <li><b>O comentário <code>-C</code> é para o futuro:</b> um dia você olha um <code>authorized_keys</code> de nove linhas e precisa decidir quais apagar.</li>
+        </ul>
+      </div>
+      <div class="cx x">
+        <b>GPG — provar procedência do dado</b>
+        <i>"este arquivo é o que o projeto publicou"</i>
+        <ul>
+          <li><b>Primária × subchaves:</b> a primária (<code>sec</code>) é a identidade e fica offline; as subchaves (<code>ssb</code>) trabalham e são revogáveis uma a uma — uma comprometida não derruba sua rede de confiança.</li>
+          <li><b>O primeiro comando depois de gerar a chave</b> é <code>gpg --gen-revoke</code>: o certificado de revogação não pode ser criado <i>depois</i> que a chave se perdeu.</li>
+          <li><b><code>Good signature</code> prova que o dado não mudou</b> — não que a chave é de quem você pensa. O aviso <i>"not certified"</i> é o passo que falta.</li>
+          <li><b>Confira a impressão digital por canal independente.</b> Chave e assinatura vindas do mesmo servidor protegem contra corrupção, não contra adversário.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — e onde o segredo fica guardado</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="prompt">$</span> ssh-keygen -t ed25519 -C "vitor@estacao-2026"
+<span class="prompt">$</span> ssh-copy-id -i ~/.ssh/id_ed25519.pub vitor@srv
+<span class="cmt"># ~/.ssh 700 e authorized_keys 600, ou o servidor IGNORA</span>
+<span class="cmt"># em silêncio: a causa nº 1 de "ainda pede senha"</span>
+<span class="prompt">$</span> ssh -v vitor@srv 2&gt;&amp;1 | grep -i 'offering\|accepted'
+<span class="prompt">$</span> ssh-add -t 3600 ~/.ssh/id_ed25519 <span class="cmt"># esquece em 1h</span>
+<span class="cmt"># ~/.ssh/config — resolve metade dos problemas</span>
+<span class="out">Host interno
+    ProxyJump bastion      # salta sem expor agente
+    IdentityFile ~/.ssh/id_infra
+    IdentitiesOnly yes     # não oferece TODAS as chaves</span>
+<span class="cmt"># authorized_keys: credencial de menor privilégio</span>
+<span class="out">restrict,command="/usr/local/bin/receber",
+from="10.0.5.0/24" ssh-ed25519 AAAAC3Nza... deploy@ci</span>
+<span class="prompt">$</span> gpg --armor --detach-sign pacote.tar.gz
+<span class="prompt">$</span> gpg --verify pacote.tar.gz.asc pacote.tar.gz</pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Onde guardar</th><th>O que isso custa</th></tr></thead>
+          <tbody>
+            <tr><td>variável de ambiente</td><td>vaza em <code>/proc/PID/environ</code> e em <code>ps e</code></td></tr>
+            <tr><td>arquivo <code>0600</code> no disco</td><td>texto claro se o disco não for cifrado</td></tr>
+            <tr><td><code>pass</code> (GPG + Git)</td><td>versionável: o conteúdo já é cifrado</td></tr>
+            <tr><td>cofre de rede (Vault)</td><td>token curto, rotação e auditoria — mas é infra</td></tr>
+            <tr><td><b>dentro do repositório Git</b></td><td><b>nunca, em hipótese alguma</b></td></tr>
+          </tbody>
+        </table>
+        <div class="regra"><b>Segredo commitado é segredo público</b> — reverter não apaga o objeto, alcançável pelo hash e em todo clone. Rotacione <b>primeiro</b>; limpar o histórico vem depois, e o <code>gitleaks</code> vem antes.</div>
+      </div>
+    </div>
+    <div class="perigo"><b><code class="inl">ForwardAgent yes</code> entrega suas chaves ao <code class="inl">root</code> da máquina do meio.</b> quem controla o servidor intermediário usa o socket do seu agente enquanto a sessão está aberta e autentica-se <b>como você</b> em todo servidor que aceita sua chave. Para saltar por um <i>bastion</i>, use <code class="inl">ProxyJump</code> (<code class="inl">ssh -J bastion vitor@interno</code>): a conexão vai de ponta a ponta a partir da sua máquina e nenhum agente fica exposto no caminho.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>A privada assina um desafio e nunca sai da sua máquina</b> — comprometer o servidor não entrega a credencial. É a diferença estrutural para a senha.</li>
+        <li><b><code class="inl">ed25519</code>, com senha e com comentário identificável.</b> Chave sem senha é acesso imediato para quem copiar o arquivo.</li>
+        <li><b><code class="inl">~/.ssh</code> em 700, <code class="inl">authorized_keys</code> em 600</b> — fora disso o servidor ignora o arquivo sem dizer nada.</li>
+        <li><b><code class="inl">ForwardAgent</code> não; <code class="inl">ProxyJump</code> sim.</b> E <code class="inl">IdentitiesOnly yes</code> evita o "too many authentication failures".</li>
+        <li><b><code class="inl">Good signature</code> ≠ chave confiável</b> — falta conferir a impressão digital por canal independente.</li>
+        <li><b>Gere o certificado de revogação no minuto seguinte</b> ao de gerar a chave GPG — depois de perdê-la, ele já não pode ser criado.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Verificar a ISO do Kali é o exercício de GPG mais útil que existe</b>, porque é real: baixe <code class="inl">SHA256SUMS</code> e <code class="inl">SHA256SUMS.gpg</code>, importe a chave do projeto, <b>confira a impressão digital contra o site oficial por HTTPS</b> e só então verifique a assinatura das somas. Cada elo omitido é uma confiança assumida sem perceber — espelhos são operados por terceiros. <b>A chave do repositório mantém o <code class="inl">apt</code> honesto:</b> todo <code class="inl">apt update</code> confere a assinatura do <code class="inl">Release</code> contra o <code class="inl">kali-archive-keyring</code>; quando ela expira (<code class="inl">NO_PUBKEY</code>, <code class="inl">EXPKEYSIG</code>) a tentação universal é <code class="inl">--allow-unauthenticated</code> ou <code class="inl">[trusted=yes]</code>, e isso <b>desliga a única proteção contra um espelho hostil</b> — reinstale o chaveiro da fonte oficial. <b>Senha fraca de chave não resiste às <i>wordlists</i>:</b> o formato antigo do OpenSSH derivava a chave com pouquíssimas iterações, e <code class="inl">ssh-keygen -p -o -a 100 -f ~/.ssh/id_rsa</code> reencripta sem trocar o par — vale em toda chave anterior a 2018. <b>A máquina Kali acumula credencial de terceiro</b> — capturas, <i>hashes</i>, chaves de laboratório —, o que a torna alvo de valor desproporcional: disco cifrado e senha na chave GPG são requisitos práticos, não zelo. Material de teste autorizado tem cláusula de custódia; perdê-lo é incidente contratual. <b>Chave de laboratório não entra em produção</b>, nem o contrário: pares por contexto (<code class="inl">id_lab</code>, <code class="inl">id_infra</code>) com <code class="inl">IdentitiesOnly yes</code> eliminam a categoria inteira de erro. <b>RHEL:</b> mesmos comandos, mas o SELinux exige o contexto <code class="inl">ssh_home_t</code> — <code class="inl">authorized_keys</code> copiado de outro lugar é ignorado com permissões perfeitas; <code class="inl">restorecon -Rv ~/.ssh</code> conserta.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 14 · Fase 4 <span class="n">086</span></span>
