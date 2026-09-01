@@ -3,101 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 054 — Entrada e saída: read, echo e printf</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .grade2 { display:grid; grid-template-columns:1fr 1.25fr; gap:10px; align-items:start; }
+
+  /* Onde o echo falha */
+  .falhas { border:1.5px solid var(--vermelho); border-radius:var(--raio);
+            background:var(--vermelho-claro); padding:7px 9px; display:flex; flex-direction:column; gap:4px; }
+  .falhas .f { font-size:9.5px; line-height:1.3; color:#8a1f1f; }
+  .falhas .f b.k { display:block; font-family:var(--fonte-mono); font-size:10px; color:var(--vermelho); }
+
+  /* Decodificador da especificação do printf */
+  .spec { display:flex; gap:4px; justify-content:center; align-items:stretch; }
+  .spec .bt { min-width:38px; height:34px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+              font-family:var(--fonte-mono); font-weight:700; font-size:17px; color:#fff; padding:0 6px; }
+  .bt.g0 { background:#5b6b7d; } .bt.g1 { background:var(--azul); } .bt.g2 { background:var(--verde); }
+  .bt.g3 { background:var(--laranja); } .bt.g4 { background:var(--vermelho); }
+  .legenda2 { display:grid; grid-template-columns:repeat(2,1fr); gap:2px 10px; margin-top:6px; }
+  .legenda2 span { font-size:9px; line-height:1.3; color:var(--tinta-suave); }
+  .legenda2 b { font-family:var(--fonte-mono); }
+  .conv { margin-top:6px; font-size:9px; line-height:1.45; color:var(--tinta-suave); border-top:1px solid var(--linha); padding-top:5px; }
+  .conv code { font-family:var(--fonte-mono); color:var(--roxo); font-weight:700; }
+
+  /* Dissecação do laço */
+  .tokens { display:flex; flex-wrap:wrap; gap:4px; align-items:center; justify-content:center; }
+  .tk { font-family:var(--fonte-mono); font-size:12.5px; font-weight:700; padding:4px 8px; border-radius:5px;
+        border:1.5px solid transparent; }
+  .tk.n { color:var(--tinta-suave); font-weight:400; }
+  .tk.a { border-color:var(--azul);     background:var(--azul-claro);     color:var(--azul); }
+  .tk.v { border-color:var(--verde);    background:var(--verde-claro);    color:#1c6b34; }
+  .tk.r { border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); }
+  .tk.l { border-color:var(--laranja);  background:var(--laranja-claro);  color:#a8530a; }
+  .porques { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:7px; }
+  .pq { border-top:3px solid; border-left:1px solid var(--linha); border-right:1px solid var(--linha);
+        border-bottom:1px solid var(--linha); border-radius:var(--raio); padding:6px 8px; background:#fff; }
+  .pq > b { display:block; font-family:var(--fonte-mono); font-size:10px; margin-bottom:2px; }
+  .pq p { font-size:9px; line-height:1.3; color:var(--tinta-suave); }
+  .pq.a { border-top-color:var(--azul); }     .pq.a > b { color:var(--azul); }
+  .pq.v { border-top-color:var(--verde); }    .pq.v > b { color:var(--verde); }
+  .pq.r { border-top-color:var(--vermelho); } .pq.r > b { color:var(--vermelho); }
+  .pq.l { border-top-color:var(--laranja); }  .pq.l > b { color:#a8530a; }
+  .erradas { margin-top:6px; font-size:9px; line-height:1.5; color:var(--tinta-suave); }
+  .erradas code { font-family:var(--fonte-mono); color:#8a1f1f; }
+  .erradas b { color:var(--vermelho); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 054</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Entrada e saída: read, echo e printf</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>read, echo<br>e printf</h1>
+      <div class="sub">O relatório saía com três colunas alinhadas na máquina de quem escreveu. Chamado pelo <code class="inl">cron</code> com <code class="inl">sh inventario.sh</code>, virou <code class="inl">-e Servidor\tCPU\tMemoria</code>. O culpado é o <code class="inl">echo</code> — o único comando do shell cuja portabilidade é problema real.</div>
     </div>
     <div class="badge"><b>054</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <div class="secao-titulo">O <code class="inl">echo</code> mente · o <code class="inl">printf</code> não</div>
+  <section class="grade2">
+    <div class="falhas">
+      <div class="f"><b class="k">echo -e "a\tb"</b>Três implementações discordam: o <b>dash</b> (o <code class="inl">/bin/sh</code> do Kali) <i>sempre</i> interpreta a barra e imprime o <code class="inl">-e</code> literal; o <b>Bash</b> faz o inverso; com <code class="inl">shopt -s xpg_echo</code>, o Bash vira dash.</div>
+      <div class="f"><b class="k">valor="-n"; echo "$valor"</b>Imprime <b>nada</b> — o valor virou opção. Qualquer valor vindo de fora que comece com hífen é engolido sem aviso.</div>
+      <div class="f"><b class="k">printf "$entrada"</b>Dado <b>nunca</b> entra na cadeia de formato: um <code class="inl">%d%d%d</code> no valor consome argumentos que não existem. O certo é <code class="inl">printf '%s\n' "$entrada"</code>.</div>
+      <div class="f"><b class="k">printf '%b\n' "$txt"</b>O substituto seguro de <code class="inl">echo -e</code>: interpreta a barra invertida do <i>argumento</i>, não do formato.</div>
+    </div>
+    <div>
+      <div class="spec">
+        <span class="bt g0">%</span><span class="bt g1">-</span><span class="bt g2">10</span><span class="bt g3">.2</span><span class="bt g4">f</span>
+      </div>
+      <div class="legenda2">
+        <span><b style="color:var(--azul)">-</b> <b>sinalizador</b> — alinha à esquerda (padrão: direita)</span>
+        <span><b style="color:var(--verde)">10</b> <b>largura</b> — ocupa 10 colunas, completa com espaço</span>
+        <span><b style="color:var(--laranja)">.2</b> <b>precisão</b> — 2 casas decimais</span>
+        <span><b style="color:var(--vermelho)">f</b> <b>conversor</b> — ponto flutuante</span>
+      </div>
+      <div class="conv"><b>A cadeia é reaproveitada ciclicamente</b> até acabarem os argumentos: <code>printf '%-8s %5.1f\n' raiz 42.75 var 8.5 home 120.4</code> imprime <b>três linhas</b> sem laço nenhum — e é por isso que <code>printf '%s\n' "$@"</code> põe cada argumento na sua linha.<br>
+      <code>%s</code> texto · <code>%d</code> inteiro · <code>%.2f</code> decimal · <code>%x</code> hex · <code>%o</code> octal (permissões!) · <code>%b</code> com barras · <code>%q</code> escapado para o shell · <code>%%</code> literal.</div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">O idioma canônico do laço de leitura — decore o bloco inteiro</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="tokens">
+      <span class="tk n">while</span><span class="tk a">IFS=</span><span class="tk n">read</span><span class="tk v">-r</span><span class="tk n">linha</span><span class="tk r">|| [[ -n "$linha" ]]</span><span class="tk n">; do … done</span><span class="tk l">&lt; "$arq"</span>
+    </div>
+    <div class="porques">
+      <div class="pq a"><b>IFS=</b><p>Esvazia o separador <b>só nesta linha</b>. Sem ele, o <code class="inl">read</code> apara espaços e tabulações das pontas — e a linha indentada perde a indentação.</p></div>
+      <div class="pq v"><b>-r</b><p>Desliga o tratamento da barra invertida. Sem ele, <code class="inl">C:\Users</code> vira <code class="inl">C:Users</code> e uma linha terminada em <code class="inl">\</code> é colada na seguinte.</p></div>
+      <div class="pq r"><b>|| [[ -n "$linha" ]]</b><p>Salva a <b>última linha</b> quando o arquivo não termina em quebra — caso em que o <code class="inl">read</code> lê o conteúdo e mesmo assim retorna falha.</p></div>
+      <div class="pq l"><b>&lt; "$arq"</b><p>Redirecionamento, não <i>pipe</i>: <code class="inl">cat arq | while</code> funciona, mas cria <b>subshell</b> e as variáveis alteradas no laço voltam vazias.</p></div>
+    </div>
+    <div class="erradas"><b>As três formas erradas mais comuns:</b> <code>for linha in $(cat arq)</code> quebra em <b>espaços</b>, não em linhas · <code>cat arq | while read linha</code> subshell + perde indentação · <code>while read linha</code> come barra invertida e espaços. E para dividir campos, o <code class="inl">IFS</code> trabalha a favor: <code>while IFS=: read -r usuario _ uid _ _ _ shell; do … done &lt; /etc/passwd</code> — o <code class="inl">IFS=:</code> vale só para aquele <code class="inl">read</code>, o do script fica intacto.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-io</span></div>
+<pre><span class="prompt">$</span> erro() { printf 'ERRO: %s\n' "$*" &gt;&amp;2; }   <span class="cmt"># erro no descritor 2: o usuario</span>
+<span class="prompt">$</span> aviso(){ printf 'aviso: %s\n' "$*" &gt;&amp;2; }  <span class="cmt"># redireciona a saida util e ainda ve</span>
+<span class="prompt">$</span> [[ -t 1 ]] &amp;&amp; V="$(tput setaf 2)" N="$(tput sgr0)" || { V=; N=; }
+<span class="cmt"># sem o teste -t 1, redirecionar grava ^[[32m cru no arquivo; e no cron o TERM nem existe</span>
+<span class="prompt">$</span> printf '%-18s %8s %10s\n' SERVICO ESTADO PID   <span class="cmt"># tabela: largura fixa alinha</span>
+<span class="prompt">$</span> while IFS= read -r host; do ssh -n "$host" uptime; done &lt; alvos.txt
+<span class="cmt"># o -n e OBRIGATORIO: sem ele o ssh le o resto do arquivo e o laco roda 1 vez so</span>
+<span class="cmt"># vale para ssh, ffmpeg, mysql, apt. Alternativa: read -u 3 ... done 3&lt; alvos.txt</span></pre>
+  </section>
+
+  <div class="perigo"><b>Senha lida com <code class="inl">read -s</code> continua exposta.</b> O <code class="inl">-s</code> resolve o ombro do colega e mais nada: o valor fica numa variável do shell (legível pelo root), <b>aparece inteiro no rastreio se o script rodar com <code class="inl">set -x</code></b>, e some para o <code class="inl">ps aux</code> de qualquer usuário se você o passar adiante como argumento. O caminho correto: <code class="inl">read -rs</code> seguido de entrada padrão — <code class="inl">printf '%s' "$senha" | comando --password-stdin</code> — ou um gerenciador como o <code class="inl">pass</code>; e <code class="inl">set +x</code> antes de qualquer linha que toque na variável. Ao confirmar ação irreversível, o padrão é <b>não</b>: <code class="inl">read -rp "Apagar? [s/N] " r</code> com <code class="inl">${r,,}</code> para comparar em minúsculas, e <code class="inl">rm -rf -- "$ALVO"</code> — o <code class="inl">--</code> encerra as opções e protege contra caminho iniciado por hífen. Sem terminal (<code class="inl">[[ ! -t 0 ]]</code>), aborte com mensagem: no <code class="inl">cron</code>, um <code class="inl">read</code> sem <code class="inl">-t</code> espera para sempre.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">echo</code> só para texto literal simples.</b> Bash, dash e <code class="inl">/bin/echo</code> discordam sobre <code class="inl">-e</code>, e valor começado com hífen vira opção.</li>
+        <li><b><code class="inl">printf</code> é o substituto em qualquer shell</b>, e a cadeia se reaproveita: <code class="inl">printf '%s\n' "$@"</code> e as tabelas com <code class="inl">%-20s</code> saem em uma linha.</li>
+        <li><b>Dado nunca entra na cadeia de formato</b> — sempre <code class="inl">printf '%s\n' "$var"</code>.</li>
+        <li><b>Erro vai para o descritor 2</b> (<code class="inl">&gt;&amp;2</code>) e <b>cor só com <code class="inl">[[ -t 1 ]]</code></b>, senão o arquivo recebe códigos de escape crus.</li>
+        <li><b><code class="inl">read</code> sem <code class="inl">-r</code> corrompe dados</b> e sem <code class="inl">IFS=</code> apara as pontas. As duas são obrigatórias, e nenhuma substitui a outra.</li>
+        <li><b>Comando de dentro do laço pode comer a entrada do laço:</b> <code class="inl">ssh -n</code>, <code class="inl">&lt; /dev/null</code> ou um descritor separado.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Lista de alvos é o uso nº 1 do <code class="inl">read</code> em laboratório — e o que mais quebra.</b> Um <code class="inl">alvos.txt</code> real tem linha em branco, comentário com <code class="inl">#</code>, espaço no fim e, se veio de planilha, terminador <b>CRLF</b>. Limpe no começo do laço: <code class="inl">linha="${linha%$'\r'}"</code> e <code class="inl">[[ -z "${linha// }" || "$linha" == \#* ]] &amp;&amp; continue</code>. Apontar a ferramenta para um alvo com um retorno de carro colado no nome é como um teste autorizado vira acesso não autorizado — e a Lei 12.737/2012 não distingue intenção de descuido; valide e exiba a lista antes de agir. <b>O <code class="inl">tput</code> falha em muito contexto do Kali</b>: contêiner sem <code class="inl">ncurses-base</code>, <code class="inl">screen</code> mal configurado, shell reverso — <code class="inl">TERM</code> ausente ou <code class="inl">dumb</code>. O par <code class="inl">[[ -t 1 ]]</code> + <code class="inl">tput … 2&gt;/dev/null</code> deixa o script em preto e branco em vez de encher o relatório de erro. Para script de configuração com várias perguntas, <code class="inl">whiptail --yesno/--inputbox/--menu</code> já está instalado (é o que o <code class="inl">kali-tweaks</code> usa) — devolve o valor pela saída de <b>erro</b>, daí a inversão <code class="inl">3&gt;&amp;1 1&gt;&amp;2 2&gt;&amp;3</code>. E relatório que outra ferramenta vai ler não se alinha com espaços: <code class="inl">printf '%s\t%s\t%s\n'</code> ou JSON linha a linha, para o <code class="inl">jq</code> e o <code class="inl">awk</code> trabalharem sem heurística.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 09 · Fase 3 <span class="n">054</span></span>

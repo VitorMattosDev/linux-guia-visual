@@ -88,7 +88,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 051** - Do comando ao script: o primeiro script Bash - `guias/vol09/guia051-do-comando-ao-script-o-primeiro-script-bash.html`
 - [x] **guia 052** - Variáveis, o ambiente e o escopo de exportação - `guias/vol09/guia052-variaveis-o-ambiente-e-o-escopo-de-exportacao.html`
 - [x] **guia 053** - Aspas, expansões e substituição de comandos - `guias/vol09/guia053-aspas-expansoes-e-substituicao-de-comandos.html`
-- [ ] **guia 054** - Entrada e saída: read, echo e printf - `guias/vol09/guia054-entrada-e-saida-read-echo-e-printf.html`
+- [x] **guia 054** - Entrada e saída: read, echo e printf - `guias/vol09/guia054-entrada-e-saida-read-echo-e-printf.html`
 - [ ] **guia 055** - Condicionais: test, colchetes duplos e if - `guias/vol09/guia055-condicionais-test-colchetes-duplos-e-if.html`
 - [ ] **guia 056** - Códigos de saída e o encadeamento de comandos - `guias/vol09/guia056-codigos-de-saida-e-o-encadeamento-de-comandos.html`
 - [ ] **guia 057** - Boas práticas: shebang, permissões e portabilidade - `guias/vol09/guia057-boas-praticas-shebang-permissoes-e-portabilidade.html`
