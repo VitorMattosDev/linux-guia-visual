@@ -3,101 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 065 — grep e a busca de padrões</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Os três estágios do grep */
+  .estagios { display:grid; grid-template-columns:1fr 14px 1fr 14px 1fr; gap:0; align-items:stretch; }
+  .est { border:1.5px solid; border-radius:var(--raio-sm); padding:6px 8px; }
+  .est > b { display:block; font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+             letter-spacing:.03em; margin-bottom:4px; }
+  .est ul { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .est li { display:grid; grid-template-columns:60px 1fr; gap:5px; align-items:baseline;
+            font-size:8.5px; line-height:1.28; color:var(--tinta-suave); }
+  .est li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:9.5px;
+              text-align:right; }
+  .est li b { color:var(--navy); }
+  .est.a { border-color:var(--azul);    background:var(--azul-claro); }
+  .est.a > b, .est.a li i { color:var(--azul); }
+  .est.v { border-color:var(--verde);   background:var(--verde-claro); }
+  .est.v > b, .est.v li i { color:#1d7038; }
+  .est.l { border-color:var(--laranja); background:var(--laranja-claro); }
+  .est.l > b, .est.l li i { color:#a8530a; }
+  .fx { display:flex; align-items:center; justify-content:center; color:#9fb0c4;
+        font-size:15px; font-weight:700; }
+
+  .onde { border:1.5px solid var(--vermelho); background:var(--vermelho-claro);
+          border-radius:var(--raio-sm); padding:5px 9px; margin-top:6px;
+          font-size:8.6px; line-height:1.35; color:var(--tinta-suave); }
+  .onde > b { color:var(--vermelho); }
+  .onde b { color:var(--navy); }
+  .onde > b:first-child { display:block; font-family:var(--fonte-titulo); font-size:9.5px;
+          text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px; color:var(--vermelho); }
+
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+
+  .grade2 { display:grid; grid-template-columns:1.06fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.8px; line-height:1.45; }
+
+  .st { display:grid; grid-template-columns:34px 1fr; gap:6px; align-items:center;
+        border:1.5px solid; border-radius:var(--raio-sm); padding:4px 7px; margin-bottom:4px; }
+  .st .n { font-family:var(--fonte-mono); font-size:14px; font-weight:700; text-align:center;
+           color:#fff; border-radius:4px; padding:1px 0; }
+  .st p { font-size:8.5px; line-height:1.3; color:var(--tinta-suave); }
+  .st p b { color:var(--navy); }
+  .st.z { border-color:var(--verde);    background:var(--verde-claro); }    .st.z .n { background:var(--verde); }
+  .st.u { border-color:var(--laranja);  background:var(--laranja-claro); }  .st.u .n { background:var(--laranja); }
+  .st.d { border-color:var(--vermelho); background:var(--vermelho-claro); } .st.d .n { background:var(--vermelho); }
+
+  .trapbox { border-left:4px solid var(--roxo); background:var(--roxo-claro);
+        border-radius:var(--raio-sm); padding:5px 8px; margin-top:6px;
+        font-size:8.6px; line-height:1.35; color:var(--tinta-suave); }
+  .trapbox b { color:var(--roxo); }
+  .trapbox .fix { color:#1d7038; font-weight:700; font-family:var(--fonte-mono); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 065</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>grep e a busca de padrões</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>grep e a busca<br>de padrões</h1>
+      <div class="sub">Uma chave de API vazou no repositório e a pergunta era simples: <i>em quantos lugares ela aparece?</i> O <code class="inl">grep CHAVE *</code> devolveu <code class="inl">É um diretório</code> — o <code class="inl">*</code> é do shell e não desce um nível. O <code class="inl">grep -r CHAVE .</code> acertou o alvo e errou o alcance: dois minutos varrendo <code class="inl">.git</code>, <code class="inl">node_modules</code> e um <i>venv</i>, e uma parede com <b>Arquivo binário … coincide</b> e uma linha de mil e duzentos caracteres de <i>bundle</i> minificado. A informação estava lá, <b>afogada</b>.</div>
     </div>
     <div class="badge"><b>065</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">As opções em três estágios — diagnostique o resultado ruim pelo estágio</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="estagios">
+      <div class="est a"><b>1 · Como interpretar</b>
+        <ul>
+          <li><i>-E</i><span>ERE — o dialeto do dia a dia</span></li>
+          <li><i>-F</i><span>literal: <b>nada</b> é especial, e é o mais rápido</span></li>
+          <li><i>-P</i><span>PCRE (<code class="inl">\d</code>, <code class="inl">\K</code>, <code class="inl">.*?</code>)</span></li>
+          <li><i>-i</i><span>ignora caixa</span></li>
+          <li><i>-e</i><span>mais um padrão · e resolve padrão que começa com traço</span></li>
+          <li><i>-f</i><span>padrões vindos de arquivo</span></li>
+        </ul>
+      </div>
+      <span class="fx">→</span>
+      <div class="est v"><b>2 · Quais linhas passam</b>
+        <ul>
+          <li><i>-v</i><span>inverte: imprime as que <b>não</b> casam</span></li>
+          <li><i>-w</i><span>palavra inteira — <code class="inl">root</code> não casa <code class="inl">chroot</code></span></li>
+          <li><i>-x</i><span>a linha <b>inteira</b> é exatamente isso</span></li>
+          <li><i>-m N</i><span>para depois de N linhas</span></li>
+          <li><i>-A -B -C</i><span>N linhas depois · antes · dos dois lados</span></li>
+        </ul>
+      </div>
+      <span class="fx">→</span>
+      <div class="est l"><b>3 · O que imprimir</b>
+        <ul>
+          <li><i>-o</i><span>só o trecho casado — vira <b>extrator</b></span></li>
+          <li><i>-c</i><span>só a contagem de <b>linhas</b></span></li>
+          <li><i>-l / -L</i><span>só o nome do arquivo que tem / não tem</span></li>
+          <li><i>-n</i><span>número da linha — o que dá citação de relatório</span></li>
+          <li><i>-h / -H</i><span>nunca / sempre o nome do arquivo</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="onde"><b>Fora dos três estágios: onde procurar</b><code class="inl">-r</code> percorre diretórios (<code class="inl">-R</code> ainda segue link simbólico, com risco de laço — prefira <code class="inl">-r</code>) · <code class="inl">--include='*.conf'</code> e <code class="inl">--exclude-dir={.git,node_modules,venv}</code> filtram <b>arquivos, não linhas</b>, e aceitam <b>glob</b>, nunca expressão regular · <code class="inl">-I</code> pula binário. Em árvore de código, <b>esta linha faz mais pela qualidade do resultado que qualquer refinamento de padrão</b>: <code class="inl">grep -rnI 'AKIA3XPLR7QF2' . --exclude-dir={.git,node_modules} --include='*.py' --include='*.env'</code>.</div>
+    <div class="nota">Quase todo mau resultado vem de <b>mexer no estágio errado</b>. "Veio ruído demais" costuma ser o estágio 2 (falta <code class="inl">-w</code>) ou o bloco vermelho (falta <code class="inl">--exclude-dir</code>); "veio linha longa demais" é o estágio 3 (falta <code class="inl">-o</code>); <b>"não veio nada" é o estágio 1</b> — padrão escrito em ERE entregue a um <code class="inl">grep</code> em BRE. E o modelo por trás de tudo: <b>o <code class="inl">grep</code> decide linha por linha</b>. Padrão não atravessa quebra de linha, a saída sai na ordem da entrada e <b>não vem deduplicada</b> — ordenar e contar é trabalho do <code class="inl">sort</code> e do <code class="inl">uniq</code>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Na prática</div>
+  <section class="grade2">
+    <div>
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-grep</span></div>
+<pre><span class="cmt"># -c conta LINHAS; para contar OCORRÊNCIAS, é -o | wc -l</span>
+<span class="prompt">$</span> grep -c 'ip=' acesso.log
+<span class="out">3</span>
+<span class="prompt">$</span> grep -o 'ip=[0-9.]*' acesso.log | wc -l
+<span class="out">4</span>
+<span class="cmt"># o que está DE FATO em vigor na configuração</span>
+<span class="prompt">$</span> grep -vE '^\s*(#|$)' /etc/ssh/sshd_config
+<span class="cmt"># -o + sort + uniq -c: o pipeline canônico de contagem</span>
+<span class="prompt">$</span> grep -oE 'ip=[0-9.]+' acesso.log | cut -d= -f2 \
+    | sort | uniq -c | sort -rn
+<span class="out">      2 10.0.0.1
+      1 10.0.0.2</span>
+<span class="cmt"># o grep que casa consigo mesmo — e a classe que resolve</span>
+<span class="prompt">$</span> ps aux | grep '[n]ginx'</pre>
+      </section>
+      <div class="trapbox"><b>Pegadinhas que custam tempo.</b> <code class="inl">grep -c</code> com <b>vários arquivos</b> imprime <code class="inl">arquivo:contagem</code> por arquivo, nunca um total. Com <b>um</b> arquivo o <code class="inl">grep</code> não prefixa o nome, com <b>dois ou mais</b> prefixa — o que quebra script cujo <code class="inl">--include</code> às vezes casa um, às vezes vários: force com <span class="fix">-h</span> ou <span class="fix">-H</span>. Blocos de <code class="inl">-A</code>/<code class="inl">-B</code> vêm separados por uma linha <code class="inl">--</code>, ótima para ler e péssima para processar. <b>Cor vaza para o <i>pipeline</i>:</b> um <code class="inl">--color=always</code> herdado de <i>alias</i> injeta escapes ANSI que quebram o <code class="inl">sort</code> e o <code class="inl">awk</code> seguintes — o padrão sensato é <span class="fix">--color=auto</span>. E <code class="inl">grep padrao</code> sem arquivo <b>não travou</b>: está lendo o <code class="inl">stdin</code> — <code class="inl">Ctrl+D</code> encerra.</div>
+    </div>
+    <div>
+      <div class="st z"><span class="n">0</span><p><b>Achou</b> pelo menos uma linha.</p></div>
+      <div class="st u"><span class="n">1</span><p><b>Não achou nada.</b> Não é erro — é resposta.</p></div>
+      <div class="st d"><span class="n">2</span><p><b>Erro real:</b> arquivo inexistente, padrão inválido.</p></div>
+      <div class="nota" style="margin-top:0"><b>O status de saída é informação, não formalidade</b> — é ele que permite usar o <code class="inl">grep</code> como teste: <code class="inl">if grep -q '^PermitRootLogin yes' /etc/ssh/sshd_config; then …</code>. O <code class="inl">-q</code> é silencioso <b>e encerra na primeira linha que casa</b>: num arquivo de gigabytes, muda o tempo de minutos para milissegundos, e é sempre preferível a <code class="inl">grep … &gt; /dev/null</code>.</div>
+      <div class="nota"><b>Desempenho, em ordem de impacto:</b> <code class="inl">LC_ALL=C</code> desliga a decodificação multibyte e costuma render de duas a cinco vezes em texto ASCII (não use com acento) · use o <b>dialeto mais fraco que resolva</b> — <code class="inl">-F</code> &gt; <code class="inl">-E</code> &gt; <code class="inl">-P</code> · <b>filtre barato antes de caro</b>: um <code class="inl">-F</code> que descarta 90% das linhas antes de um <code class="inl">-P</code> complexo vale mais que o inverso · <code class="inl">-q</code> e <code class="inl">-m 1</code> param cedo quando a pergunta é só "existe?". E <code class="inl">-F -f lista.txt</code> casa <b>milhares</b> de padrões literais numa <b>única</b> varredura: um laço com mil <code class="inl">grep</code> faz mil varreduras do mesmo log.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Duas combinações que derrubam script ou terminal.</b> <b>1)</b> <code class="inl">grep -q</code> sob <code class="inl">set -e</code>: "não encontrou" é status <b>1</b>, e o <code class="inl">set -e</code> lê isso como falha e <b>encerra o script</b> numa linha que só queria perguntar. Use dentro de <code class="inl">if</code>, ou acrescente <code class="inl">|| true</code>. <b>2)</b> <code class="inl">grep -a</code> trata binário como texto e pode <b>despejar bytes de controle</b> no terminal, deixando-o ilegível — se acontecer, <code class="inl">reset</code> conserta; a defesa é <code class="inl">-I</code>, que pula binário por completo. Para casar padrão que atravessa linhas, <code class="inl">-z</code> usa o byte nulo como separador de registro: <code class="inl">grep -zoP 'BEGIN CERTIFICATE.*?END CERTIFICATE' arquivo.pem | tr -d '\0'</code>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O <code class="inl">grep</code> decide por linha e nada mais.</b> Padrão não atravessa quebra de linha (salvo <code class="inl">-z</code>); a saída sai na ordem de entrada e não vem deduplicada.</li>
+        <li><b>Status: 0 achou · 1 não achou · 2 erro.</b> Use <code class="inl">grep -q</code> em teste — mas o status 1 encerra script sob <code class="inl">set -e</code>.</li>
+        <li><b>As opções se dividem em estágios:</b> interpretar (<code class="inl">-E -F -P -i</code>), quais linhas passam (<code class="inl">-v -w -x -m -A -B -C</code>), o que imprimir (<code class="inl">-o -c -l -n -h</code>) e onde procurar (<code class="inl">-r --include --exclude-dir -I</code>).</li>
+        <li><b><code class="inl">-c</code> conta linhas, não ocorrências.</b> Para ocorrências, <code class="inl">grep -o | wc -l</code>.</li>
+        <li><b><code class="inl">-o</code> transforma o <code class="inl">grep</code> em extrator</b> — é a peça que o encaixa no pipeline com <code class="inl">sort</code>, <code class="inl">uniq -c</code> e <code class="inl">awk</code>.</li>
+        <li><b><code class="inl">-w</code> e <code class="inl">-x</code> matam os dois falsos positivos mais comuns</b> sem escrever padrão nenhum.</li>
+        <li><b>Em árvore de código, <code class="inl">--exclude-dir={.git,node_modules}</code> e <code class="inl">-I</code> valem mais que refinar o padrão.</b></li>
+        <li><b>Desempenho:</b> <code class="inl">LC_ALL=C</code>, dialeto mais fraco possível, barato antes de caro, <code class="inl">-q</code>/<code class="inl">-m 1</code> para "existe?".</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Varrer um alvo baixado é o uso mais frequente.</b> Depois de espelhar um site com <code class="inl">wget -r</code>, um único <code class="inl">grep -rniI --include='*.js' -E 'api[_-]?key|secret|token|password' ./espelho/</code> levanta credencial exposta em segundos: o <code class="inl">-I</code> evita afogar a saída em imagem, o <code class="inl">-i</code> cobre variação de caixa e o <code class="inl">--include</code> restringe ao que interessa. Vale para material de <b>teste autorizado ou de escopo público</b> — vasculhar sistema de terceiro sem contrato é acesso não autorizado pela <b>Lei 12.737/2012</b>. <b><code class="inl">grep -F -f iocs.txt acesso.log</code> é o casamento em massa:</b> com uma lista de IPs ou domínios maliciosos num arquivo, os dois conjuntos se comparam numa varredura só; mil chamadas num laço fazem mil varreduras — em log de gigabytes, a diferença é entre segundos e uma tarde. <b>Refinar wordlist antes da ferramenta economiza horas:</b> <code class="inl">grep -E '^.{8,16}$' rockyou.txt | grep -vE '^[0-9]+$' &gt; filtrada.txt</code> reduz milhões de candidatos ao que a política de senha do alvo permite — menos requisições, menos ruído no log do alvo e menos risco de derrubar um serviço que o contrato manda preservar. <b>Auditar serviço são dois comandos:</b> <code class="inl">grep -vE '^\s*(#|$)' /etc/ssh/sshd_config</code> mostra o que está em vigor, e <code class="inl">grep -niE '^\s*(PermitRootLogin|PasswordAuthentication|X11Forwarding)'</code> vai direto às diretivas — o <code class="inl">-n</code> é o que transforma o achado em <b>referência citável no relatório</b>. <b>No shell de um alvo comprometido, <code class="inl">grep</code> é o que existe:</b> não conte com <code class="inl">rg</code>, <code class="inl">jq</code> ou Python num contêiner mínimo, e saiba que o <code class="inl">grep</code> do BusyBox <b>não tem <code class="inl">-P</code> nem <code class="inl">--exclude-dir</code></b> — o plano B é <code class="inl">find … -print0 | xargs -0 grep</code>. No Kali há o <code class="inl">rg</code> (multiencadeado, respeita <code class="inl">.gitignore</code>, pula binário sem opção nenhuma); é ótimo em casa e ausente no alvo.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 11 · Fase 3 <span class="n">065</span></span>
