@@ -3,101 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 042 — Logs com journald e o syslog tradicional</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Funil de coleta: quatro fontes → journald → dois destinos */
+  .funil { display:flex; align-items:center; gap:7px; }
+  .funil .col { display:flex; flex-direction:column; gap:5px; flex:1; }
+  .fx { border-radius:6px; padding:5px 8px; font-size:9.5px; line-height:1.3; border-left:4px solid; }
+  .fx b { display:block; font-size:10.5px; }
+  .fx.src { border-color:var(--azul); background:#e8f1fd; } .fx.src b { color:var(--azul); }
+  .fx.dst { border-color:var(--verde); background:var(--verde-claro); } .fx.dst b { color:var(--verde); }
+  .fx.alt { border-color:var(--laranja); background:#fdf1e4; } .fx.alt b { color:var(--laranja); }
+  .funil .seta2 { color:var(--tinta-suave); font-size:16px; flex:0 0 auto; }
+  .jd { flex:0 0 auto; width:150px; text-align:center; border:1.5px solid var(--vermelho);
+        background:var(--vermelho-claro); border-radius:8px; padding:9px 8px; }
+  .jd b { display:block; font-family:var(--fonte-mono); font-size:12px; color:var(--vermelho); }
+  .jd span { display:block; font-size:9.5px; color:var(--tinta-suave); line-height:1.35; margin-top:4px; }
+  /* Escala de prioridades */
+  .prio { display:flex; gap:4px; align-items:stretch; }
+  .prio .rot { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+    letter-spacing:.03em; color:var(--tinta-suave); display:flex; align-items:center; flex:0 0 auto; margin-right:2px; }
+  .p { flex:1; text-align:center; border-radius:5px; padding:4px 2px; color:#fff; }
+  .p b { display:block; font-family:var(--fonte-mono); font-size:11px; }
+  .p span { display:block; font-size:8.5px; opacity:.9; }
+  .p.p0{background:#7a1414} .p.p1{background:#a52020} .p.p2{background:#c62f2f}
+  .p.p3{background:var(--vermelho)} .p.p4{background:var(--laranja)}
+  .p.p5{background:#8a94a6} .p.p6{background:#9aa5b5} .p.p7{background:#b9c2ce}
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 042</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Logs com journald e o syslog tradicional</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Logs: journald<br>e syslog</h1>
+      <div class="sub">Caiu às três da manhã e voltou sozinho: onde está o registro — e se sobreviveu ao reboot.</div>
     </div>
     <div class="badge"><b>042</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- FUNIL DE COLETA -->
+  <div class="secao-titulo">Quatro fontes, um journal</div>
+  <section class="funil">
+    <div class="col">
+      <div class="fx src"><b>kernel</b>buffer do <code>dmesg</code></div>
+      <div class="fx src"><b>serviços</b>saída padrão e de erro</div>
+      <div class="fx src"><b>syslog</b>socket <code>/dev/log</code></div>
+      <div class="fx src"><b>API nativa</b><code>sd_journal_send()</code></div>
+    </div>
+    <span class="seta2">→</span>
+    <div class="jd">
+      <b>systemd-journald</b>
+      <span>Acrescenta metadados<br>e indexa por campo</span>
+    </div>
+    <span class="seta2">→</span>
+    <div class="col">
+      <div class="fx dst"><b>/var/log/journal/</b>binário, indexado, verificável</div>
+      <div class="fx alt"><b>rsyslog → /var/log/syslog</b>texto puro, se instalado — é o caminho do envio remoto</div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- CAMPOS + PRIORIDADES -->
+  <div class="secao-titulo">Um registro é um <b>conjunto de campos</b> — e cada campo filtra</div>
+  <section class="cards" style="--col:3">
+    <div class="card azul"><h3>Campos com <code>_</code> não mentem</h3><p><code>_PID</code>, <code>_UID</code>, <code>_COMM</code>, <code>_SYSTEMD_UNIT</code> vêm do kernel, não do programa. É o que dá valor forense ao journal.</p></div>
+    <div class="card verde"><h3>Serviço não abre arquivo</h3><p>Basta escrever na saída padrão: o journald carimba com unit, PID, cgroup e boot. Quem grava log próprio perde a correlação.</p></div>
+    <div class="card roxo"><h3>Filtro exato</h3><p><code>journalctl _COMM=sudo</code> traz só o que o binário <code>sudo</code> emitiu — sem falso positivo textual.</p></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+  <section class="prio">
+    <span class="rot">-p err<br>traz →</span>
+    <div class="p p0"><b>0</b><span>emerg</span></div>
+    <div class="p p1"><b>1</b><span>alert</span></div>
+    <div class="p p2"><b>2</b><span>crit</span></div>
+    <div class="p p3"><b>3</b><span>err</span></div>
+    <div class="p p4"><b>4</b><span>warning</span></div>
+    <div class="p p5"><b>5</b><span>notice</span></div>
+    <div class="p p6"><b>6</b><span>info</span></div>
+    <div class="p p7"><b>7</b><span>debug</span></div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">Na prática — os filtros se combinam com <b>E</b> lógico</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> journalctl -u ssh -f                <span class="cmt"># acompanha esta unit em tempo real</span>
+<span class="prompt">$</span> journalctl -b -1 -p err              <span class="cmt"># erros do boot ANTERIOR</span>
+<span class="prompt">$</span> journalctl -u ssh -p warning --since "2 days ago" -o short-iso
+<span class="prompt">$</span> journalctl --list-boots              <span class="cmt"># 0 = agora, -1 = o anterior</span>
+<span class="prompt">$</span> journalctl -u gvmd -o json | jq -r '.MESSAGE'   <span class="cmt"># log componivel</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+  <!-- PERSISTÊNCIA E SYSLOG -->
+  <div class="secao-titulo">O log de ontem existe?</div>
+  <section class="cards" style="--col:3">
+    <div class="card laranja"><h3>Volátil (padrão sem o diretório)</h3><p><code>/run/log/journal/</code> em <b>tmpfs</b>: consome RAM e some no reboot. <code>journalctl -b -1</code> não acha nada.</p></div>
+    <div class="card verde"><h3>Persistente</h3><p>Basta existir <code>/var/log/journal/</code>. Controle explícito: <code>Storage=persistent</code> e <code>SystemMaxUse=500M</code> em <code>journald.conf</code> — sem limite ele usa até <b>10% do disco</b>.</p></div>
+    <div class="card azul"><h3>O syslog não morreu</h3><p>Texto puro para ferramentas externas, appliances que não falam journal, roteamento por regra e — o principal — <b>envio remoto</b> a um coletor central.</p></div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b><code class="inl">journalctl --vacuum-*</code> apaga registros de forma irreversível</b> — num sistema sob investigação, destrói a própria evidência. Exporte antes (<code class="inl">-o export</code>) e prefira limitar por <code class="inl">SystemMaxUse=</code>, que é previsível.</div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">-p err</code> mostra <code class="inl">err</code> <b>e tudo acima</b>; para faixa exata, <code class="inl">-p warning..err</code>.</li>
+        <li><code class="inl">-o short-iso --utc</code> é o par sensato para qualquer coisa que vá para relatório.</li>
+        <li><code class="inl">--verify</code> detecta corrupção; o <b>FSS</b> (<code class="inl">--setup-keys</code>) detecta adulteração — não impede, torna visível.</li>
+        <li>Remover a unit não apaga o log dela: o registro do que aconteceu permanece.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Em <b>live</b>, todo log vive em RAM: exporte durante a sessão (<code class="inl">-o export</code>) ou perde. Para depurar ferramenta que roda como serviço — GVM, Metasploit, BeEF — <code class="inl">journalctl -u &lt;unit&gt; -p err -b</code> responde mais rápido que caçar arquivo em <code class="inl">/opt</code>. Em pentest autorizado, o journal exportado é <b>parte do produto</b>: delimita a janela do que foi feito. Do lado defensivo, FSS + envio remoto respondem ao apagamento de rastros.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 07 · Fase 2 <span class="n">042</span></span>
