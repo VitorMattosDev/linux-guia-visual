@@ -3,101 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 066 — sed: o editor de fluxo</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* O ciclo do sed */
+  .ciclo { display:grid; grid-template-columns:1fr 18px 1.15fr 18px 1.25fr 18px 1fr; align-items:stretch; }
+  .cx { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 7px; text-align:center; }
+  .cx > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+            letter-spacing:.03em; margin-bottom:2px; }
+  .cx p { font-size:8.3px; line-height:1.28; color:var(--tinta-suave); }
+  .cx.a { border-color:var(--azul);  background:var(--azul-claro); }  .cx.a > b { color:var(--azul); }
+  .cx.f { border-color:var(--azul);  background:#dbe9fa; }            .cx.f > b { color:var(--navy); }
+  .cx.v { border-color:var(--verde); background:var(--verde-claro); } .cx.v > b { color:#1d7038; }
+  .fx { display:flex; align-items:center; justify-content:center; color:#8fa3ba; font-size:13px; font-weight:700; }
+  .volta { margin-top:4px; border-top:1.5px dashed #b9c6d6; text-align:center; font-size:8.2px;
+           color:var(--tinta-suave); padding-top:2px; }
+  .volta b { color:var(--navy); }
+
+  .par { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:6px; }
+  .bx { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 8px; }
+  .bx > b { display:block; font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+            letter-spacing:.03em; margin-bottom:3px; }
+  .bx ul { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:1px 8px; }
+  .bx li { display:grid; grid-template-columns:20px 1fr; gap:5px; align-items:baseline;
+           font-size:8.3px; line-height:1.3; color:var(--tinta-suave); }
+  .bx li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:10px; }
+  .bx.h { border-color:var(--laranja);  background:var(--laranja-claro); }
+  .bx.h > b, .bx.h li i { color:#a8530a; }
+  .bx.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .bx.r > b, .bx.r li i { color:var(--vermelho); }
+
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+
+  .grade2 { display:grid; grid-template-columns:1.1fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.6px; line-height:1.45; }
+  table.comparacao thead th { text-transform:none; font-size:9.5px; letter-spacing:0; }
+  .comparacao td { font-size:8.5px; line-height:1.3; }
+  .comparacao td.ru { font-family:var(--fonte-mono); font-size:9px; color:var(--vermelho); font-weight:700; }
+  .comparacao td.ok { font-family:var(--fonte-mono); font-size:9px; color:#1d7038; font-weight:700; }
+
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:132px 1fr; gap:6px; align-items:baseline;
+              font-size:8.4px; line-height:1.3; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:9px;
+                color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 066</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>sed: o editor de fluxo</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>sed<br>o editor de fluxo</h1>
+      <div class="sub">O banco mudou de <code class="inl">10.0.0.5</code> para <code class="inl">10.0.0.59</code> e trinta arquivos precisavam refletir isso. Um comando resolveria: <code class="inl">sed -i 's/10.0.0.5/10.0.0.59/' /etc/app/*.conf</code>. Rodou <b>em silêncio</b>. No dia seguinte três aplicações apontavam para lugar nenhum. O <code class="inl">sed</code> é a ferramenta certa para esse trabalho — foi feito para ele —, mas é <b>afiada e executa sem perguntar</b>.</div>
     </div>
     <div class="badge"><b>066</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">O ciclo — uma linha por vez, num espaço de trabalho</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="ciclo">
+      <div class="cx a"><b>lê a próxima linha</b><p>Do arquivo ou do <code class="inl">stdin</code>. Nunca o arquivo inteiro na memória.</p></div>
+      <span class="fx">→</span>
+      <div class="cx f"><b>espaço de padrão</b><p>A linha, <b>sem o <code class="inl">\n</code></b> — por isso <code class="inl">$</code> casa o fim do texto e <code class="inl">s/$/;/</code> acrescenta no final.</p></div>
+      <span class="fx">→</span>
+      <div class="cx v"><b>executa o script inteiro</b><p><code class="inl">s///</code> <code class="inl">d</code> <code class="inl">p</code> <code class="inl">a</code> <code class="inl">y</code>… <b>Na ordem escrita:</b> <code class="inl">'s/a/b/; s/b/c/'</code> leva <code class="inl">a</code> a <code class="inl">c</code>, não a <code class="inl">b</code>.</p></div>
+      <span class="fx">→</span>
+      <div class="cx a"><b>imprime</b><p>Automático. É isso que faz <code class="inl">sed ''</code> ser um <code class="inl">cat</code> — e <code class="inl">-n</code> desliga.</p></div>
+    </div>
+    <div class="volta">↺ <b>próximo ciclo</b> — e o espaço de padrão é esquecido: só o <b>espaço de reserva</b> atravessa as linhas</div>
+    <div class="par">
+      <div class="bx h"><b>Espaço de reserva — ver além da linha atual</b>
+        <ul>
+          <li><i>h</i><span>padrão <b>→</b> reserva (sobrescreve)</span></li>
+          <li><i>H</i><span>padrão <b>→</b> reserva (acrescenta)</span></li>
+          <li><i>g</i><span>reserva <b>→</b> padrão (sobrescreve)</span></li>
+          <li><i>G</i><span>reserva <b>→</b> padrão (acrescenta)</span></li>
+          <li><i>x</i><span>troca os dois de lugar</span></li>
+          <li><i>&nbsp;</i><span>minúscula sobrescreve, <b>maiúscula acrescenta</b></span></li>
+        </ul>
+      </div>
+      <div class="bx r"><b>O que interrompe o ciclo</b>
+        <ul>
+          <li><i>d</i><span>apaga e recomeça já</span></li>
+          <li><i>q</i><span>encerra o <code class="inl">sed</code></span></li>
+          <li><i>n</i><span>imprime e lê a próxima</span></li>
+          <li><i>N</i><span><b>acrescenta</b> a próxima ao buffer</span></li>
+          <li><i>10q</i><span>o <code class="inl">head -10</code> que <b>para de ler</b></span></li>
+          <li><i>$=</i><span>imprime o número da última linha</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="nota"><b>Esquecer o <code class="inl">-n</code> num script com <code class="inl">p</code> é o motivo número um de saída duplicada</b> — uma cópia sai pela impressão automática, outra pelo <code class="inl">p</code>. Daí o idioma <code class="inl">sed -n '5p'</code>: nada sai por padrão, e a linha 5 sai por ordem explícita. Como o espaço de padrão guarda <b>uma linha só</b>, nenhum <code class="inl">s///</code> comum enxerga duas linhas ao mesmo tempo — para isso existem o <code class="inl">N</code> e o espaço de reserva, que dão idiomas como <code class="inl">sed -n '1!G;h;$p'</code> (inverte o arquivo, igual ao <code class="inl">tac</code>), <code class="inl">sed 'G'</code> (dobra o espaçamento) e <code class="inl">sed ':a;N;$!ba;s/\n/, /g'</code> (junta tudo numa linha). <b>Vale saber ler; não vale escrever:</b> quando o script pede rótulo (<code class="inl">:a</code>) e desvio (<code class="inl">ba</code>), ou um <code class="inl">s///</code> com mais de três capturas, a resposta é <code class="inl">awk</code>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Os três defeitos daquele comando — e o hábito que os evita</div>
+  <section class="grade2">
+    <div>
+      <table class="comparacao">
+        <thead><tr><th>O defeito</th><th>O estrago silencioso</th><th>A correção</th></tr></thead>
+        <tbody>
+          <tr><td>Pontos não escapados</td><td>casou <code>10a0b0c5</code>, um identificador de instância</td><td class="ok">10\.0\.0\.5</td></tr>
+          <tr><td>Sem âncora de fim</td><td>casou o <b>prefixo</b> de quem já era <code>10.0.0.59</code> → <span class="ru" style="font-family:var(--fonte-mono)">10.0.0.599</span></td><td class="ok">…\.5$</td></tr>
+          <tr><td>Sem endereço</td><td>agiu em <b>toda</b> linha do arquivo, não só nas de endereço</td><td class="ok">/^ip=/ s/…/…/</td></tr>
+          <tr><td>Faltou o <code>g</code>?</td><td>só a 1ª ocorrência da linha muda — mas <b>com âncora há no máximo uma</b></td><td class="ok">(de propósito)</td></tr>
+        </tbody>
+      </table>
+      <section class="terminal" style="margin-top:6px">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-sed</span></div>
+<pre><span class="cmt"># 1. ensaie SEM o -i e leia a saída</span>
+<span class="prompt">$</span> sed -E '/^ip=/ s/10\.0\.0\.5$/10.0.0.59/' db.conf
+<span class="cmt"># 2. confira o que MUDARIA, linha a linha</span>
+<span class="prompt">$</span> diff db.conf &lt;(sed -E '/^ip=/ s/…/…/' db.conf)
+<span class="out">2c2
+&lt; ip=10.0.0.5
+---
+&gt; ip=10.0.0.59</span>
+<span class="cmt"># 3. só então, com sufixo de backup</span>
+<span class="prompt">$</span> sed -i.bak -E '/^ip=/ s/10\.0\.0\.5$/10.0.0.59/' *.conf</pre>
+      </section>
+    </div>
+    <div>
+      <p class="sub2">Endereço: onde o comando age</p>
+      <ul class="lista">
+        <li><i>sed '5d'</i><span>a linha 5 · <code class="inl">'$d'</code> a <b>última</b> · <code class="inl">'1,10d'</code> faixa</span></li>
+        <li><i>sed '/^#/d'</i><span>toda linha que casa o padrão</span></li>
+        <li><i>/inicio/,/fim/</i><span>faixa por padrão — se o 2º nunca casar, <b>vai até o fim</b>; e ela <b>reabre</b> se o 1º voltar a aparecer</span></li>
+        <li><i>/^\[web\]/,+5</i><span>5 linhas após o cabeçalho da seção</span></li>
+        <li><i>/^#/!s/=/ = /</i><span><b>negação</b>: "em tudo, menos nos comentários" — subutilizada e resolve muita coisa</span></li>
+        <li><i>{ …; … }</i><span>chaves agrupam comandos que <b>compartilham</b> o endereço</span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">Os outros comandos</p>
+      <ul class="lista">
+        <li><i>p d q</i><span>imprime · apaga · encerra</span></li>
+        <li><i>a i c</i><span>acrescenta depois · insere antes · <b>troca a linha inteira</b></span></li>
+        <li><i>y/abc/ABC/</i><span>transliteração caractere a caractere — <b>não aceita padrão</b> (é o <code class="inl">tr</code> do <code class="inl">sed</code>)</span></li>
+        <li><i>r arq · w arq</i><span>insere arquivo depois da linha · grava as casadas</span></li>
+      </ul>
+      <div class="nota" style="margin-top:5px"><b>Na substituição:</b> <code class="inl">&amp;</code> é o trecho casado <b>inteiro</b> (<code class="inl">&amp;</code> literal precisa de <code class="inl">\&amp;</code>), <code class="inl">\1 \2</code> são os grupos, <code class="inl">\n \t</code> valem na troca (GNU) e <code class="inl">\U \L … \E</code> mudam a caixa. <b>Flags:</b> <code class="inl">g</code> todas · <code class="inl">3</code> só a terceira · <code class="inl">g3</code> da terceira em diante · <code class="inl">i</code> ignora caixa · <code class="inl">p</code> (par obrigatório do <code class="inl">-n</code>) · <code class="inl">w saida.txt</code>. <b>O delimitador é qualquer caractere logo após o <code class="inl">s</code></b>: com caminhos, <code class="inl">s|/var/log|/srv/log|</code> é legível e <code class="inl">s/\/var\/log/\/srv\/log/</code> não é. Use <b><code class="inl">-E</code></b> (ERE, o mesmo dialeto do <code class="inl">grep -E</code> e do <code class="inl">awk</code>); o <code class="inl">-r</code> é sinônimo só na GNU.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b>O <code class="inl">-i</code> grava por cima sem perguntar — e não é o que parece.</b> O <code class="inl">sed</code> cria um temporário e o renomeia por cima: <b>o inode muda</b>, links físicos se quebram e um link simbólico vira arquivo comum (salvo com <code class="inl">--follow-symlinks</code>). Nunca digite <code class="inl">-i</code> sem sufixo: <code class="inl">-i.bak</code> deixa um <code class="inl">arquivo.bak</code> ao lado e é a diferença entre dois minutos de contratempo e uma restauração de <i>backup</i>. Ensaie sem <code class="inl">-i</code> → confira com <code class="inl">diff</code> → aplique. <b>O <code class="inl">sed</code> é a ferramenta errada — não parcialmente errada — para estrutura aninhada:</b> HTML/XML (<code class="inl">xmlstarlet</code>), JSON (<code class="inl">jq</code>), CSV com vírgula dentro de aspas, e qualquer coisa que exija <b>contar, somar ou lembrar estado</b> (é <code class="inl">awk</code>).</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Uma linha por vez</b> no espaço de padrão: roda o script inteiro, imprime e esquece. <code class="inl">sed ''</code> é <code class="inl">cat</code>; <code class="inl">-n</code> desliga a impressão e faz o <code class="inl">p</code> valer a pena.</li>
+        <li><b><code class="inl">s/padrão/troca/flags</code> é o comando central.</b> O delimitador pode ser qualquer caractere — use <code class="inl">|</code> quando o padrão tiver barras.</li>
+        <li><b>Sem <code class="inl">g</code>, só a primeira ocorrência da linha muda</b> — e com âncora, há no máximo uma.</li>
+        <li><b>Endereço restringe onde o comando age</b> e é a diferença entre edição cirúrgica e estrago geral: <code class="inl">/^ip=/</code>, faixas <code class="inl">/a/,/b/</code> e a negação <code class="inl">!</code>.</li>
+        <li><b><code class="inl">-E</code> para ERE</b> — mesmo dialeto do <code class="inl">grep -E</code> e do <code class="inl">awk</code>, muito mais legível que BRE com barras.</li>
+        <li><b><code class="inl">-i</code> grava por cima e muda o inode.</b> Ensaie sem, confira com <code class="inl">diff</code>, aplique com <code class="inl">-i.bak</code>.</li>
+        <li><b>O espaço de reserva (<code class="inl">h H g G x</code>) é o que vê além da linha atual.</b> Quando o script pede rótulo e desvio, troque para <code class="inl">awk</code>.</li>
+        <li><b><code class="inl">sed</code> não entende estrutura aninhada:</b> JSON, XML e CSV com aspas pedem outra ferramenta.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Editar configuração em massa pede endereço, não só padrão.</b> Trocar <code class="inl">yes</code> por <code class="inl">no</code> sem endereço destrói o arquivo inteiro; a forma segura ancora na diretiva: <code class="inl">sed -i.bak -E 's/^#?\s*(PasswordAuthentication)\s+yes/\1 no/' /etc/ssh/sshd_config</code>, seguida de <code class="inl">sshd -t</code> para <b>validar a sintaxe antes de recarregar</b> — um <code class="inl">sshd</code> que não sobe por erro de configuração deixa você <b>de fora da máquina remota</b>. <b>Sanitizar relatório antes de entregar</b> é uso diário: <code class="inl">sed -E 's/(password=)[^[:space:]]+/\1REDIGIDO/g; s/([0-9]{1,3}\.){3}[0-9]{1,3}/IP-REDIGIDO/g' bruto.md &gt; entrega.md</code> limpa senha em claro, <i>token</i> e endereço em massa — sempre com ensaio antes do <code class="inl">-i</code> e sempre conferindo o resultado com <code class="inl">grep -c</code> pelo que <b>deveria ter sumido</b>: redação que falha em silêncio é vazamento. <b>Preparar wordlist é trabalho de <code class="inl">sed</code>:</b> <code class="inl">sed 's/$/2026/'</code> acrescenta o ano, <code class="inl">sed 's/a/@/g; s/o/0/g'</code> faz <i>leetspeak</i> e <code class="inl">sed -E 's/^(.)/\U\1/'</code> capitaliza — derivados dos nomes da empresa alvo em segundos. É <b>preparação de material para teste autorizado</b>; a mesma lista contra sistema de terceiro sem contrato é tentativa de acesso não autorizado pela <b>Lei 12.737/2012</b>. <b>Normalizar a saída de uma ferramenta para servir de entrada de outra</b> é boa parte do encadeamento no Kali: <code class="inl">nmap -oG</code> produz linhas que não se encaixam no <code class="inl">cut</code>, e <code class="inl">sed -E 's/^Host: ([0-9.]+) .*Ports: /\1 /'</code> deixa endereço e portas prontos para o <code class="inl">awk</code>. E <code class="inl">sed -n '/inicio/,/fim/p'</code> extrai a seção de um alvo específico num relatório de <code class="inl">nikto</code> ou <code class="inl">enum4linux</code> com centenas de linhas. Fora do mundo GNU (macOS, BSD) o <code class="inl">-i</code> <b>exige</b> sufixo, o <code class="inl">\n</code> na troca não funciona e não há <code class="inl">\U</code> nem <code class="inl">0~N</code>: script portátil usa <code class="inl">-i.bak</code>, que funciona nos dois.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 11 · Fase 3 <span class="n">066</span></span>
