@@ -3,101 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 063 — Aritmética e manipulação de números no shell</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .subt { font-family:var(--fonte-titulo); font-size:10px; text-transform:uppercase;
+          letter-spacing:.04em; color:var(--navy); margin-bottom:4px; }
+
+  /* Onde a fração se perde */
+  .fracao { display:flex; flex-direction:column; gap:4px; }
+  .fr { display:grid; grid-template-columns:210px 96px 1fr; gap:8px; align-items:center;
+        border:1.5px solid; border-radius:var(--raio-sm); padding:4px 8px; }
+  .fr .ex { font-family:var(--fonte-mono); font-size:9.5px; }
+  .fr .rs { font-family:var(--fonte-mono); font-size:11px; font-weight:700; text-align:center;
+            border-radius:4px; padding:2px 4px; color:#fff; }
+  .fr p { font-size:8.6px; line-height:1.3; color:var(--tinta-suave); }
+  .fr p b { color:var(--navy); }
+  .fr.ru { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .fr.ru .ex { color:var(--vermelho); } .fr.ru .rs { background:var(--vermelho); }
+  .fr.ok { border-color:var(--verde); background:var(--verde-claro); }
+  .fr.ok .ex { color:#1d7038; } .fr.ok .rs { background:var(--verde); }
+  .dados { font-family:var(--fonte-mono); font-size:9.5px; color:var(--azul); margin-bottom:4px; }
+
+  .grade2 { display:grid; grid-template-columns:1fr 1.02fr; gap:9px; align-items:start; }
+  table.comparacao thead th { text-transform:none; font-family:var(--fonte-mono); font-size:10px; letter-spacing:0; }
+  .comparacao td.mono { font-family:var(--fonte-mono); font-size:10px; text-align:center; }
+  .comparacao td.bad { font-family:var(--fonte-mono); font-size:9.5px; color:var(--vermelho); font-weight:700; text-align:center; }
+  .comparacao td.warn { font-family:var(--fonte-mono); font-size:10px; color:#a8530a; font-weight:700; text-align:center; }
+  .comparacao td.good { font-family:var(--fonte-mono); font-size:10px; color:var(--verde); font-weight:700; text-align:center; }
+
+  /* (( )) x $(( )) */
+  .dois { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .dd { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 8px; }
+  .dd > b { display:block; font-family:var(--fonte-mono); font-size:10.5px; margin-bottom:2px; }
+  .dd p { font-size:8.5px; line-height:1.3; color:var(--tinta-suave); }
+  .dd p b { color:var(--navy); }
+  .dd.c { border-color:var(--roxo); background:var(--roxo-claro); } .dd.c > b { color:var(--roxo); }
+  .dd.e { border-color:var(--azul); background:var(--azul-claro); } .dd.e > b { color:var(--azul); }
+  .trapbox { border-left:4px solid var(--laranja); background:var(--laranja-claro); border-radius:var(--raio-sm);
+             padding:5px 8px; margin-top:6px; font-size:8.6px; line-height:1.35; color:var(--tinta-suave); }
+  .trapbox b { color:#a8530a; }
+  .trapbox .fix { color:#1d7038; font-weight:700; }
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:5px; }
+  .nota b { color:var(--navy); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 063</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Aritmética e manipulação de números no shell</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Aritmética<br>no shell</h1>
+      <div class="sub">O monitor rodava a cada cinco minutos e nunca alertou. O disco chegou a <b>97%</b> e o script continuou calado — sem erro de <code class="inl">df</code>, sem erro de permissão. O <code class="inl">percentual</code> valia <b>zero</b>, e valia zero desde o primeiro dia. A aritmética do shell é só de <b>inteiros</b>, e ela não avisa onde a fração se perde: não há erro, não há <code class="inl">NaN</code> — há um número redondo e errado.</div>
     </div>
     <div class="badge"><b>063</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Onde a fração se perde</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="dados">usado=41943040 · total=52428800 · ocupação real: 80%</div>
+    <div class="fracao">
+      <div class="fr ru">
+        <span class="ex">$(( usado / total * 100 ))</span>
+        <span class="rs">0</span>
+        <p>A divisão acontece <b>primeiro</b> e <b>0,8 vira 0</b>. Zero vezes 100 continua zero: o alerta nunca dispara, com o disco vazio ou cheio.</p>
+      </div>
+      <div class="fr ok">
+        <span class="ex">$(( usado * 100 / total ))</span>
+        <span class="rs">80</span>
+        <p><b>Multiplique antes de dividir.</b> Correção de uma posição de caractere — e a que resolve quase todos os casos.</p>
+      </div>
+      <div class="fr ok">
+        <span class="ex">$(( usado * 10000 / total ))</span>
+        <span class="rs">8000</span>
+        <p><b>Ponto fixo:</b> trabalhe em centésimos e formate na hora de imprimir — <code class="inl">printf '%d.%02d%%' $((c/100)) $((c%100))</code> → <b>80.00%</b>.</p>
+      </div>
+      <div class="fr ok">
+        <span class="ex">$(( (a + b/2) / b ))</span>
+        <span class="rs">≈</span>
+        <p><b>Arredonda</b> em vez de truncar (soma metade do divisor). E <code class="inl">$(( (a + b - 1) / b ))</code> é o <b>teto</b> — quantos blocos, páginas ou partes de tamanho fixo cabem.</p>
+      </div>
+    </div>
+    <div class="nota">A divisão inteira <b>trunca em direção a zero</b>: <code class="inl">$(( -7 / 2 ))</code> vale <b>−3</b>, não −4, e <code class="inl">$(( -7 % 2 ))</code> vale <b>−1</b> — é a regra do C, não a matemática modular. Toda expressão com <code class="inl">/</code> merece a pergunta: <i>o intermediário cabe em inteiro?</i> Inteiros são de <b>64 bits com sinal</b> e estouram <b>em silêncio</b>, dando a volta para negativo. Quando a fração é o próprio resultado — média, desvio, raiz —, pague o processo: <code class="inl">printf '%.2f'</code> (builtin, sem processo) · <code class="inl">awk 'BEGIN{printf "%.1f", s/n}'</code> (sempre instalado) · <code class="inl">bc -l</code> (<b>sem <code class="inl">-l</code> ou <code class="inl">scale</code>, o <code class="inl">bc</code> trunca igual ao shell</b>, e não vem instalado por padrão). <b>Nunca uma vez por item dentro do laço:</b> acumule inteiros e divida uma vez no fim.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">Zero à esquerda é octal · e o comando que devolve código</div>
+  <section class="grade2">
+    <div>
+      <table class="comparacao">
+        <thead><tr><th>mes=$(date +%m)</th><th>$(( mes ))</th><th>$(( 10#mes ))</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">07</td><td class="warn">7</td><td class="good">7</td></tr>
+          <tr><td class="mono">08</td><td class="bad">value too great</td><td class="good">8</td></tr>
+          <tr><td class="mono">09</td><td class="bad">value too great</td><td class="good">9</td></tr>
+          <tr><td class="mono">010</td><td class="bad">8</td><td class="good">10</td></tr>
+          <tr><td class="mono">12</td><td class="good">12</td><td class="good">12</td></tr>
+        </tbody>
+      </table>
+      <div class="nota">O prefixo <code class="inl">0</code> significa <b>octal</b>, como em C — e isso atinge tudo que o sistema formata com zero à esquerda: <code class="inl">date +%m</code>, <code class="inl">+%d</code>, <code class="inl">+%H</code>, <code class="inl">+%M</code>, número de série, código de agência, octeto de IP. O sintoma clássico é um script que roda o ano inteiro e <b>quebra em agosto e setembro</b>; o <code class="inl">010</code> é pior — nunca falha e sempre calcula errado. Defesa: <code class="inl">mes=$(( 10#$(date +%m) ))</code>, preferível a <code class="inl">${mes#0}</code>, que transformaria <code class="inl">00</code> em vazio. As outras bases: <code class="inl">$(( 0x1F ))</code>=31 e <code class="inl">$(( 2#1011 ))</code>=11.</div>
+    </div>
+    <div>
+      <div class="dois">
+        <div class="dd c"><b>(( x = 5 + 3 ))</b><p><b>COMANDO.</b> Avalia, atribui e não imprime nada — o que ele devolve é um <b>código de saída</b>.</p></div>
+        <div class="dd e"><b>echo $(( 5 + 3 ))</b><p><b>EXPANSÃO.</b> Avalia e produz o texto <code class="inl">8</code>. É POSIX; o <code class="inl">(( ))</code>, o <code class="inl">let</code>, o <code class="inl">**</code> e o <code class="inl">$RANDOM</code> são do Bash.</p></div>
+      </div>
+      <div class="trapbox"><b>A inversão:</b> <code class="inl">(( 1 ))</code> → <code class="inl">$?=0</code> (sucesso) e <code class="inl">(( 0 ))</code> → <code class="inl">$?=1</code> (falha). Em C zero é falso; no shell zero é sucesso, e o <code class="inl">(( ))</code> faz a tradução. <b>Consequência sob <code class="inl">set -e</code>:</b> <code class="inl">(( contador++ ))</code> com o contador em zero devolve o valor <i>anterior</i> ao incremento — zero — e <b>aborta o script</b> numa linha que parecia inofensiva. As três defesas: <span class="fix">(( ++contador ))</span> · <span class="fix">(( contador++ )) || :</span> · <span class="fix">contador=$(( contador + 1 ))</span>.</div>
+      <div class="nota">Dentro de qualquer contexto aritmético — <code class="inl">(( ))</code>, <code class="inl">$(( ))</code>, índice de array — as variáveis <b>dispensam o cifrão</b> e não sofrem divisão em palavras; <b>variável não definida vale zero</b>, conveniente para contador e traiçoeiro para configuração ausente. Os operadores são os de C: <code class="inl">+ - * / % **</code>, <code class="inl">++ --</code>, <code class="inl">&lt;&lt; &gt;&gt; &amp; | ^ ~</code>, <code class="inl">== != &lt; &gt;</code>, <code class="inl">&amp;&amp; || !</code>, o ternário <code class="inl">? :</code> e as atribuições compostas. <b>Evite os herdados:</b> <code class="inl">let</code> exige citar a expressão, e <code class="inl">expr</code> é um <b>programa externo</b> — um <i>fork</i> por conta, com escape obrigatório no <code class="inl">*</code>. <code class="inl">declare -i</code> avalia toda atribuição àquela variável, mas engole texto virando <b>0 em silêncio</b>.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b><code class="inl">$RANDOM</code> não é criptograficamente seguro.</b> É um gerador pseudoaleatório simples, com semente previsível e período curto — senha, <i>token</i>, chave e nome de arquivo temporário que precise ser imprevisível <b>não saem dele</b>. Nomear temporário com <code class="inl">$RANDOM</code> num diretório compartilhado abre <b>corrida de link simbólico</b>: quem prevê o nome cria o link antes de você. As fontes corretas: <code class="inl">token=$(head -c 32 /dev/urandom | base64)</code>, <code class="inl">openssl rand</code>, e <code class="inl">tmp=$(mktemp)</code> para temporários — nunca invente o nome. E há um viés estatístico à parte: <code class="inl">RANDOM % 100</code> favorece os valores baixos, porque 32768 não é múltiplo de 100; para sorteio uniforme, <code class="inl">shuf -i 0-99 -n 1</code>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>A aritmética do shell é só de inteiros e a fração se perde sem aviso.</b> <code class="inl">$(( a / b * 100 ))</code> dá zero sempre que <code class="inl">a &lt; b</code> — <b>multiplique antes de dividir</b>.</li>
+        <li><b><code class="inl">(( ))</code> é comando e devolve código; <code class="inl">$(( ))</code> é expansão e produz texto.</b> No <code class="inl">(( ))</code>, valor zero vira código de <b>falha</b>: <code class="inl">(( c++ ))</code> com <code class="inl">c=0</code> aborta um script sob <code class="inl">set -e</code>. Use <code class="inl">(( ++c ))</code>.</li>
+        <li><b>Em contexto aritmético as variáveis dispensam o cifrão</b> e a não definida vale zero.</li>
+        <li><b>Ponto fixo resolve a maioria dos relatórios:</b> escale por 100 ou 1000, calcule em inteiro e formate com <code class="inl">printf '%d.%02d'</code>. Guarde <code class="inl">(a + b/2)/b</code> para arredondar e <code class="inl">(a + b - 1)/b</code> para o teto.</li>
+        <li><b>Zero à esquerda é octal:</b> <code class="inl">$(( 08 ))</code> é erro e <code class="inl">$(( 010 ))</code> é 8. Force a base com <code class="inl">$(( 10#$valor ))</code>.</li>
+        <li><b>Inteiros de 64 bits com sinal estouram em silêncio</b>, dando a volta para negativo.</li>
+        <li><b>Ponto flutuante de verdade: <code class="inl">awk</code> ou <code class="inl">bc -l</code></b> — e nunca uma vez por item dentro do laço.</li>
+        <li><b><code class="inl">$RANDOM</code> não gera senha nem nome de temporário.</b> Use <code class="inl">/dev/urandom</code>, <code class="inl">openssl rand</code> ou <code class="inl">mktemp</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Cálculo de intervalo entre requisições é aritmética inteira, e o erro tem consequência.</b> Um script que calcula a pausa como <code class="inl">$(( 1 / taxa ))</code> segundos dá <b>zero</b> para qualquer taxa maior que 1 — o laço passa a bater no alvo sem pausa nenhuma, o que é indistinguível de uma negação de serviço acidental e derruba justamente o serviço que você precisava analisar. Trabalhe em milissegundos (<code class="inl">pausa_ms=$(( 1000 / taxa ))</code>) ou use o <code class="inl">--max-rate</code> da própria ferramenta. <b>Aritmética sobre octetos de IP quebra em zero à esquerda:</b> alvos escritos como <code class="inl">010.010.010.005</code> — formato que aparece em planilha de escopo e em exportação de inventário — fazem <code class="inl">$(( octeto ))</code> ler <code class="inl">010</code> como <b>8</b>, e o resultado é um endereço <b>fora do escopo autorizado</b> calculado a partir de um dentro dele. Varredura fora do escopo contratado é crime pela Lei 12.737/2012: aplique <code class="inl">10#</code> em todo octeto antes de qualquer conta e valide o endereço reconstruído contra a faixa. <b>Contador sob <code class="inl">set -e</code> derruba script de varredura no primeiro alvo</b> — é justamente quando o contador está em zero que o <code class="inl">(( total++ ))</code> devolve código 1, e o script morre antes de fazer qualquer coisa útil. <b>Somar tamanhos de captura passa de 32 bits rápido:</b> um <code class="inl">.pcap</code> de algumas horas já tem centenas de milhões de bytes, e multiplicado por um fator de escala para média em kbit/s o intermediário cresce depressa — o teto de 64 bits aguenta, mas confira o resultado, porque estouro não emite aviso, só troca o sinal. E <b>o <code class="inl">bc</code> não vem instalado no Kali</b> (<code class="inl">sudo apt install bc</code>); o <code class="inl">awk</code> está sempre lá, o que faz dele a escolha segura para ponto flutuante em script que vai rodar em máquina alheia.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 10 · Fase 3 <span class="n">063</span></span>
