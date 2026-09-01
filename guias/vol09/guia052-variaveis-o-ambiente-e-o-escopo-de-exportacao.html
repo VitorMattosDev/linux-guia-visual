@@ -3,101 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
-<title>GUIA 052 — Variáveis, o ambiente e o escopo de exportação</title>
+<title>GUIA 052 — Variáveis e o ambiente</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .grade2 { display:grid; grid-template-columns: 1fr 1.5fr; gap:10px; align-items:stretch; }
+
+  /* Sintaxe: linhas certo/errado */
+  .sint { border:1.5px solid var(--linha); border-radius:var(--raio); background:#fff; padding:8px 9px;
+          display:flex; flex-direction:column; gap:4px; }
+  .sint .lin { display:flex; gap:6px; align-items:baseline; font-size:9.5px; line-height:1.3; }
+  .sint .lin i { font-style:normal; font-weight:700; flex:none; width:11px; }
+  .sint .lin code { font-family:var(--fonte-mono); font-size:10px; color:var(--navy); flex:none; }
+  .sint .lin span { color:var(--tinta-suave); }
+  .sint .ok i { color:var(--verde); } .sint .no i { color:var(--vermelho); }
+  .sint .no code { color:#8a1f1f; }
+
+  /* Herança pai -> filho */
+  .heranca { display:flex; align-items:stretch; gap:7px; }
+  .proc { flex:1; border:1.5px solid; border-radius:var(--raio); padding:7px 9px;
+          display:flex; flex-direction:column; gap:3px; }
+  .proc .tit { font-family:var(--fonte-titulo); font-size:9.5px; font-weight:700;
+               text-transform:uppercase; letter-spacing:.04em; }
+  .proc .l { font-family:var(--fonte-mono); font-size:10px; color:var(--navy); line-height:1.35; }
+  .proc .l em { font-style:normal; font-family:var(--fonte-corpo); font-size:9px; color:var(--tinta-suave); }
+  .proc.pai { border-color:var(--azul);  background:var(--azul-claro);  } .proc.pai .tit { color:var(--azul); }
+  .proc.fil { border-color:var(--verde); background:var(--verde-claro); } .proc.fil .tit { color:var(--verde); }
+  .fork { flex:none; width:74px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+  .fork .s1 { color:var(--verde); font-size:17px; font-weight:700; line-height:1; }
+  .fork .r1 { font-family:var(--fonte-mono); font-size:8px; color:var(--verde); text-align:center; }
+  .fork .r2 { font-size:7.5px; color:var(--tinta-suave); text-align:center; line-height:1.2; }
+  .fork .volta { font-size:7.5px; color:var(--vermelho); text-align:center; line-height:1.2; margin-top:2px;
+                 border-top:1.5px dashed var(--vermelho); padding-top:2px; width:100%; }
+
+  /* Três tipos de shell */
+  .shells { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .sh { border:1.5px solid; border-top-width:4px; border-radius:var(--raio); padding:7px 9px; background:#fff; }
+  .sh > h4 { font-family:var(--fonte-titulo); font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; }
+  .sh > .q { font-size:8.5px; color:var(--tinta-suave); margin-bottom:4px; }
+  .sh ul { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .sh li { font-family:var(--fonte-mono); font-size:9.5px; color:var(--navy); line-height:1.25; word-break:break-all; }
+  .sh li.nao { color:var(--vermelho); font-family:var(--fonte-corpo); font-weight:600; }
+  .sh.a { border-color:var(--azul);  } .sh.a > h4 { color:var(--azul); }
+  .sh.b { border-color:var(--verde); } .sh.b > h4 { color:var(--verde); }
+  .sh.c { border-color:var(--vermelho); background:var(--vermelho-claro); } .sh.c > h4 { color:var(--vermelho); }
+  .nota { font-size:9.5px; line-height:1.4; color:var(--tinta-suave); margin-top:5px; }
+  .nota b { color:var(--navy); }
+
+  /* Especiais */
+  .esp { border:1.5px solid var(--linha); border-radius:var(--raio); background:var(--papel-tint); padding:7px 9px;
+         display:grid; grid-template-columns:auto 1fr; gap:2px 8px; align-items:baseline; }
+  .esp code { font-family:var(--fonte-mono); font-size:10px; color:var(--roxo); font-weight:700; }
+  .esp span { font-size:9.5px; color:var(--tinta-suave); line-height:1.3; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 052</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Variáveis, o ambiente e o escopo de exportação</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Variáveis<br>e o Ambiente</h1>
+      <div class="sub">O script de backup roda em quatro segundos no terminal. No <code class="inl">cron</code>, às duas da manhã, falha todas as noites com <code class="inl">nmap: command not found</code>. Nada no script mudou — mudou <b>o ambiente</b>.</div>
     </div>
     <div class="badge"><b>052</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <div class="secao-titulo">A sintaxe implacável · e o que o filho herda</div>
+  <section class="grade2">
+    <div class="sint">
+      <div class="lin ok"><i>✔</i><code>nome="kali"</code></div>
+      <div class="lin no"><i>✘</i><code>nome = "kali"</code><span>vira comando</span></div>
+      <div class="lin no"><i>✘</i><code>nome= "kali"</code><span>roda <code>kali</code></span></div>
+      <div class="lin ok"><i>✔</i><code>${nome}_2024</code><span>chaves = fronteira</span></div>
+      <div class="lin no"><i>✘</i><code>$nome_2024</code><span>outra variável, vazia</span></div>
+      <div class="lin ok"><i>✔</i><code>MAIÚSCULA</code><span>ambiente/constante</span></div>
+      <div class="lin ok"><i>✔</i><code>minúscula</code><span>local do script</span></div>
+    </div>
+    <div class="heranca">
+      <div class="proc pai">
+        <span class="tit">shell pai · PID 4021</span>
+        <div class="l">TOKEN="abc"<br><em>variável do shell — só aqui</em></div>
+        <div class="l">export CAMINHO="/opt"<br><em>variável de ambiente</em></div>
+        <div class="l"><em><code class="inl">printenv</code> só as exportadas · <code class="inl">set</code> tudo · <code class="inl">declare -p</code> com atributos</em></div>
+      </div>
+      <div class="fork">
+        <span class="s1">→</span>
+        <span class="r1">fork + exec</span>
+        <span class="r2">cópia do ambiente</span>
+        <span class="volta">✘ nunca<br>de volta</span>
+      </div>
+      <div class="proc fil">
+        <span class="tit">filho · PID 4088</span>
+        <div class="l">$CAMINHO → /opt <em>herdada</em></div>
+        <div class="l">$TOKEN → <b style="color:var(--vermelho)">vazia</b> <em>não exportada</em></div>
+        <div class="l">CAMINHO="/tmp"<br><em>altera só a cópia — o pai não vê</em></div>
+        <div class="l"><em>Prefixo temporário não suja a sessão: <code class="inl">LC_ALL=C date</code></em></div>
+      </div>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Quais arquivos cada shell lê — e por que o <code class="inl">cron</code> não lê nenhum</div>
   <section>
+    <div class="shells">
+      <div class="sh a">
+        <h4>Shell de login</h4>
+        <div class="q">console, ssh, su -</div>
+        <ul>
+          <li>/etc/profile</li>
+          <li>/etc/profile.d/*.sh</li>
+          <li>~/.bash_profile</li>
+          <li>~/.profile <span style="font-family:var(--fonte-corpo);font-size:8.5px;color:var(--tinta-suave)">(que chama o .bashrc)</span></li>
+        </ul>
+      </div>
+      <div class="sh b">
+        <h4>Interativo, sem login</h4>
+        <div class="q">nova aba do terminal</div>
+        <ul>
+          <li>/etc/bash.bashrc</li>
+          <li>~/.bashrc</li>
+          <li style="font-family:var(--fonte-corpo);color:var(--tinta-suave)">e mais nada — o resto vem <b>herdado</b></li>
+        </ul>
+      </div>
+      <div class="sh c">
+        <h4>Não interativo</h4>
+        <div class="q">script, cron, systemd</div>
+        <ul>
+          <li class="nao">nenhum arquivo lido</li>
+          <li class="nao">PATH mínimo (/usr/bin:/bin)</li>
+          <li class="nao">sem TERM, sem aliases</li>
+        </ul>
+      </div>
+    </div>
+    <div class="nota">A coluna vermelha é a resposta ao mistério: o <code class="inl">.bashrc</code> <b>nunca foi lido</b>, logo o <code class="inl">PATH</code> que você acrescentou lá não existe. Correções, em ordem: <b>1.</b> caminho absoluto para cada comando · <b>2.</b> <code class="inl">export PATH=...</code> explícito no topo do script · <b>3.</b> <code class="inl">PATH=</code> no próprio <i>crontab</i>. Chamar o <code class="inl">.bashrc</code> de dentro do script é a saída tentadora e <b>errada</b> — ele tem código de sessão interativa e pode abortar cedo. Para a máquina inteira: <code class="inl">/etc/environment</code> (pares simples, lido pelo PAM) ou um fragmento em <code class="inl">/etc/profile.d/</code>.</div>
+  </section>
+
+  <div class="secao-titulo">Vazio × não definido · as especiais que o Bash preenche</div>
+  <section class="grade2" style="grid-template-columns:1.25fr 1fr">
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Expansão</th><th>Comportamento</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td><code>${VAR:-padrao}</code></td><td><b>Não definida OU vazia</b> → usa o padrão. É a que se usa 90% das vezes.</td></tr>
+        <tr><td><code>${VAR-padrao}</code></td><td>Sem os dois-pontos: só se <b>não definida</b>. Vazia continua vazia.</td></tr>
+        <tr><td><code>${VAR:=padrao}</code></td><td>Usa <b>e atribui</b> o padrão à variável.</td></tr>
+        <tr><td><code>: "${VAR:?msg}"</code></td><td><b>Aborta com a sua mensagem</b> se faltar. O <code>:</code> é o comando nulo, só força a avaliação.</td></tr>
+        <tr><td><code>${VAR:-}</code></td><td>Sob <code>set -u</code>, a forma de dizer "sei que pode não existir".</td></tr>
       </tbody>
     </table>
+    <div class="esp">
+      <code>$?</code><span>saída do último comando</span>
+      <code>$$</code><span>PID do shell · <code style="color:var(--roxo)">$PPID</code> do pai</span>
+      <code>$0</code><span>nome do script</span>
+      <code>$#</code><span>quantos argumentos</span>
+      <code>$@</code><span>cada argumento uma palavra</span>
+      <code>$*</code><span>todos como uma só</span>
+      <code>$!</code><span>PID do último em 2º plano</span>
+      <code>$LINENO</code><span>linha atual — para mensagem de erro</span>
+      <code>$SECONDS</code><span><code style="color:var(--roxo)">$((SECONDS-inicio))</code> cronometra</span>
+      <code>$RANDOM</code><span>0–32767, <b style="color:var(--vermelho)">não</b> criptográfico</span>
+    </div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section class="terminal">
+    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-vars</span></div>
+<pre><span class="prompt">$</span> LOCAL="so-aqui"; export GLOBAL="vai-junto"
+<span class="prompt">$</span> bash -c 'echo "no filho: LOCAL=[$LOCAL] GLOBAL=[$GLOBAL]"'
+<span class="out">no filho: LOCAL=[] GLOBAL=[vai-junto]</span>   <span class="cmt"># sem export, o filho nao ve</span>
+<span class="prompt">$</span> env -i /bin/bash ./backup.sh    <span class="cmt"># simula o cron: ambiente vazio, falha na hora</span>
+<span class="prompt">$</span> echo "$SHELL"; ps -p $$ -o comm= <span class="cmt"># o de LOGIN x o REALMENTE em execucao</span>
+<span class="out">/usr/bin/zsh</span>
+<span class="out">bash</span>
+<span class="prompt">$</span> declare -i n=0; n="3*7"; echo "$n"   <span class="cmt"># -i: atribuicao vira conta -&gt; 21</span>
+<span class="prompt">$</span> readonly CONF=/etc/app.conf          <span class="cmt"># erro de digitacao vira erro na hora</span></pre>
+  </section>
+
+  <div class="perigo"><b>Segredo em variável de ambiente é segredo exposto.</b> O ambiente de um processo vive em <code class="inl">/proc/PID/environ</code>, legível pelo dono e pelo root — e é <b>herdado por todo filho</b>, inclusive o instalador de pacote que resolveu mandar telemetria. Por argumento (<code class="inl">--senha s3nh4</code>) é pior ainda: aparece no <code class="inl">ps aux</code> para qualquer usuário da máquina. Em ordem: <b>1.</b> arquivo <code class="inl">600</code> lido com <code class="inl">source</code> · <b>2.</b> entrada padrão (<code class="inl">--password-stdin</code>) · <b>3.</b> gerenciador (<code class="inl">pass</code>, <code class="inl">secret-tool</code>) · <b>4.</b> prefixo de um comando só, nunca <code class="inl">export</code> na sessão. E <b>nunca</b> segredo dentro de script versionado: apagar a linha num commit posterior não apaga nada do histórico.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Sem espaço em volta do <code class="inl">=</code>.</b> Com espaço, <code class="inl">nome</code> vira nome de comando — daí o <code class="inl">command not found</code> que engana quem vem de outra linguagem.</li>
+        <li><b><code class="inl">export</code> é a fronteira</b> entre variável do shell e de ambiente. A herança é por <b>cópia</b> e de <b>mão única</b>: o filho altera só o retrato que recebeu.</li>
+        <li><b>Shell não interativo não lê arquivo nenhum.</b> <code class="inl">PATH</code> explícito no topo ou caminho absoluto — a correção do <code class="inl">cron</code>.</li>
+        <li><code class="inl">SHELL</code> é o shell de <b>login</b> do <code class="inl">/etc/passwd</code>, não o em execução (<code class="inl">ps -p $$ -o comm=</code>). E <code class="inl">LANG</code> muda a saída dos comandos: script que interpreta saída fixa <code class="inl">LC_ALL=C</code>.</li>
+        <li><b>Vazio ≠ não definido.</b> <code class="inl">${VAR:-x}</code> cobre os dois; <code class="inl">${VAR:?msg}</code> aborta cedo com mensagem sua.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O <code class="inl">sudo</code> limpa o ambiente — e isso quebra script.</b> O <code class="inl">env_reset</code> está ligado no <code class="inl">/etc/sudoers</code>: um <code class="inl">export CHAVE=v</code> seguido de <code class="inl">sudo meu.sh</code> chega ao script <b>sem</b> a chave. Saídas: <code class="inl">sudo CHAVE=v comando</code>, <code class="inl">sudo -E</code> (preserva <i>tudo</i> — cuidado) ou <code class="inl">env_keep</code> via <code class="inl">visudo</code>. <b>O Kali põe <code class="inl">/usr/sbin</code> e <code class="inl">/sbin</code> no <code class="inl">PATH</code> de qualquer usuário</b>, porque quase toda ferramenta de rede vive ali — por isso <code class="inl">tcpdump</code> e <code class="inl">iptables</code> completam com Tab sem <code class="inl">sudo</code>, e depois falham com <code class="inl">Operation not permitted</code>; compare <code class="inl">printenv PATH</code> antes e depois de <code class="inl">sudo -i</code>. Conheça as variáveis das ferramentas: <code class="inl">PROXYCHAINS_CONF_FILE</code>, <code class="inl">HTTP_PROXY</code>/<code class="inl">NO_PROXY</code>, <code class="inl">GOPATH</code> — proxy configurado no <code class="inl">~/.profile</code> e esquecido é a origem clássica de "a rede parou depois do reboot". Em laboratório, <code class="inl">HISTCONTROL=ignorespace</code> mantém credencial de teste fora do <code class="inl">~/.bash_history</code> (no Zsh, <code class="inl">setopt HIST_IGNORE_SPACE</code>). E em <b>live USB sem persistência</b> tudo que você exportou some no desligamento: use <code class="inl">PATH</code> explícito e caminho absoluto, a mesma disciplina do <code class="inl">cron</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 09 · Fase 3 <span class="n">052</span></span>
