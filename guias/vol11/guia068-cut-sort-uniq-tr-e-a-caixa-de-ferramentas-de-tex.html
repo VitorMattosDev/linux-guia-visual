@@ -3,101 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 068 — cut, sort, uniq, tr e a caixa de ferramentas de texto</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Pipeline canônico */
+  .pipe { display:grid; grid-template-columns:1fr 13px 1.15fr 13px .8fr 13px .95fr 13px 1fr;
+          align-items:start; }
+  .et { text-align:center; }
+  .et > b { display:block; font-family:var(--fonte-mono); font-size:9.5px; font-weight:700;
+            border:1.5px solid; border-radius:4px; padding:4px 3px; }
+  .et pre { font-family:var(--fonte-mono); font-size:7.4px; line-height:1.45; color:var(--tinta-suave);
+            text-align:left; margin-top:4px; padding-left:6px; white-space:pre; }
+  .et .cap { display:block; font-size:7.8px; line-height:1.25; margin-top:4px; }
+  .et.g > b { border-color:#c3cfdc; background:var(--papel-tint); color:var(--tinta-suave); }
+  .et.a > b { border-color:var(--azul);  background:var(--azul-claro);  color:var(--azul); }
+  .et.a .cap { color:var(--azul); }
+  .et.v > b { border-color:var(--verde); background:var(--verde-claro); color:#1d7038; }
+  .et.v .cap { color:#1d7038; }
+  .et.l > b { border-color:var(--laranja); background:var(--laranja-claro); color:#a8530a; }
+  .et.l .cap { color:#a8530a; }
+  .fx { display:flex; align-items:flex-start; justify-content:center; color:#8fa3ba;
+        font-size:13px; font-weight:700; padding-top:5px; }
+
+  .alerta { border:1.5px solid var(--vermelho); background:var(--vermelho-claro); border-radius:var(--raio-sm);
+            padding:5px 9px; margin-top:6px; font-size:8.6px; line-height:1.35; color:var(--tinta-suave); }
+  .alerta > b:first-child { color:var(--vermelho); }
+  .alerta b { color:var(--navy); }
+
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+
+  .grade2 { display:grid; grid-template-columns:1fr 1.05fr; gap:9px; align-items:start; }
+
+  /* -k2n x -k2,2n */
+  .dois { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .dd { border:1.5px solid; border-radius:var(--raio-sm); padding:5px 8px; }
+  .dd > b { display:block; font-family:var(--fonte-mono); font-size:11px; margin-bottom:2px; }
+  .dd code { font-family:var(--fonte-mono); font-size:8.4px; display:block; color:var(--tinta-suave);
+             margin-bottom:3px; }
+  .dd p { font-size:8.3px; line-height:1.3; color:var(--tinta-suave); }
+  .dd p b { color:var(--navy); }
+  .dd.ru { border-color:var(--vermelho); background:var(--vermelho-claro); } .dd.ru > b { color:var(--vermelho); }
+  .dd.ok { border-color:var(--verde);    background:var(--verde-claro); }    .dd.ok > b { color:#1d7038; }
+
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:96px 1fr; gap:6px; align-items:baseline;
+              font-size:8.4px; line-height:1.3; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:9px;
+                color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .trapbox { border-left:4px solid var(--laranja); background:var(--laranja-claro);
+        border-radius:var(--raio-sm); padding:5px 8px; margin-top:6px;
+        font-size:8.6px; line-height:1.35; color:var(--tinta-suave); }
+  .trapbox b { color:#a8530a; }
+  .trapbox .fix { color:#1d7038; font-weight:700; font-family:var(--fonte-mono); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 068</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>cut, sort, uniq, tr e a caixa de ferramentas de texto</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>cut · sort · uniq · tr<br>a caixa de texto</h1>
+      <div class="sub">O relatório dizia que o diretório mais pesado era o <code class="inl">/var/cache</code>, com 900 MB — mas o <code class="inl">/var/lib</code> tinha 1,5 GB e nem apareceu. O <code class="inl">du -sh | sort -rn</code> comparou os <b>números</b> 1 e 900: o <code class="inl">-n</code> só entende dígitos e <b>ignora a unidade</b>. No mesmo relatório, a contagem de endereços únicos veio baixa demais: o <code class="inl">uniq</code> compara <b>apenas linhas adjacentes</b>. Dois erros silenciosos, a mesma raiz — <b>supor que a ferramenta faz o que o nome sugere</b>.</div>
     </div>
     <div class="badge"><b>068</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">O pipeline canônico de contagem — estágio por estágio</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="pipe">
+      <div class="et g"><b>acesso.log</b><pre>10.0.0.1 … 200
+10.0.0.2 … 404
+10.0.0.3 … 200
+10.0.0.2 … 500
+10.0.0.3 … 200
+10.0.0.2 … 200</pre></div>
+      <span class="fx">→</span>
+      <div class="et a"><b>awk '{print $1}'</b><pre>10.0.0.1
+10.0.0.2
+10.0.0.3
+10.0.0.2
+10.0.0.3
+10.0.0.2</pre><span class="cap">extrai a coluna que interessa</span></div>
+      <span class="fx">→</span>
+      <div class="et v"><b>sort</b><pre>10.0.0.1
+10.0.0.2
+10.0.0.2
+10.0.0.2
+10.0.0.3
+10.0.0.3</pre><span class="cap"><b>agrupa</b> as iguais lado a lado</span></div>
+      <span class="fx">→</span>
+      <div class="et v"><b>uniq -c</b><pre>  1 10.0.0.1
+  3 10.0.0.2
+  2 10.0.0.3</pre><span class="cap">colapsa e conta os grupos</span></div>
+      <span class="fx">→</span>
+      <div class="et l"><b>sort -rn</b><pre>  3 10.0.0.2
+  2 10.0.0.3
+  1 10.0.0.1</pre><span class="cap">ordena pelo número, do maior</span></div>
+    </div>
+    <div class="alerta"><b>Tire o <code class="inl">sort</code> do meio e o resultado fica errado sem avisar.</b> Sobre a entrada em ordem cronológica, o <code class="inl">uniq -c</code> veria <b>seis grupos de um</b> — <code class="inl">1 10.0.0.1</code>, <code class="inl">1 10.0.0.2</code>, <code class="inl">1 10.0.0.3</code>, <code class="inl">1 10.0.0.2</code>… — em vez de três endereços com 3, 2 e 1 ocorrências. Nenhum erro, nenhum aviso, só um relatório errado.</div>
+    <div class="nota">O <code class="inl">sort -rn</code> final funciona porque o <code class="inl">uniq -c</code> põe a contagem <b>na frente</b>, alinhada com espaços à esquerda — e o <code class="inl">-n</code> ignora esses espaços. Para desempatar pelo endereço, <code class="inl">sort -k1,1rn -k2,2</code>. <b>O mesmo resultado sai de um <code class="inl">awk</code> só</b> — <code class="inl">awk '{n[$1]++} END{for(k in n) print n[k], k}' | sort -rn</code> —, numa passada em vez de três, o que importa em arquivo grande. E para deduplicar <b>preservando a ordem de aparição</b>, o <code class="inl">sort</code> está fora: é <code class="inl">awk '!visto[$0]++'</code>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">A armadilha de cada ferramenta</div>
+  <section class="grade2">
+    <div>
+      <div class="dois">
+        <div class="dd ru"><b>sort -k2n</b><code>alfa&nbsp; 10 zzz<br>beta&nbsp;&nbsp; 9 aaa</code><p>"do campo 2 <b>até o fim da linha</b>". Compara <code class="inl">10 zzz</code> contra <code class="inl">9 aaa</code> como se fosse um número só — o resto da linha entra na conta. <b>Às vezes acerta, o que é pior que errar sempre.</b></p></div>
+        <div class="dd ok"><b>sort -k2,2n</b><code>alfa&nbsp; 10 zzz<br>beta&nbsp;&nbsp; 9 aaa</code><p>"do campo 2 <b>ao campo 2</b>". Compara <code class="inl">10</code> contra <code class="inl">9</code>, e só. É o que se queria dizer em praticamente todo uso de <code class="inl">-k</code>. A regra: <b>sempre escreva o campo final.</b></p></div>
+      </div>
+      <div class="nota" style="margin-top:6px">O delimitador vem de <code class="inl">-t</code>; sem ele o <code class="inl">sort</code> corta na <i>transição</i> de espaço para não-espaço, e o campo inclui o espaço à esquerda — daí existir o modificador <code class="inl">b</code>. <b>Várias chaves se acumulam e valem em ordem</b>, cada uma com seus modificadores: <code class="inl">sort -t: -k3,3n -k1,1</code> ordena por UID e desempata por nome; em <code class="inl">-k2,2nr -k1,1</code>, o <code class="inl">r</code> vale só para a primeira.</div>
+      <p class="sub2" style="margin-top:6px">sort · as opções que decidem o resultado</p>
+      <ul class="lista">
+        <li><i>-h</i><span>numérica <b>com sufixo humano</b> K, M, G — <b>é o conserto da abertura</b></span></li>
+        <li><i>-V</i><span>versão: <code class="inl">1.9</code> antes de <code class="inl">1.10</code></span></li>
+        <li><i>-u · -s · -c</i><span>remove duplicatas · estável (empate mantém a entrada) · só <b>verifica</b> se já está ordenado</span></li>
+        <li><i>LC_ALL=C</i><span>a localidade <b>define a ordem</b>: em <code class="inl">pt_BR</code> o <code class="inl">sort</code> ignora caixa e pontuação; sob <code class="inl">C</code> é a ordem dos bytes — previsível <b>e mais rápida</b></span></li>
+        <li><i>-S · -T</i><span>tamanho do buffer e onde ficam os temporários — importa quando <code class="inl">/tmp</code> é pequeno ou é <code class="inl">tmpfs</code></span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">uniq · só enxerga o vizinho</p>
+      <ul class="lista">
+        <li><i>-c · -d · -u</i><span>conta · só as repetidas · só as que aparecem <b>uma única vez</b></span></li>
+        <li><i>-f2 · -w8</i><span>ignora os 2 primeiros campos · compara só os 8 primeiros caracteres</span></li>
+        <li><i>sort -u</i><span>mais rápido que <code class="inl">sort | uniq</code>, porque elimina <b>durante</b> a ordenação — mas <code class="inl">-c</code>, <code class="inl">-d</code> e <code class="inl">-u</code> são do <code class="inl">uniq</code> e exigem o par completo</span></li>
+      </ul>
+    </div>
+    <div>
+      <p class="sub2">cut · rápido, previsível e com três limites</p>
+      <ul class="lista">
+        <li><i>-d é 1 char</i><span>não existe delimitador de dois espaços nem por expressão regular</span></li>
+        <li><i>não colapsa</i><span>espaço repetido desloca tudo — normalize antes com <code class="inl">tr -s ' '</code></span></li>
+        <li><i>não reordena</i><span><code class="inl">cut -f3,1</code> devolve <b>1,3</b>: o <code class="inl">cut</code> ignora a ordem pedida. Reordenar é <code class="inl">awk '{print $3, $1}'</code></span></li>
+        <li><i>-c1-8 · -s</i><span>corta por <b>caractere</b> · suprime as linhas <b>sem</b> o delimitador (que por padrão saem inteiras)</span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">tr · caractere a caractere, só do stdin</p>
+      <ul class="lista">
+        <li><i>tr -d '\r'</i><span>conserta arquivo do Windows — a causa do <code class="inl">bad interpreter: /bin/bash^M</code></span></li>
+        <li><i>tr -s ' '</i><span><b>colapsa</b> espaços repetidos: é o que torna o <code class="inl">cut -d' '</code> viável</span></li>
+        <li><i>tr -c … '\n'</i><span><code class="inl">tr -c '[:alnum:]' '\n' | sort | uniq -c</code> é o contador de palavras de uma linha</span></li>
+        <li><i>não é regex</i><span>não conhece padrão e <b>não substitui palavras</b> — e <code class="inl">-d</code> com <code class="inl">-s</code> juntos raramente faz o esperado</span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">O resto da caixa</p>
+      <ul class="lista">
+        <li><i>comm -13 -23 -12</i><span><b>o que mudou entre duas listas</b>: só no 2º · só no 1º · em ambos</span></li>
+        <li><i>paste -sd,</i><span>lado a lado · <code class="inl">-s</code> junta <b>todas</b> as linhas numa só</span></li>
+        <li><i>join -t: -1 1</i><span>junção relacional — <b>exige as duas entradas ordenadas</b> pelo campo, ou perde pares em silêncio</span></li>
+        <li><i>column -t</i><span>alinha para ler · <code class="inl">nl</code> numera · <code class="inl">tac</code> inverte a ordem · <code class="inl">rev</code> inverte os caracteres</span></li>
+        <li><i>tail -n +2</i><span>tudo <b>a partir</b> da linha 2 — o jeito de pular cabeçalho</span></li>
+        <li><i>shuf -n 100</i><span>amostra aleatória · <code class="inl">split -l</code> fatia arquivo grande</span></li>
+        <li><i>tee copia.txt</i><span>bifurca no meio do pipeline: <b>a ferramenta de depuração</b> de pipeline longo (<code class="inl">tee /dev/stderr</code> mostra na tela e segue)</span></li>
+      </ul>
+      <div class="trapbox"><b><code class="inl">rev | cut -d/ -f2 | rev</code></b> pega o <b>penúltimo</b> campo de uma linha de tamanho variável sem <code class="inl">awk</code>. E <b><code class="inl">comando | head -5</code> mata o comando anterior com <code class="inl">SIGPIPE</code></b> — é o comportamento desejado, o que faz <code class="inl">zcat enorme.gz | head</code> ser instantâneo. Só que sob <span class="fix">set -o pipefail</span> isso aparece como <b>falha do pipeline</b>: é a causa mais comum de script que "falha" fazendo exatamente o certo.</div>
+    </div>
+  </section>
+
+  <div class="perigo"><b><code class="inl">sort arquivo &gt; arquivo</code> esvazia o arquivo.</b> O shell <b>trunca o destino antes</b> de o <code class="inl">sort</code> ler qualquer coisa — o conteúdo se perde por completo, sem erro e sem confirmação. O certo é <code class="inl">sort -o arquivo arquivo</code>, que o próprio <code class="inl">sort</code> trata com segurança. A mesma regra vale para todo comando que leia e escreva o mesmo caminho num redirecionamento; quando não houver a opção <code class="inl">-o</code>, escreva num temporário e mova depois. E lembre que o <code class="inl">sort</code> guarda tudo na memória até estourar: em arquivo maior que a RAM, ele passa a usar <code class="inl">/tmp</code> — se não houver espaço lá, ele <b>morre no meio</b> do processamento.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">sort -n</code> ignora sufixo de unidade.</b> Para <code class="inl">1,5G</code> contra <code class="inl">900M</code>, é <code class="inl">sort -h</code>; para versão, <code class="inl">sort -V</code>.</li>
+        <li><b><code class="inl">uniq</code> só compara linhas adjacentes.</b> Sem <code class="inl">sort</code> antes ele conta errado e não avisa. O canônico é <code class="inl">extrair | sort | uniq -c | sort -rn</code>.</li>
+        <li><b>Em <code class="inl">sort -k</code>, escreva sempre o campo final:</b> <code class="inl">-k2n</code> é "do campo 2 ao fim da linha"; <code class="inl">-k2,2n</code> é o campo 2.</li>
+        <li><b><code class="inl">cut</code> é rápido e limitado:</b> delimitador de um caractere, sem colapsar espaços e sem reordenar. Faltou uma das três? É <code class="inl">awk</code>.</li>
+        <li><b><code class="inl">tr</code> opera caractere a caractere</b> e não conhece padrão: <code class="inl">tr -d '\r'</code>, <code class="inl">tr -s ' '</code> e <code class="inl">tr -c '[:alnum:]' '\n'</code> cobrem quase todo o uso real.</li>
+        <li><b>A localidade muda a ordem do <code class="inl">sort</code>.</b> Fixe <code class="inl">LC_ALL=C</code> quando a saída for comparada entre máquinas — e ganhe desempenho de brinde.</li>
+        <li><b><code class="inl">sort arquivo &gt; arquivo</code> apaga o arquivo.</b> Use <code class="inl">sort -o arquivo arquivo</code>.</li>
+        <li><b><code class="inl">join</code> e <code class="inl">comm</code> exigem entradas ordenadas</b> e falham em silêncio se não estiverem.</li>
+        <li><b><code class="inl">tee</code> no meio do pipeline</b> grava o estágio intermediário sem interromper o fluxo.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>A contagem de portas abertas é o pipeline canônico.</b> <code class="inl">grep -oE '^[0-9]+' portas.txt | sort -n | uniq -c | sort -rn | head -20</code> diz quais serviços dominam a rede varrida — e portanto por onde começar. Esquecer o <code class="inl">sort</code> do meio aqui produz um relatório que <b>subestima a exposição</b>, o tipo de engano que passa despercebido até alguém conferir na mão. <b><code class="inl">comm</code> compara duas varreduras e mostra o que mudou:</b> <code class="inl">comm -13 &lt;(sort ontem.txt) &lt;(sort hoje.txt)</code> lista o que apareceu desde a anterior — host novo, porta nova, serviço que subiu. É monitoramento de superfície de ataque em duas linhas, e serve tanto para quem defende quanto para documentar a evolução do escopo num teste longo. <b><code class="inl">tr -d '\r'</code> antes de qualquer coisa</b> em <i>wordlist</i>, lista de alvos ou script trazido de host Windows: o sintoma é uma ferramenta que <b>não encontra o host <code class="inl">10.0.0.5</code></b> — porque o que ela recebeu foi <code class="inl">10.0.0.5\r</code>, que não resolve. <b>Refinar <i>wordlist</i> é <code class="inl">sort</code>, <code class="inl">uniq</code> e <code class="inl">shuf</code> combinados:</b> juntar várias listas e deduplicar (<code class="inl">LC_ALL=C sort -u l1 l2 l3 &gt; combinada.txt</code> — várias vezes mais rápido que sob UTF-8), cortar as curtas demais e embaralhar para não bater sempre na mesma ordem; em lista de milhões de linhas, confira antes se há espaço em <code class="inl">/tmp</code>, ou o <code class="inl">sort</code> morre no meio. <b>E amostrar antes de varrer é prudência, não preguiça:</b> <code class="inl">shuf -n 50 alvos.txt</code> valida o comando e estima o tempo antes de disparar contra a lista inteira. Um erro de opção descoberto no alvo 3 de 50 é contratempo; descoberto no alvo 3 de 60 mil, já gerou <b>tráfego indevido, alarme no monitoramento do cliente e uma conversa desagradável sobre escopo</b> — com o pano de fundo da <b>Lei 12.737/2012</b>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 11 · Fase 3 <span class="n">068</span></span>
