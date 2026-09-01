@@ -3,101 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 046 — Particionamento com fdisk, parted e gdisk</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Mapa das ferramentas: interativas × programáveis × recuperação */
+  .ferr { display:grid; grid-template-columns:2fr 1fr 1fr; gap:8px; }
+  .grp { border-radius:8px; border:1px solid; padding:6px 7px; }
+  .grp > h4 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+              letter-spacing:.05em; text-align:center; margin-bottom:5px; }
+  .grp .lista { display:grid; gap:5px; }
+  .grp.dupla .lista { grid-template-columns:1fr 1fr; }
+  .tool { background:#fff; border-radius:5px; padding:4px 7px; font-size:9px; line-height:1.3;
+          color:var(--tinta-suave); box-shadow:var(--sombra); }
+  .tool > b:first-child { display:block; font-family:var(--fonte-mono); font-size:11px; color:var(--navy); }
+  .grp.i { border-color:var(--azul);    background:var(--azul-claro); }    .grp.i > h4 { color:var(--azul); }
+  .grp.p { border-color:var(--verde);   background:var(--verde-claro); }   .grp.p > h4 { color:var(--verde); }
+  .grp.r { border-color:var(--laranja); background:var(--laranja-claro); } .grp.r > h4 { color:#a8530a; }
+  /* Tira de teclas do fdisk */
+  .teclas { display:flex; flex-wrap:wrap; gap:5px; align-items:center; justify-content:center; margin-top:7px; }
+  .teclas .rot { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase;
+                 letter-spacing:.04em; color:var(--tinta-suave); }
+  .teclas span.t { font-size:9.5px; background:#eef2f8; color:var(--tinta-suave); border-radius:999px; padding:2px 8px; }
+  .teclas span.t b { font-family:var(--fonte-mono); color:var(--navy); }
+  .teclas span.t.gv { background:#e9f6ee; } .teclas span.t.gv b { color:#1d6b36; }
+  .teclas span.t.sr { background:var(--vermelho-claro); } .teclas span.t.sr b { color:#a52c2c; }
+  /* Ordem do redimensionamento */
+  .ordem { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .op { border-radius:8px; border:1.5px solid; padding:7px 9px; }
+  .op > h4 { font-family:var(--fonte-titulo); font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; }
+  .op.cresce { border-color:var(--verde);    background:var(--verde-claro); }    .op.cresce > h4 { color:var(--verde); }
+  .op.reduz  { border-color:var(--vermelho); background:var(--vermelho-claro); } .op.reduz  > h4 { color:var(--vermelho); }
+  .etapas { display:flex; align-items:stretch; gap:5px; margin:5px 0 4px; }
+  .etapas .sf { align-self:center; font-size:15px; font-weight:700; flex:none; }
+  .op.cresce .sf { color:var(--verde); } .op.reduz .sf { color:var(--vermelho); }
+  .et { flex:1; background:#fff; border:1px solid var(--linha); border-radius:6px; padding:5px 5px; text-align:center; }
+  .et b { display:block; font-family:var(--fonte-titulo); font-size:10px; color:var(--navy); line-height:1.2; }
+  .et i { font-style:normal; font-family:var(--fonte-mono); font-size:8.5px; color:var(--tinta-suave); }
+  .op > p { font-size:9px; line-height:1.35; color:var(--tinta-suave); }
+  .op > p b { color:var(--navy); }
+  .regra { font-size:10px; text-align:center; color:var(--navy); background:var(--papel-tint);
+           border:1px dashed var(--linha); border-radius:6px; padding:4px 8px; margin-top:7px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 046</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Particionamento com fdisk, parted e gdisk</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Particionamento<br>fdisk · gdisk · parted</h1>
+      <div class="sub">Gravou a partição, mas o <code class="inl">lsblk</code> não mostra e o <code class="inl">mkfs</code> falha: <b>a tabela no disco e o mapa que o kernel tem são coisas diferentes.</b></div>
     </div>
     <div class="badge"><b>046</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- FERRAMENTAS -->
+  <div class="secao-titulo">Qual ferramenta — e a diferença que salva dados</div>
+  <section class="ferr">
+    <div class="grp i dupla">
+      <h4>Interativas — perdoam até o <code>w</code></h4>
+      <div class="lista">
+        <div class="tool"><b>fdisk</b> MBR e GPT; o padrão do dia a dia</div>
+        <div class="tool"><b>gdisk</b> só GPT; converte MBR → GPT e recupera a tabela</div>
+        <div class="tool"><b>cfdisk</b> menus; bom para aprender</div>
+        <div class="tool"><b>parted</b> <b style="color:var(--vermelho)">grava na hora</b> — sem <code>w</code>, sem desfazer</div>
+      </div>
+    </div>
+    <div class="grp p">
+      <h4>Programáveis</h4>
+      <div class="lista">
+        <div class="tool"><b>sgdisk</b> o gdisk sem menu: <code>-n n:ini:fim</code>, <code>-t</code>, <code>-c</code></div>
+        <div class="tool"><b>sfdisk</b> <code>--dump</code> salva e restaura a tabela</div>
+      </div>
+    </div>
+    <div class="grp r">
+      <h4>Recuperação</h4>
+      <div class="lista">
+        <div class="tool"><b>testdisk</b> reconstrói tabela perdida</div>
+        <div class="tool"><b>wipefs</b> sem <code>-a</code> só <b>lista</b> assinaturas — seguro</div>
+      </div>
+    </div>
+    <div class="teclas" style="grid-column:1/-1">
+      <span class="rot">Dentro do fdisk:</span>
+      <span class="t"><b>m</b> ajuda</span>
+      <span class="t"><b>p</b> imprime a tabela em memória</span>
+      <span class="t"><b>n</b> nova</span>
+      <span class="t"><b>d</b> apaga</span>
+      <span class="t"><b>t</b> tipo</span>
+      <span class="t"><b>g</b> GPT nova</span>
+      <span class="t"><b>o</b> MBR nova</span>
+      <span class="t"><b>v</b> verifica</span>
+      <span class="t sr"><b>w</b> grava e sai</span>
+      <span class="t gv"><b>q</b> sai sem gravar</span>
+    </div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+  <!-- REDIMENSIONAR -->
+  <div class="secao-titulo">Redimensionar: a ordem não pode ser invertida</div>
+  <section class="ordem">
+    <div class="op cresce">
+      <h4>Aumentar — de fora para dentro</h4>
+      <div class="etapas">
+        <div class="et"><b>1. a partição</b><i>parted resizepart 1 100%</i></div>
+        <span class="sf">→</span>
+        <div class="et"><b>2. o sistema de arquivos</b><i>resize2fs · xfs_growfs</i></div>
+      </div>
+      <p>Crescer a partição primeiro garante espaço para a 2ª etapa. O <b>ext4 cresce montado</b>; sem argumento, o <code class="inl">resize2fs</code> preenche a partição inteira.</p>
+    </div>
+    <div class="op reduz">
+      <h4>Reduzir — de dentro para fora</h4>
+      <div class="etapas">
+        <div class="et"><b>1. o sistema de arquivos</b><i>umount · e2fsck -f · resize2fs 300M</i></div>
+        <span class="sf">→</span>
+        <div class="et"><b>2. a partição</b><i>resizepart 1 350MiB</i></div>
+      </div>
+      <p>Desmontado e com <code class="inl">e2fsck -f</code> antes, sempre. Deixe <b>folga</b> entre os dois números — arredondamento entre unidades trunca. <b>XFS só cresce</b>: reduzir exige <code class="inl">xfsdump</code>, recriar e restaurar.</p>
+    </div>
+    <div class="regra" style="grid-column:1/-1"><b>A regra:</b> o sistema de arquivos <b>nunca</b> pode ser maior que a partição que o contém. Com <b>LVM</b>, <code class="inl">lvextend -r</code> e <code class="inl">lvreduce -r</code> coordenam as duas camadas na ordem certa sozinhos.</div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- NA PRÁTICA -->
+  <div class="secao-titulo">Na prática — do <code class="inl">w</code> ao <code class="inl">Device or resource busy</code></div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> sudo sfdisk --dump /dev/sdb &gt; ~/tabela-sdb.txt   <span class="cmt"># 2 KB que desfazem o acidente</span>
+<span class="prompt">$</span> sudo fdisk /dev/sdb          <span class="cmt"># g → n → &lt;Enter&gt; &lt;Enter&gt; +400M → p (confira!) → w</span>
+<span class="prompt">$</span> sudo mkfs.ext4 /dev/sdb1
+<span class="out">mkfs.ext4: No such file or directory  </span><span class="cmt"># o kernel ainda tem o mapa antigo</span>
+<span class="prompt">$</span> sudo partprobe /dev/sdb      <span class="cmt"># ou partx -u · blockdev --rereadpt</span>
+<span class="out">Error: Partition(s) 2 on /dev/sdb are being used.</span>
+<span class="prompt">$</span> lsblk /dev/sdb; sudo fuser -mv /dev/sdb2; swapon --show; sudo dmsetup ls; cat /proc/mdstat
+<span class="prompt">$</span> sudo umount /dev/sdb2 &amp;&amp; sudo partprobe /dev/sdb &amp;&amp; lsblk /dev/sdb
+<span class="cmt"># libere de cima para baixo: umount → swapoff → vgchange -an → cryptsetup close</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
+  <div class="perigo"><b>Toda ferramenta desta ficha reescreve a tabela de partição.</b> As programáveis não têm etapa de confirmação: <code class="inl">sgdisk --zap-all /dev/sdX</code> destrói GPT principal, secundária e MBR <b>na hora</b>, e uma letra errada custa o disco inteiro. O <code class="inl">parted</code> aplica cada comando imediatamente — <code class="inl">rm 2</code> apaga a partição naquele instante, sem <code class="inl">q</code> que desfaça. Antes de tocar em disco real: confira <b>modelo e número de série</b>, salve com <code class="inl">sfdisk --dump</code> <b>fora do disco</b> e tenha backup restaurável. Ensaie tudo em <code class="inl">losetup</code> sobre arquivo-imagem.</div>
 
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">fdisk</code>, <code class="inl">gdisk</code> e <code class="inl">cfdisk</code> editam uma cópia em memória</b>: nada vai ao disco até o <code class="inl">w</code>, e o <code class="inl">q</code> descarta. <code class="inl">parted</code> e <code class="inl">sgdisk</code> são o oposto.</li>
+        <li><b>Gravar a tabela ≠ o kernel enxergá-la.</b> <code class="inl">partprobe</code> pede a releitura, e ela falha enquanto houver partição montada, swap ativa ou mapeamento de LVM, LUKS ou RAID sobre o disco.</li>
+        <li><b>Aceite os padrões do <code class="inl">fdisk</code></b> (setor 2048) e informe tamanho por sufixo — <code class="inl">+400M</code>, <code class="inl">+20G</code>. Valor na mão é onde nasce o desalinhamento.</li>
+        <li><code class="inl">wipefs</code> sem <code class="inl">-a</code> só lista: é o primeiro comando seguro num disco de procedência desconhecida. Em SSD, <code class="inl">shred</code> não apaga de verdade — o controlador remapeia blocos; use <i>secure erase</i> do firmware.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">No instalador, <b>particionamento guiado com LVM criptografado</b> é a escolha para máquina de trabalho: EFI + <code class="inl">/boot</code> em claro + LUKS com raiz e swap dentro. Reserve <b>1 GiB de <code class="inl">/boot</code></b> — no <i>rolling</i> os <i>initramfs</i> antigos enchem a partição e travam o <code class="inl">apt</code> no meio da atualização. O uso real mais comum do <code class="inl">fdisk</code> aqui é criar a 3ª partição do pendrive de persistência (rótulo <code class="inl">persistence</code>, ext4) — e é onde a troca de letras formata o disco interno. Em perícia, <b>nunca particione a mídia</b>: copie com <code class="inl">dd</code>/<code class="inl">dcfldd</code>, confira o <i>hash</i> e trabalhe sobre <code class="inl">losetup -rP</code> (o <code class="inl">-r</code> é somente leitura). E depois de expandir o disco da VM no hipervisor, o trabalho de dentro é seu: <code class="inl">resizepart</code> e só então <code class="inl">resize2fs</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 08 · Fase 2 <span class="n">046</span></span>
