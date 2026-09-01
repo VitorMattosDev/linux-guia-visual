@@ -3,101 +3,209 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 076 — Interação: menus, cores e caixas de diálogo</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  .grade-topo { display:grid; grid-template-columns:1.16fr 1fr; gap:10px; align-items:start; }
+
+  /* Árvore de decisão da interface */
+  .arv { display:flex; flex-direction:column; gap:3px; }
+  .lin { display:grid; grid-template-columns:1.15fr 24px 1fr; gap:5px; align-items:center; }
+  .perg { border:1.5px solid var(--azul); background:var(--azul-claro); border-radius:12px;
+          padding:4px 8px; font-size:8.2px; line-height:1.24; color:var(--navy); text-align:center; }
+  .perg code { font-family:var(--fonte-mono); font-size:8.1px; }
+  .sim { font-size:7.2px; font-weight:700; color:var(--tinta-suave); text-align:center; line-height:1.1; }
+  .res { border:1.5px solid; border-radius:var(--raio-sm); padding:4px 7px; }
+  .res > b { display:block; font-family:var(--fonte-titulo); font-size:8.8px; text-transform:uppercase;
+           letter-spacing:.02em; }
+  .res > span { display:block; font-size:7.7px; line-height:1.24; color:var(--tinta-suave); }
+  .res.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .res.r > b { color:var(--vermelho); }
+  .res.l { border-color:var(--laranja); background:var(--laranja-claro); } .res.l > b { color:#a8530a; }
+  .res.v { border-color:var(--verde); background:var(--verde-claro); } .res.v > b { color:#1d7038; }
+  .res.a { border-color:var(--azul); background:var(--azul-claro); } .res.a > b { color:var(--azul); }
+  .nao { text-align:center; font-size:7.2px; font-weight:700; color:var(--tinta-suave); line-height:1;
+         grid-column:1; }
+
+  /* Anatomia da sequência ANSI */
+  .ansi { display:flex; gap:3px; align-items:stretch; justify-content:center; }
+  .pc { border:1.5px solid; border-radius:3px; padding:3px 0; text-align:center;
+        font-family:var(--fonte-mono); font-size:13px; font-weight:700; }
+  .pc small { display:block; font-family:var(--fonte-texto); font-size:6.8px; font-weight:400;
+              line-height:1.15; color:var(--tinta-suave); margin-top:2px; }
+  .pc.e { border-color:var(--vermelho); background:var(--vermelho-claro); color:var(--vermelho); flex:1.1; }
+  .pc.b { border-color:var(--azul); background:var(--azul-claro); color:var(--azul); flex:.75; }
+  .pc.n { border-color:var(--verde); background:var(--verde-claro); color:#1d7038; flex:1.5; }
+  .pc.m { border-color:var(--laranja); background:var(--laranja-claro); color:#a8530a; flex:.75; }
+
+  .cods { list-style:none; margin-top:5px; }
+  .cods li { font-size:8px; line-height:1.32; color:var(--tinta-suave); font-family:var(--fonte-mono); }
+  .cods li b { color:var(--navy); }
+  .cods li span { font-family:var(--fonte-texto); }
+
+  .nota { font-size:8.5px; line-height:1.36; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+  .nota code { font-family:var(--fonte-mono); font-size:8.3px; color:var(--roxo); font-weight:600; }
+
+  .grade2 { display:grid; grid-template-columns:1.24fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:8.1px; line-height:1.42; }
+
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .sub2:not(:first-child) { margin-top:6px; }
+  .lista { list-style:none; display:flex; flex-direction:column; gap:1.5px; }
+  .lista li { display:grid; grid-template-columns:62px 1fr; gap:6px; align-items:baseline;
+              font-size:8.2px; line-height:1.27; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:8.5px;
+                color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .lista li code { font-family:var(--fonte-mono); font-size:8.1px; color:var(--navy); font-weight:600; }
+  .lista.chk li { grid-template-columns:14px 1fr; }
+  .lista.chk li i { color:var(--verde); font-size:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 076</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Interação: menus, cores e caixas de diálogo</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Interação: menus,<br>cores e caixas de diálogo</h1>
+      <div class="sub">O script de limpeza era cuidadoso: mostrava o tamanho e pedia <code class="inl">read -p "Confirma? [s/N] "</code> antes do <code class="inl">rm -rf</code>. Funcionou por meses — até alguém escrever <code class="inl">gerar_lista.sh | limpar.sh</code>. O <code class="inl">read</code> leu a <b>primeira linha da lista</b> em vez do teclado. Era <code class="inl">srv-web-01</code>, não bateu com <code class="inl">s</code>, e foi só sorte. <b>O defeito não é o <code class="inl">read</code>: é supor que existe alguém do outro lado.</b> Script bem escrito verifica se há interação e se comporta de forma segura quando não há.</div>
     </div>
     <div class="badge"><b>076</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">Que interface usar · e a anatomia da cor</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="grade-topo">
+      <div class="arv">
+        <div class="lin">
+          <div class="perg">vai rodar sob <code>cron</code>, CI ou dentro de um pipe?</div>
+          <div class="sim">sim →</div>
+          <div class="res r"><b>só argumentos</b><span><code>--sim</code>, <code>--alvo</code>, <code>--saida</code> — nada de <code>read</code></span></div>
+        </div>
+        <div class="nao">↓ não</div>
+        <div class="lin">
+          <div class="perg">a decisão é <b>irreversível</b>?</div>
+          <div class="sim">sim →</div>
+          <div class="res l"><b>confirmação forte</b><span>digitar o <b>nome do alvo</b>, lido de <code>/dev/tty</code></span></div>
+        </div>
+        <div class="nao">↓ não</div>
+        <div class="lin">
+          <div class="perg">são mais de três ou quatro escolhas?</div>
+          <div class="sim">sim →</div>
+          <div class="res v"><b>whiptail</b><span>menu, lista, formulário — <b>sempre</b> com equivalente em linha de comando</span></div>
+        </div>
+        <div class="nao">↓ não</div>
+        <div class="lin">
+          <div class="perg" style="grid-column:1/4; border-style:dashed">↓</div>
+        </div>
+        <div class="res a" style="text-align:center"><b>read ou select</b><span>uma pergunta, um menu curto, <b>zero dependências</b></span></div>
+      </div>
+      <div>
+        <p class="sub2">Anatomia de um escape ANSI</p>
+        <div class="ansi">
+          <div class="pc e">\e<small>ESC (0x1b) inicia a sequência</small></div>
+          <div class="pc b">[<small>CSI abre os parâmetros</small></div>
+          <div class="pc n">1;31<small>atributos: 1 = negrito, 31 = vermelho</small></div>
+          <div class="pc m">m<small>SGR aplica os atributos</small></div>
+        </div>
+        <ul class="cods">
+          <li><b>0</b> normal · <b>1</b> negrito · <b>4</b> sublinhado</li>
+          <li><b>31</b> vermelho · <b>32</b> verde · <b>33</b> amarelo</li>
+          <li><b>34</b> azul · <b>36</b> ciano · <b>37</b> branco · <b>41–47</b> <span>as mesmas no fundo</span></li>
+          <li><b>\e[0m</b> <span><b>sempre</b> no fim — sem ele a cor vaza para o resto do terminal</span></li>
+        </ul>
+        <div class="nota" style="margin-top:5px"><b>Prefira <code>tput</code> a escrever a sequência à mão.</b> <code>tput setaf 1</code>, <code>tput bold</code> e <code>tput sgr0</code> consultam o terminfo do terminal em uso e devolvem <b>string vazia</b> quando ele não suporta cor — a proteção acontece sozinha. Escrever <code>\e[1;31m</code> direto funciona em "quase" todo lugar, e esse "quase" inclui o arquivo de log, o <code>cron</code> e o terminal de quem usa leitor de tela.</div>
+      </div>
+    </div>
+
+    <div class="nota"><b>A pergunta do topo da árvore é a que mais economiza retrabalho:</b> se o script pode acabar num pipe ou num agendador — e quase todo script acaba —, a interatividade tem de ser <b>opcional</b>. Escreva primeiro a versão com argumentos e só depois acrescente o modo interativo que preenche os mesmos valores; o contrário, começar pelo menu e tentar automatizar depois, custa uma reescrita. <b>As três guardas antes de emitir cor</b> são o destino ser um terminal (<code>[[ -t 1 ]]</code>), a variável <code>NO_COLOR</code> não estar definida e o <code>TERM</code> não ser <code>dumb</code>. Se qualquer uma falhar, as variáveis de cor viram string vazia e <b>o resto do script não muda em nada</b> — a cor é opcional em <b>tempo de execução</b>, não em tempo de escrita. O mesmo <code>[[ -t 1 ]]</code> guarda a barra de progresso: sem ele, um log de <code>cron</code> acumula milhares de linhas de <code>\r</code>. Para progresso de um <b>fluxo de dados</b>, o <code>pv</code> já faz tudo isso sem uma linha de código.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">read, select e whiptail na prática</div>
+  <section class="grade2">
+    <div>
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/lab-interacao</span></div>
+<pre><span class="cmt"># leia do TERMINAL, não do stdin — e falhe alto se não houver</span>
+<span class="prompt">$</span> read -rp 'Confirma? [s/N] ' r &lt; /dev/tty
+<span class="prompt">$</span> interativo() { [[ -t 0 &amp;&amp; -t 1 ]]; }
+<span class="cmt"># sem terminal: RECUSE, não assuma. --sim libera o modo automático</span>
+<span class="prompt">$</span> printf 's\n' | ./seguro.sh; echo "status: $?"
+<span class="out">erro: exige confirmacao; use --sim para modo nao interativo
+status: 1</span>
+<span class="cmt"># o irreversível não aceita "s": exige o nome por extenso</span>
+<span class="prompt">$</span> read -rp "Digite o nome do alvo para confirmar: " c &lt; /dev/tty
+<span class="prompt">$</span> [[ "$c" == "$ALVO" ]] || { echo 'cancelado.' &gt;&amp;2; exit 1; }
+<span class="cmt"># cor sob guarda tripla: desligada, tudo vira string vazia</span>
+<span class="prompt">$</span> if [[ -t 1 &amp;&amp; -z "${NO_COLOR:-}" &amp;&amp; "${TERM:-dumb}" != dumb ]]; then
+    C_RESET=$(tput sgr0); C_VERM=$(tput setaf 1)
+  else C_RESET='' C_VERM=''; fi
+<span class="prompt">$</span> erro() { printf '%s[ERRO ]%s %s\n' "$C_VERM" "$C_RESET" "$*" &gt;&amp;2; }
+<span class="cmt"># menu sem dependência nenhuma; case sobre $REPLY, não sobre o texto</span>
+<span class="prompt">$</span> PS3='Escolha uma opção: '
+<span class="prompt">$</span> select o in "Listar" "Reiniciar" "Sair"; do case "$REPLY" in …
+<span class="cmt"># whiptail desenha no stdout e devolve pelo stderr: troque os três</span>
+<span class="prompt">$</span> escolha=$(whiptail --menu "Tarefa:" 15 60 4 \
+      "1" "Atualizar" "2" "Limpar" 3&gt;&amp;1 1&gt;&amp;2 2&gt;&amp;3); echo $?
+<span class="out">0</span>   <span class="cmt"># 0 confirmou · 1 cancelou · 255 pressionou Esc</span></pre>
+      </section>
+    </div>
+    <div>
+      <p class="sub2">read: as opções que importam</p>
+      <ul class="lista">
+        <li><i>-r</i><span>não interpreta a barra invertida — <b>sempre</b></span></li>
+        <li><i>-p 'txt'</i><span>prompt antes de ler; sai no <b><code>stderr</code></b>, para não poluir o <code>stdout</code> que outro programa pode consumir</span></li>
+        <li><i>-s</i><span>não ecoa o digitado (senha)</span></li>
+        <li><i>-n N</i><span>retorna após N caracteres, sem esperar Enter</span></li>
+        <li><i>-t N</i><span>desiste após N segundos, status &gt; 128 — <b>obrigatório</b> em prompt que possa travar script automatizado</span></li>
+        <li><i>-e -i val</i><span>edição de linha com valor inicial editável</span></li>
+        <li><i>-a arr · -u N</i><span>lê para um array · lê do descritor N</span></li>
+      </ul>
+      <p class="sub2">whiptail: as caixas</p>
+      <ul class="lista">
+        <li><i>--yesno</i><span>pergunta; status <b>0</b> sim, <b>1</b> não, <b>255</b> Esc — tratar os três é o que evita que um Esc vire confirmação</span></li>
+        <li><i>--inputbox</i><span>uma linha de texto · <i>--passwordbox</i> sem eco</span></li>
+        <li><i>--checklist</i><span>múltipla escolha com <code>ON</code>/<code>OFF</code></span></li>
+        <li><i>--gauge</i><span>barra alimentada por percentuais na entrada</span></li>
+        <li><i>--stdout</i><span>dispensa a ginástica <code>3&gt;&amp;1 1&gt;&amp;2 2&gt;&amp;3</code> nas versões recentes</span></li>
+      </ul>
+      <p class="sub2">O checklist da interação</p>
+      <ul class="lista chk">
+        <li><i>✓</i><span>prompt e diagnóstico em <code>stderr</code>, <b>resultado em <code>stdout</code></b> — é o que faz <code>r=$(script.sh)</code> funcionar</span></li>
+        <li><i>✓</i><span>confirmação lida de <code>/dev/tty</code>, nunca do <code>stdin</code></span></li>
+        <li><i>✓</i><span><b>Enter vazio nunca confirma</b> operação destrutiva</span></li>
+        <li><i>✓</i><span>modo não interativo <b>explícito</b> (<code>--sim</code>, <code>--batch</code>) e recusa clara sem terminal</span></li>
+        <li><i>✓</i><span>toda pergunta tem equivalente em <b>opção de linha de comando</b></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="perigo"><b>A "confirmação fantasma" é o modo mais silencioso de disparar um comando destrutivo.</b> Num pipe, num <code class="inl">cron</code> ou num contêiner sem TTY, <code class="inl">read -p "Confirma? [s/N]"</code> não espera ninguém: consome a próxima linha do <code class="inl">stdin</code>. Se ela for <code class="inl">s</code>, o <code class="inl">rm -rf</code>, o <code class="inl">mkfs</code> ou o <code class="inl">cryptsetup luksFormat</code> rodam <b>sem que ninguém tenha digitado nada</b>. As defesas: ler de <code class="inl">&lt; /dev/tty</code> (que <b>falha</b> quando não há terminal, em vez de aceitar dados como resposta); <code class="inl">[[ -t 0 &amp;&amp; -t 1 ]]</code> antes de perguntar, recusando com mensagem em vez de assumir; padrão sempre "não"; e, para o irreversível, exigir <b>o nome do alvo por extenso</b> — com tamanho e modelo mostrados na pergunta, para dar para conferir. <b>E nunca receba senha por argumento:</b> <code class="inl">argv</code> aparece no <code class="inl">ps</code> para todos os usuários da máquina e no histórico do shell. Use <code class="inl">read -rs</code>, arquivo com permissão <code class="inl">0600</code> ou variável de ambiente, nessa ordem.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b><code class="inl">read</code> sem terminal lê do pipe, não do teclado.</b> Confirmação sempre com <code class="inl">&lt; /dev/tty</code>, que falha alto quando não há terminal em vez de aceitar uma linha de dados como resposta.</li>
+        <li><b><code class="inl">[[ -t 0 ]]</code> e <code class="inl">[[ -t 1 ]]</code> detectam interatividade.</b> Sem ela, recuse e exija uma opção explícita (<code class="inl">--sim</code>, <code class="inl">ASSUMIR_SIM=1</code>).</li>
+        <li><b>O padrão nunca é o destrutivo.</b> Enter vazio cancela; para o irreversível, exija o nome do alvo por extenso.</li>
+        <li><b>Prompt e diagnóstico em <code class="inl">stderr</code>, resultado em <code class="inl">stdout</code></b> — é o que permite capturar a saída do script com <code class="inl">$( )</code>.</li>
+        <li><b><code class="inl">select</code> resolve o menu simples sem dependência</b>, com <code class="inl">PS3</code> como prompt e <code class="inl">case</code> sobre <code class="inl">$REPLY</code>, não sobre o texto.</li>
+        <li><b>Cor é opcional em tempo de execução:</b> <code class="inl">tput</code> em vez de escape à mão, sob a guarda de <code class="inl">[[ -t 1 ]]</code>, <code class="inl">NO_COLOR</code> e <code class="inl">TERM != dumb</code>. Desligada, as variáveis viram vazias e nada mais muda.</li>
+        <li><b><code class="inl">whiptail</code> e <code class="inl">dialog</code> escrevem a interface no <code class="inl">stdout</code> e o resultado no <code class="inl">stderr</code>.</b> A troca <code class="inl">3&gt;&amp;1 1&gt;&amp;2 2&gt;&amp;3</code> (ou <code class="inl">--stdout</code>) captura a escolha; os status 0, 1 e 255 distinguem confirmar, cancelar e <code class="inl">Esc</code>.</li>
+        <li><b>Toda pergunta precisa de equivalente em opção de linha de comando.</b> Script que só funciona com menu não pode ser agendado, testado nem reproduzido.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Confirmação forte em tudo que é irreversível.</b> <code class="inl">cryptsetup luksFormat</code>, <code class="inl">mkfs</code>, <code class="inl">dd if=… of=/dev/sdX</code> e a limpeza de resultados de teste apagam o que não volta: exigir que a pessoa <b>digite o nome do dispositivo</b>, e não <code class="inl">s</code>, é a diferença entre um erro de digitação e um disco perdido — e o alvo tem de aparecer <b>por extenso na pergunta</b>, com tamanho e modelo, para que dê para conferir. <b>O <code class="inl">whiptail</code> é o que o <code class="inl">kali-tweaks</code> usa</b> — e é o mesmo motor do <code class="inl">dpkg-reconfigure</code>, então já está instalado em qualquer Debian ou Kali sem acrescentar dependência; se você escreve utilitário para a equipe, seguir a convenção deixa a experiência coerente com o resto do sistema. <b>Nunca peça senha com eco ligado nem a receba por argumento:</b> <code class="inl">read -rs</code> para digitar, arquivo com permissão <code class="inl">0600</code>, ou variável de ambiente, nessa ordem de preferência — senha em <code class="inl">argv</code> aparece no <code class="inl">ps</code> para todos os usuários e no histórico do shell, e num teste autorizado isso é <b>vazamento de credencial do cliente</b>. <b>Cor no relatório é armadilha:</b> saída de ferramenta capturada com <code class="inl">$( )</code> traz as sequências de escape junto e a comparação de string falha por um motivo invisível — desligue a cor na origem (<code class="inl">--no-color</code>, <code class="inl">NO_COLOR=1</code>) ou limpe com <code class="inl">sed -r 's/\x1b\[[0-9;]*m//g'</code> antes de processar. <b>E script de ataque tem de ser automatizável:</b> um menu bonito que exige teclado impede que a ação seja repetida de forma idêntica, e a <b>reprodutibilidade</b> é o que sustenta o relatório de um teste autorizado — se não dá para rodar o mesmo comando outra vez e obter o mesmo resultado, não dá para provar o que foi feito nem para o cliente verificar a correção depois. <b>Família RHEL:</b> o <code class="inl">whiptail</code> (pacote <code class="inl">newt</code>) costuma existir nas duas famílias, mas o utilitário de referência ali é o <code class="inl">dialog</code>, e <code class="inl">--gauge</code> e <code class="inl">--checklist</code> têm diferenças de sintaxe — detecte com <code class="inl">command -v whiptail || command -v dialog</code>. O <code class="inl">tput</code> funciona igual, com a ressalva de que o console do RHEL em modo texto pode oferecer menos cores: consultar <code class="inl">tput colors</code> antes de assumir 256 é a checagem correta.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 12 · Fase 3 <span class="n">076</span></span>
