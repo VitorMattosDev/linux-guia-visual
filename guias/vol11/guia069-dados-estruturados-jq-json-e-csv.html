@@ -3,101 +3,181 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 069 — Dados estruturados: jq, JSON e CSV</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Fluxo do jq */
+  .flux { display:grid; grid-template-columns:1.35fr 14px .85fr 14px 1.25fr 14px 1.1fr 14px 1.25fr;
+          align-items:center; }
+  .doc { border:1.5px solid #c3cfdc; background:var(--papel-tint); border-radius:var(--raio-sm);
+         font-family:var(--fonte-mono); font-size:7.4px; line-height:1.5; color:var(--tinta-suave);
+         padding:5px 7px; white-space:pre; }
+  .filtro { border:1.5px solid var(--verde); background:var(--verde-claro); border-radius:var(--raio-sm);
+            font-family:var(--fonte-mono); font-size:9.5px; font-weight:700; color:#1d7038;
+            text-align:center; padding:6px 3px; line-height:1.25; }
+  .vals { display:flex; flex-direction:column; gap:3px; }
+  .vals span { border:1.5px solid var(--azul); background:var(--azul-claro); border-radius:4px;
+               font-family:var(--fonte-mono); font-size:7.4px; color:var(--navy); padding:3px 4px;
+               overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .vals.saida span { border-color:var(--laranja); background:var(--laranja-claro); color:#a8530a; }
+  .vals span.vazio { border:1.5px dashed #d7dee8; background:transparent; color:#b6c2d0; }
+  .fx { display:flex; align-items:center; justify-content:center; color:#8fa3ba; font-size:13px; font-weight:700; }
+  .rot { display:grid; grid-template-columns:1.35fr 14px .85fr 14px 1.25fr 14px 1.1fr 14px 1.25fr;
+         font-size:7.8px; text-align:center; margin-bottom:3px; font-family:var(--fonte-titulo);
+         text-transform:uppercase; letter-spacing:.03em; }
+  .rot b { color:var(--tinta-suave); font-weight:700; }
+  .rot .g { color:#1d7038; } .rot .a { color:var(--azul); } .rot .l { color:#a8530a; }
+
+  .nota { font-size:8.8px; line-height:1.35; color:var(--tinta-suave); margin-top:6px; }
+  .nota b { color:var(--navy); }
+
+  .grade2 { display:grid; grid-template-columns:1fr 1.03fr; gap:9px; align-items:start; }
+
+  /* Armadilha do CSV */
+  .csv { display:flex; flex-direction:column; gap:3px; }
+  .lc { display:grid; grid-template-columns:118px 1fr 46px; gap:6px; align-items:center;
+        border:1.5px solid; border-radius:var(--raio-sm); padding:4px 7px; }
+  .lc i { font-family:var(--fonte-mono); font-style:normal; font-size:8.2px; font-weight:700; }
+  .lc code { font-family:var(--fonte-mono); font-size:8.4px; }
+  .lc u { text-decoration:none; font-size:7.8px; font-weight:700; text-align:center; }
+  .lc.ok { border-color:var(--verde);    background:var(--verde-claro); }
+  .lc.ok i, .lc.ok u { color:#1d7038; } .lc.ok code { color:var(--navy); }
+  .lc.ru { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .lc.ru i, .lc.ru u { color:var(--vermelho); } .lc.ru code { color:var(--vermelho); }
+  .fonte { font-family:var(--fonte-mono); font-size:8.2px; color:var(--tinta-suave); margin:4px 0 2px; }
+  .fonte b { color:var(--navy); font-family:var(--fonte-texto); }
+
+  .lista { list-style:none; display:flex; flex-direction:column; gap:2px; }
+  .lista li { display:grid; grid-template-columns:130px 1fr; gap:6px; align-items:baseline;
+              font-size:8.4px; line-height:1.3; color:var(--tinta-suave); }
+  .lista li i { font-family:var(--fonte-mono); font-style:normal; font-weight:700; font-size:9px;
+                color:var(--roxo); }
+  .lista li b { color:var(--navy); }
+  .sub2 { font-family:var(--fonte-titulo); font-size:9.5px; text-transform:uppercase; letter-spacing:.03em;
+          color:var(--navy); margin:0 0 3px; }
+  .trapbox { border-left:4px solid var(--laranja); background:var(--laranja-claro);
+        border-radius:var(--raio-sm); padding:5px 8px; margin-top:6px;
+        font-size:8.6px; line-height:1.35; color:var(--tinta-suave); }
+  .trapbox b { color:#a8530a; }
+  .trapbox .fix { color:#1d7038; font-weight:700; font-family:var(--fonte-mono); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 069</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Dados estruturados: jq, JSON e CSV</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>jq<br>JSON e CSV</h1>
+      <div class="sub">O <code class="inl">curl … | grep '"ip"' | cut -d'"' -f4</code> funcionou por duas semanas. Aí a API passou a mandar a resposta <b>minificada</b>, tudo numa linha — e o <code class="inl">grep</code>, que decide por linha, viu o documento inteiro como <b>uma</b> linha. Consertado o corte, quebrou de novo num campo com <b>aspa escapada</b>; e de novo quando a API <b>trocou a ordem das chaves</b>, coisa que o JSON permite porque objeto é <b>mapa, não sequência</b>. Nenhum é bug do script: os três vêm da mesma decisão errada.</div>
     </div>
     <div class="badge"><b>069</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
+  <div class="secao-titulo">O modelo: um filtro que transforma valores em valores</div>
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="rot">
+      <b>1 documento</b><span></span><b class="g">explode</b><span></span><b class="a">3 valores</b>
+      <span></span><b class="g">filtra</b><span></span><b class="l">2 valores</b>
+    </div>
+    <div class="flux">
+      <div class="doc">[
+ {"ip":"10.0.0.1",
+  "porta":22},
+ {"ip":"10.0.0.2",
+  "porta":80},
+ {"ip":"10.0.0.3",
+  "porta":22}
+]</div>
+      <span class="fx">→</span>
+      <div class="filtro">.[]</div>
+      <span class="fx">→</span>
+      <div class="vals">
+        <span>{"ip":"10.0.0.1",…}</span>
+        <span>{"ip":"10.0.0.2",…}</span>
+        <span>{"ip":"10.0.0.3",…}</span>
+      </div>
+      <span class="fx">→</span>
+      <div class="filtro">select(<br>.porta==22)</div>
+      <span class="fx">→</span>
+      <div class="vals saida">
+        <span>{"ip":"10.0.0.1",…}</span>
+        <span class="vazio">— descartado —</span>
+        <span>{"ip":"10.0.0.3",…}</span>
+      </div>
+    </div>
+    <div class="nota"><b>Tudo no <code class="inl">jq</code> é esse encadeamento.</b> O <code class="inl">|</code> interno funciona como o do shell, só que carregando <b>valores JSON</b> em vez de bytes: <code class="inl">.[] | select(.porta==22) | .ip</code> lê-se "para cada item da lista, se a porta for 22, devolva o campo <code class="inl">ip</code>". A diferença crucial é que um filtro pode emitir <b>zero, um ou vários</b> valores para cada entrada — o <code class="inl">.[]</code> emite vários, o <code class="inl">select</code> emite zero ou um, e é dessa aritmética que sai todo o poder da ferramenta. <b>E o que sai do <code class="inl">jq</code> ainda é JSON</b>: cadeias vêm entre aspas e escapadas. Para alimentar o próximo comando do pipeline é quase sempre <code class="inl">jq -r</code> (<i>raw</i>) — <b>a opção mais esquecida</b> e a causa número um de nome de arquivo com aspas no meio.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="secao-titulo">CSV é uma armadilha — e os seletores que resolvem o resto</div>
+  <section class="grade2">
+    <div>
+      <div class="fonte"><b>linha bem-comportada:</b> 10.0.0.1,web,producao</div>
+      <div class="csv">
+        <div class="lc ok"><i>cut -d, -f2</i><code>web</code><u>correto</u></div>
+      </div>
+      <div class="fonte"><b>linha real:</b> 10.0.0.1,"servidor web, filial SP",producao</div>
+      <div class="csv">
+        <div class="lc ru"><i>cut -d, -f2</i><code>"servidor web</code><u>cortou ao meio</u></div>
+        <div class="lc ru"><i>awk -F, '{print $2}'</i><code>"servidor web</code><u>mesmo erro</u></div>
+        <div class="lc ok"><i>mlr --icsv --ojson</i><code>"servidor web, filial SP"</code><u>correto</u></div>
+      </div>
+      <div class="nota">A especificação do CSV permite <b>vírgula dentro de campo entre aspas</b>, <b>aspas duplicadas</b> para representar uma aspa literal (<code class="inl">""</code>) e até <b>quebra de linha dentro de um campo</b> — o que arruína a premissa "um registro por linha" de que dependem <code class="inl">grep</code>, <code class="inl">cut</code>, <code class="inl">sed</code> e <code class="inl">awk</code> <b>ao mesmo tempo</b>. Exportação de planilha, de banco e de ferramenta comercial traz as três coisas rotineiramente. As saídas: <code class="inl">mlr</code> (Miller), <code class="inl">csvkit</code> ou uma linguagem com biblioteca de CSV; ou converta uma vez para JSON/TSV e trabalhe dali. <b>Para <i>gerar</i> CSV, <code class="inl">jq -r '… | @csv'</code> produz a citação correta de graça.</b> Só trate CSV com <code class="inl">cut</code> quando você controlar quem o gerou <b>e</b> souber que não há vírgula, aspa nem quebra de linha nos valores.</div>
+      <div class="trapbox"><b>Os outros formatos têm suas ferramentas.</b> <code class="inl">yq -o=json '.' config.yaml</code> converte YAML e devolve o problema ao <code class="inl">jq</code> — o <code class="inl">yq</code> moderno é, em essência, um <code class="inl">jq</code> que fala YAML, com a mesma sintaxe de filtros. <b>Cuidado:</b> existem <b>dois projetos com o nome <code class="inl">yq</code></b> (o de Mike Farah, em Go, e o <code class="inl">yq</code> em Python), com linhas de comando <b>incompatíveis</b> — saiba qual está instalado. Para XML, <span class="fix">xmlstarlet</span> usa XPath e é a ferramenta certa para o <code class="inl">-oX</code> do <code class="inl">nmap</code>.</div>
+    </div>
+    <div>
+      <p class="sub2">Navegar</p>
+      <ul class="lista">
+        <li><i>.host.rede.ip</i><span>campo aninhado · <code class="inl">.["chave com espaço"]</code> quando não é identificador</span></li>
+        <li><i>.[] · .[0] · .[-1]</i><span>cada elemento · o primeiro · <b>o último</b> · <code class="inl">.[2:5]</code> fatia</span></li>
+        <li><i>.talvez? · ..</i><span>não falha se o tipo não permitir · <b>descida recursiva</b>: todos os valores, em qualquer nível</span></li>
+        <li><i>.inexistente</i><span>devolve <b><code class="inl">null</code> em silêncio</b>, não erro — um erro de digitação vira uma coluna de <code class="inl">null</code>. Exija com <code class="inl">has("chave")</code> ou <code class="inl">.chave // error("faltou")</code></span></li>
+        <li><i>a // b</i><span>valor padrão quando o lado esquerdo é <code class="inl">null</code> ou <code class="inl">false</code></span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">Filtrar, transformar, agregar</p>
+      <ul class="lista">
+        <li><i>select(cond)</i><span>emite <b>zero ou um</b> · <code class="inl">select(.ip | startswith("10."))</code> · <code class="inl">select(.tags | index("prod"))</code></span></li>
+        <li><i>map(f) vs .[]|f</i><span><b><code class="inl">map</code> devolve um array; <code class="inl">.[] |</code> devolve vários valores soltos.</b> Escolher errado é a origem de <code class="inl">Cannot iterate over null</code> e dos colchetes a mais</span></li>
+        <li><i>group_by · add</i><span><code class="inl">group_by(.porta) | map({porta: .[0].porta, n: length})</code> · <code class="inl">sort_by</code>, <code class="inl">unique_by</code>, <code class="inl">any</code>, <code class="inl">keys</code>, <code class="inl">to_entries</code></span></li>
+        <li><i>{a: .x} · \(…)</i><span>constrói objeto novo · interpola em cadeia: <code class="inl">"\(.ip):\(.porta)"</code></span></li>
+      </ul>
+      <p class="sub2" style="margin-top:6px">Sair do JSON e voltar ao pipeline</p>
+      <ul class="lista">
+        <li><i>-r · -c</i><span>sem aspas · compacto, <b>um documento por linha</b> (NDJSON)</span></li>
+        <li><i>@csv @tsv @uri</i><span>citação e escape <b>corretos</b> de graça · <code class="inl">@base64</code></span></li>
+        <li><i>-s (--slurp)</i><span>junta o fluxo <b>num array</b> — sem ele, cada linha do NDJSON é processada isoladamente e <code class="inl">length</code> responde por documento</span></li>
+        <li><i>-R · -n</i><span>lê texto comum (converte log em JSON) · não lê entrada, só produz</span></li>
+        <li><i>-e (--exit-status)</i><span>sai com <b>1</b> quando o resultado é <code class="inl">null</code>/<code class="inl">false</code>: é o <code class="inl">grep -q</code> do JSON, para usar em <code class="inl">if</code></span></li>
+        <li><i>--stream</i><span>para arquivo maior que a memória — desconfortável e raro; o usual é converter para NDJSON uma vez com <code class="inl">jq -c '.[]'</code></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="perigo"><b>Valor do shell entra com <code class="inl">--arg</code>, nunca por interpolação — a mesma regra do <code class="inl">-v</code> do <code class="inl">awk</code>.</b> <code class="inl">jq --arg alvo "$IP" '.[] | select(.ip == $alvo)'</code> é seguro (e <code class="inl">--argjson lim 1024</code> passa número, booleano ou objeto). Já <code class="inl">jq "select(.host == \"$HOST\")"</code> <b>quebra na primeira aspa e é injeção de código na segunda</b> — e o valor costuma vir do próprio alvo: nome de host, cabeçalho, campo de resposta. <b>Dado que veio do alvo é dado hostil por definição.</b> Pelo mesmo motivo, <b>não redija relatório com <code class="inl">sed</code> sobre JSON</b>: é possível e falha em silêncio no primeiro campo aninhado — e redação que falha é vazamento. O certo percorre a estrutura inteira: <code class="inl">jq '(.. | .password? , .token? , .cookie?) |= "REDIGIDO"' bruto.json &gt; entrega.json</code>.</div>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>JSON não é texto orientado a linhas.</b> Espaço em branco é livre, a estrutura é aninhada e os valores têm escapes — daí <code class="inl">grep</code>, <code class="inl">cut</code> e <code class="inl">sed</code> funcionarem até deixarem de funcionar, sem aviso.</li>
+        <li><b>O <code class="inl">jq</code> é uma linguagem de filtro:</b> recebe um fluxo de valores, aplica a expressão e emite outro fluxo. O <code class="inl">|</code> interno compõe filtros como o do shell compõe comandos.</li>
+        <li><b><code class="inl">.[]</code> explode uma coleção em vários valores; <code class="inl">map(f)</code> devolve um array.</b> Escolher o errado é a origem das saídas com colchetes a mais ou a menos.</li>
+        <li><b><code class="inl">-r</code> é quase obrigatório quando a saída alimenta outro comando</b> — sem ele, as cadeias saem com aspas de JSON.</li>
+        <li><b>Campo ausente devolve <code class="inl">null</code> em silêncio.</b> Use <code class="inl">has()</code>, <code class="inl">//</code> para padrão ou <code class="inl">// error(…)</code> para exigir presença.</li>
+        <li><b>Valores do shell entram com <code class="inl">--arg</code> e <code class="inl">--argjson</code></b>, nunca por interpolação.</li>
+        <li><b><code class="inl">@csv</code> e <code class="inl">@tsv</code> geram saída citada corretamente</b>, e <code class="inl">-e</code> faz o <code class="inl">jq</code> servir de condição em <code class="inl">if</code>.</li>
+        <li><b>CSV com vírgula ou aspa dentro de campo quebra <code class="inl">cut</code>, <code class="inl">awk</code> e <code class="inl">sed</code> ao mesmo tempo.</b> Use <code class="inl">mlr</code> ou <code class="inl">csvkit</code> — ou converta para JSON e volte ao <code class="inl">jq</code>.</li>
+        <li><b>NDJSON é o formato do ferramental moderno</b>, e o <code class="inl">jq</code> o processa nativamente; <code class="inl">--slurp</code> junta tudo num array quando a agregação exigir.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>A saída JSON do ferramental moderno é feita para o <code class="inl">jq</code>.</b> O <code class="inl">nmap</code> produz XML (<code class="inl">-oX</code>), mas <code class="inl">nuclei</code>, <code class="inl">httpx</code>, <code class="inl">subfinder</code> e <code class="inl">naabu</code> emitem <b>NDJSON — um achado por linha</b>. <code class="inl">nuclei -jsonl -o achados.jsonl</code> seguido de <code class="inl">jq -r 'select(.info.severity=="critical") | "\(.host) \(.info.name)"' achados.jsonl</code> transforma centenas de linhas no resumo do que precisa de atenção imediata. Isso é <b>triagem de resultado de teste autorizado</b> — a mesma ferramenta contra alvo sem contrato não muda o enquadramento da <b>Lei 12.737/2012</b>. <b>Converter o XML do <code class="inl">nmap</code> uma vez economiza o resto do trabalho:</b> <code class="inl">xmlstarlet sel -t -m '//host' -v 'address/@addr' -o " " -v 'ports/port[state/@state="open"]/@portid' -n varredura.xml</code> produz host e portas em texto simples, pronto para <code class="inl">sort</code>, <code class="inl">uniq</code> e <code class="inl">awk</code>. <b><code class="inl">jq -e</code> transforma a checagem em condição de script:</b> <code class="inl">if jq -e '[.[] | select(.severity=="critical")] | length &gt; 0' achados.json &gt;/dev/null; then notificar; fi</code> só dispara o alerta quando há achado crítico — é a forma correta de encadear a triagem com o resto da automação, <b>sem <code class="inl">grep</code> sobre JSON</b>. <b>E confira a versão antes de assumir sintaxe:</b> o <code class="inl">jq</code> 1.6 e o 1.7 diferem em detalhes que mordem — o 1.7 corrigiu o arredondamento de números grandes, mudou a ordenação de <code class="inl">keys</code> para chaves não ASCII e acrescentou <code class="inl">pick</code>, <code class="inl">abs</code> e <code class="inl">toarray</code>. Um filtro escrito para o 1.7 falha num host mais antigo; <code class="inl">jq --version</code> resolve a dúvida em um segundo.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 11 · Fase 3 <span class="n">069</span></span>

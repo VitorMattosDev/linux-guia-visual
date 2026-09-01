@@ -109,7 +109,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 - [x] **guia 066** - sed: o editor de fluxo - `guias/vol11/guia066-sed-o-editor-de-fluxo.html`
 - [x] **guia 067** - awk: processamento por campos e registros - `guias/vol11/guia067-awk-processamento-por-campos-e-registros.html`
 - [x] **guia 068** - cut, sort, uniq, tr e a caixa de ferramentas de texto - `guias/vol11/guia068-cut-sort-uniq-tr-e-a-caixa-de-ferramentas-de-tex.html`
-- [ ] **guia 069** - Dados estruturados: jq, JSON e CSV - `guias/vol11/guia069-dados-estruturados-jq-json-e-csv.html`
+- [x] **guia 069** - Dados estruturados: jq, JSON e CSV - `guias/vol11/guia069-dados-estruturados-jq-json-e-csv.html`
 - [ ] **guia 070** - Juntando tudo: pipelines de processamento de dados - `guias/vol11/guia070-juntando-tudo-pipelines-de-processamento-de-dado.html`
 
 ### Volume 12 — Scripting Avançado e Robusto
