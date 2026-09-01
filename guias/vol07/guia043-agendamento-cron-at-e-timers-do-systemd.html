@@ -3,101 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 043 — Agendamento: cron, at e timers do systemd</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Decodificador da linha do crontab */
+  .cronline { display:flex; gap:6px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+  .cc { text-align:center; }
+  .cc .cx { width:52px; height:36px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+            font-family:var(--fonte-mono); font-weight:700; font-size:16px; color:#fff; }
+  .cc.cmd .cx { width:190px; font-size:12px; background:#5b6b7d; }
+  .cc .rot { font-family:var(--fonte-titulo); font-size:9.5px; color:var(--navy); text-transform:uppercase;
+             letter-spacing:.03em; margin-top:5px; line-height:1.25; }
+  .cc .fx { font-family:var(--fonte-mono); font-size:10px; color:var(--tinta-suave); }
+  .c1 .cx{background:var(--vermelho)} .c2 .cx{background:var(--azul)} .c3 .cx{background:var(--verde)}
+  .c4 .cx{background:var(--laranja)} .c5 .cx{background:var(--roxo)}
+  .legenda2 { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; font-size:10.5px;
+              color:var(--tinta-suave); margin-top:2px; }
+  .legenda2 b { font-family:var(--fonte-mono); color:var(--navy); }
+  .alerta-ou { background:#fdf1e4; border-left:4px solid var(--laranja); border-radius:6px;
+               padding:6px 10px; font-size:10.5px; margin-top:8px; }
+  .alerta-ou b { color:var(--laranja); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 043</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Agendamento: cron, at e timers do systemd</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Agendamento:<br>cron, at e timers</h1>
+      <div class="sub">O script roda no terminal e falha às 3h da manhã — a culpa quase nunca é do agendador.</div>
     </div>
     <div class="badge"><b>043</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- DECODIFICADOR DA LINHA -->
+  <div class="secao-titulo">Anatomia de uma linha do <code class="inl">crontab</code></div>
+  <section>
+    <div class="cronline">
+      <div class="cc c1"><div class="cx">30</div><div class="rot">minuto</div><div class="fx">0–59</div></div>
+      <div class="cc c2"><div class="cx">3</div><div class="rot">hora</div><div class="fx">0–23</div></div>
+      <div class="cc c3"><div class="cx">*</div><div class="rot">dia do mês</div><div class="fx">1–31</div></div>
+      <div class="cc c4"><div class="cx">*</div><div class="rot">mês</div><div class="fx">1–12</div></div>
+      <div class="cc c5"><div class="cx">1-5</div><div class="rot">dia da semana</div><div class="fx">0–7 (0 e 7 = dom)</div></div>
+      <div class="cc cmd"><div class="cx">/usr/local/bin/backup.sh</div><div class="rot">comando</div><div class="fx">com caminho absoluto</div></div>
+    </div>
+    <div class="legenda2">
+      <span><b>*</b> qualquer</span><span><b>,</b> lista (1,15)</span><span><b>-</b> intervalo (1-5)</span>
+      <span><b>/</b> passo (*/10)</span><span><b>@daily</b> <b>@hourly</b> <b>@reboot</b> atalhos</span>
+    </div>
+    <div class="alerta-ou"><b>A pegadinha dos dois campos de dia:</b> quando <i>dia do mês</i> e <i>dia da semana</i> são ambos diferentes de <code class="inl">*</code>, o cron aplica <b>OU</b>, não E. <code class="inl">0 0 13 * 5</code> roda todo dia 13 <b>e</b> toda sexta — não só nas sextas-feiras 13.</div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
+  <!-- O AMBIENTE -->
+  <div class="secao-titulo">Por que falha em silêncio: o ambiente</div>
   <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
+    <div class="card azul"><h3>PATH mínimo</h3><p>Só <code>/usr/bin:/bin</code>. Nada de <code>~/.bashrc</code>. Sempre <b>caminho absoluto</b> dentro do script.</p></div>
+    <div class="card verde"><h3>SHELL=/bin/sh</h3><p>Não é bash: <code>[[ ]]</code>, arrays e <code>source</code> quebram. Use shebang <code>#!/bin/bash</code> ou declare <code>SHELL=</code>.</p></div>
+    <div class="card laranja"><h3><code>%</code> é especial</h3><p>No crontab, <code>%</code> vira nova linha: <code>date +%Y</code> é truncado. Escape com <code>\%</code> — melhor, mova para um script.</p></div>
+    <div class="card roxo"><h3>A saída vira e-mail</h3><p>Sem MTA, o erro <b>desaparece</b>. Sempre <code>&gt;&gt; /var/log/x.log 2&gt;&amp;1</code>.</p></div>
   </section>
 
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
+  <!-- CRON × TIMER -->
+  <div class="secao-titulo">cron × timer do systemd — quando trocar</div>
   <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
+    <div class="coluna verde">
+      <h3>cron — pessoal, rápido, portátil</h3>
+      <ul>
+        <li>Uma linha resolve; existe em todo Unix.</li>
+        <li>Tabelas do <b>sistema</b> (<code class="inl">/etc/crontab</code>, <code class="inl">/etc/cron.d/</code>) têm um campo a mais: <b>o usuário</b>.</li>
+        <li>Nome com ponto em <code class="inl">/etc/cron.d/</code> é ignorado <i>sem aviso</i>.</li>
+        <li><b>anacron</b> recupera o que não rodou com a máquina desligada.</li>
+      </ul>
+    </div>
+    <div class="coluna azul">
+      <h3>timer — quando a tarefa importa</h3>
+      <ul>
+        <li><b>Dois arquivos</b>: <code class="inl">.timer</code> + <code class="inl">.service</code>. Habilita-se o <b>timer</b>; o serviço fica <code class="inl">static</code>.</li>
+        <li>Log automático no journal e falha em <code class="inl">systemctl --failed</code>.</li>
+        <li><b>Nunca sobrepõe execuções</b> — a unit já está ativa, a 2ª é descartada.</li>
+        <li><code class="inl">Persistent=true</code> recupera atraso · <code class="inl">RandomizedDelaySec=</code> evita rajada · <code class="inl">CPUQuota=</code>/<code class="inl">MemoryMax=</code> limitam.</li>
+      </ul>
+    </div>
   </section>
 
-  <!-- NA PRÁTICA: terminal + tabela -->
+  <!-- NA PRÁTICA -->
   <div class="secao-titulo">Na prática</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> env -i /bin/sh -c '/usr/local/bin/backup.sh'  <span class="cmt"># reproduz o ambiente do cron</span>
+<span class="prompt">$</span> systemd-analyze calendar "Mon..Fri 09:00"     <span class="cmt"># valida ANTES de ativar</span>
+<span class="out">Normalized form: Mon..Fri *-*-* 09:00:00   Next elapse: Mon 2026-08-03 09:00:00</span>
+<span class="prompt">$</span> sudo systemctl enable --now backup.timer      <span class="cmt"># o TIMER, nao o service</span>
+<span class="prompt">$</span> systemctl list-timers --all    <span class="cmt"># NEXT e LAST: "isso esta mesmo rodando?"</span>
+<span class="prompt">$</span> echo "/opt/coleta.sh" | at now + 2 hours       <span class="cmt"># uma vez so; atq / atrm</span></pre>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
+  <div class="perigo"><b><code class="inl">crontab -r</code> apaga a tabela inteira sem confirmar</b> — e a tecla <code class="inl">r</code> fica ao lado do <code class="inl">e</code>. Não há desfazer. Mantenha a tabela num arquivo versionado e instale com <code class="inl">crontab arquivo.cron</code>; no mínimo, <code class="inl">crontab -l &gt; ~/crontab.bak</code> antes de editar.</div>
 
-  <!-- COMPARAÇÃO -->
-  <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li>Falhou de madrugada? Teste com <code class="inl">env -i /bin/sh -c 'script'</code> — dez segundos que poupam uma noite.</li>
+        <li><code class="inl">at</code> preserva o ambiente e o diretório do momento do agendamento; exige o <code class="inl">atd</code> ativo.</li>
+        <li>Critério: se alguém vai <b>notar</b> quando a tarefa falhar, ela merece um timer. Senão, cron está certo.</li>
+        <li><code class="inl">systemd-analyze calendar</code> é o teste que o cron nunca ofereceu.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo">Ao receber uma máquina de terceiros, o inventário é de <b>cinco comandos</b>: <code class="inl">crontab -l</code>, <code class="inl">sudo crontab -l -u root</code>, <code class="inl">ls /etc/cron.d/</code>, <code class="inl">atq</code> e <code class="inl">systemctl list-timers --all</code> — é onde moram tarefas esquecidas e onde se procura <b>persistência de atacante</b>. Em teste autorizado, o escopo inclui <b>quando</b>: timer com <code class="inl">OnCalendar=</code> validado e carimbo no journal comprova a janela. Nunca automatize <code class="inl">apt full-upgrade</code> no rolling — agende só o <code class="inl">apt update</code> e decida você.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 07 · Fase 2 <span class="n">043</span></span>
