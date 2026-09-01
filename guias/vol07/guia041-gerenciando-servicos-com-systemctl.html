@@ -3,101 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 041 — Gerenciando serviços com systemctl</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* Matriz 2×2: rodando agora × sobe no boot */
+  .matriz { display:grid; grid-template-columns:78px 1fr 1fr; gap:6px; align-items:stretch; }
+  .mh { font-family:var(--fonte-titulo); font-size:10.5px; text-transform:uppercase;
+        letter-spacing:.03em; text-align:center; align-self:end; padding-bottom:2px; }
+  .mh.on { color:var(--azul); } .mh.off { color:#7d8896; }
+  .ml { font-family:var(--fonte-titulo); font-size:10.5px; text-transform:uppercase;
+        letter-spacing:.03em; color:var(--vermelho); display:flex; align-items:center;
+        justify-content:flex-end; text-align:right; line-height:1.25; }
+  .mc { border-radius:8px; border:1.5px solid; padding:7px 9px; font-size:10px; line-height:1.35; }
+  .mc b { display:block; font-size:11px; margin-bottom:3px; }
+  .mc code { font-family:var(--fonte-mono); font-size:10px; display:block; margin-top:3px; }
+  .mc i { display:block; font-size:9.5px; color:var(--tinta-suave); margin-top:2px; }
+  .mc.ok  { border-color:var(--verde);    background:var(--verde-claro); }    .mc.ok b  { color:var(--verde); }
+  .mc.at  { border-color:var(--laranja);  background:#fdf1e4; }               .mc.at b  { color:var(--laranja); }
+  .mc.pe  { border-color:var(--vermelho); background:var(--vermelho-claro); } .mc.pe b  { color:var(--vermelho); }
+  .mc.of  { border-color:#8a94a6;         background:#f1f3f7; }               .mc.of b  { color:#5b6b7d; }
+  /* Verbos de ciclo de vida */
+  .lado { display:grid; grid-template-columns:1fr 1.05fr; gap:10px; align-items:start; }
+  .verbos { display:flex; flex-direction:column; gap:5px; }
+  .vb { border-radius:6px; padding:5px 9px; font-size:10px; line-height:1.35; border-left:4px solid; }
+  .vb b { font-family:var(--fonte-mono); font-size:10.5px; }
+  .vb.v1 { border-color:var(--vermelho); background:var(--vermelho-claro); } .vb.v1 b { color:var(--vermelho); }
+  .vb.v2 { border-color:var(--verde);    background:var(--verde-claro); }    .vb.v2 b { color:var(--verde); }
+  .vb.v3 { border-color:var(--azul);     background:#e8f1fd; }               .vb.v3 b { color:var(--azul); }
+  .vb.v4 { border-color:var(--roxo);     background:#f0e9fa; }               .vb.v4 b { color:var(--roxo); }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 041</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Gerenciando serviços com systemctl</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Gerenciando<br>Serviços</h1>
+      <div class="sub">"Parei o serviço e ele voltou no reboot" — todo serviço tem <b>dois</b> estados independentes.</div>
     </div>
     <div class="badge"><b>041</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
+  <!-- MATRIZ ATIVO × HABILITADO -->
+  <div class="secao-titulo">Rodando agora × sobe no boot</div>
+  <section class="matriz">
+    <div></div>
+    <div class="mh on"><code class="inl">enabled</code> · sobe no boot</div>
+    <div class="mh off"><code class="inl">disabled</code> · não sobe</div>
+
+    <div class="ml"><span><code class="inl">active</code><br>rodando</span></div>
+    <div class="mc ok"><b>Serviço em produção</b>É o que se quer no fim.<code>systemctl enable --now</code></div>
+    <div class="mc at"><b>Roda agora, some no reboot</b>Serve para teste.<code>systemctl start</code><i>o padrão do Kali</i></div>
+
+    <div class="ml"><span><code class="inl">inactive</code><br>parado</span></div>
+    <div class="mc pe"><b>Parado agora — volta no reboot</b>A armadilha clássica.<code>systemctl stop</code><i>só metade do serviço foi desligada</i></div>
+    <div class="mc of"><b>Desligado de fato</b>Nem agora, nem depois.<code>systemctl disable --now</code><i><code>mask</code> se nem dependência pode ativar</i></div>
   </section>
 
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
+  <!-- STATUS -->
+  <div class="secao-titulo">Lendo o <code class="inl">systemctl status</code> de verdade</div>
   <section class="terminal">
     <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
+<pre><span class="prompt">$</span> systemctl status ssh
+<span class="out">● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; preset: disabled)
+     Active: active (running) since Sat 2026-08-01 09:14:02 -03; 2h 31min ago
+   Main PID: 1187 (sshd)
+     CGroup: /system.slice/ssh.service
+             └─1187 "sshd: /usr/sbin/sshd -D [listener]"</span>
+<span class="cmt"># ago 01 09:14:02 kali sshd[1187]: Server listening on 0.0.0.0 port 22.</span></pre>
+  </section>
+  <section class="cards" style="--col:4">
+    <div class="card azul"><h3>Loaded</h3><p>Caminho do arquivo (pacote ou <code>/etc</code>), habilitação e o <b>preset</b> da distro.</p></div>
+    <div class="card verde"><h3>Active</h3><p>Estado e <b>há quanto tempo</b>. Tempo curto demais = laço de reinício.</p></div>
+    <div class="card roxo"><h3>CGroup</h3><p>A árvore que <b>pertence</b> à unit. Por isso <code>stop</code> não deixa órfão.</p></div>
+    <div class="card laranja"><h3>Cuidado</h3><p><b>running ≠ funciona.</b> Confirme pelo efeito: <code>ss -tlnp</code>, uma requisição.</p></div>
   </section>
 
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
-  <section>
+  <!-- VERBOS -->
+  <div class="secao-titulo">Qual verbo usar</div>
+  <section class="lado">
+    <div class="verbos">
+      <div class="vb v1"><b>restart</b> — mata e sobe outro. Todas as conexões caem. Sempre funciona.</div>
+      <div class="vb v2"><b>reload</b> — manda <code class="inl">SIGHUP</code>: relê a config sem morrer. Só existe se a unit tiver <code class="inl">ExecReload=</code>.</div>
+      <div class="vb v3"><b>reload-or-restart</b> — tenta o melhor caso e cai para o outro. O verbo certo em script.</div>
+      <div class="vb v4"><b>--failed</b> / <b>reset-failed</b> — listar e limpar. O estado <code class="inl">failed</code> é marca deliberada: não some sozinho.</div>
+    </div>
     <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
+      <thead><tr><th>Quero…</th><th>Comando</th></tr></thead>
       <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
+        <tr><td>Parar agora, talvez voltar depois</td><td><code>stop</code></td></tr>
+        <tr><td>Que não suba no boot</td><td><code>disable</code></td></tr>
+        <tr><td>Nem agora nem depois</td><td><code>disable --now</code></td></tr>
+        <tr><td>Que nenhuma dependência ative</td><td><code>mask</code></td></tr>
+        <tr><td>Ver o que está carregado</td><td><code>list-units</code></td></tr>
+        <tr><td>Ver o que está instalado em disco</td><td><code>list-unit-files</code></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <div class="perigo"><b>Dois comandos que custam a máquina remota:</b> <code class="inl">systemctl restart ssh</code> com <code class="inl">sshd_config</code> inválido mantém a sessão atual viva e recusa toda conexão nova — valide antes com <code class="inl">sudo sshd -t</code>, prefira <code class="inl">reload</code> e abra uma segunda sessão antes de fechar a primeira. E <code class="inl">systemctl isolate rescue.target</code> derruba rede e SSH junto. Mascarar <code class="inl">dbus</code> ou <code class="inl">systemd-logind</code> "para economizar" quebra o sistema com erros que não citam a unit mascarada.</div>
+
+  <!-- RESUMO + KALI -->
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><code class="inl">is-active</code> e <code class="inl">is-enabled</code> retornam <b>código de saída</b> — é assim que script consulta estado, não com <code class="inl">grep</code> no <code class="inl">status</code>.</li>
+        <li><code class="inl">static</code> não é defeito: a unit é puxada por outra, não habilitada sozinha.</li>
+        <li><code class="inl">systemctl --failed</code> abre qualquer diagnóstico. Máquina sadia: <i>0 loaded units</i>.</li>
+        <li><code class="inl">daemon-reload</code> relê os arquivos; <code class="inl">daemon-reexec</code> reinicia o próprio PID 1.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><code class="inl">preset: disabled</code> é política, não anomalia. Ao ligar o SSH, <b>troque as chaves de host</b>: a imagem vem com chaves iguais em toda máquina clonada — <code class="inl">rm /etc/ssh/ssh_host_*</code> e <code class="inl">dpkg-reconfigure openssh-server</code>. Rode <code class="inl">systemctl --failed</code> depois de todo <code class="inl">apt full-upgrade</code> no rolling. Em limites de laboratório use <code class="inl">set-property --runtime</code>: some no reboot, sem drop-in esquecido.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 07 · Fase 2 <span class="n">041</span></span>

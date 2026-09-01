@@ -67,7 +67,7 @@ Um guia por sessão. Commit: `guia NNN: <titulo>` com o status no mesmo commit.
 
 - [x] **guia 039** - O processo de inicialização: UEFI, GRUB e o kernel - `guias/vol07/guia039-o-processo-de-inicializacao-uefi-grub-e-o-kernel.html`
 - [x] **guia 040** - systemd: units, targets e o modelo de serviços - `guias/vol07/guia040-systemd-units-targets-e-o-modelo-de-servicos.html`
-- [ ] **guia 041** - Gerenciando serviços com systemctl - `guias/vol07/guia041-gerenciando-servicos-com-systemctl.html`
+- [x] **guia 041** - Gerenciando serviços com systemctl - `guias/vol07/guia041-gerenciando-servicos-com-systemctl.html`
 - [ ] **guia 042** - Logs com journald e o syslog tradicional - `guias/vol07/guia042-logs-com-journald-e-o-syslog-tradicional.html`
 - [ ] **guia 043** - Agendamento: cron, at e timers do systemd - `guias/vol07/guia043-agendamento-cron-at-e-timers-do-systemd.html`
 - [ ] **guia 044** - Targets, recuperação e problemas de boot - `guias/vol07/guia044-targets-recuperacao-e-problemas-de-boot.html`
