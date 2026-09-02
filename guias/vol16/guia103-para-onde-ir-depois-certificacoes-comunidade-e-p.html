@@ -3,101 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 103 — Para onde ir depois: certificações, comunidade e prática</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: o mapa das cinco fases ---- */
+  .mapa { display:grid; grid-template-columns:repeat(5,1fr); gap:3.5px; }
+  .fa { border:1.5px solid; border-radius:var(--raio-sm); padding:2px 5px; text-align:center; }
+  .fa > u { display:block; text-decoration:none; font-family:var(--fonte-titulo); font-size:8.2px;
+            font-weight:800; text-transform:uppercase; letter-spacing:.02em; line-height:1.12; }
+  .fa > i { display:block; font-style:normal; font-family:var(--fonte-mono); font-size:6.6px;
+            color:var(--tinta-suave); }
+  .fa > span { display:block; font-size:6.7px; line-height:1.1; color:var(--tinta-suave); margin-top:1px; }
+  .fa.f1 { border-color:var(--azul); background:var(--azul-claro); } .fa.f1 > u { color:var(--azul); }
+  .fa.f2 { border-color:var(--verde); background:var(--verde-claro); } .fa.f2 > u { color:#1d7038; }
+  .fa.f3 { border-color:var(--roxo); background:#f3eefb; } .fa.f3 > u { color:var(--roxo); }
+  .fa.f4 { border-color:var(--laranja); background:var(--laranja-claro); } .fa.f4 > u { color:var(--laranja); }
+  .fa.f5 { border-color:var(--vermelho); background:var(--vermelho-claro); } .fa.f5 > u { color:var(--vermelho); }
+
+  /* ---- figura 2: as tres trilhas ---- */
+  .base { max-width:340px; margin:0 auto 2px; border:1.6px solid var(--navy); background:#e9eef7;
+          border-radius:var(--raio-sm); padding:2px 8px; text-align:center;
+          font-family:var(--fonte-titulo); font-size:9px; font-weight:800; color:var(--navy);
+          text-transform:uppercase; letter-spacing:.02em; }
+  .base em { display:block; font-style:normal; font-family:var(--fonte-texto); font-size:6.8px;
+             text-transform:none; letter-spacing:0; font-weight:400; color:var(--tinta-suave); }
+  .tri { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .tr { border:1.5px solid; border-radius:var(--raio-md); padding:3px 6px 4px; }
+  .tr > b { display:block; text-align:center; font-family:var(--fonte-titulo); font-size:8.8px;
+            font-weight:800; text-transform:uppercase; letter-spacing:.02em; line-height:1.12; }
+  .tr > b em { display:block; font-style:normal; font-family:var(--fonte-texto); font-size:6.8px;
+               text-transform:none; letter-spacing:0; font-weight:400; color:var(--tinta-suave); }
+  .tr > p { margin:2px 0 0; font-size:7.1px; line-height:1.18; color:var(--tinta-suave); text-align:center; }
+  .tr > span { display:block; margin-top:2px; padding-top:2px; border-top:1px dashed currentColor;
+               font-family:var(--fonte-mono); font-size:6.9px; font-weight:700; text-align:center; }
+  .tr.i { border-color:var(--verde); background:var(--verde-claro); }
+  .tr.i > b, .tr.i > span { color:#1d7038; }
+  .tr.s { border-color:var(--laranja); background:var(--laranja-claro); }
+  .tr.s > b, .tr.s > span { color:var(--laranja); }
+  .tr.d { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .tr.d > b, .tr.d > span { color:var(--vermelho); }
+
+  /* ---- figura 3: o ciclo de pratica ---- */
+  .ciclo { display:grid; grid-template-columns:1fr 16px 1fr; grid-template-rows:auto 14px auto;
+           align-items:center; justify-items:stretch; }
+  .cc { border:1.5px solid; border-radius:var(--raio-sm); padding:2px 6px; text-align:center; }
+  .cc > b { display:block; font-family:var(--fonte-titulo); font-size:8.4px; text-transform:uppercase;
+            letter-spacing:.02em; line-height:1.12; }
+  .cc > span { display:block; font-size:6.85px; line-height:1.12; color:var(--tinta-suave); }
+  .cc.c1 { border-color:var(--azul); background:var(--azul-claro); } .cc.c1 > b { color:var(--azul); }
+  .cc.c2 { border-color:var(--vermelho); background:var(--vermelho-claro); } .cc.c2 > b { color:var(--vermelho); }
+  .cc.c3 { border-color:var(--laranja); background:var(--laranja-claro); } .cc.c3 > b { color:var(--laranja); }
+  .cc.c4 { border-color:var(--verde); background:var(--verde-claro); } .cc.c4 > b { color:#1d7038; }
+  .sx { text-align:center; font-size:10px; color:var(--tinta-suave); line-height:1; }
+
+  /* ---- geral ---- */
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:7.95px; line-height:1.22;
+           color:var(--tinta-suave); margin-top:4px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:7.85px; color:var(--roxo); font-weight:600; }
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:start; }
+  table.comparacao { font-size:7.05px; }
+  table.comparacao th { font-size:8px; padding:2px 6px; }
+  table.comparacao td { padding:1px 5px; line-height:1.1; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.05px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:0.7mm; }
+  .secao-titulo { font-size:12.6px; margin:0; }
+  .cabecalho { padding-bottom:1.6mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.5px; line-height:1.3; }
+  .perigo { font-size:7.85px; line-height:1.21; padding:4px 10px; }
+  .bloco .corpo { font-size:7.05px; line-height:1.16; padding:5px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:8px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 103</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Para onde ir depois: certificações, comunidade e prática</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Para onde ir depois:<br>certificações, comunidade e prática</h1>
+      <div class="sub">Cento e dois capítulos atrás a pergunta era o que significa "Linux". Agora você monta volumes lógicos, filtra pacotes com <code class="inl">nftables</code> e rastreia binário sem fonte. <b>O guia acaba aqui; o aprendizado, não</b> — e o que separa quem consolida de quem esquece metade em seis meses é o que acontece nas semanas seguintes.</div>
     </div>
     <div class="badge"><b>103</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">O mapa do que você percorreu — nomear o que se sabe é parte de saber</div>
+    <div class="mapa" style="margin-top:4px">
+      <div class="fa f1"><u>1 · Fundamentos</u><i>vol 1–4</i><span>shell, FHS, arquivos, permissões, usuários</span></div>
+      <div class="fa f2"><u>2 · Administração</u><i>vol 5–8</i><span>processos, pacotes, systemd, armazenamento</span></div>
+      <div class="fa f3"><u>3 · Scripting</u><i>vol 9–12</i><span>do primeiro script ao código robusto e depurável</span></div>
+      <div class="fa f4"><u>4 · Redes e segurança</u><i>vol 13–15</i><span>pilha, firewall, hardening, automação</span></div>
+      <div class="fa f5"><u>5 · Fronteira</u><i>vol 16</i><span>kernel, contêineres, VMs, compilação, observabilidade</span></div>
+    </div>
+    <div class="regra"><b>Um teste honesto de consolidação:</b> escolha cinco caixas acima e, <i>sem consultar</i>, escreva de memória o comando principal de cada uma e o que ele responde. <b>O que não sair é a sua lista de revisão</b> — e ela costuma ser bem mais curta do que a sensação de "não sei nada" sugere.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Três trilhas partem da mesma base — o que cada uma exige a mais</div>
+    <div style="margin-top:4px">
+      <div class="base">base comum: este manual<em>shell · sistema · scripting · redes · segurança</em></div>
+      <div class="tri">
+        <div class="tr i"><b>infraestrutura<em>sysadmin · SRE · DevOps</em></b>
+          <p>Ansible e Terraform · Kubernetes · CI/CD e observabilidade · alta disponibilidade</p>
+          <span>LPIC-1/2 · LFCS · RHCSA</span></div>
+        <div class="tr s"><b>segurança<em>ofensiva e defensiva</em></b>
+          <p>teste de intrusão · resposta a incidente · análise de malware · forense e detecção</p>
+          <span>KLCP · eJPT · PNPT · OSCP · GCIH</span></div>
+        <div class="tr d"><b>desenvolvimento<em>sistemas e plataforma</em></b>
+          <p>C, Rust e Go · programação de sistemas · eBPF · contribuição e empacotamento</p>
+          <span>sem certificação relevante</span></div>
+      </div>
+    </div>
+    <div class="regra"><b>As trilhas não são exclusivas:</b> quem faz segurança ofensiva precisa da infraestrutura para entender o alvo, e quem opera infraestrutura precisa da segurança para não construir o problema. <b>Muda a profundidade exigida e a prova que o mercado aceita</b> — na primeira coluna certificação pesa em processo seletivo; na terceira, conta código público.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">O ciclo que fixa — e onde exercitar sem depender de ideia própria</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:0.88fr 1.12fr">
+      <div>
+        <div class="ciclo">
+          <div class="cc c1"><b>1 · construir</b><span>algo que você usa de verdade</span></div>
+          <div class="sx">→</div>
+          <div class="cc c2"><b>2 · quebrar</b><span>de propósito, com snapshot antes</span></div>
+          <div class="sx">↑</div><div></div><div class="sx">↓</div>
+          <div class="cc c4"><b>4 · ensinar</b><span>explicar a alguém ou escrever em público</span></div>
+          <div class="sx">←</div>
+          <div class="cc c3"><b>3 · documentar</b><span>o que quebrou e como você viu</span></div>
+        </div>
+        <div class="regra"><b>Por que funciona:</b> construir cria contexto; quebrar cria a <i>memória do sintoma</i>, que é o que você vai reencontrar no trabalho real; documentar transforma o episódio em conhecimento recuperável; ensinar expõe as lacunas que você não sabia que tinha. <b>O que não funciona:</b> assistir a vídeo sem digitar, ler documentação sem exercitar e colecionar cursos comprados que nunca foram concluídos.</div>
+      </div>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Onde praticar</th><th>O que é · custo</th></tr></thead>
+          <tbody>
+            <tr><td>OverTheWire (Bandit)</td><td>30 níveis de shell por SSH, autorizados · gratuito</td></tr>
+            <tr><td>TryHackMe · Hack The Box</td><td>trilhas guiadas e máquinas para explorar · camada gratuita</td></tr>
+            <tr><td>VulnHub</td><td>imagens de VM vulneráveis para baixar · gratuito</td></tr>
+            <tr><td><b>laboratório próprio</b></td><td>o que a ficha 100 construiu · o seu tempo</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="regra">Somem-se a esses o <i>Exercism</i> e o <i>Advent of Code</i> (exercícios de programação, inclusive em Bash) e o <i>CTFtime</i>, calendário das competições de captura de bandeira — todos gratuitos. <b>Mas o laboratório próprio é o mais valioso da lista e o mais ignorado:</b> é o único em que <i>você projeta o problema</i>, e projetar o problema é a habilidade que nenhuma plataforma treina. <b>E a documentação instalada na sua máquina é subutilizada</b>, sendo a única que corresponde exatamente à versão que você tem: <code>man -k rede</code>, <code>apropos socket</code>, <code>info coreutils</code>, <code>/usr/share/doc/&lt;pacote&gt;/</code>. Fora dela: Arch Wiki, <i>Debian Administrator's Handbook</i>, <i>Kali Linux Revealed</i>, LWN.net e <i>The Linux Programming Interface</i>.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Certificação, comunidade e um plano de doze meses</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:1.14fr 0.86fr">
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Certificação</th><th>Foco · formato</th></tr></thead>
+          <tbody>
+            <tr><td>Linux Essentials · LPIC-1/2 · Linux+</td><td>administração, neutra de distribuição · múltipla escolha</td></tr>
+            <tr><td>LFCS/LFCE · RHCSA/RHCE</td><td>administração (a segunda, em RHEL) · <b>práticas, em terminal real</b>: medem execução, não memória. A RHCSA é a mais exigente e a de maior peso</td></tr>
+            <tr><td>KLCP</td><td>o Kali · material oficial gratuito (<i>Kali Linux Revealed</i>)</td></tr>
+            <tr><td>eJPT · PNPT · OSCP</td><td>intrusão, do inicial ao referência da área · práticas, com relatório</td></tr>
+            <tr><td>Security+ · GCIH</td><td>defesa e resposta · exigidas em contrato e em governo</td></tr>
+          </tbody>
+        </table>
+        <div class="regra"><b>Certificação não ensina — atesta e organiza.</b> O edital é um roteiro pronto e gratuito: <b>comece por ele, não pelo curso</b>. <b>Prova prática vale mais que múltipla escolha</b>; <b>credencial que não se exerce vira linha morta em dois anos</b>.</div>
+      </div>
+      <div>
+        <div class="regra" style="margin-top:0"><b>Um plano de doze meses que funciona.</b> <b>1–2, consolidar:</b> refaça de memória os laboratórios dos volumes fracos, monte o laboratório virtual permanente, ponha os dotfiles num repositório. <b>3–5, escolher trilha e alvo:</b> baixe um edital e trate-o como lista de tarefas; em paralelo, os 30 níveis do Bandit. <b>6–8, construir algo público:</b> um script que resolve um problema <i>seu</i>, com README, tratamento de erro e testes — o item que mais pesa numa conversa técnica. <b>9–10:</b> prestar a prova, se decidiu por uma. <b>11–12, contribuir e ensinar:</b> um bug reportado, uma tradução, um artigo sobre algo que você quebrou e consertou. <b>Nada disso funciona sem a peça mais chata: horário fixo</b> — duas horas em dois dias marcados na semana batem seis horas de sábado esporádico com folga, na mesma lógica do <code>cron</code>: <b>o que é agendado acontece</b>.</div>
+        <div class="regra"><b>Na comunidade a progressão é consumir → participar → contribuir.</b> <b>Reportar bem é habilidade específica:</b> versão exata (<code>apt policy</code>, <code>uname -a</code>), reprodução, comportamento esperado, observado e log — o <code>reportbug</code> monta isso. Relatório assim é resolvido; "não funciona" é fechado. <b>As portas de entrada são mais largas do que parecem:</b> tradução, documentação, triagem, empacotamento e teste de versão candidata.</div>
+      </div>
+    </div>
+    <div class="perigo"><b>A autorização é a linha que define a carreira em segurança, e ela não muda com o nível técnico.</b> Tudo o que este manual mostrou de ofensivo pressupõe <b>laboratório próprio ou autorização escrita e delimitada</b>. Acessar sistema de terceiros sem autorização é crime (Lei 12.737/2012), e <i>"eu só estava testando"</i> não é defesa. Hack The Box, TryHackMe e VulnHub existem para dar alvos legítimos; o laboratório em rede isolada, para o resto. <b>Um profissional se distingue tanto pela competência quanto pela disciplina de escopo.</b></div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Cinco fases, dezesseis volumes</b>, do primeiro comando ao kernel — e nomear o que se sabe é parte de saber.</li>
+        <li><b>Três trilhas partem daqui</b> — infraestrutura, segurança e desenvolvimento de sistemas. Não são exclusivas: muda a profundidade e o tipo de prova que cada mercado aceita.</li>
+        <li><b>Certificação não ensina, atesta e organiza.</b> Mesmo sem prestar a prova, o edital é um roteiro pronto e gratuito — e as provas práticas valem mais que múltipla escolha.</li>
+        <li><b>O ciclo que fixa é construir → quebrar → documentar → ensinar.</b> Vídeo sem digitar não fixa; curso não concluído, menos ainda.</li>
+        <li><b>O laboratório próprio é o recurso mais valioso e o mais ignorado:</b> é o único em que você projeta o problema em vez de resolver o de outra pessoa.</li>
+        <li><b>Horário fixo bate volume esporádico:</b> o que é agendado acontece — foi verdade para o <code class="inl">cron</code> e é verdade para você.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O KLCP é a credencial específica do Kali, e o material é gratuito:</b> <i>Kali Linux Revealed</i>, em <code class="inl">kali.org/docs</code>, cobre instalação, <code class="inl">kali-tweaks</code>, metapacotes, persistência e customização — depois deste guia, leitura rápida. <b>O caminho ofensivo tem uma ordem que evita frustração:</b> eJPT ou PNPT antes de OSCP, muitas horas de máquinas fáceis antes das difíceis e, sobretudo, <b>escrever relatório desde o primeiro exercício</b> — o que mais reprova candidato na OSCP não é a exploração, é o relatório e a gestão de tempo. <b>Praticar relatório é praticar a profissão; praticar só exploração é praticar o hobby.</b> <b>Contribuir com o Kali é acessível:</b> <code class="inl">bugs.kali.org</code> aceita relatórios e sugestões de ferramenta, e o empacotamento é documentado sobre a mesma base Debian. <b>Empacotar uma ferramenta que você usa e que ainda não está no repositório é contribuição concreta e ao alcance de quem terminou este livro.</b> <b>E mantenha o Kali como ferramenta, não como sistema principal.</b> Ele é rolling por definição; usá-lo como estação diária é aceitar atualizações que quebram e ferramentas privilegiadas que você não usa todo dia. <b>A configuração madura é uma máquina estável de trabalho e o Kali em VM ou contêiner, reconstruído a partir dos dotfiles quando precisar</b> — o fechamento natural das fichas 097 e 099. <b>E se a trilha for infraestrutura corporativa</b>, a RHCSA é prática, exigente e tem peso alto de mercado — o estudo é gratuito (Rocky, AlmaLinux e Fedora dão ambiente compatível). As diferenças que este guia foi anotando ficha a ficha — <code class="inl">dnf</code>, <code class="inl">firewalld</code>, SELinux, <code class="inl">dracut</code> — são exatamente o conteúdo dessa prova.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 16 · Fase 5 <span class="n">103</span></span>
