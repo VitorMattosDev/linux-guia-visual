@@ -3,101 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 100 — Virtualização: KVM, QEMU e o laboratório de estudos</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: a pilha de virtualizacao ---- */
+  .pilha-wrap { display:grid; grid-template-columns:1fr 132px; gap:8px; align-items:center; }
+  .pilha { display:grid; gap:3px; }
+  .tri { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; }
+  .cam { border:1.5px solid; border-radius:var(--raio-sm); padding:2px 7px; text-align:center; }
+  .cam > b { display:block; font-family:var(--fonte-titulo); font-size:8.5px; text-transform:uppercase;
+             letter-spacing:.02em; line-height:1.1; }
+  .cam > span { display:block; font-size:7px; line-height:1.13; color:var(--tinta-suave); }
+  .cam.a { border-color:var(--azul); background:var(--azul-claro); } .cam.a > b { color:var(--azul); }
+  .cam.l { border-color:var(--laranja); background:var(--laranja-claro); } .cam.l > b { color:var(--laranja); }
+  .cam.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .cam.r > b { color:var(--vermelho); }
+  .cam.v { border-color:var(--verde); background:var(--verde-claro); } .cam.v > b { color:#1d7038; }
+  .cam.g { border-color:var(--linha); background:var(--papel-tint); } .cam.g > b { color:var(--tinta-suave); }
+  .lado { display:grid; gap:4px; }
+  .lado > div { border:1.5px solid var(--roxo); background:#f3eefb; border-radius:var(--raio-sm);
+                padding:3px 6px; text-align:center; }
+  .lado > div > b { display:block; font-family:var(--fonte-titulo); font-size:8.5px; color:var(--roxo);
+                    text-transform:uppercase; letter-spacing:.02em; }
+  .lado > div > span { display:block; font-size:6.9px; line-height:1.14; color:var(--tinta-suave); }
+  .lado code { font-family:var(--fonte-mono); font-size:7.1px; color:var(--roxo); }
+
+  /* ---- figura 2: o laboratorio isolado ---- */
+  .hostbox { border:1.5px solid var(--verde); background:var(--verde-claro); border-radius:var(--raio-sm);
+             padding:2.5px 8px; display:grid; grid-template-columns:1fr auto; gap:6px; align-items:center; }
+  .hostbox > b { font-family:var(--fonte-titulo); font-size:8.5px; color:#1d7038; text-transform:uppercase;
+                 letter-spacing:.02em; }
+  .hostbox > span { font-size:6.9px; color:var(--tinta-suave); }
+  .liga { text-align:center; font-size:6.9px; color:#1d7038; line-height:1.25; }
+  .isolada { border:1.6px dashed var(--vermelho); background:#fdf3f3; border-radius:var(--raio-md);
+             padding:4px 6px 5px; margin-top:2px; }
+  .isolada > .tg { font-family:var(--fonte-titulo); font-size:7.6px; font-weight:800; color:var(--vermelho);
+                   text-transform:uppercase; letter-spacing:.02em; margin-bottom:3px; }
+  .vms { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+  .vm { border:1.5px solid; border-radius:var(--raio-sm); padding:2px 5px; text-align:center; background:#fff; }
+  .vm > b { display:block; font-family:var(--fonte-titulo); font-size:8.2px; text-transform:uppercase; line-height:1.1; }
+  .vm > u { display:block; text-decoration:none; font-family:var(--fonte-mono); font-size:7px; color:var(--tinta-suave); }
+  .vm > span { display:block; font-size:6.8px; line-height:1.12; color:var(--tinta-suave); }
+  .vm.k { border-color:var(--azul); } .vm.k > b { color:var(--azul); }
+  .vm.s { border-color:var(--laranja); } .vm.s > b { color:var(--laranja); }
+  .vm.t { border-color:var(--vermelho); } .vm.t > b { color:var(--vermelho); }
+  .barra-br { margin-top:3px; border-top:1.6px solid var(--tinta-suave); text-align:center; }
+  .barra-br span { display:inline-block; background:#fdf3f3; padding:0 6px; font-family:var(--fonte-mono);
+                   font-size:6.9px; color:var(--tinta-suave); transform:translateY(-6px); }
+
+  /* ---- geral ---- */
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8px; line-height:1.23;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:7.85px; color:var(--roxo); font-weight:600; }
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.05px; line-height:1.25; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.2px; }
+  table.comparacao th { font-size:8px; padding:2px 6px; }
+  table.comparacao td { padding:1px 5px; line-height:1.11; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.05px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; font-family:var(--fonte-mono); }
+
+  .guia { --gap-blocos:1.4mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:2.4mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.5px; line-height:1.3; }
+  .perigo { font-size:7.9px; line-height:1.22; padding:4px 10px; }
+  .bloco .corpo { font-size:7.25px; line-height:1.17; padding:5px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 100</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Virtualização: KVM, QEMU e o laboratório de estudos</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Virtualização: KVM, QEMU<br>e o laboratório de estudos</h1>
+      <div class="sub">Para praticar é preciso ter <b>onde errar</b>: um servidor para endurecer, um alvo para escanear, um sistema para quebrar e restaurar em trinta segundos. Nada disso cabe no notebook de trabalho, e alugar máquinas na nuvem para hospedar um alvo deliberadamente frágil é caro <i>e</i> irresponsável.</div>
     </div>
     <div class="badge"><b>100</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Três peças, três papéis — o que cada camada realmente faz</div>
+    <div class="pilha-wrap" style="margin-top:4px">
+      <div class="pilha">
+        <div class="tri">
+          <div class="cam a"><b>convidado 1</b><span>Debian servidor</span></div>
+          <div class="cam a"><b>convidado 2</b><span>Kali</span></div>
+          <div class="cam a"><b>convidado 3</b><span>alvo vulnerável</span></div>
+        </div>
+        <div class="cam l"><b>QEMU — um processo por VM</b><span>emula disco, placa de rede, teclado, BIOS/UEFI</span></div>
+        <div class="cam r"><b>KVM — módulo do kernel</b><span>executa as instruções do convidado direto na CPU</span></div>
+        <div class="cam v"><b>kernel do hospedeiro</b><span>escalonamento, memória, rede, armazenamento</span></div>
+        <div class="cam g"><b>CPU com VT-x / AMD-V</b><span>+ RAM + discos</span></div>
+      </div>
+      <div class="lado">
+        <div><b>virsh</b><span><code>virt-manager</code> · <code>virt-install</code></span></div>
+        <div><b>libvirt</b><span>define a VM em XML, inicia, faz snapshot e cuida das redes virtuais</span></div>
+      </div>
+    </div>
+    <div class="regra"><b>O KVM não sabe o que é um disco</b> — ele só dá acesso às extensões da CPU. Quem inventa os periféricos é o <b>QEMU</b>, delegando a execução ao KVM quando ele existe; sem KVM ele emula a CPU por software — <b>10 a 20× mais lento</b>, mas é assim que se roda ARM num x86. <b>O veredito é o <code>kvm-ok</code>:</b> deu vazio, o motivo mais comum não é o processador — é a extensão desligada no firmware UEFI, ou o seu Kali já ser uma VM sem <i>virtualização aninhada</i> (<code>/sys/module/kvm_intel/parameters/nested</code>). <b>E use <code>virtio</code> em disco e rede:</b> a otimização de maior retorno que existe.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">O laboratório: o modo de rede separa exercício de risco</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:1.08fr 0.92fr">
+      <div>
+        <div class="hostbox"><b>hospedeiro</b><span>virsh · virt-manager · os arquivos .qcow2 — e a sua LAN e a internet</span></div>
+        <div class="liga">▲ só o hospedeiro alcança a rede isolada ▲</div>
+        <div class="isolada">
+          <div class="tg">rede isolada 10.99.0.0/24 — sem <code>&lt;forward/&gt;</code>, sem rota para fora</div>
+          <div class="vms">
+            <div class="vm k"><b>Kali</b><u>10.99.0.10</u><span>estação de trabalho</span></div>
+            <div class="vm s"><b>srv1</b><u>10.99.0.20</u><span>Debian + nginx</span></div>
+            <div class="vm t"><b>alvo</b><u>10.99.0.30</u><span>deliberadamente frágil</span></div>
+          </div>
+          <div class="barra-br"><span>bridge virbr-lab</span></div>
+        </div>
+      </div>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Modo</th><th>Alcança · é alcançado</th></tr></thead>
+          <tbody>
+            <tr><td>isolated</td><td>só os outros convidados · <b>ninguém de fora</b> — o modo dos <b>alvos vulneráveis</b></td></tr>
+            <tr><td>nat (default)</td><td>internet e hospedeiro · só o hospedeiro — uso geral</td></tr>
+            <tr><td>bridge</td><td>a LAN inteira, com IP próprio · toda a LAN — só quando a VM tem mesmo de ser host da rede</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="regra"><b>É a ausência do elemento <code>&lt;forward/&gt;</code> no XML que torna a rede isolada:</b> sem ele a libvirt não cria NAT nem rota — os convidados falam entre si e com o endereço da bridge, e nada mais. <b>A prova de que deu certo é um <code>ping</code> para a internet que <i>falha</i></b> de dentro do convidado. Para instalar pacotes, troque a rede dele para <code>default</code> por tempo limitado e devolva à isolada <b>antes</b> de ligar o alvo frágil. (No QEMU puro há ainda o modo <code>user</code>: dá internet ao convidado por uma pilha em espaço de usuário, sem root e sem que ninguém o alcance — bom para teste rápido.)</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — disco derivado, cloud-init e o snapshot que justifica tudo</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:0.72fr 1.28fr">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="cmt"># disco derivado: parte da base, so grava a diferenca</span>
+<span class="prompt">$</span> sudo qemu-img create -f qcow2 -F qcow2 \
+    -b /var/lib/libvirt/images/base-debian.qcow2 \
+    /var/lib/libvirt/images/srv1.qcow2 20G
+<span class="prompt">$</span> qemu-img info srv1.qcow2
+<span class="out">virtual size: 20 GiB   disk size: 196 KiB</span>
+<span class="prompt">$</span> sudo virt-install --name srv1 --memory 1024 --vcpus 1 \
+    --disk .../srv1.qcow2,bus=virtio --import \
+    --os-variant debian12 --graphics none \
+    --network network=lab-isolada,model=virtio
+<span class="cmt"># o par que justifica o laboratorio inteiro:</span>
+<span class="prompt">$</span> virsh snapshot-create-as srv1 limpo "estado inicial"
+<span class="prompt">$</span> virsh snapshot-revert srv1 limpo   <span class="cmt"># volta em segundos</span>
+<span class="prompt">$</span> virsh domifaddr srv1   <span class="cmt"># o IP que o convidado pegou</span>
+<span class="prompt">$</span> virsh console srv1     <span class="cmt"># serial; sair com Ctrl+]</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>O que usar</th><th>Por quê</th></tr></thead>
+          <tbody>
+            <tr><td>qcow2</td><td>aloca sob demanda (40 GB declarados = 2 GB reais) e aceita snapshot no próprio arquivo. <code>vmdk</code>/<code>vdi</code>, só para importar VM pronta</td></tr>
+            <tr><td>backing file</td><td>dez VMs partem da mesma base somente-leitura e gravam só as diferenças — as camadas do contêiner, um nível abaixo</td></tr>
+            <tr><td>nuvem + cloud-init</td><td>dispensa instalar do zero: um <code>seed.iso</code> cria o usuário, injeta a chave SSH e instala pacotes no 1º boot</td></tr>
+            <tr><td>snapshot ≠ backup</td><td>depende do disco original e não sobrevive à falha do hospedeiro. Para preservar: <code>dumpxml</code> + cópia do <code>.qcow2</code> com a VM desligada</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="perigo"><b><code class="inl">virsh shutdown</code> é ACPI e <code class="inl">virsh destroy</code> apenas arranca o cabo — quem apaga é o <code class="inl">undefine</code>, e <code class="inl">virsh undefine srv1 --remove-all-storage</code> apaga os discos sem pedir confirmação.</b> Se a VM usa disco derivado de uma base compartilhada, confira antes o que vai embora: <code class="inl">virsh domblklist &lt;vm&gt;</code> lista os arquivos. <b>Apagar a base leva junto todas as VMs derivadas dela</b> — e o erro só aparece na próxima vez que uma delas tentar ligar. Ensaie o ciclo criar/apagar com uma VM de teste antes de rodá-lo num laboratório que você não queira ter de remontar.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>VM traz o próprio kernel; contêiner compartilha o do hospedeiro.</b> Aplicação que você controla vai para contêiner; código não confiável, outro sistema operacional ou kernel que você <i>pretende</i> travar vai para VM.</li>
+        <li><b>Três peças:</b> <b>KVM</b> é o módulo que usa as extensões da CPU, <b>QEMU</b> é o processo que emula os periféricos, <b>libvirt</b> guarda a definição em XML e cuida de redes e snapshots.</li>
+        <li><b>Sem VT-x/AMD-V — ou sem virtualização aninhada, quando o hospedeiro já é VM — o QEMU emula por software</b> e fica 10 a 20× mais lento. <code class="inl">kvm-ok</code> dá o veredito; <code class="inl">virtio</code> dá o desempenho.</li>
+        <li><b><code class="inl">qcow2</code> com disco derivado é o formato do laboratório</b>, e <b>imagem de nuvem + cloud-init</b> tornam a criação declarativa e repetível.</li>
+        <li><b>O modo de rede define o risco:</b> <code class="inl">isolated</code> para alvo vulnerável, <code class="inl">nat</code> para uso geral, <code class="inl">bridge</code> só quando a VM precisa ser host da LAN.</li>
+        <li><b>Snapshot é o que torna o laboratório utilizável</b> — quebrar e voltar em segundos. <b>Mas não é backup.</b> Uma VM que você tem medo de quebrar deixou de ser laboratório.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O laboratório de alvos vulneráveis é a razão nº 1 para virtualizar — e a rede isolada não é opcional.</b> Metasploitable, DVWA e as máquinas do VulnHub têm falhas reais e sem correção. Em rede <i>bridge</i> ficam acessíveis a qualquer aparelho da sua LAN e, com encaminhamento de porta no roteador, à internet — e um alvo comprometido por terceiros para atacar outras pessoas a partir do seu IP é um <b>problema jurídico seu</b>. Regra fixa: <b>alvo vulnerável nasce e morre em rede <code class="inl">isolated</code></b>. <b>Autorização vale dentro de casa:</b> praticar exploração é legítimo em máquinas que você criou ou em plataformas que autorizam por escrito (Hack The Box, TryHackMe, laboratórios de certificação). Escanear ou explorar sistema de terceiros sem autorização é crime (Lei 12.737/2012) — partir de uma VM não muda nada. <b>O laboratório existe para que não haja tentação de treinar em alvo real.</b> <b>Kali em VM é a instalação recomendada:</b> <code class="inl">kali-tweaks</code> cobre o que muda em convidado, e <code class="inl">spice-vdagent</code> (ou <code class="inl">open-vm-tools</code>) dá área de transferência e redimensionamento de tela. <b>Snapshot antes de cada sessão de estudo transforma um engano em trinta segundos de perda.</b> <b>Adaptador Wi-Fi USB precisa de passagem direta:</b> modo monitor não funciona pela placa emulada — repasse o dispositivo físico ao convidado (<code class="inl">virsh attach-device</code> com XML de <code class="inl">hostdev</code>), e o driver que precisa existir é o <i>do convidado</i>: DKMS outra vez, dentro da VM. <b>Analisar malware exige VM, não contêiner, com regras extras:</b> rede isolada ou desligada, snapshot antes e reversão depois, sem pasta compartilhada e sem USB. Amostras modernas detectam ambiente virtualizado e mudam de comportamento, e escape de hipervisor, embora raro, existe — para análise séria, hospedeiro dedicado e descartável. <b>Na RHEL:</b> <code class="inl">dnf group install "Virtualization Host"</code> e SELinux via <code class="inl">svirt</code> — mover um <code class="inl">.qcow2</code> na mão quebra o rótulo, e <code class="inl">restorecon -Rv</code> resolve.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 16 · Fase 5 <span class="n">100</span></span>
