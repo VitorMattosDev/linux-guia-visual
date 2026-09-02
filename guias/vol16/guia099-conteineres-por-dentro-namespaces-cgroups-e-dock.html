@@ -3,101 +3,203 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 099 — Contêineres por dentro: namespaces, cgroups e Docker</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: VM x conteiner ---- */
+  .duo { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .duo > div { position:relative; }
+  .duo > div + div::before { content:""; position:absolute; left:-6px; top:0; bottom:0;
+                             border-left:1.4px dashed var(--linha); }
+  .pt { text-align:center; font-family:var(--fonte-titulo); font-size:9.4px; font-weight:800;
+        text-transform:uppercase; letter-spacing:.03em; color:var(--navy); margin-bottom:3px; }
+  .pilha { display:grid; gap:2.2px; }
+  .par { display:grid; grid-template-columns:1fr 1fr; gap:2.5px; }
+  .cam { border:1.4px solid; border-radius:var(--raio-sm); padding:1.5px 5px; text-align:center; }
+  .cam > b { display:block; font-family:var(--fonte-titulo); font-size:8px; text-transform:uppercase;
+             letter-spacing:.01em; line-height:1.1; }
+  .cam > span { display:block; font-size:6.8px; line-height:1.1; color:var(--tinta-suave); }
+  .cam.a { border-color:var(--azul); background:var(--azul-claro); } .cam.a > b { color:var(--azul); }
+  .cam.a2 { border-color:var(--azul); background:#eef4fc; } .cam.a2 > b { color:var(--azul); }
+  .cam.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .cam.r > b { color:var(--vermelho); }
+  .cam.l { border-color:var(--laranja); background:var(--laranja-claro); } .cam.l > b { color:var(--laranja); }
+  .cam.v { border-color:var(--verde); background:var(--verde-claro); } .cam.v > b { color:#1d7038; }
+  .cam.g { border-color:var(--linha); background:var(--papel-tint); } .cam.g > b { color:var(--tinta-suave); }
+
+  /* ---- figura 2: camadas da imagem ---- */
+  .lay { display:grid; gap:2.5px; }
+  .ly { border:1.4px solid; border-radius:var(--raio-sm); padding:1.5px 7px; display:grid;
+        grid-template-columns:1fr auto; align-items:baseline; gap:5px; }
+  .ly > b { font-family:var(--fonte-mono); font-size:7.4px; font-weight:700; line-height:1.15; }
+  .ly > span { font-size:6.7px; color:var(--tinta-suave); white-space:nowrap; }
+  .ly.vis { border-color:var(--vermelho); background:var(--vermelho-claro); } .ly.vis > b { color:var(--vermelho); }
+  .ly.up { border-color:var(--verde); background:var(--verde-claro); } .ly.up > b { color:#1d7038; }
+  .ly.ro { border-color:var(--azul); background:var(--azul-claro); } .ly.ro > b { color:var(--azul); }
+  .ly.ro2 { border-color:var(--azul); background:#eef4fc; } .ly.ro2 > b { color:var(--azul); }
+  .setinha { text-align:center; font-size:9px; color:var(--tinta-suave); line-height:.8; }
+
+  /* ---- geral ---- */
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8px; line-height:1.23;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:7.85px; color:var(--roxo); font-weight:600; }
+  .grade2 { display:grid; grid-template-columns:0.98fr 1.02fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.05px; line-height:1.24; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7px; }
+  table.comparacao th { font-size:8px; padding:2px 6px; }
+  table.comparacao td { padding:0.8px 5px; line-height:1.1; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:6.95px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; font-family:var(--fonte-mono); }
+
+  .guia { --gap-blocos:1.1mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:2.2mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.5px; line-height:1.3; }
+  .perigo { font-size:7.8px; line-height:1.21; padding:4px 10px; }
+  .bloco .corpo { font-size:7.3px; line-height:1.17; padding:5px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:8px; }
+  .lay { gap:2px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 099</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Contêineres por dentro: namespaces, cgroups e Docker</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Contêineres por dentro:<br>namespaces, cgroups e Docker</h1>
+      <div class="sub">Dentro do contêiner, <code class="inl">ps</code> mostra dois processos, <code class="inl">hostname</code> responde <code class="inl">a3f9c2b1e004</code> e <code class="inl">ls /</code> mostra uma árvore que não é a sua. No hospedeiro, o mesmo software é o PID 48211 na saída de <code class="inl">ps</code>. <b>As duas visões estão certas:</b> contêiner não é VM em miniatura — é processo comum com a visão do sistema recortada.</div>
     </div>
     <div class="badge"><b>099</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Onde cada tecnologia coloca a fronteira de isolamento</div>
+    <div class="duo" style="margin-top:4px">
+      <div>
+        <div class="pt">Máquina virtual</div>
+        <div class="pilha">
+          <div class="par"><div class="cam a"><b>app A</b></div><div class="cam a"><b>app B</b></div></div>
+          <div class="par"><div class="cam a2"><b>bibliotecas</b></div><div class="cam a2"><b>bibliotecas</b></div></div>
+          <div class="par"><div class="cam r"><b>kernel convidado</b></div><div class="cam r"><b>kernel convidado</b></div></div>
+          <div class="cam l"><b>hipervisor</b><span>KVM / QEMU — a fronteira</span></div>
+          <div class="cam v"><b>kernel do hospedeiro</b></div>
+          <div class="cam g"><b>hardware</b></div>
+        </div>
+      </div>
+      <div>
+        <div class="pt">Contêiner</div>
+        <div class="pilha">
+          <div class="par"><div class="cam a"><b>app A</b></div><div class="cam a"><b>app B</b></div></div>
+          <div class="par"><div class="cam a2"><b>bibliotecas</b></div><div class="cam a2"><b>bibliotecas</b></div></div>
+          <div class="par">
+            <div class="cam r"><b>namespaces</b><span>+ cgroups + seccomp</span></div>
+            <div class="cam r"><b>namespaces</b><span>+ cgroups + seccomp</span></div>
+          </div>
+          <div class="cam v"><b>kernel do hospedeiro — um só</b><span>a fronteira é a configuração que ele aplica a cada processo</span></div>
+          <div class="cam g"><b>hardware</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="regra"><b>À esquerda, cada convidado tem kernel próprio: quem for comprometido lá dentro ainda precisa furar o hipervisor para chegar ao hospedeiro. À direita, o kernel é um só.</b> Contêiner sobe em milissegundos e custa pouca memória; VM leva segundos e reserva RAM. <b>A pergunta não é "qual é melhor", e sim "de quem preciso me defender":</b> contêiner separa aplicações que <i>você</i> controla; VM separa código em que você <i>não confia</i>. E como o kernel é um só, <b>falha explorável de dentro do contêiner alcança o hospedeiro e todos os outros</b>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">As três peças: recortar o que ele vê, limitar o que consome, empilhar o que ele lê</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:1.06fr 0.94fr">
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Namespace</th><th>Recorta · efeito visível</th></tr></thead>
+          <tbody>
+            <tr><td>mnt</td><td>tabela de montagem — outra árvore de diretórios</td></tr>
+            <tr><td>pid</td><td>numeração — o primeiro processo é o <b>PID 1</b></td></tr>
+            <tr><td>net</td><td>interfaces, rotas e firewall próprios</td></tr>
+            <tr><td>uts</td><td><code>hostname</code> responde outra coisa</td></tr>
+
+            <tr><td>user</td><td>mapeia UID/GID: <b>root dentro, usuário comum fora</b></td></tr>
+            <tr><td>cgroup</td><td>não vê a hierarquia de cgroups do hospedeiro</td></tr>
+            <tr><td>ipc · time</td><td>filas e memória compartilhada não atravessam; relógio e uptime próprios</td></tr>
+          </tbody>
+        </table>
+        <div class="regra"><b>São independentes</b> — e o Docker <i>não</i> usa o <code>user</code> por padrão. <b>Dois processos estão no mesmo namespace se, e só se, o número em <code>/proc/&lt;PID&gt;/ns/</code> coincidir.</b></div>
+      </div>
+      <div>
+        <div class="lay">
+          <div class="ly vis"><b>visão do processo: /</b><span>a união das camadas</span></div>
+          <div class="setinha">▲</div>
+          <div class="ly up"><b>camada gravável (upperdir)</b><span>só deste contêiner</span></div>
+          <div class="ly ro"><b>COPY app/ /opt/app</b><span>4 MB</span></div>
+          <div class="ly ro2"><b>RUN apt install python3</b><span>42 MB</span></div>
+          <div class="ly ro2"><b>FROM debian:stable-slim</b><span>74 MB · base</span></div>
+        </div>
+        <div class="regra" style="margin-top:4px"><b>As camadas de baixo são somente-leitura e compartilhadas por todos os contêineres da mesma base</b> — dez contêineres ocupam o espaço de um. Ao gravar num arquivo que vem de baixo, o overlayfs faz <i>copy-up</i>: copia para a camada gravável e altera a cópia. <b>Removida ela, tudo o que o contêiner escreveu desaparece</b> — daí a regra: <b>dado que precisa durar vai em volume</b>, nunca na camada gravável. Cada instrução do <code>Dockerfile</code> vira uma camada: agrupe <code>RUN</code> e ordene do menos para o mais volátil — é assim que o cache de build rende.</div>
+        <div class="regra"><b>cgroups v2 são diretórios em <code>/sys/fs/cgroup/</code>, e impor limite é escrever num arquivo:</b> <code>memory.max</code> (estourar aciona o OOM killer <i>dentro</i> do cgroup), <code>pids.max</code> (faz <code>fork</code> falhar — a defesa contra <i>fork bomb</i>) e <code>cpu.max</code>. O systemd já gerencia essa árvore — cada unit é um cgroup, daí <code>systemd-cgtop</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — construir na mão e reconhecer as peças na CLI do Docker</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:0.84fr 1.16fr">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="cmt"># arvore de processos propria (namespace PID)</span>
+<span class="prompt">$</span> sudo unshare --pid --fork --mount-proc bash
+<span class="prompt">#</span> ps aux   <span class="cmt"># dentro: bash e PID 1, 2 processos</span>
+<span class="cmt"># sem --mount-proc o isolamento existe no kernel e</span>
+<span class="cmt"># NAO aparece: ps le o /proc do hospedeiro</span>
+<span class="cmt"># root que nao e root (namespace user, sem sudo!)</span>
+<span class="prompt">$</span> unshare --user --map-root-user bash
+<span class="prompt">#</span> id
+<span class="out">uid=0(root) gid=0(root)</span>
+<span class="prompt">#</span> cat /proc/self/uid_map
+<span class="out">    0    1000    1</span>  <span class="cmt"># root aqui = 1000 la fora</span>
+<span class="cmt"># laboratorio de rede inteiro sem uma VM sequer</span>
+<span class="prompt">$</span> sudo ip netns add lab
+<span class="prompt">$</span> sudo ip link add veth-h type veth peer name veth-c
+<span class="prompt">$</span> sudo ip link set veth-c netns lab   <span class="cmt"># cabo virtual</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Opção do docker run</th><th>Qual mecanismo ela expõe</th></tr></thead>
+          <tbody>
+            <tr><td>--memory --cpus --pids-limit</td><td>cgroups v2: <code>memory.max</code>, <code>cpu.max</code>, <code>pids.max</code></td></tr>
+            <tr><td>--cap-drop=ALL · no-new-privileges</td><td>capabilities e escalada por SUID; readicione só o que faltar</td></tr>
+            <tr><td>--read-only --tmpfs /tmp · USER app</td><td>a camada gravável e as montagens; <b>não rode como root</b> lá dentro</td></tr>
+            <tr><td>docker inspect .State.Pid</td><td>com <code>ls -l /proc/&lt;PID&gt;/ns/</code>, prova que o contêiner <b>é</b> aquele processo</td></tr>
+            <tr><td>podman (sem daemon)</td><td>filho do <i>seu</i> usuário, com o namespace <code>user</code>: <i>rootless</i> por construção</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="perigo"><b>Três opções anulam o isolamento, cada uma por si um caminho direto para o hospedeiro.</b> <code class="inl">--privileged</code> devolve todas as capabilities, remove o seccomp e abre <code class="inl">/dev</code> — um processo assim monta o disco do hospedeiro e edita o <code class="inl">/etc/shadow</code>; prefira <code class="inl">--cap-add</code> específico. <code class="inl">--net=host</code> remove o namespace de rede: ele passa a ver e capturar todo o tráfego da máquina. <b>O socket do Docker montado</b> dá ao contêiner o poder de criar <i>outros</i> contêineres, inclusive um <code class="inl">--privileged</code> montando <code class="inl">/</code> — equivale a dar root no hospedeiro. <b>Pela mesma lógica, estar no grupo <code class="inl">docker</code> equivale a ter root sem senha:</b> <code class="inl">docker run -v /:/hosp -it debian chroot /hosp</code> é tudo o que separa um membro do grupo do controle total da máquina.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Contêiner é processo, não máquina.</b> Namespaces recortam o que ele <i>vê</i>, cgroups limitam o que ele <i>consome</i>, capabilities/seccomp/MAC restringem o que ele <i>pode fazer</i>. Sem kernel próprio, sem hardware emulado.</li>
+        <li><b>Oito namespaces independentes</b> — <code class="inl">mnt</code>, <code class="inl">pid</code>, <code class="inl">net</code>, <code class="inl">uts</code>, <code class="inl">ipc</code>, <code class="inl">user</code>, <code class="inl">cgroup</code>, <code class="inl">time</code>. <code class="inl">unshare</code> cria, <code class="inl">nsenter</code> entra (e resgata contêiner sem shell dentro, com os binários do hospedeiro), <code class="inl">lsns</code> lista.</li>
+        <li><b><code class="inl">--mount-proc</code> junto com <code class="inl">--pid</code> não é detalhe:</b> sem ele o isolamento existe no kernel e as ferramentas continuam mostrando a máquina inteira.</li>
+        <li><b>Imagem é pilha somente-leitura sob uma camada gravável</b>, unidas por overlayfs. Dado que precisa durar vai em <b>volume</b>.</li>
+        <li><b><code class="inl">--privileged</code>, <code class="inl">--net=host</code> e o socket do Docker montado anulam o isolamento</b>; grupo <code class="inl">docker</code> = root sem senha. Podman <i>rootless</i> evita a categoria inteira.</li>
+        <li><b>Contêiner isola menos porque o kernel é compartilhado:</b> aplicação sua em contêiner, código não confiável em VM.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Contêiner é o jeito mais barato de manter o Kali limpo.</b> Em vez de empilhar dezenas de ferramentas com dependências conflitantes no sistema principal, <code class="inl">docker run --rm -it kalilinux/kali-rolling</code> dá um Kali descartável, e um <code class="inl">apt install kali-linux-headless</code> lá dentro monta o ambiente completo que você joga fora depois — cada ferramenta na sua imagem. É a aplicação prática dos dotfiles: a VM some, o <code class="inl">Dockerfile</code> fica. <b>Alvos de laboratório (DVWA, Juice Shop, WebGoat) sobem com um comando — com uma ressalva séria:</b> publique a porta <i>só no loopback</i>, <code class="inl">-p 127.0.0.1:8080:80</code>, nunca <code class="inl">-p 8080:80</code>, e jamais em máquina com IP público. Aplicação deliberadamente vulnerável exposta à internet é comprometida em minutos e vira um problema seu, não didático. Alvo que exija kernel próprio ou escalada local pede VM isolada. <b>Ferramenta de rede em contêiner ensina o modelo na marra:</b> <code class="inl">nmap -sS</code>, <code class="inl">tcpdump</code> e <code class="inl">ping</code> pedem <code class="inl">CAP_NET_RAW</code>, e a resposta é <code class="inl">--cap-add=NET_RAW</code>, nunca <code class="inl">--privileged</code>. Falhou com "operation not permitted"? A pergunta é <i>qual capability</i> ou <i>qual syscall barrada pelo seccomp</i> — o <code class="inl">strace</code> responde. <b>Do lado defensivo, contêiner mal configurado é hoje um dos achados mais comuns em teste de infraestrutura.</b> A lista que se verifica primeiro: rodando como root, <code class="inl">--privileged</code> sem justificativa, socket do Docker montado, imagem base velha, segredo em <code class="inl">ENV</code> ou numa camada (<code class="inl">docker history</code> revela) e a API na porta <code class="inl">2375</code> sem TLS — root remoto sem autenticação. <code class="inl">trivy</code> e <code class="inl">docker scout</code> automatizam a varredura da imagem. Só em sistema próprio ou autorizado: invadir é crime (Lei 12.737/2012).</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 16 · Fase 5 <span class="n">099</span></span>
