@@ -175,6 +175,6 @@ Decisão do Vitor sobre quando encarar: pode ser antes do Volume 14 ou depois do
 - [x] **guia 098** - O kernel Linux: módulos, /proc e /sys - `guias/vol16/guia098-o-kernel-linux-modulos-proc-e-sys.html`
 - [x] **guia 099** - Contêineres por dentro: namespaces, cgroups e Docker - `guias/vol16/guia099-conteineres-por-dentro-namespaces-cgroups-e-dock.html`
 - [x] **guia 100** - Virtualização: KVM, QEMU e o laboratório de estudos - `guias/vol16/guia100-virtualizacao-kvm-qemu-e-o-laboratorio-de-estudo.html`
-- [ ] **guia 101** - Compilação, toolchains e o ecossistema de dev - `guias/vol16/guia101-compilacao-toolchains-e-o-ecossistema-de-dev.html`
+- [x] **guia 101** - Compilação, toolchains e o ecossistema de dev - `guias/vol16/guia101-compilacao-toolchains-e-o-ecossistema-de-dev.html`
 - [ ] **guia 102** - Observabilidade e desempenho: strace, ltrace e perf - `guias/vol16/guia102-observabilidade-e-desempenho-strace-ltrace-e-per.html`
 - [ ] **guia 103** - Para onde ir depois: certificações, comunidade e prática - `guias/vol16/guia103-para-onde-ir-depois-certificacoes-comunidade-e-p.html`

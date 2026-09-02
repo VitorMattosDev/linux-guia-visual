@@ -3,101 +3,202 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 101 — Compilação, toolchains e o ecossistema de dev</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: as quatro etapas ---- */
+  .pipe { display:grid; grid-template-columns:repeat(11,auto); align-items:stretch; gap:0 2px;
+          justify-content:space-between; }
+  .et { border:1.5px solid; border-radius:var(--raio-sm); padding:2px 4px; text-align:center; }
+  .et > b { display:block; font-family:var(--fonte-titulo); font-size:8px; text-transform:uppercase;
+            letter-spacing:.01em; line-height:1.1; }
+  .et > span { display:block; font-family:var(--fonte-mono); font-size:6.8px; color:var(--tinta-suave); line-height:1.15; }
+  .et.g { border-color:var(--linha); background:var(--papel-tint); } .et.g > b { color:var(--tinta-suave); }
+  .et.a { border-color:var(--azul); background:var(--azul-claro); } .et.a > b { color:var(--azul); }
+  .et.v { border-color:var(--verde); background:var(--verde-claro); } .et.v > b { color:#1d7038; }
+  .et.l { border-color:var(--laranja); background:var(--laranja-claro); } .et.l > b { color:var(--laranja); }
+  .et.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .et.r > b { color:var(--vermelho); }
+  .fx { align-self:center; font-size:10px; color:var(--tinta-suave); line-height:1; }
+  .flags { display:grid; grid-template-columns:repeat(11,auto); justify-content:space-between; gap:0 2px;
+           margin-bottom:2px; }
+  .flags > i { font-family:var(--fonte-mono); font-size:6.9px; color:var(--roxo); font-style:normal;
+               text-align:center; font-weight:700; }
+  .arqs { display:grid; grid-template-columns:repeat(11,auto); justify-content:space-between; gap:0 2px;
+          margin-top:2px; }
+  .arqs > i { font-family:var(--fonte-mono); font-size:6.6px; color:var(--tinta-suave); font-style:normal;
+              text-align:center; line-height:1.1; }
+
+  /* ---- figura 2: a ordem de busca do carregador ---- */
+  .ordem { display:grid; gap:2.5px; }
+  .od { border:1.5px solid; border-radius:var(--raio-sm); padding:1.5px 7px; display:grid;
+        grid-template-columns:auto 1fr; gap:5px; align-items:baseline; }
+  .od > u { text-decoration:none; font-family:var(--fonte-titulo); font-size:8.4px; font-weight:800; }
+  .od > div > b { font-family:var(--fonte-mono); font-size:7.5px; font-weight:700; }
+  .od > div > span { font-size:6.9px; color:var(--tinta-suave); }
+  .od.r { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .od.r > u, .od.r > div > b { color:var(--vermelho); }
+  .od.a { border-color:var(--azul); background:var(--azul-claro); }
+  .od.a > u, .od.a > div > b { color:var(--azul); }
+  .od.a2 { border-color:var(--azul); background:#eef4fc; }
+  .od.a2 > u, .od.a2 > div > b { color:var(--azul); }
+  .od.v { border-color:var(--verde); background:var(--verde-claro); }
+  .od.v > u, .od.v > div > b { color:#1d7038; }
+  .od.v2 { border-color:var(--verde); background:#eef7f0; }
+  .od.v2 > u, .od.v2 > div > b { color:#1d7038; }
+  .falha { border:1.5px dashed var(--vermelho); background:#fdf3f3; border-radius:var(--raio-sm);
+           padding:2px 7px; text-align:center; font-family:var(--fonte-mono); font-size:7.2px;
+           color:var(--vermelho); font-weight:700; }
+
+  /* ---- geral ---- */
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8px; line-height:1.23;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:7.85px; color:var(--roxo); font-weight:600; }
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.05px; line-height:1.23; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.2px; }
+  table.comparacao th { font-size:8px; padding:2px 6px; }
+  table.comparacao td { padding:1.1px 5px; line-height:1.12; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.05px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:1.35mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:2.6mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.5px; line-height:1.3; }
+  .perigo { font-size:7.9px; line-height:1.22; padding:4px 10px; }
+  .bloco .corpo { font-size:7.25px; line-height:1.17; padding:5px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 101</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Compilação, toolchains e o ecossistema de dev</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Compilação, toolchains<br>e o ecossistema de dev</h1>
+      <div class="sub">O README diz "just run make". O <code class="inl">make</code> responde <code class="inl">openssl/ssl.h: No such file</code>. Meia hora depois, <code class="inl">undefined reference to 'pcap_open_live'</code>. Depois disso o binário compila, roda e morre em <code class="inl">cannot open shared object</code>. <b>Três erros, três etapas, três soluções sem nada a ver uma com a outra.</b></div>
     </div>
     <div class="badge"><b>101</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">As quatro etapas que um gcc esconde — e onde cada erro nasce</div>
+    <div style="margin-top:4px">
+      <div class="flags"><i></i><i></i><i>gcc -E</i><i></i><i>gcc -S</i><i></i><i>gcc -c</i><i></i><i>gcc</i><i></i><i></i></div>
+      <div class="pipe">
+        <div class="et g"><b>fonte</b><span>prog.c</span></div>
+        <span class="fx">→</span>
+        <div class="et a"><b>pré-processador</b><span>cpp</span></div>
+        <span class="fx">→</span>
+        <div class="et a"><b>compilador</b><span>cc1</span></div>
+        <span class="fx">→</span>
+        <div class="et v"><b>montador</b><span>as</span></div>
+        <span class="fx">→</span>
+        <div class="et l"><b>ligador</b><span>ld</span></div>
+        <span class="fx">→</span>
+        <div class="et r"><b>ELF</b><span>prog</span></div>
+      </div>
+      <div class="arqs"><i></i><i></i><i>prog.i<br>texto expandido</i><i></i><i>prog.s<br>assembly</i><i></i><i>prog.o<br>objeto</i><i></i><i>+ bibliotecas<br>-lpcap</i><i></i><i></i></div>
+    </div>
+    <div class="regra"><b>Os três erros da abertura, decodificados:</b> <b>1)</b> <code>ssl.h: No such file</code> nasce no <b>pré-processador</b> — falta o cabeçalho, que vem no pacote <code>-dev</code> (<code>libssl-dev</code>); o <code>apt-file search openssl/ssl.h</code> vai do arquivo ao pacote. <b>2)</b> <code>undefined reference</code> nasce no <b>ligador</b> — o cabeçalho existia e o símbolo foi declarado, mas ninguém disse onde está a implementação: falta <code>-lpcap</code>. <b>3)</b> <code>cannot open shared object</code> nasce <b>depois de tudo</b>, na carga do programa — a biblioteca existia na compilação e não está no caminho de busca em execução. <b>Rode as quatro etapas isoladas uma vez na vida:</b> <code>gcc -E prog.c</code> transforma 4 linhas em ~800 — é a demonstração mais direta de que <code>#include</code> é inclusão <i>textual</i>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Onde o carregador procura — e o que responde a cada pergunta sobre um ELF</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:1.04fr 0.96fr">
+      <div>
+        <div class="ordem">
+          <div class="od r"><u>1</u><div><b>LD_PRELOAD</b><span> — carregado antes de tudo, sobrepõe símbolos</span></div></div>
+          <div class="od a"><u>2</u><div><b>RPATH / RUNPATH</b><span> — caminho gravado dentro do próprio ELF</span></div></div>
+          <div class="od a2"><u>3</u><div><b>LD_LIBRARY_PATH</b><span> — variável de ambiente da sessão</span></div></div>
+          <div class="od v"><u>4</u><div><b>cache de /etc/ld.so.conf</b><span> — <code>ldconfig -p</code></span></div></div>
+          <div class="od v2"><u>5</u><div><b>/lib e /usr/lib</b><span> — os diretórios padrão, por último</span></div></div>
+          <div class="falha">↓ nenhum dos cinco tinha → cannot open shared object</div>
+        </div>
+        <div class="regra"><b>A ordem importa e é explorável:</b> quem controla <code>LD_PRELOAD</code> ou um diretório de <code>RPATH</code> gravável substitui qualquer função de biblioteca de um programa alheio — a técnica por trás de instrumentação legítima <i>e</i> de uma classe inteira de escalada de privilégio. <b>É por isso que o carregador ignora <code>LD_PRELOAD</code> e <code>LD_LIBRARY_PATH</code> em binário SUID.</b></div>
+      </div>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Pergunta sobre o binário</th><th>Comando</th></tr></thead>
+          <tbody>
+            <tr><td>Executável, biblioteca ou objeto? Estático ou dinâmico?</td><td><code>file</code></td></tr>
+            <tr><td>De quais bibliotecas depende?</td><td><code>ldd</code> · <code>readelf -d</code></td></tr>
+            <tr><td>Qual símbolo está faltando?</td><td><code>nm -D --undefined-only</code></td></tr>
+            <tr><td>Tem símbolos de depuração?</td><td><code>readelf -S | grep debug</code></td></tr>
+            <tr><td>Qual é o código de verdade?</td><td><code>objdump -d</code> · <code>strings</code></td></tr>
+          </tbody>
+        </table>
+        <div class="regra"><b>É o mesmo conjunto da engenharia reversa</b> — muda a intenção, não a ferramenta. <b>Estático × dinâmico:</b> <code>-static</code> embute tudo (~800 KB contra ~16 KB) e corrigir a biblioteca obriga a recompilar — em troca, <b>roda em quase qualquer Linux da mesma arquitetura</b>: a escolha certa para a ferramenta que tem de funcionar onde você não pode instalar nada.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — reconhecer o sistema de construção e achar os flags certos</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:1.02fr 0.98fr">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~/fonte</span></div>
+<pre><span class="cmt"># do cabecalho que falta ao pacote que o traz:</span>
+<span class="prompt">$</span> apt-file search openssl/ssl.h
+<span class="out">libssl-dev: /usr/include/openssl/ssl.h</span>
+<span class="cmt"># os flags certos, sem decorar nome de biblioteca:</span>
+<span class="prompt">$</span> pkg-config --cflags --libs openssl
+<span class="out">-I/usr/include/openssl -lssl -lcrypto</span>
+<span class="prompt">$</span> gcc prog.c $(pkg-config --cflags --libs libpcap) -o prog
+<span class="cmt"># registrar um diretorio de biblioteca de vez:</span>
+<span class="prompt">$</span> echo /opt/lib | sudo tee /etc/ld.so.conf.d/minha.conf
+<span class="prompt">$</span> sudo ldconfig   <span class="cmt"># reconstroi /etc/ld.so.cache</span>
+<span class="cmt"># compilacao cruzada: ARM e Windows, do proprio PC</span>
+<span class="prompt">$</span> aarch64-linux-gnu-gcc prog.c -o prog-arm64 -static
+<span class="prompt">$</span> qemu-aarch64-static ./prog-arm64   <span class="cmt"># e roda aqui</span>
+<span class="prompt">$</span> x86_64-w64-mingw32-gcc prog.c -o prog.exe
+<span class="cmt"># -O0 -g para depurar; -O2 na entrega. E por padrao:</span>
+<span class="prompt">$</span> gcc -Wall -Wextra -Werror -fstack-protector-strong \
+      -D_FORTIFY_SOURCE=2 -O2 prog.c</pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Arquivo no repositório</th><th>A sequência</th></tr></thead>
+          <tbody>
+            <tr><td>Makefile</td><td><code>make -j$(nproc)</code> — recompila só o que tem fonte mais novo que o objeto</td></tr>
+            <tr><td>configure · Makefile.am</td><td>Autotools: <code>./configure --prefix=/opt/x &amp;&amp; make &amp;&amp; make install</code></td></tr>
+            <tr><td>CMakeLists.txt</td><td><code>cmake -S . -B build &amp;&amp; cmake --build build</code></td></tr>
+            <tr><td>meson.build</td><td><code>meson setup build &amp;&amp; ninja -C build</code></td></tr>
+          </tbody>
+        </table>
+        <div class="regra"><b>Receita do <code>make</code> se indenta com TAB, nunca com espaço</b> — é a causa do <code>missing separator. Stop.</code>; o culpado é o editor que converte TAB.</div>
+      </div>
+    </div>
+    <div class="perigo"><b><code class="inl">sudo make install</code> instala fora do controle do gerenciador de pacotes.</b> Os arquivos não aparecem em <code class="inl">dpkg -L</code>, não somem com <code class="inl">apt remove</code> e podem <b>sobrescrever arquivos de pacotes</b>. Duas mitigações: instale sempre com <code class="inl">--prefix=/usr/local</code> ou <code class="inl">/opt/&lt;nome&gt;</code>, que o FHS reserva justamente para isso; ou empacote — o <code class="inl">checkinstall</code> gera um <code class="inl">.deb</code> rudimentar a partir do <code class="inl">make install</code> e devolve o software ao controle do <code class="inl">apt</code>. E confira antes se existe <code class="inl">make uninstall</code>: nem sempre existe.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Compilar são quatro etapas</b> — pré-processador, compilador, montador, ligador. Cada uma falha de um jeito, e <b>a mensagem de erro diz em qual delas você está</b>.</li>
+        <li><b>Cabeçalho ausente = pacote <code class="inl">-dev</code></b>; <b><code class="inl">undefined reference</code> = falta <code class="inl">-l&lt;lib&gt;</code></b> na ligação; <b><code class="inl">cannot open shared object</code></b> acontece só em <i>execução</i> e não tem relação com a compilação ter dado certo.</li>
+        <li><b><code class="inl">file</code>, <code class="inl">ldd</code>, <code class="inl">readelf -d</code>, <code class="inl">nm -D</code> e <code class="inl">objdump -d</code></b> respondem a perguntas distintas sobre um ELF — o mesmo conjunto serve para depurar uma build e para inspecionar binário desconhecido.</li>
+        <li><b>Cinco lugares, nesta ordem:</b> <code class="inl">LD_PRELOAD</code>, <code class="inl">RPATH</code>/<code class="inl">RUNPATH</code>, <code class="inl">LD_LIBRARY_PATH</code>, o cache do <code class="inl">ldconfig</code> e os diretórios padrão. A ordem é o que torna <code class="inl">LD_PRELOAD</code> poderoso e perigoso.</li>
+        <li><b><code class="inl">pkg-config</code> produz os flags certos</b> sem decorar nome de biblioteca; <b><code class="inl">apt-file search</code> faz o caminho inverso</b>, do cabeçalho ausente ao pacote que o contém.</li>
+        <li><b>Estático é grande e portátil; dinâmico é pequeno e compartilhado.</b> Para rodar em máquina que você não controla, <code class="inl">-static</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>Compilar exploit público é rotina no laboratório, e falha quase sempre pelo mesmo punhado de motivos.</b> Código do Exploit-DB costuma ser antigo e presumir 32 bits: <code class="inl">gcc -m32</code> exige <code class="inl">gcc-multilib</code> e <code class="inl">libc6-dev-i386</code>. <b>Exploit que vai executar no alvo compila-se com <code class="inl">-static</code></b>: a máquina de destino raramente tem as bibliotecas certas. E se o alvo tiver kernel ou libc muito antigos, compilar <b>dentro de um contêiner com imagem base da mesma época</b> resolve o descompasso de ABI. Tudo em laboratório ou teste autorizado por escrito: invadir é crime (Lei 12.737/2012). <b>O <code class="inl">x86_64-w64-mingw32-gcc</code> já vem no Kali</b> e gera binário Windows em exercício autorizado — e o mesmo par serve à defesa: um PE suspeito se inspeciona com <code class="inl">objdump</code>, <code class="inl">strings</code> e <code class="inl">readelf</code> <i>sem executá-lo</i>. <b><code class="inl">LD_PRELOAD</code> é conhecimento de duas mãos.</b> Ofensivamente, é persistência e escalada quando há SUID que respeita variável de ambiente ou <code class="inl">RPATH</code> em diretório gravável. Defensivamente: procurar <code class="inl">/etc/ld.so.preload</code>, que aplica pré-carga a <i>todo</i> processo e é sinal clássico de rootkit; conferir <code class="inl">RPATH</code> de binários privilegiados com <code class="inl">readelf -d</code>; e não deixar diretório de biblioteca gravável por usuário comum. <b>Módulo de kernel é caso especial:</b> um <code class="inl">.ko</code> usa o sistema de construção do próprio kernel (<code class="inl">make -C /lib/modules/$(uname -r)/build M=$PWD modules</code>) e exige os cabeçalhos — a mecânica que o DKMS automatiza. <b>E ferramenta compilada do fonte não é atualizada pelo <code class="inl">apt</code>:</b> no Kali rolling o sistema se move toda semana, e o que você instalou em <code class="inl">/usr/local</code> fica congelado até parar de funcionar por incompatibilidade de biblioteca. <b>Registre o que compilou</b> nos dotfiles — nome, versão, origem, prefixo. É o item de manutenção que todo mundo descobre tarde demais. <b>Na RHEL:</b> os pacotes terminam em <code class="inl">-devel</code>, o básico vem de <code class="inl">dnf group install "Development Tools"</code> e o <code class="inl">apt-file</code> vira <code class="inl">dnf provides '*/ssl.h'</code>.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 16 · Fase 5 <span class="n">101</span></span>
