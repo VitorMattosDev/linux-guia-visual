@@ -3,101 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 102 — Observabilidade e desempenho: strace, ltrace e perf</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: a arvore de decisao ---- */
+  .raiz { max-width:230px; margin:0 auto; border:1.6px solid var(--azul); background:var(--azul-claro);
+          border-radius:var(--raio-sm); padding:2.5px 8px; text-align:center;
+          font-family:var(--fonte-titulo); font-size:9.4px; font-weight:800; color:var(--azul);
+          text-transform:uppercase; letter-spacing:.02em; }
+  .forq { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:3px; }
+  .ramo { border:1.5px solid; border-radius:var(--raio-md); padding:4px 5px 5px; }
+  .ramo.nf { border-color:var(--vermelho); background:#fdf3f3; }
+  .ramo.lt { border-color:var(--laranja); background:#fdf6ee; }
+  .cab { text-align:center; font-family:var(--fonte-titulo); font-size:8.6px; font-weight:800;
+         text-transform:uppercase; letter-spacing:.02em; line-height:1.15; margin-bottom:3px; }
+  .ramo.nf .cab { color:var(--vermelho); } .ramo.lt .cab { color:var(--laranja); }
+  .cab em { display:block; font-style:normal; font-family:var(--fonte-texto); font-size:6.9px;
+            text-transform:none; letter-spacing:0; color:var(--tinta-suave); font-weight:400; }
+  .fo2 { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+  .fo3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; }
+  .fo { border:1.4px solid; border-radius:var(--raio-sm); background:#fff; padding:2px 4px; text-align:center; }
+  .fo > b { display:block; font-family:var(--fonte-mono); font-size:7.2px; font-weight:700; line-height:1.15; }
+  .fo > span { display:block; font-size:6.7px; line-height:1.13; color:var(--tinta-suave); }
+  .ramo.nf .fo { border-color:var(--vermelho); } .ramo.nf .fo > b { color:var(--vermelho); }
+  .ramo.lt .fo { border-color:var(--laranja); } .ramo.lt .fo > b { color:var(--laranja); }
+
+  /* ---- figura 2: as camadas de observacao ---- */
+  .obs { display:grid; gap:2.5px; }
+  .ob { display:grid; grid-template-columns:1fr 92px; gap:4px; align-items:stretch; }
+  .ob > div:first-child { border:1.5px solid; border-radius:var(--raio-sm); padding:1.5px 7px; }
+  .ob > div:first-child > b { display:block; font-family:var(--fonte-titulo); font-size:8.2px;
+                              text-transform:uppercase; letter-spacing:.01em; line-height:1.12; }
+  .ob > div:first-child > span { display:block; font-size:6.8px; line-height:1.12; color:var(--tinta-suave); }
+  .ob > u { text-decoration:none; border:1.4px solid; border-radius:var(--raio-sm);
+            display:flex; align-items:center; justify-content:center; text-align:center;
+            font-family:var(--fonte-mono); font-size:6.9px; font-weight:700; line-height:1.15; padding:1px 3px; }
+  .ob.a > div:first-child { border-color:var(--azul); background:var(--azul-claro); }
+  .ob.a > div:first-child > b, .ob.a > u { color:var(--azul); }
+  .ob.a > u { border-color:var(--azul); background:#eef4fc; }
+  .ob.a2 > div:first-child { border-color:var(--azul); background:#eef4fc; }
+  .ob.a2 > div:first-child > b, .ob.a2 > u { color:var(--azul); }
+  .ob.a2 > u { border-color:var(--azul); background:#f6f9fd; }
+  .ob.r > div:first-child { border-color:var(--vermelho); background:var(--vermelho-claro); }
+  .ob.r > div:first-child > b, .ob.r > u { color:var(--vermelho); }
+  .ob.r > u { border-color:var(--vermelho); background:#fdf3f3; }
+  .ob.v > div:first-child { border-color:var(--verde); background:var(--verde-claro); }
+  .ob.v > div:first-child > b, .ob.v > u { color:#1d7038; }
+  .ob.v > u { border-color:var(--verde); background:#eef7f0; }
+  .ob.g > div:first-child { border-color:var(--linha); background:var(--papel-tint); }
+  .ob.g > div:first-child > b, .ob.g > u { color:var(--tinta-suave); }
+  .ob.g > u { border-color:var(--linha); background:var(--papel-tint); }
+
+  /* ---- geral ---- */
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8px; line-height:1.23;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:7.85px; color:var(--roxo); font-weight:600; }
+  .grade2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.05px; line-height:1.23; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.2px; }
+  table.comparacao th { font-size:8px; padding:2px 6px; }
+  table.comparacao td { padding:1.1px 5px; line-height:1.12; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.05px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; font-family:var(--fonte-mono); }
+
+  .guia { --gap-blocos:1mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:2.6mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.5px; line-height:1.3; }
+  .perigo { font-size:7.85px; line-height:1.21; padding:4px 10px; }
+  .bloco .corpo { font-size:7.2px; line-height:1.17; padding:5px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 102</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>Observabilidade e desempenho: strace, ltrace e perf</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>Observabilidade e desempenho:<br>strace, ltrace e perf</h1>
+      <div class="sub">O serviço sobe, escreve <code class="inl">erro ao inicializar</code> e morre. O journal não tem mais nada, o autor sumiu em 2019 e não há fonte. <b>Existe um recurso que funciona aqui e em quase todos os parentes deste caso:</b> em vez de perguntar ao programa o que houve, perguntar ao <b>kernel</b> o que o programa pediu.</div>
     </div>
     <div class="badge"><b>102</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">Do sintoma à ferramenta — o método vem antes do comando</div>
+    <div style="margin-top:4px">
+      <div class="raiz">qual é o sintoma?</div>
+      <div class="forq">
+        <div class="ramo nf">
+          <div class="cab">não funciona<em>sem saída útil · falha, erro obscuro</em></div>
+          <div class="fo2">
+            <div class="fo"><b>strace -f -e trace=file</b><span>arquivo que não abre, permissão negada</span></div>
+            <div class="fo"><b>ltrace · ldd</b><span>biblioteca errada, função que retorna erro</span></div>
+          </div>
+        </div>
+        <div class="ramo lt">
+          <div class="cab">está lento<em>saída correta · funciona, mas demora</em></div>
+          <div class="fo3">
+            <div class="fo"><b>perf top · perf record -g</b><span>CPU alta → gráfico de chama</span></div>
+            <div class="fo"><b>iostat · iotop · strace -c</b><span>esperando E/S</span></div>
+            <div class="fo"><b>/proc/PID/wchan · stack</b><span>parado sem motivo</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="regra"><b>A classificação inicial custa trinta segundos e vem do <code>vmstat 1</code>:</b> coluna <code>r</code> alta = disputa por CPU; colunas <code>b</code> e <code>wa</code> altas = espera por E/S; processo que não aparece em nenhuma das duas está <b>bloqueado</b> esperando travamento, rede ou outro processo. <b>O erro mais comum em diagnóstico de desempenho é escolher a ferramenta antes de saber que pergunta se está fazendo</b> — e a armadilha clássica que ele produz é otimizar o trecho errado. O <code>/proc/&lt;PID&gt;/wchan</code> nomeia a função do kernel em que o processo dorme e encerra a discussão em uma leitura: <code>futex_wait</code> = travamento entre threads, <code>sk_wait_data</code> = rede, <code>io_schedule</code> = disco.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Cinco camadas, uma pergunta cada — e as opções que resolvem a maioria</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:1.06fr 0.94fr">
+      <div>
+        <div class="obs">
+          <div class="ob a"><div><b>funções internas do programa</b><span>só com símbolos ou fonte</span></div><u>perf record -g<br>gdb</u></div>
+          <div class="ob a2"><div><b>chamadas a bibliotecas</b><span>malloc, strcmp, SSL_read</span></div><u>ltrace<br>LD_PRELOAD</u></div>
+          <div class="ob r"><div><b>chamadas de sistema</b><span>openat, read, connect, execve</span></div><u>strace<br>bpftrace</u></div>
+          <div class="ob v"><div><b>eventos do kernel</b><span>escalonamento, E/S de bloco, rede</span></div><u>perf trace<br>bpftrace · bcc</u></div>
+          <div class="ob g"><div><b>contadores do processador</b><span>ciclos, instruções, faltas de cache</span></div><u>perf stat</u></div>
+        </div>
+        <div class="regra"><b>Escolher a camada errada custa horas.</b> Programa travado esperando resposta de rede <i>não aparece</i> em <code>perf stat</code> — ele não gasta ciclo nenhum. Laço que consome CPU <i>não aparece</i> em <code>strace</code> — ele não faz chamada nenhuma. <b>Comece pela camada mais barata que possa conter a resposta e desça só se precisar.</b></div>
+      </div>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Opção do strace</th><th>Efeito</th></tr></thead>
+          <tbody>
+            <tr><td>-f</td><td>segue processos filhos — quase sempre necessária</td></tr>
+            <tr><td>-e trace=file</td><td>só o que toca caminhos: <code>open</code>, <code>stat</code>, <code>access</code>. Também <code>network</code> e <code>%process</code></td></tr>
+            <tr><td>-c</td><td>não rastreia: <b>resume</b> contagem, tempo e erros por chamada</td></tr>
+            <tr><td>-p &lt;PID&gt;</td><td>conecta a um processo já em execução</td></tr>
+            <tr><td>-y · -T · -tt · -s 200</td><td>o caminho de cada descritor · tempo dentro de cada chamada · horário com microssegundos · cadeias maiores (padrão: 32)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="regra"><b>O <code>-c</code> vale como diagnóstico de desempenho:</b> um programa que faz meio milhão de <code>read</code> de 1 byte não tem problema de disco — tem problema de tamanho de buffer, e a tabela do <code>-c</code> mostra isso em uma tela. <b>E o <code>ltrace</code> só enxerga o que atravessa a PLT:</b> binário estático não rende nada, e função interna do próprio programa também não aparece.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — o caso da abertura, e observar sem parar o programa</div>
+    <div class="grade2" style="margin-top:4px;grid-template-columns:1.04fr 0.96fr">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="cmt"># a linha que resolve boa parte dos "nao funciona</span>
+<span class="cmt"># e nao diz por que":</span>
+<span class="prompt">$</span> strace -f -e trace=file -o /tmp/r.txt ./servico
+<span class="prompt">$</span> grep -E 'ENOENT|EACCES|EPERM' /tmp/r.txt | tail
+<span class="out">openat(AT_FDCWD, "/etc/servico/cfg.yml", O_RDONLY)</span>
+<span class="out">        = -1 ENOENT (No such file or directory)</span>
+<span class="cmt"># ENOENT=nao existe  EACCES=permissao  EPERM=proibido</span>
+<span class="prompt">$</span> strace -c ls -R /usr      <span class="cmt"># perfil agregado</span>
+<span class="prompt">$</span> strace -f -e trace=network -p $(pgrep -f servico)
+<span class="cmt"># eBPF: roda dentro do kernel, entrega so o resultado</span>
+<span class="prompt">$</span> sudo execsnoop-bpfcc      <span class="cmt"># cada exec do sistema</span>
+<span class="prompt">$</span> sudo opensnoop-bpfcc      <span class="cmt"># cada open</span>
+<span class="prompt">$</span> sudo tcpconnect-bpfcc     <span class="cmt"># cada conexao de saida</span>
+<span class="cmt"># CPU: amostra 99x/s com pilha, e o grafico de chama</span>
+<span class="prompt">$</span> sudo perf record -F 99 -g -p &lt;PID&gt; -- sleep 30</pre>
+      </section>
+      <div>
+        <div class="regra" style="margin-top:0"><b>Um roteiro que evita perder tempo:</b> <b>1)</b> <b>reproduza</b> — problema que não se reproduz não se mede; <b>2)</b> <b>classifique</b> com <code>vmstat 1</code> e <code>pidstat 1</code>: CPU, E/S ou bloqueio; <b>3)</b> <b>delimite</b> com <code>strace -c</code> ou <code>perf stat</code> — um número agregado antes de qualquer rastreio detalhado; <b>4)</b> <b>aprofunde na camada certa</b>; <b>5)</b> <b>mude uma coisa só</b> e meça de novo; <b>6)</b> <b>registre</b> — sem linha de base anotada, a próxima investigação recomeça do zero.</div>
+        <div class="regra"><b>O <code>perf stat</code> responde ao que nenhuma outra responde:</b> <b>IPC</b> baixo = CPU <i>esperando memória</i>, não calculando; <code>cache-misses</code> alto = estrutura com localidade ruim; <code>context-switches</code> alto = disputa ou E/S em excesso.</div>
+        <div class="regra"><b><code>strace -p</code> respondeu <code>Operation not permitted</code> num processo do <i>seu próprio</i> usuário? A causa é o Yama, não permissão de arquivo.</b> <code>strace</code>, <code>ltrace</code> e <code>gdb</code> usam a mesma syscall <code>ptrace</code>, governada por <code>kernel.yama.ptrace_scope</code>: <code>0</code> = mesmo usuário, <code>1</code> = só pai e filho (padrão no Kali), <code>2</code> = só root, <code>3</code> = ninguém até reiniciar.</div>
+      </div>
+    </div>
+    <div class="perigo"><b>O <code class="inl">strace</code> desacelera o processo rastreado em uma ordem de grandeza</b> — cada chamada interceptada custa duas trocas de contexto a mais. Em produção isso transforma um serviço lento num serviço <b>inoperante</b>, e há casos em que o atraso <b>altera o comportamento</b>: condições de corrida somem, tempos-limite estouram, e o problema que você foi investigar desaparece enquanto você observa. Prefira <code class="inl">-e trace=</code> restrito, use <code class="inl">-c</code> quando só quiser o agregado, e para observação contínua em produção use <b>eBPF</b>, que agrega dentro do kernel e entrega apenas o resultado.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>Duas perguntas, dois conjuntos.</b> "Por que não funciona?" → rastreamento (<code class="inl">strace</code>, <code class="inl">ltrace</code>). "Por que está lento?" → perfilamento (<code class="inl">perf</code>, <code class="inl">vmstat</code>, <code class="inl">pidstat</code>).</li>
+        <li><b>Todo programa passa pela fronteira da chamada de sistema</b> — e ali se observa <i>sem fonte, sem símbolos e sem cooperação</i> do software.</li>
+        <li><b><code class="inl">strace -f -e trace=file</code> + <code class="inl">grep ENOENT|EACCES|EPERM</code></b> resolve uma fração enorme dos "não funciona e não diz por quê": mostra o caminho exato que o programa procurou.</li>
+        <li><b>Cinco camadas, uma pergunta cada</b> — funções internas, bibliotecas, syscalls, eventos do kernel, contadores da CPU. Comece pela mais barata que possa conter a resposta.</li>
+        <li><b><code class="inl">/proc</code> responde sem instalar nada:</b> <code class="inl">wchan</code> diz onde o processo dorme, e as trocas de contexto voluntárias × involuntárias separam "dorme esperando" de "disputa CPU".</li>
+        <li><b>eBPF é a fronteira atual:</b> roda um programa verificado <i>dentro</i> do kernel e entrega só o agregado — barato o bastante para produção.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O <code class="inl">strace</code> é a forma mais rápida de entender uma ferramenta que você não escreveu.</b> Num script de exploração pouco documentado, <code class="inl">strace -f -e trace=file,network</code> mostra que arquivos ele lê, onde grava e com quem conversa na rede. Resolve dois problemas: <b>achar o relatório que a ferramenta gerou</b> e <b>verificar que uma ferramenta de repositório desconhecido não manda os seus dados para terceiros</b> — checagem obrigatória antes de rodar código alheio em ambiente de cliente. <b>Análise dinâmica de binário suspeito usa o mesmo conjunto, com regras extras:</b> amostra desconhecida só em VM isolada e descartável, snapshot antes e reversão depois — <i>nunca</i> em contêiner. Ali, <code class="inl">strace -f</code>, <code class="inl">ltrace</code> e o <code class="inl">opensnoop</code>/<code class="inl">tcpconnect</code> do eBPF revelam persistência, comunicação e leitura de credenciais. <b>Amostras modernas detectam <code class="inl">ptrace</code> e mudam de comportamento</b> — ver <code class="inl">ptrace(PTRACE_TRACEME)</code> no rastreio é o sinal de anti-depuração. <b>O <code class="inl">ptrace_scope</code> é botão dos dois lados:</b> <code class="inl">=1</code> (padrão do Kali) impede que um processo comprometido leia a memória de outro do mesmo usuário — inclusive a do navegador com as suas sessões abertas. <b><code class="inl">perf</code> e eBPF exigem privilégio por bom motivo:</b> valor permissivo de <code class="inl">perf_event_paranoid</code> expõe temporização que serve a canal lateral — aceitável em laboratório, decisão de segurança num servidor compartilhado. <b>E rastrear não substitui análise estática — a ordem importa.</b> O roteiro seguro <i>começa sem executar nada</i>: <code class="inl">file</code>, <code class="inl">strings</code>, <code class="inl">readelf -d</code>, <code class="inl">objdump -d</code> e a soma de verificação contra fontes públicas. Só depois, e só isolado, vem a execução observada — inverter a ordem é executar primeiro e entender depois, que é o que o malware espera. Tudo em sistema próprio ou autorizado: invadir é crime (Lei 12.737/2012). <b>Na RHEL:</b> o pacote é <code class="inl">perf</code>, o <code class="inl">bcc-tools</code> instala em <code class="inl">/usr/share/bcc/tools/</code> sem o sufixo <code class="inl">-bpfcc</code>, e o <code class="inl">sosreport</code> coleta o diagnóstico inteiro num comando — vale imitar em qualquer distribuição antes de mexer num sistema com problema.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 16 · Fase 5 <span class="n">102</span></span>
