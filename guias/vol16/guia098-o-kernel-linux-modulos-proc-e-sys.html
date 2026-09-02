@@ -3,101 +3,187 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- =====================================================================
-     TEMPLATE DA FICHA VISUAL — copie este arquivo para guias/volNN/
-     e preencha. NÃO edite as classes/estrutura à toa: a consistência
-     entre as 103 fichas vem de todas usarem os mesmos blocos.
-     Blocos disponíveis (use os que o assunto pedir, nesta ordem):
-       topo → cabecalho → [fluxo] → [secao + cards] → [secao + duas-colunas]
-       → [secao + terminal/comparacao] → rodape-blocos (resumo+dica) → rodape
-     Ajuste --col nos .cards (2, 3 ou 4). Remova blocos que não usar.
-     ===================================================================== -->
 <title>GUIA 098 — O kernel Linux: módulos, /proc e /sys</title>
 <link rel="stylesheet" href="../../template/estilo.css">
+<style>
+  /* ---- figura 1: a pilha e a fronteira de privilegio ---- */
+  .pilha-wrap { display:grid; grid-template-columns:1fr 128px; gap:7px; align-items:center; }
+  .pilha { display:grid; gap:3px; }
+  .cam { border:1.5px solid; border-radius:var(--raio-sm); padding:1.5px 8px; text-align:center; }
+  .cam > b { display:block; font-family:var(--fonte-titulo); font-size:8.6px; text-transform:uppercase;
+             letter-spacing:.02em; line-height:1.1; }
+  .cam > span { display:block; font-size:7.05px; line-height:1.12; color:var(--tinta-suave); }
+  .cam.user { border-color:var(--azul); background:var(--azul-claro); }
+  .cam.user > b { color:var(--azul); }
+  .cam.kern { border-color:var(--verde); background:var(--verde-claro); }
+  .cam.kern > b { color:#1d7038; }
+  .cam.drv { border-color:var(--laranja); background:var(--laranja-claro); }
+  .cam.drv > b { color:var(--laranja); }
+  .cam.hw { border-color:var(--linha); background:var(--papel-tint); }
+  .cam.hw > b { color:var(--tinta-suave); }
+  .sub4 { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; }
+  .sub4 .cam { padding:2px 4px; }
+  .fronteira { border-top:1.8px dashed var(--vermelho); margin:3px 0 1px; text-align:center; }
+  .fronteira span { display:inline-block; background:var(--vermelho-claro); border:1.2px solid var(--vermelho);
+                    border-radius:9px; padding:0 7px; font-size:7.3px; font-weight:700; color:var(--vermelho);
+                    transform:translateY(-6px); }
+  .vfs { display:grid; gap:5px; }
+  .vfs > div { border:1.5px solid var(--vermelho); background:var(--vermelho-claro);
+               border-radius:var(--raio-sm); padding:3px 6px; text-align:center; }
+  .vfs > div > b { display:block; font-family:var(--fonte-mono); font-size:9.4px; color:var(--vermelho); }
+  .vfs > div > span { display:block; font-size:6.9px; line-height:1.14; color:var(--tinta-suave); }
+
+  /* ---- figura 2: a cadeia do driver ---- */
+  .cadeia { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; align-items:stretch; }
+  .et { border:1.5px solid; border-radius:var(--raio-sm); padding:3px 5px; text-align:center; position:relative; }
+  .et > b { display:block; font-family:var(--fonte-titulo); font-size:8.2px; text-transform:uppercase;
+            letter-spacing:.01em; line-height:1.1; }
+  .et > span { display:block; font-size:6.9px; line-height:1.14; color:var(--tinta-suave); margin-top:1px; }
+  .et > u { display:block; text-decoration:none; font-family:var(--fonte-mono); font-size:6.9px;
+            color:var(--roxo); font-weight:600; margin-top:2px; line-height:1.12; }
+  .et.g { border-color:var(--linha); background:var(--papel-tint); } .et.g > b { color:var(--tinta-suave); }
+  .et.a { border-color:var(--azul); background:var(--azul-claro); } .et.a > b { color:var(--azul); }
+  .et.v { border-color:var(--verde); background:var(--verde-claro); } .et.v > b { color:#1d7038; }
+  .et.r { border-color:var(--vermelho); background:var(--vermelho-claro); } .et.r > b { color:var(--vermelho); }
+
+  /* ---- geral ---- */
+  .regra { border-left:4px solid var(--navy); background:var(--papel-tint);
+           border-radius:var(--raio-sm); padding:4px 9px; font-size:8.05px; line-height:1.24;
+           color:var(--tinta-suave); margin-top:5px; }
+  .regra b { color:var(--navy); }
+  .regra code { font-family:var(--fonte-mono); font-size:7.9px; color:var(--roxo); font-weight:600; }
+  .grade2 { display:grid; grid-template-columns:0.86fr 1.14fr; gap:9px; align-items:start; }
+  .terminal pre { font-size:7.1px; line-height:1.24; padding:6px 9px; }
+  .terminal .barra { padding:3px 9px; }
+  table.comparacao { font-size:7.2px; }
+  table.comparacao th { font-size:8px; padding:2px 6px; }
+  table.comparacao td { padding:1px 5px; line-height:1.13; }
+  table.comparacao td code { font-family:var(--fonte-mono); font-size:7.05px; }
+  table.comparacao td:first-child { color:var(--navy); font-weight:700; }
+
+  .guia { --gap-blocos:1.7mm; }
+  .secao-titulo { font-size:13px; margin:0; }
+  .cabecalho { padding-bottom:3mm; }
+  .cabecalho .titulo h1 { font-size:24px; }
+  .cabecalho .titulo .sub { font-size:10.5px; line-height:1.3; }
+  .perigo { font-size:7.85px; line-height:1.22; padding:4px 10px; }
+  .bloco .corpo { font-size:7.28px; line-height:1.18; padding:6px 9px; }
+  .bloco .cabeca { font-size:11.5px; padding:5px 10px; }
+  .bloco.resumo ul { gap:2px; }
+  .rodape-blocos { gap:9px; }
+</style>
 </head>
 <body>
 <article class="guia">
 
-  <!-- TOPO -->
   <div class="topo"><span class="selo">Guia Visual 098</span></div>
 
-  <!-- CABEÇALHO -->
   <header class="cabecalho">
     <img class="logo" src="../../assets/icones/logo.svg" alt="">
     <div class="titulo">
-      <h1>O kernel Linux: módulos, /proc e /sys</h1>
-      <div class="sub">Uma frase que situa o problema — como o subtítulo do FTTH.</div>
+      <h1>O kernel Linux:<br>módulos, /proc e /sys</h1>
+      <div class="sub">O adaptador USB de Wi-Fi funcionava. Depois de um <code class="inl">apt full-upgrade</code> e do reboot que ele pediu, <code class="inl">ip link</code> mostra só <code class="inl">lo</code> e <code class="inl">eth0</code>. O LED acende, o <code class="inl">lsusb</code> lista o aparelho, o journal não reclama de nada. <b>O dispositivo existe; o driver, não</b> — o kernel é novo e ninguém recompilou o módulo.</div>
     </div>
     <div class="badge"><b>098</b><span>Guias Linux</span></div>
   </header>
 
-  <!-- FLUXO NUMERADO (ex.: as etapas de um processo) -->
-  <section class="fluxo">
-    <div class="passo"><span class="num">1</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo verde"><span class="num">2</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo laranja"><span class="num">3</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-    <span class="seta">→</span>
-    <div class="passo roxo"><span class="num">4</span><h3>Etapa</h3><p>O que acontece aqui.</p></div>
-  </section>
-
-  <!-- CARDS -->
-  <div class="secao-titulo">Conceitos-chave</div>
-  <section class="cards" style="--col:4">
-    <div class="card azul"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card verde"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card laranja"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-    <div class="card roxo"><h3>Item</h3><p>Descrição curta e direta.</p></div>
-  </section>
-
-  <!-- DUAS COLUNAS (A x B) -->
-  <div class="secao-titulo">Conceito A × Conceito B</div>
-  <section class="duas-colunas">
-    <div class="coluna verde"><h3>Conceito A</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-    <div class="coluna azul"><h3>Conceito B</h3><ul><li>Ponto.</li><li>Ponto.</li></ul></div>
-  </section>
-
-  <!-- NA PRÁTICA: terminal + tabela -->
-  <div class="secao-titulo">Na prática</div>
-  <section class="terminal">
-    <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
-<pre><span class="prompt">$</span> comando --opcao alvo
-<span class="out">saída esperada do comando</span>
-<span class="cmt"># comentário explicando o que observar</span></pre>
-  </section>
-
-  <!-- AVISO de comando destrutivo (usar quando houver rm/dd/mkfs/etc.) -->
-  <!-- <div class="perigo"><b>Cuidado:</b> este comando apaga dados. Ensaie em VM ou arquivo-imagem.</div> -->
-
-  <!-- COMPARAÇÃO -->
   <section>
-    <table class="comparacao">
-      <thead><tr><th>Aspecto</th><th>Opção A</th><th>Opção B</th></tr></thead>
-      <tbody>
-        <tr><td>Finalidade</td><td>...</td><td>...</td></tr>
-        <tr><td>Exemplo</td><td><code>cmd a</code></td><td><code>cmd b</code></td></tr>
-      </tbody>
-    </table>
+    <div class="secao-titulo">A fronteira de privilégio — e as duas janelas para dentro do kernel</div>
+    <div class="pilha-wrap" style="margin-top:4px">
+      <div class="pilha">
+        <div class="cam user"><b>aplicações</b><span>bash · ls · nmap · Firefox · seus scripts</span></div>
+        <div class="cam user"><b>bibliotecas de sistema</b><span>glibc · libssl · libpcap</span></div>
+        <div class="fronteira"><span>chamada de sistema — ~350 pontos de entrada no x86-64</span></div>
+        <div class="cam kern"><b>tabela de syscalls</b><span>open · read · write · fork · execve · mmap · socket</span></div>
+        <div class="sub4">
+          <div class="cam kern"><b>escalonador</b><span>processos</span></div>
+          <div class="cam kern"><b>memória</b><span>páginas e cache</span></div>
+          <div class="cam kern"><b>VFS</b><span>ext4 · Btrfs · proc</span></div>
+          <div class="cam kern"><b>rede</b><span>TCP/IP · netfilter</span></div>
+        </div>
+        <div class="cam drv"><b>drivers de dispositivo</b><span>quase sempre módulos <code class="inl">.ko</code> em <code class="inl">/lib/modules/$(uname -r)/</code></span></div>
+        <div class="cam hw"><b>hardware</b><span>CPU · RAM · discos · placas de rede · USB</span></div>
+      </div>
+      <div class="vfs">
+        <div><b>/proc</b><span>processos e estado global · <code class="inl">/proc/sys</code> é o ramo gravável</span></div>
+        <div><b>/sys</b><span>modelo de dispositivos · um valor por arquivo</span></div>
+      </div>
+    </div>
+    <div class="regra"><b>Tudo acima da linha vermelha só sabe <i>pedir</i>; tudo abaixo executa com privilégio total.</b> As duas caixas à direita não ocupam um byte de disco: são arquivos gerados sob demanda por funções do kernel — daí examinar e ajustar o kernel com <code>cat</code> e <code>echo</code>. <b><code>/proc</code> cresceu sem plano e virou sótão</b> (blocos de texto para humano ler); <b><code>/sys</code> nasceu com regra</b> — <code>/sys/class/net/eth0/mtu</code> contém exatamente <code>1500</code>, trivial em script. <code>lsmod</code> é só um formatador de <code>/proc/modules</code>.</div>
   </section>
 
-  <!-- RODAPÉ: RESUMO RÁPIDO + DICA DE OURO (obrigatórios em toda ficha) -->
+  <section>
+    <div class="secao-titulo">Do hardware detectado ao driver ligado — e onde a cadeia arrebenta calada</div>
+    <div class="cadeia" style="margin-top:4px">
+      <div class="et g"><b>hardware</b><span>adaptador conectado</span><u>lsusb · lspci -nnk</u></div>
+      <div class="et a"><b>kernel</b><span>emite um <i>uevent</i> com o MODALIAS</span><u>dmesg -w</u></div>
+      <div class="et a"><b>systemd-udevd</b><span>casa o alias com <code class="inl">modules.alias</code></span><u>udevadm monitor</u></div>
+      <div class="et v"><b>modprobe</b><span>carrega o <code class="inl">.ko</code> e as dependências</span><u>modinfo · dkms status</u></div>
+      <div class="et v"><b>/sys e /dev</b><span><code class="inl">wlan0</code> aparece, as regras rodam</span><u>ip link · ls /sys/class/net</u></div>
+    </div>
+    <div class="regra"><b>É no quarto degrau que o adaptador da abertura morre</b> — módulo ausente, <code>vermagic</code> de outra versão ou blacklist —, <b>e ninguém reclama alto.</b> O veredito está no <code>lspci -nnk</code>: se aparece <code>Kernel driver in use:</code>, o driver está ligado; se aparece só <code>Kernel modules:</code>, o kernel <i>sabe</i> qual serviria e não conseguiu carregá-lo. <b>Cada versão de kernel tem o seu próprio <code>/lib/modules/</code>:</b> módulo compilado para o <code>6.12.13</code> é recusado pelo <code>6.12.20</code>. A cura é o <b>DKMS</b>, que guarda o <i>fonte</i> e recompila a cada kernel novo — desde que <code>linux-headers-$(uname -r)</code> esteja instalado.</div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Na prática — carregar, persistir e girar os botões</div>
+    <div class="grade2" style="margin-top:4px">
+      <section class="terminal">
+        <div class="barra"><i class="r"></i><i class="y"></i><i class="g"></i><span>kali@kali: ~</span></div>
+<pre><span class="cmt"># o modulo dummy cria placas de rede falsas:</span>
+<span class="cmt"># o jeito seguro de exercitar tudo isto</span>
+<span class="prompt">$</span> sudo modprobe dummy numdummies=2
+<span class="prompt">$</span> lsmod | grep dummy
+<span class="out">dummy    16384  0</span>
+<span class="prompt">$</span> cat /sys/module/dummy/parameters/numdummies
+<span class="out">2</span>
+<span class="prompt">$</span> ip -brief link show type dummy
+<span class="out">dummy0  DOWN  9a:1c:..  dummy1  DOWN  6e:04:..</span>
+<span class="cmt"># o adaptador sumiu depois do upgrade? tres comandos:</span>
+<span class="prompt">$</span> sudo apt install linux-headers-$(uname -r)
+<span class="prompt">$</span> dkms status   <span class="cmt"># registrado so p/ o kernel velho</span>
+<span class="prompt">$</span> sudo dkms autoinstall   <span class="cmt"># recompila; reboot</span>
+<span class="cmt"># o log do kernel, o trio que resolve:</span>
+<span class="prompt">$</span> dmesg -T -l err,warn   <span class="cmt"># com data, so o que dói</span>
+<span class="prompt">$</span> journalctl -k -b -1    <span class="cmt"># o boot ANTERIOR</span>
+<span class="cmt"># quem esta de fato ligado ao dispositivo:</span>
+<span class="prompt">$</span> lspci -nnk | grep -A3 -i network
+<span class="out">    Kernel driver in use: e1000e</span>
+<span class="out">    Kernel modules: e1000e</span></pre>
+      </section>
+      <div>
+        <table class="comparacao">
+          <thead><tr><th>Onde mexer</th><th>O que resolve</th></tr></thead>
+          <tbody>
+            <tr><td>modprobe × insmod</td><td><code>modprobe</code> lê o grafo de dependências (<code>modules.dep</code>) e resolve; <code>insmod</code> obedece ao pé da letra e falha com <code>Unknown symbol in module</code></td></tr>
+            <tr><td>persistir</td><td><code>/etc/modules-load.d/</code> carrega no boot; <code>/etc/modprobe.d/</code> guarda parâmetros e blacklist</td></tr>
+            <tr><td>blacklist + install</td><td><code>blacklist</code> só barra o carregamento <b>automático por alias</b>; módulo que declare dependência ainda puxa o proibido — <code>install nouveau /bin/false</code> fecha a porta. <code>update-initramfs -u</code>, o passo mais esquecido</td></tr>
+            <tr><td>sysctl / /proc/sys</td><td>o mesmo endereço por dois caminhos: <code>net.ipv4.ip_forward</code>, <code>kernel.dmesg_restrict</code>, <code>vm.swappiness</code>. Persiste em <code>/etc/sysctl.d/</code></td></tr>
+            <tr><td>/proc/&lt;PID&gt;/</td><td>de onde <code>ps</code> e <code>htop</code> tiram tudo: <code>cmdline</code>, <code>status</code>, <code>maps</code>, <code>fd/</code>, <code>environ</code>, <code>ns/</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="perigo"><b>Descarregar módulo não é operação inócua.</b> <code class="inl">sudo modprobe -r</code> (ou <code class="inl">rmmod</code>) no driver de disco, de um sistema de arquivos montado ou da placa por onde passa a sua sessão SSH <b>derruba o serviço na hora</b> — e, no caso da rede, corta a própria conexão que você usaria para desfazer. O kernel recusa descarregar módulo com uso registrado (coluna <code class="inl">Used by</code> do <code class="inl">lsmod</code>), mas essa contagem <b>nem sempre reflete o uso real</b>. Ensaie em VM descartável com o <code class="inl">dummy</code>.</div>
+  </section>
+
   <section class="rodape-blocos">
     <div class="bloco resumo">
       <div class="cabeca">⚡ Resumo rápido</div>
       <div class="corpo"><ul>
-        <li>Ponto essencial 1.</li>
-        <li>Ponto essencial 2.</li>
-        <li>Ponto essencial 3.</li>
+        <li><b>O kernel é a única peça que executa com privilégio total.</b> Aplicação não acessa hardware — ela <i>pede</i>, pela chamada de sistema.</li>
+        <li><b>Monolítico, mas modular:</b> uma imagem serve milhares de máquinas porque carrega só o <code class="inl">.ko</code> do que encontra. <b>Cada kernel tem o seu <code class="inl">/lib/modules/</code></b> — módulo de outra versão é recusado pela <code class="inl">vermagic</code>: a causa nº 1 de hardware que "some" depois de um upgrade.</li>
+        <li><b><code class="inl">modprobe</code> resolve dependências, <code class="inl">insmod</code> não.</b> O que persiste vive em <code class="inl">/etc/modprobe.d/</code> e <code class="inl">/etc/modules-load.d/</code> — e blacklist sem <code class="inl">update-initramfs -u</code> simplesmente não vale no boot.</li>
+        <li><b>DKMS é a solução estrutural</b> para driver fora da árvore: guarda o fonte e recompila a cada kernel novo, com <code class="inl">linux-headers-$(uname -r)</code> como pré-requisito absoluto.</li>
+        <li><b><code class="inl">/proc</code> = processos e estado; <code class="inl">/sys</code> = dispositivos.</b> <code class="inl">/proc/sys</code> é o ramo gravável e <code class="inl">sysctl</code> é a interface oficial dele.</li>
+        <li><b>O trio de diagnóstico:</b> <code class="inl">dmesg -T -w</code>, <code class="inl">journalctl -k -b -1</code> (o boot anterior, que o <code class="inl">dmesg</code> perdeu) e <code class="inl">lspci -nnk</code>.</li>
       </ul></div>
     </div>
     <div class="bloco dica">
-      <div class="cabeca">◆ Dica de ouro</div>
-      <div class="corpo">O atalho, a pegadinha ou o <span class="selo-kali">🐉 No Kali</span> que só se aprende usando.</div>
+      <div class="cabeca">🐉 No Kali</div>
+      <div class="corpo"><b>O Kali é a distribuição em que "recompilar módulo" mais acontece.</b> Adaptadores Wi-Fi USB com chipset Realtek (<code class="inl">rtl8812au</code>, <code class="inl">rtl88xxau</code>) são a base do trabalho com redes sem fio e vários não têm driver na árvore oficial — o caminho suportado é <code class="inl">apt install realtek-rtl88xxau-dkms</code>, e cada <code class="inl">full-upgrade</code> com kernel novo dispara a recompilação. <b>Modo monitor e injeção dependem do <i>driver</i>, não da placa:</b> <code class="inl">iw list</code> diz se o driver carregado aceita <code class="inl">monitor</code> — dois drivers do mesmo chipset divergem nisso, e é por isso que <code class="inl">modinfo</code> entra no diagnóstico de "o <code class="inl">airmon-ng</code> não coloca em modo monitor". <b>Ferramenta que parece com defeito costuma ser botão na posição errada:</b> intermediário exige <code class="inl">net.ipv4.ip_forward=1</code>; captura promíscua exige <code class="inl">CAP_NET_RAW</code>. <b><code class="inl">/proc</code> é fonte de forense <i>e</i> de pós-exploração</b> — <code class="inl">environ</code>, <code class="inl">cmdline</code> e <code class="inl">maps</code> de processo alheio revelam credenciais passadas por variável e por linha de comando; a contramedida é montar <code class="inl">/proc</code> com <code class="inl">hidepid=2</code>. Só em sistema próprio ou autorizado: invadir é crime (Lei 12.737/2012). <b>Rootkit de kernel é, tecnicamente, um módulo</b> — carregado como root, intercepta syscalls e esconde processos, arquivos e conexões, o que inutiliza qualquer ferramenta de user space na mesma máquina. Defesas: <code class="inl">kernel.modules_disabled=1</code> depois do boot, exigir assinatura, vigiar <code class="inl">lsmod</code> e o bit de <i>taint</i> — e investigar máquina suspeita de mídia externa, nunca do sistema em execução. <b>Com Secure Boot ativo</b>, módulo não assinado falha com <code class="inl">Key was rejected by service</code> — mensagem que nunca sugere a causa. <b>Na RHEL:</b> <code class="inl">kernel-devel</code>, <code class="inl">dracut -f</code> e assinatura MOK são a regra.</div>
     </div>
   </section>
 
-  <!-- RODAPÉ DA PÁGINA -->
   <footer class="rodape">
     <span class="marca">Linux &amp; Shell • Guia Visual</span>
     <span class="pag">Vol 16 · Fase 5 <span class="n">098</span></span>
