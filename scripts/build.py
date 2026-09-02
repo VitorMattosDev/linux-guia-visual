@@ -85,7 +85,7 @@ def galeria():
         thumb = SAIDA/"thumbs"/f"guia{num:03d}.png"
         # "pronto" = marcado [x] no ROADMAP E com miniatura renderizada
         feito = (num in feitos) and thumb.exists() and html is not None
-        link = str(html.relative_to(RAIZ)) if feito else "#"
+        link = html.relative_to(RAIZ).as_posix() if feito else "#"
         estado = "" if feito else " pend"
         img = (f'<img loading="lazy" src="_saida/thumbs/guia{num:03d}.png" alt="Guia {num:03d}">'
                if feito else '<div class="vazio">em breve</div>')
