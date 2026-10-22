@@ -8,6 +8,10 @@ Produto final:
 - **`_saida/guia-visual-linux.pdf`** — o livro único com todas as fichas.
 - **`index.html`** — galeria HTML com busca, para consultar no navegador.
 
+Dentro de uma ficha dá para passar para a seguinte sem voltar à galeria: **setas
+← e →** do teclado (Esc volta para a galeria), **arrastar o dedo** para o lado no
+celular, ou os dois botões redondos nas laterais da tela. Nada disso entra no PDF.
+
 ## Estrutura
 
 ```
@@ -18,6 +22,8 @@ GUIA VISUAL LINUX/
 ├── index.html         # galeria de consulta (gerada pelo build)
 ├── template/
 │   ├── estilo.css     # sistema de design (todas as cores/medidas)
+│   ├── navegacao.js   # setas do teclado / arrastar o dedo entre fichas
+│   ├── fichas.js      # a fila das 103 fichas (gerada)
 │   └── guia-template.html
 ├── guias/volNN/       # as fichas .html (uma por assunto)
 ├── assets/
@@ -26,6 +32,7 @@ GUIA VISUAL LINUX/
 ├── scripts/
 │   ├── estrutura.py   # estrutura canônica → stubs e ROADMAP
 │   ├── novo-guia.py   # cria UMA ficha do template
+│   ├── navegacao.py   # gera fichas.js e liga a navegação nas fichas
 │   └── build.py       # renderiza PDFs + monta o livro + galeria
 └── _saida/            # PDFs, miniaturas e o livro (gerado)
 ```

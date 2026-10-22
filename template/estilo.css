@@ -330,3 +330,57 @@ code.inl { font-family: var(--fonte-mono); background: #eef2f8; color: var(--nav
 .rodape .marca { font-weight: 600; letter-spacing: .03em; }
 .rodape .pag { display: flex; align-items: center; gap: 10px; }
 .rodape .pag .n { background: #fff; color: var(--navy); font-family: var(--fonte-titulo); font-weight: 800; border-radius: var(--raio-sm); padding: 2px 8px; }
+
+/* ---- 13. Navegação entre fichas (só na tela) ----------------------------
+   Os controles de passar de ficha: dois botões redondos nas laterais, a
+   volta para a galeria e a dica de primeiro uso. Tudo fora do .guia e
+   position:fixed — não ocupa altura da ficha nem aparece no PDF.
+   Comportamento em template/navegacao.js. ------------------------------- */
+.navf-btn {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(22,51,107,.80); color: #fff;
+  font-size: 18px; line-height: 1; text-decoration: none;
+  box-shadow: 0 3px 12px rgba(15,37,71,.28);
+  transition: background .15s, transform .15s, opacity .15s;
+  z-index: 50; -webkit-tap-highlight-color: transparent;
+}
+.navf-btn:hover { background: var(--navy); }
+.navf-ant  { left: 12px; }
+.navf-prox { right: 12px; }
+.navf-ant:hover  { transform: translateY(-50%) translateX(-2px); }
+.navf-prox:hover { transform: translateY(-50%) translateX(2px); }
+.navf-off { opacity: .22; pointer-events: none; }
+
+.navf-galeria {
+  position: fixed; left: 14px; bottom: 14px;
+  background: rgba(22,51,107,.80); color: #fff; text-decoration: none;
+  font-family: var(--fonte-titulo); font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 999px;
+  box-shadow: 0 3px 12px rgba(15,37,71,.28); z-index: 50;
+}
+.navf-galeria:hover { background: var(--navy); }
+
+.navf-dica {
+  position: fixed; left: 50%; top: 14px; transform: translateX(-50%);
+  background: rgba(15,37,71,.92); color: #fff;
+  font-size: 12px; padding: 7px 16px; border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(15,37,71,.3);
+  z-index: 60; pointer-events: none; transition: opacity .6s;
+}
+.navf-dica.sai { opacity: 0; }
+
+/* Tela de celular: botões menores e mais discretos, longe do texto. */
+@media (max-width: 700px) {
+  .navf-btn { width: 38px; height: 38px; font-size: 15px; background: rgba(22,51,107,.62); }
+  .navf-ant { left: 6px; } .navf-prox { right: 6px; }
+  .navf-galeria { left: 8px; bottom: 8px; font-size: 10px; padding: 5px 11px; opacity: .85; }
+  .navf-dica { font-size: 11px; max-width: 86vw; text-align: center; }
+}
+
+/* No PDF e na miniatura: nada disso existe. */
+@media print {
+  .navf, .navf-btn, .navf-galeria, .navf-dica { display: none !important; }
+}

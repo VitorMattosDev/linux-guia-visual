@@ -156,6 +156,11 @@ Só então o commit final do volume: `git commit -m "vol NN: fecha volume"`.
 - **Caminho das imagens é relativo à ficha:** de `guias/volNN/` use `../../assets/img/...`
   e `../../template/estilo.css`. Errar o `../../` é a causa nº 1 de imagem/estilo sumido.
 - **Não edite `manual-linux-master/`** — é a fonte, só leitura.
+- **Navegação entre fichas:** toda ficha termina com dois `<script>` (`fichas.js` +
+  `navegacao.js`) que dão as setas do teclado e o arrastar no celular. O template já
+  os traz; se criar ficha nova à mão, rode `python scripts/navegacao.py` (idempotente,
+  também regenera a fila `template/fichas.js` — o `build.py` faz isso sozinho na galeria).
+  A UI é só de tela: some em `@media print` e o `build.py` a esconde na miniatura.
 - **Commits:** apenas `-m "..."` simples.
 - **Um assunto por ficha.** Se um capítulo é dois assuntos grandes, ainda assim é UMA
   ficha — priorize o núcleo e deixe o resto para o Resumo. Não crie ficha fora dos 103.

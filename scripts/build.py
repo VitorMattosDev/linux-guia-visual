@@ -52,6 +52,10 @@ def render(nums=None):
             # A4 a 96dpi = 794x1123 px. Viewport menor CORTAVA a ficha (não reduzia):
             # tira a foto do próprio <article class="guia">, que é a página inteira.
             pg.set_viewport_size({"width":900,"height":1200})
+            # A navegacao entre fichas (botoes laterais, pilula da galeria) e so
+            # de tela: o PDF ja a esconde via @media print, a miniatura precisa
+            # que a gente esconda na mao, senao os botoes entram na foto.
+            pg.add_style_tag(content=".navf,.navf-btn,.navf-galeria,.navf-dica{display:none!important}")
             pg.wait_for_timeout(150)
             pg.locator("article.guia").screenshot(
                 path=str(SAIDA/"thumbs"/f"guia{num:03d}.png"))
@@ -79,6 +83,10 @@ def prontos():
             re.finditer(r"- \[x\] \*\*guia (\d{3})\*\*", rm.read_text(encoding="utf-8"))}
 
 def galeria():
+    # a fila de navegacao (template/fichas.js) sai da mesma estrutura canonica:
+    # regenerar aqui garante que galeria e setas do teclado nunca desencontrem
+    from navegacao import fila, gerar_dados
+    gerar_dados(fila())
     feitos = prontos()
     cards = []
     for num, tit, fase_n, vol, html in todos_guias():
