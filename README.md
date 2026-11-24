@@ -16,7 +16,6 @@ celular, ou os dois botões redondos nas laterais da tela. Nada disso entra no P
 
 ```
 GUIA VISUAL LINUX/
-├── CLAUDE.md          # como o Claude Code trabalha aqui (leia primeiro)
 ├── DESIGN.md          # catálogo de blocos e paleta
 ├── ROADMAP.md         # fila autoritativa das 103 fichas + status
 ├── index.html         # galeria de consulta (gerada pelo build)
@@ -46,7 +45,7 @@ playwright install chromium
 
 ## Uso
 
-Produção com o Claude Code: **um volume por sessão** (veja `PROMPT-INICIAL.md`).
+Produção com o Claude Code: **um volume por sessão**.
 
 ```bash
 python scripts/estrutura.py --vol 1     # fila do Volume 1: fichas + capítulos-fonte
